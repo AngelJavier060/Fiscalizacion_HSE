@@ -23,7 +23,9 @@ Guía para levantar el sistema con Docker en **local** o **producción**, sin af
 | Modo | PostgreSQL | Backend API | Frontend web |
 |------|------------|-------------|--------------|
 | **Dev sin Docker** | `localhost:5434` | `localhost:8080` | `localhost:4200` |
-| **Docker local** | `localhost:5435` | `localhost:8082` | `localhost:8081` |
+| **Docker local** | `localhost:5436`* | `localhost:8082` | `localhost:8083`* |
+
+\* Si tienes otros contenedores Docker activos (improvement, agenda), usa puertos libres en `.env`. En esta PC: agenda usa **5435**, improvement usa **8081** → HSE quedó en **5436** y **8083**.
 | **Docker VPS** | solo red interna | `localhost:8090` | `localhost:8005` |
 
 > El `.env` local ya viene con `BACKEND_HOST_PORT=8082` para no chocar con el backend que tienes corriendo en `:8080`.
