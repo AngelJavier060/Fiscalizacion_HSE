@@ -112,31 +112,7 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml down
 
 ## 3. Docker — PRODUCCIÓN (VPS)
 
-> **No despliegue automático.** Solo cuando el servidor esté listo.
-
-1. Copie el proyecto al VPS (`git clone` o `scp`).
-2. Copie la plantilla del servidor:
-   ```bash
-   cp .env.vps.example .env
-   nano .env   # secretos reales, dominio CORS
-   ```
-3. Verifique que **8005** y **8090** estén libres en el VPS:
-   ```bash
-   ss -tlnp | grep -E '8005|8090'
-   ```
-4. Levante:
-   ```bash
-   docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-   ```
-5. Configure Nginx con `nginx-vps.example.conf` (certificado Let's Encrypt).
-
-URLs en el VPS (antes de dominio):
-
-| Servicio | URL |
-|----------|-----|
-| Frontend | http://IP-SERVIDOR:8005 |
-| Backend directo | http://IP-SERVIDOR:8090/api/v1 |
-| Con dominio | https://hse.improvement-solution.com (ejemplo) |
+> Guía completa paso a paso: **[PRODUCTION.md](./PRODUCTION.md)**
 
 ---
 

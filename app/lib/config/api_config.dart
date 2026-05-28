@@ -6,15 +6,15 @@ class ApiConfig {
   // URLs base según entorno
   static const Map<Enviroment, String> _baseUrls = {
     Enviroment.development: 'http://10.0.2.2:8080/api/v1', // Android Emulator
-    Enviroment.staging: 'https://staging-api.fiscalizacionhse.com/api/v1',
-    Enviroment.production: 'https://api.fiscalizacionhse.com/api/v1',
+    Enviroment.staging: 'https://hse.improvement-solution.com/api/v1',
+    Enviroment.production: 'https://hse.improvement-solution.com/api/v1',
   };
 
   // URLs para dispositivos iOS (cambian por el simulador)
   static const Map<Enviroment, String> _iosBaseUrls = {
     Enviroment.development: 'http://localhost:8080/api/v1',
-    Enviroment.staging: 'https://staging-api.fiscalizacionhse.com/api/v1',
-    Enviroment.production: 'https://api.fiscalizacionhse.com/api/v1',
+    Enviroment.staging: 'https://hse.improvement-solution.com/api/v1',
+    Enviroment.production: 'https://hse.improvement-solution.com/api/v1',
   };
 
   // Timeouts

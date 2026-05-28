@@ -80,7 +80,12 @@ fiscalizacion-hse/
 ├── docker-compose.local.yml
 ├── docker-compose.prod.yml
 ├── .env.example
-└── DEPLOY.md
+├── .env.vps.example
+├── PRODUCTION.md          # Guía despliegue VPS paso a paso
+├── DEPLOY.md
+└── scripts/
+    ├── deploy-vps.sh      # Script automático en el servidor
+    └── setup-ssl-hse.sh   # SSL Let's Encrypt
 ```
 
 ## 🗺️ Roadmap
