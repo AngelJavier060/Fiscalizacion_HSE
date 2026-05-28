@@ -6,17 +6,44 @@ Guía para levantar el sistema con Docker en **local** o **producción**, sin af
 
 ## Mapa de puertos (evitar conflictos)
 
-| Modo | PostgreSQL | Backend API | Frontend web | Notas |
-|------|------------|-------------|--------------|-------|
-| **Dev sin Docker** | `localhost:5434` | `localhost:8080` | `localhost:4200` | Config actual de `application.yml` |
-| **Docker local** | `localhost:5435` | `localhost:8080` | `localhost:8081` | No usa puerto 80 ni 5432 en el host |
-| **Docker producción** | *(solo red interna)* | *(solo red interna)* | `host:80` | Nginx hace proxy a backend |
+### En tu PC (estado detectado)
 
-> Si el backend en `:8080` ya está corriendo fuera de Docker, deténgalo antes de levantar el contenedor backend, o cambie `BACKEND_HOST_PORT` en `.env` (ej. `8082`).
+| Puerto | Servicio activo ahora | Uso HSE |
+|--------|----------------------|---------|
+| `5432` | PostgreSQL | ❌ No usar en Docker local |
+| `5434` | PostgreSQL (dev HSE) | ✅ Dev sin Docker |
+| `5435` | libre | ✅ Postgres Docker local |
+| `8080` | Backend Spring (dev) | ❌ Usar `8082` en Docker local |
+| `8081` | libre | ✅ Frontend Docker local |
+| `8082` | libre | ✅ Backend Docker local |
+| `4200` | Angular dev | Dev sin Docker |
 
-La **app móvil Flutter** no va en Docker. Sigue apuntando a `api_config.dart`:
+### Por modo de ejecución
+
+| Modo | PostgreSQL | Backend API | Frontend web |
+|------|------------|-------------|--------------|
+| **Dev sin Docker** | `localhost:5434` | `localhost:8080` | `localhost:4200` |
+| **Docker local** | `localhost:5435` | `localhost:8082` | `localhost:8081` |
+| **Docker VPS** | solo red interna | `localhost:8090` | `localhost:8005` |
+
+> El `.env` local ya viene con `BACKEND_HOST_PORT=8082` para no chocar con el backend que tienes corriendo en `:8080`.
+
+### Puertos en el VPS (todos tus programas)
+
+| Proyecto | Frontend | Backend | Base de datos |
+|----------|----------|---------|---------------|
+| improvement-solutions | **8001** | **8082** | PG nativo `:5432` |
+| pollos-chanchos | **8004** | **8088** | Docker interno |
+| seguimiento-agenda | **4200** | **8081** | PG nativo `:5432` |
+| trading-bot | **3001** | **5001** | Docker interno |
+| matenimiento-clientes | override | **9088/9089** | Docker interno |
+| **fiscalizacion-hse** | **8005** ✅ | **8090** ✅ | Docker interno |
+
+Nginx del VPS apunta el dominio → `localhost:8005`. Ver plantilla `nginx-vps.example.conf`.
+
+La **app móvil Flutter** no va en Docker:
 - Desarrollo: `10.0.2.2:8080` (emulador Android)
-- Producción futura: dominio HTTPS en `Enviroment.production`
+- Producción: dominio HTTPS en `api_config.dart` → `Enviroment.production`
 
 ---
 
@@ -63,8 +90,8 @@ URLs:
 | Servicio | URL |
 |----------|-----|
 | Frontend | http://localhost:8081 |
-| Backend API | http://localhost:8080/api/v1 |
-| Swagger | http://localhost:8080/api/v1/swagger-ui.html |
+| Backend API | http://localhost:8082/api/v1 |
+| Swagger | http://localhost:8082/api/v1/swagger-ui.html |
 | PostgreSQL (desde host) | `localhost:5435` |
 
 Ver logs:
@@ -81,28 +108,33 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml down
 
 ---
 
-## 3. Docker — PRODUCCIÓN (servidor)
+## 3. Docker — PRODUCCIÓN (VPS)
 
-> **Solo cuando el servidor esté listo.** No despliegue automáticamente desde GitHub.
+> **No despliegue automático.** Solo cuando el servidor esté listo.
 
-1. Copie el proyecto al servidor (git clone o rsync).
-2. Configure `.env` con secretos **reales** (nunca los valores de ejemplo).
-3. Ajuste en `.env`:
-   ```env
-   SPRING_PROFILES_ACTIVE=prod
-   FRONTEND_HOST_PORT=80
-   CORS_ALLOWED_ORIGINS=https://tu-dominio.com
+1. Copie el proyecto al VPS (`git clone` o `scp`).
+2. Copie la plantilla del servidor:
+   ```bash
+   cp .env.vps.example .env
+   nano .env   # secretos reales, dominio CORS
+   ```
+3. Verifique que **8005** y **8090** estén libres en el VPS:
+   ```bash
+   ss -tlnp | grep -E '8005|8090'
    ```
 4. Levante:
+   ```bash
+   docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+   ```
+5. Configure Nginx con `nginx-vps.example.conf` (certificado Let's Encrypt).
 
-```bash
-docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d --build
-```
+URLs en el VPS (antes de dominio):
 
-En producción:
-- PostgreSQL y backend **no** se exponen al host.
-- Nginx sirve Angular y hace proxy `/api/` → backend interno.
-- Coloque un reverse proxy externo (Caddy, Nginx, Cloudflare) para HTTPS si aplica.
+| Servicio | URL |
+|----------|-----|
+| Frontend | http://IP-SERVIDOR:8005 |
+| Backend directo | http://IP-SERVIDOR:8090/api/v1 |
+| Con dominio | https://hse.improvement-solution.com (ejemplo) |
 
 ---
 
@@ -135,7 +167,9 @@ Perfil `local` carga `application-local.yml` (gitignored) para claves DeepSeek.
 docker-compose.yml          # Servicios base (postgres, backend, frontend)
 docker-compose.local.yml    # Puertos 5435 / 8080 / 8081
 docker-compose.prod.yml     # Solo frontend:80, perfil prod, restart policy
-.env.example                # Plantilla (versionada)
+.env.example                # Plantilla local
+.env.vps.example            # Plantilla VPS (8005 / 8090)
+nginx-vps.example.conf      # Nginx del servidor (como improvement/pollos)
 .env                        # Secretos reales (NO versionar)
 backend/Dockerfile          # Maven multi-stage → JRE 17
 frontend/Dockerfile         # Node build + nginx
