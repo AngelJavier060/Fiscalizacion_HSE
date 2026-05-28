@@ -1,0 +1,40 @@
+@import '../dashboard/dashboard.component.scss';
+
+.info-card {
+  display: flex;
+  gap: 1.25rem;
+  padding: 2rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  max-width: 600px;
+
+  .info-icon {
+    font-size: 2rem;
+  }
+
+  .info-text {
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: #94a3b8;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+  }
+}
+
+.badge-super {
+  padding: 0.25rem 0.75rem;
+  background: rgba(217, 119, 6, 0.1);
+  color: #fbbf24;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}

@@ -1,0 +1,10 @@
+# Perfil Docker local — mismo comportamiento que prod, nombre explícito para compose local
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    com.fiscalizacionhse: INFO
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN

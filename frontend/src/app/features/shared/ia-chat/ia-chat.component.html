@@ -1,0 +1,405 @@
+<div class="ia-root" [class.workspace]="workspaceLayout" [class.embedded]="!workspaceLayout">
+  @if (workspaceLayout) {
+    <aside class="ia-history-panel" [class.collapsed]="!panelHistorialVisible">
+      @if (!panelHistorialVisible) {
+        <button
+          type="button"
+          class="panel-rail-btn"
+          (click)="togglePanelHistorial()"
+          title="Mostrar panel lateral"
+          aria-label="Mostrar panel lateral">
+          <span class="mat-icon">chevron_right</span>
+        </button>
+      } @else {
+        <div class="history-head">
+          <button type="button" class="btn-new-chat" (click)="nuevoChat()">
+            <span class="mat-icon">add</span>
+            Nuevo Chat
+          </button>
+          <button
+            type="button"
+            class="panel-collapse-btn"
+            (click)="togglePanelHistorial()"
+            title="Ocultar panel lateral"
+            aria-label="Ocultar panel lateral">
+            <span class="mat-icon">chevron_left</span>
+          </button>
+        </div>
+        <div class="history-scroll">
+          @if (empresasOpciones.length > 1) {
+            <section class="panel-section">
+              <button type="button" class="panel-section-toggle" (click)="toggleSeccion('empresa')">
+                <span>Empresa</span>
+                <span class="mat-icon">{{ seccionColapsada('empresa') ? 'expand_more' : 'expand_less' }}</span>
+              </button>
+              @if (!seccionColapsada('empresa')) {
+                <div class="scope-block">
+                  <label for="ia-empresa-select">Seleccionar</label>
+                  <select
+                    id="ia-empresa-select"
+                    [ngModel]="empresaSeleccionadaId"
+                    (ngModelChange)="onEmpresaScopeChange($event)">
+                    @for (e of empresasOpciones; track e.id) {
+                      <option [ngValue]="e.id">{{ e.nombre }}</option>
+                    }
+                  </select>
+                </div>
+              }
+            </section>
+          } @else if (empresaNombre.trim()) {
+            <section class="panel-section">
+              <button type="button" class="panel-section-toggle" (click)="toggleSeccion('empresa')">
+                <span>Empresa</span>
+                <span class="mat-icon">{{ seccionColapsada('empresa') ? 'expand_more' : 'expand_less' }}</span>
+              </button>
+              @if (!seccionColapsada('empresa')) {
+                <div class="history-empresa">
+                  <span class="mat-icon">business</span>
+                  <span>{{ empresaNombre }}</span>
+                </div>
+              }
+            </section>
+          }
+
+          @if (workspaceLayout && (documentosOpciones.length || loadingDocumentos || empresaId)) {
+            <section class="panel-section">
+              <button type="button" class="panel-section-toggle" (click)="toggleSeccion('documento')">
+                <span>Documento</span>
+                <span class="mat-icon">{{ seccionColapsada('documento') ? 'expand_more' : 'expand_less' }}</span>
+              </button>
+              @if (!seccionColapsada('documento')) {
+                <div class="scope-block">
+                  <label for="ia-ambito-select">Filtrar (opcional)</label>
+                  <select
+                    id="ia-ambito-select"
+                    [ngModel]="documentoSeleccionadoId"
+                    (ngModelChange)="onDocumentoScopeChange($event)"
+                    [disabled]="loadingDocumentos || !empresaId">
+                    <option [ngValue]="null">Todos los PDF de la empresa</option>
+                    @for (d of documentosOpciones; track d.id) {
+                      <option [ngValue]="d.id">{{ d.titulo }}</option>
+                    }
+                  </select>
+                </div>
+              }
+            </section>
+          }
+
+          <section class="panel-section">
+            <button type="button" class="panel-section-toggle" (click)="toggleSeccion('historial')">
+              <span>Historial de Chats</span>
+              <span class="mat-icon">{{ seccionColapsada('historial') ? 'expand_more' : 'expand_less' }}</span>
+            </button>
+            @if (!seccionColapsada('historial')) {
+              <div class="history-list">
+                @for (s of sesiones; track s.id) {
+                  <button
+                    type="button"
+                    class="history-item"
+                    [class.active]="s.id === sesionActivaId"
+                    (click)="seleccionarSesion(s.id)">
+                    <span class="mat-icon">{{ s.id === sesionActivaId ? 'chat_bubble' : 'chat_bubble_outline' }}</span>
+                    <span class="history-title">{{ s.titulo }}</span>
+                  </button>
+                }
+              </div>
+              @if (documentoTitulo.trim()) {
+                <div class="history-doc">
+                  <span class="mat-icon">description</span>
+                  <span>{{ documentoTitulo }}</span>
+                </div>
+              }
+            }
+          </section>
+
+          <section class="panel-section">
+            <button type="button" class="panel-section-toggle tools" (click)="toggleSeccion('agente')">
+              <span>Agente</span>
+              <span class="mat-icon">{{ seccionColapsada('agente') ? 'expand_more' : 'expand_less' }}</span>
+            </button>
+            @if (!seccionColapsada('agente')) {
+              <button type="button" class="history-item tool" (click)="verMisDocumentos()" [disabled]="enviando">
+                <span class="mat-icon">folder_open</span>
+                <span>Ver mis documentos</span>
+              </button>
+              @if (estadoMotor?.documentos?.length) {
+                <div class="doc-inventory">
+                  <p class="inventory-title">{{ estadoMotor?.documentos?.length }} PDF en su empresa</p>
+                  @for (d of estadoMotor?.documentos ?? []; track d.id) {
+                    <button type="button" class="inventory-item" (click)="preguntarSobreDocumento(d.titulo)" [disabled]="enviando">
+                      <span class="mat-icon">description</span>
+                      <span class="inventory-name">{{ d.titulo }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            }
+          </section>
+
+          <section class="panel-section">
+            <button type="button" class="panel-section-toggle tools" (click)="toggleSeccion('herramientas')">
+              <span>Herramientas</span>
+              <span class="mat-icon">{{ seccionColapsada('herramientas') ? 'expand_more' : 'expand_less' }}</span>
+            </button>
+            @if (!seccionColapsada('herramientas')) {
+              <button type="button" class="history-item tool" disabled title="Próximamente">
+                <span class="mat-icon">bookmark_manager</span>
+                <span>Librería de Prompts</span>
+              </button>
+              <button type="button" class="history-item tool" (click)="alternarLecturaAutomatica()" [class.active]="leerRespuestasAuto">
+                <span class="mat-icon">{{ leerRespuestasAuto ? 'volume_up' : 'volume_off' }}</span>
+                <span>Lectura auto {{ leerRespuestasAuto ? 'ON' : 'OFF' }}</span>
+              </button>
+              @if (vozSoportada && vocesDisponibles.length) {
+                <div class="voz-picker">
+                  <label for="ia-voz-select">Voz</label>
+                  <select id="ia-voz-select" [ngModel]="vozSeleccionadaId" (ngModelChange)="cambiarVoz($event)">
+                    @for (v of vocesDisponibles; track v.id) {
+                      <option [value]="v.id">{{ v.etiqueta }}</option>
+                    }
+                  </select>
+                  <button type="button" class="btn-ghost-sm" (click)="probarVoz()">Probar</button>
+                </div>
+              }
+            }
+          </section>
+        </div>
+      }
+    </aside>
+  }
+
+  <div class="ia-main">
+    <header class="ia-topbar">
+      <div class="topbar-left">
+        @if (workspaceLayout) {
+          <button
+            type="button"
+            class="icon-btn panel-toggle-top"
+            (click)="togglePanelHistorial()"
+            [title]="panelHistorialVisible ? 'Ocultar panel lateral' : 'Mostrar panel lateral'"
+            [attr.aria-label]="panelHistorialVisible ? 'Ocultar panel lateral' : 'Mostrar panel lateral'">
+            <span class="mat-icon">{{ panelHistorialVisible ? 'menu_open' : 'menu' }}</span>
+          </button>
+        }
+        <span class="mat-icon ai-icon">psychology</span>
+        <div>
+          <h2>FISCALIZA-AI Assistant</h2>
+          @if (workspaceLayout) {
+            <p class="status-line">
+              DeepSeek · Solo documentos cargados
+              @if (estadoMotor?.documentosActivos != null) {
+                · {{ estadoMotor?.documentosActivos }} PDF
+              }
+            </p>
+          } @else {
+            @if (documentoTitulo.trim()) {
+              <p class="doc-chip">{{ documentoTitulo }}</p>
+            }
+            <p class="status-line">DeepSeek · Solo documentos de la empresa</p>
+          }
+        </div>
+      </div>
+      <div class="topbar-actions">
+        @if (!workspaceLayout && vozSoportada) {
+          <button type="button" class="icon-btn" (click)="alternarLecturaAutomatica()" [class.active]="leerRespuestasAuto" title="Lectura automática">
+            <span class="mat-icon">{{ leerRespuestasAuto ? 'volume_up' : 'volume_off' }}</span>
+          </button>
+        }
+        @if (workspaceLayout && ultimoCodigo) {
+          <button type="button" class="icon-btn" (click)="togglePanelCodigo()" [class.active]="panelCodigoVisible" title="Panel de código">
+            <span class="mat-icon">code</span>
+          </button>
+        }
+        @if (!workspaceLayout && ultimoCodigo) {
+          <button type="button" class="icon-btn" (click)="togglePanelCodigo()" [class.active]="panelCodigoVisible" title="Panel de código">
+            <span class="mat-icon">code</span>
+          </button>
+        }
+        <button type="button" class="icon-btn" title="Exportar" (click)="exportarChat()">
+          <span class="mat-icon">download</span>
+        </button>
+        <button type="button" class="icon-btn" title="Ajustes" (click)="toggleAjustes()" [class.active]="mostrarAjustes">
+          <span class="mat-icon">tune</span>
+        </button>
+        @if (workspaceLayout) {
+          <div class="topbar-divider"></div>
+          <div class="topbar-user" title="{{ user?.nombre || 'Usuario' }}">
+            <span class="role-badge">{{ etiquetaRol }}</span>
+            <div class="topbar-avatar" aria-hidden="true">
+              <span class="mat-icon">person</span>
+            </div>
+          </div>
+        }
+      </div>
+    </header>
+
+    @if (mostrarAjustes && workspaceLayout) {
+      <div class="ia-settings-bar">
+        @if (vozSoportada && vocesDisponibles.length) {
+          <label for="ia-voz-top">Voz</label>
+          <select id="ia-voz-top" [ngModel]="vozSeleccionadaId" (ngModelChange)="cambiarVoz($event)">
+            @for (v of vocesDisponibles; track v.id) {
+              <option [value]="v.id">{{ v.etiqueta }}</option>
+            }
+          </select>
+          <button type="button" class="tool-btn" (click)="probarVoz()">Probar voz</button>
+        }
+        <span class="settings-hint">Modo {{ modo === 'busqueda' ? 'Búsqueda' : modo === 'resumen' ? 'Resumen' : 'Consulta' }}</span>
+      </div>
+    }
+
+    <div class="ia-thread" #scrollContainer>
+      @for (msg of mensajes; track $index; let i = $index) {
+        @if (msg.tipo === 'usuario') {
+          <div class="msg-row user">
+            <div class="msg-bubble user-bubble">
+              <p>{{ msg.contenido }}</p>
+            </div>
+          </div>
+        } @else {
+          <div class="msg-row assistant">
+            <div class="assistant-avatar">
+              <span class="mat-icon">psychology</span>
+            </div>
+            <div class="assistant-body">
+              @if (msg.cargando) {
+                <div class="thinking" role="status">
+                  <div class="typing-dots"><span></span><span></span><span></span></div>
+                  <div>
+                    <p class="thinking-title">Consultando el libro</p>
+                    <p class="thinking-hint">Leyendo el contenido guardado en la plataforma…</p>
+                    <span class="thinking-time">{{ segundosPensando }} s</span>
+                  </div>
+                </div>
+              } @else {
+                @if (vozSoportada && msg.contenido.trim()) {
+                  <div class="msg-toolbar">
+                    <button type="button" class="tool-btn" [class.active]="estaLeyendoMensaje(i)" (click)="escucharMensaje(i)">
+                      <span class="mat-icon">{{ estaLeyendoMensaje(i) ? 'stop' : 'volume_up' }}</span>
+                      {{ estaLeyendoMensaje(i) ? 'Detener' : 'Escuchar' }}
+                    </button>
+                    @if (estaLeyendoMensaje(i)) {
+                      <button type="button" class="tool-btn" (click)="alternarPausaVoz(i)">
+                        {{ mensajePausado(i) ? 'Reanudar' : 'Pausar' }}
+                      </button>
+                    }
+                  </div>
+                }
+
+                <div class="msg-content" [innerHTML]="msg.contenido | markdown"></div>
+
+                @for (block of bloquesCodigo(msg.contenido); track block.lang + block.code.slice(0, 40)) {
+                  <div class="code-block-chat">
+                    <div class="code-block-head">
+                      <span>{{ block.lang || 'code' }}</span>
+                      <button type="button" class="copy-btn" (click)="copiarTexto(block.code)">
+                        <span class="mat-icon">content_copy</span> Copy
+                      </button>
+                    </div>
+                    <pre><code>{{ block.code }}</code></pre>
+                  </div>
+                }
+
+                @if (msg.catalogoEmpresa?.length) {
+                  <div class="ref-panel catalog">
+                    <h4>PDF en esta empresa</h4>
+                    <ul>
+                      @for (c of msg.catalogoEmpresa; track c.id) {
+                        <li><strong>{{ c.titulo }}</strong>@if (c.descripcion) { — {{ c.descripcion }} }</li>
+                      }
+                    </ul>
+                  </div>
+                }
+
+                <div class="msg-actions">
+                  <button type="button" class="icon-btn-sm" (click)="enviarFeedback(i, true)" title="Útil">
+                    <span class="mat-icon">thumb_up</span>
+                  </button>
+                  <button type="button" class="icon-btn-sm" (click)="enviarFeedback(i, false)" title="No útil">
+                    <span class="mat-icon">thumb_down</span>
+                  </button>
+                  <button type="button" class="tool-btn" (click)="reintentarUltima()">
+                    <span class="mat-icon">refresh</span> Retry
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      @if (mensajes.length === 1 && !enviando) {
+        <div class="suggestions">
+          <p>Prueba preguntar:</p>
+          <div class="suggestion-chips">
+            @for (s of chipsSugerencias; track $index) {
+              <button type="button" class="chip" (click)="usarSugerencia(s)">{{ s }}</button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (!backendDisponible) {
+      <div class="backend-offline-banner" role="alert">
+        <span class="mat-icon">cloud_off</span>
+        <span>Backend no disponible en <strong>localhost:8080</strong>. Inicie <code>mvn spring-boot:run</code> en la carpeta <code>backend</code>.</span>
+      </div>
+    }
+
+    <div class="ia-composer-wrap">
+      <div class="ia-composer">
+        <textarea
+          class="composer-input"
+          rows="1"
+          [(ngModel)]="pregunta"
+          (keydown.enter)="onEnterComposer($event)"
+          placeholder="Pregunte sobre los documentos HSE de su empresa…"
+          [disabled]="enviando || !backendDisponible"></textarea>
+        <div class="composer-bar">
+          <div class="composer-tools">
+            <button type="button" class="icon-btn" title="Adjuntar documento" disabled>
+              <span class="mat-icon">attach_file</span>
+            </button>
+            <button type="button" class="icon-btn" title="Entrada de voz" disabled>
+              <span class="mat-icon">mic</span>
+            </button>
+          </div>
+          <button type="button" class="btn-send" (click)="enviarMensaje()" [disabled]="!pregunta.trim() || enviando">
+            <span class="mat-icon">send</span>
+          </button>
+        </div>
+      </div>
+      <p class="composer-disclaimer">FISCALIZA-AI responde solo con PDF cargados en su empresa (DeepSeek). Verifique información crítica.</p>
+    </div>
+  </div>
+
+  @if (workspaceLayout && panelCodigoVisible && ultimoCodigo) {
+    <aside class="ia-code-panel">
+      <div class="code-panel-head">
+        <div class="code-panel-title">
+          <span class="mat-icon">code</span>
+          <span>{{ nombreArchivoCodigo }}</span>
+        </div>
+        <div class="code-panel-actions">
+          <button type="button" class="icon-btn-sm" title="Ejecutar" disabled>
+            <span class="mat-icon">play_arrow</span>
+          </button>
+          <button type="button" class="icon-btn-sm" (click)="copiarTexto(ultimoCodigo)" title="Copiar">
+            <span class="mat-icon">content_copy</span>
+          </button>
+          <button type="button" class="icon-btn-sm" (click)="togglePanelCodigo()" title="Cerrar panel">
+            <span class="mat-icon">chevron_right</span>
+          </button>
+        </div>
+      </div>
+      <div class="code-panel-body">
+        <pre><code>{{ ultimoCodigo }}</code></pre>
+      </div>
+      <div class="code-panel-status">
+        <span>UTF-8</span>
+        <span>{{ lineasCodigo }} líneas</span>
+      </div>
+    </aside>
+  }
+</div>

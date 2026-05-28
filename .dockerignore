@@ -1,0 +1,10 @@
+.git/
+.env
+*.local
+backend/target/
+frontend/node_modules/
+frontend/dist/
+app/build/
+app/.dart_tool/
+.idea/
+.vscode/

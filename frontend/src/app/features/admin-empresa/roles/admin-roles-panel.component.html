@@ -1,0 +1,66 @@
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-small">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="#059669"/>
+          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand">Fiscalización HSE</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Mi empresa</div>
+      <a routerLink="/admin-empresa/dashboard" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">📊 Dashboard</a>
+      <a routerLink="/admin-empresa/documentos" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">📄 Documentos</a>
+      <div class="nav-label">Accesos</div>
+      <a routerLink="/admin-empresa/usuarios" class="nav-item" routerLinkActive="active">👥 Usuarios</a>
+      <a routerLink="/admin-empresa/roles" class="nav-item" routerLinkActive="active">🎭 Roles</a>
+      <div class="nav-label">Más</div>
+      <a routerLink="/admin-empresa/recordatorios" class="nav-item" routerLinkActive="active">🔔 Recordatorios</a>
+      <a routerLink="/admin-empresa/ia" class="nav-item" routerLinkActive="active">🤖 FISCALIZA-AI</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button type="button" class="btn-logout" (click)="auth.logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <h2>Roles en tu organización</h2>
+      <a routerLink="/admin-empresa/usuarios" class="link-top">Ver usuarios</a>
+    </header>
+    <div class="content">
+      <p class="intro">
+        En cada empresa suele haber <strong>un administrador</strong> y <strong>usuarios de consulta</strong>.
+        El <strong>super administrador</strong> del sistema es global y lo gestiona solo personal de plataforma.
+      </p>
+      <div class="roles-grid">
+        <article class="role-card ae">
+          <h3>Administrador de empresa</h3>
+          <p class="code">ADMIN_EMPRESA</p>
+          <ul>
+            <li>Sube PDF y gestiona la documentación de <strong>su empresa</strong></li>
+            <li>Configura recordatorios y ve usuarios de su organización</li>
+          </ul>
+        </article>
+        <article class="role-card us">
+          <h3>Usuario</h3>
+          <p class="code">USUARIO</p>
+          <ul>
+            <li>Consulta normativas, recordatorios e IA según lo habilitado</li>
+            <li>No sube documentos ni cambia la configuración global</li>
+          </ul>
+        </article>
+        <article class="role-card sa">
+          <h3>Super administrador</h3>
+          <p class="code">SUPER_ADMIN</p>
+          <ul>
+            <li>Gestiona <strong>todas las empresas</strong> y la vista global de usuarios</li>
+            <li>Accede a auditoría y documentos de cualquier empresa cuando haga falta</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </main>
+</div>

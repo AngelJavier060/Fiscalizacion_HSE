@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0..1&display=swap');
+
+$primary: #00356a;
+$on-primary: #ffffff;
+$surface-container-low: #eff4ff;
+$surface-container-highest: #d3e4fe;
+$on-surface: #0b1c30;
+$on-surface-variant: #424751;
+$outline-variant: #c2c6d2;
+$sidebar-width: 280px;
+
+:host {
+  display: block;
+  flex-shrink: 0;
+  width: $sidebar-width;
+}
+
+.mat-icon {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: $sidebar-width;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: $surface-container-low;
+  border-right: 1px solid $outline-variant;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px;
+  border-bottom: 1px solid $outline-variant;
+  background: $surface-container-low;
+
+  .brand-icon {
+    font-size: 24px;
+    color: $primary;
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .brand-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: $on-surface;
+    line-height: 1.25;
+  }
+
+  .brand-sub {
+    font-size: 13px;
+    color: $on-surface-variant;
+    line-height: 1.25;
+  }
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: $surface-container-low;
+}
+
+.nav-section {
+  border-radius: 10px;
+  background: rgba($surface-container-highest, 0.35);
+  overflow: hidden;
+}
+
+.nav-section-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: $on-surface-variant;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  .mat-icon {
+    font-size: 20px;
+    color: $on-surface-variant;
+  }
+
+  &:hover {
+    background: $surface-container-highest;
+    color: $primary;
+
+    .mat-icon { color: $primary; }
+  }
+}
+
+.nav-section-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 6px 8px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  color: $on-surface;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+
+  .mat-icon {
+    font-size: 22px;
+    color: $on-surface-variant;
+  }
+
+  &:hover:not(.disabled) {
+    background: $surface-container-highest;
+  }
+
+  &.active {
+    background: $surface-container-highest;
+    font-weight: 600;
+    color: $primary;
+
+    .mat-icon { color: $primary; }
+  }
+
+  &.ia-nav.active {
+    background: #a7c8fe;
+    color: #325382;
+    border-left: 4px solid $primary;
+    border-radius: 0 8px 8px 0;
+    font-weight: 700;
+    padding-left: 8px;
+
+    .mat-icon {
+      color: #325382;
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+.nav-divider {
+  height: 1px;
+  background: $outline-variant;
+  margin: 8px 0;
+  opacity: 0.5;
+}
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid $outline-variant;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: $surface-container-low;
+
+  .footer-link {
+    margin-bottom: 4px;
+  }
+}
+
+.user-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: $primary;
+  color: $on-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: $on-surface;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-logout {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid $outline-variant;
+  border-radius: 8px;
+  background: transparent;
+  color: $on-surface-variant;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: $surface-container-highest;
+  }
+}

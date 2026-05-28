@@ -1,0 +1,95 @@
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-small">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="#0284c7"/>
+          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand">Fiscalización HSE</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Mi Panel</div>
+      <a routerLink="/usuario/dashboard" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a routerLink="/usuario/documentos" class="nav-item"><span class="nav-icon">📄</span> Documentos</a>
+      <a routerLink="/usuario/notificaciones" class="nav-item active"><span class="nav-icon">🔔</span> Mis Recordatorios</a>
+      <a class="nav-item"><span class="nav-icon">🔍</span> Buscar</a>
+      <a class="nav-item"><span class="nav-icon">🤖</span> Preguntar a la IA</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar user">{{ user?.nombre?.charAt(0) || 'U' }}</div>
+        <div>
+          <p class="user-name">{{ user?.nombre || 'Usuario' }}</p>
+          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+        </div>
+      </div>
+      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <h2>🔔 Bandeja de Notificaciones</h2>
+      <div class="topbar-actions">
+        <button *ngIf="getPendientes() > 0" (click)="marcarTodasLeidas()" class="btn-primary">
+          ✅ Marcar todas leídas ({{ getPendientes() }})
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner-lg"></div>
+        <p>Cargando notificaciones...</p>
+      </div>
+
+      <div *ngIf="!loading && notificaciones.length === 0" class="empty-state">
+        <span class="empty-icon">🔔</span>
+        <h3>No hay notificaciones</h3>
+        <p>Estás al día. No tienes notificaciones pendientes.</p>
+      </div>
+
+      <div *ngIf="!loading && notificaciones.length > 0" class="notificaciones-list">
+        <div *ngFor="let n of notificaciones" class="notificacion-card"
+             [class.no-leida]="!n.leida"
+             (click)="!n.leida && marcarLeida(n.id)">
+          
+          <div class="notif-indicator" [class.nueva]="!n.leida"></div>
+
+          <div class="notif-content">
+            <div class="notif-header">
+              <h4>{{ n.titulo }}</h4>
+              <span class="notif-fecha">{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <p class="notif-mensaje">{{ n.mensaje }}</p>
+            
+            <!-- Documento relacionado -->
+            <div *ngIf="n.documentoTitulo" class="notif-doc">
+              📄 Documento: {{ n.documentoTitulo }}
+            </div>
+
+            <!-- Recordatorio relacionado -->
+            <div *ngIf="n.recordatorioTitulo" class="notif-rec">
+              🔔 Recordatorio: {{ n.recordatorioTitulo }}
+            </div>
+          </div>
+
+          <div class="notif-actions">
+            <!-- Botón de audio para el teléfono 📱 -->
+            <button *ngIf="n.tieneAudio" (click)="reproducirAudio(n); $event.stopPropagation()" 
+                    class="btn-audio" title="Escuchar recordatorio">
+              🔊
+              <span *ngIf="n.duracionAudio" class="audio-duracion">{{ n.duracionAudio }}s</span>
+            </button>
+            
+            <span *ngIf="n.leida" class="check-leida">✓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

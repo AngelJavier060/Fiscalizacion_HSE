@@ -1,0 +1,76 @@
+<div class="dashboard-container">
+  <app-super-admin-sidebar />
+
+  <main class="main-content">
+    <header class="topbar">
+      <h2>{{ editing ? 'Editar Empresa' : 'Nueva Empresa' }}</h2>
+    </header>
+
+    <div class="content">
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner-lg"></div>
+        <p>Cargando...</p>
+      </div>
+
+      <div *ngIf="!loading" class="form-container">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre de la empresa *</label>
+              <input type="text" formControlName="nombre" placeholder="Nombre de la empresa" />
+            </div>
+            <div class="form-group">
+              <label>RUC</label>
+              <input type="text" formControlName="ruc" placeholder="20-12345678-9" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" formControlName="email" placeholder="empresa@correo.com" />
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="text" formControlName="telefono" placeholder="+595 981 234 567" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Dirección</label>
+            <input type="text" formControlName="direccion" placeholder="Dirección de la empresa" />
+          </div>
+
+          <div class="vig-block">
+            <div class="vig-block-head">
+              <span class="vig-block-title">Vigencia del servicio</span>
+              <span class="vig-block-opt">opcional</span>
+            </div>
+            <p class="vig-block-hint">
+              Define el periodo en que esta empresa tiene acceso al sistema. Al vencer, su acceso
+              quedará marcado como caducado. Déjalo vacío para acceso sin límite.
+            </p>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Vigente desde</label>
+                <input type="date" formControlName="vigenciaDesde" />
+              </div>
+              <div class="form-group">
+                <label>Vigente hasta</label>
+                <input type="date" formControlName="vigenciaHasta" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a routerLink="/super-admin/empresas" class="btn-secondary">Cancelar</a>
+            <button type="submit" [disabled]="form.invalid || submitting" class="btn-primary">
+              <span *ngIf="!submitting">{{ editing ? 'Actualizar' : 'Crear Empresa' }}</span>
+              <span *ngIf="submitting" class="spinner"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>

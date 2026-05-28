@@ -1,0 +1,85 @@
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-small">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="#0284c7"/>
+          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand">Fiscalización HSE</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Mi Panel</div>
+      <a routerLink="/usuario/dashboard" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a routerLink="/usuario/documentos" class="nav-item active"><span class="nav-icon">📄</span> Documentos</a>
+      <a class="nav-item"><span class="nav-icon">🔔</span> Mis Recordatorios</a>
+      <a class="nav-item"><span class="nav-icon">🔍</span> Buscar</a>
+      <a class="nav-item"><span class="nav-icon">🤖</span> Preguntar a la IA</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar user">{{ user?.nombre?.charAt(0) || 'U' }}</div>
+        <div>
+          <p class="user-name">{{ user?.nombre || 'Usuario' }}</p>
+          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+        </div>
+      </div>
+      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <h2>📄 Documentos Normativos</h2>
+    </header>
+
+    <div class="content">
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner-lg"></div>
+        <p>Cargando documentos...</p>
+      </div>
+
+      <div *ngIf="!loading && documentos.length === 0" class="empty-state">
+        <span class="empty-icon">📄</span>
+        <h3>No hay documentos disponibles</h3>
+        <p>Tu empresa aún no ha subido documentos normativos</p>
+      </div>
+
+      <div *ngIf="!loading" class="docs-accordion">
+        <div *ngFor="let doc of documentos" class="doc-item">
+          <div class="doc-header" (click)="togglePuntos(doc.id)">
+            <div class="doc-icon">📄</div>
+            <div class="doc-info">
+              <h4>{{ doc.titulo }}</h4>
+              <p *ngIf="doc.descripcion" class="doc-desc">{{ doc.descripcion }}</p>
+              <div class="doc-meta">
+                <span>{{ getIconoIdioma(doc.idiomaDetectado) }} {{ doc.idiomaDetectado?.toUpperCase() }}</span>
+                <span>📝 {{ doc.cantidadPuntos || 0 }} puntos clave</span>
+              </div>
+            </div>
+            <div class="doc-toggle">
+              {{ puntosVisibles[doc.id] ? '▲' : '▼' }}
+            </div>
+          </div>
+
+          <!-- Puntos Clave -->
+          <div class="doc-puntos" *ngIf="puntosVisibles[doc.id]">
+            <div *ngIf="!doc.puntos || doc.puntos.length === 0" class="no-puntos">
+              No hay puntos clave disponibles para este documento
+            </div>
+            <div *ngFor="let punto of doc.puntos" class="punto-item">
+              <span class="punto-bullet">•</span>
+              <div class="punto-content">
+                <p>{{ punto.contenido }}</p>
+                <span class="punto-badge" *ngIf="punto.esIa">🤖 IA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

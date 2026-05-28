@@ -1,0 +1,9 @@
+target/
+*.jar
+*.war
+.idea/
+.vscode/
+*.iml
+venv/
+__pycache__/
+src/main/resources/application-local.yml

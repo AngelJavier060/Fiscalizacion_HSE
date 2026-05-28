@@ -1,0 +1,59 @@
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <span class="mat-icon brand-icon">security</span>
+    <div class="brand-text">
+      <span class="brand-title">Fiscalización HSE</span>
+      <span class="brand-sub">Super Admin</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (seccion of secciones; track seccion.id) {
+      <div class="nav-section" [class.collapsed]="seccion.collapsed">
+        <button
+          type="button"
+          class="nav-section-toggle"
+          (click)="toggleSeccion(seccion)"
+          [attr.aria-expanded]="!seccion.collapsed"
+          [attr.aria-controls]="'nav-section-' + seccion.id">
+          <span class="nav-section-label">{{ seccion.label }}</span>
+          <span class="mat-icon">{{ seccion.collapsed ? 'expand_more' : 'expand_less' }}</span>
+        </button>
+
+        @if (!seccion.collapsed) {
+          <div class="nav-section-items" [id]="'nav-section-' + seccion.id">
+            @for (item of seccion.items; track item.id) {
+              @if (item.route && !item.disabled) {
+                <a
+                  [routerLink]="item.route"
+                  class="nav-link"
+                  [class.active]="esActivo(item)"
+                  [class.ia-nav]="item.id === 'fiscaliza-ai'">
+                  <span class="mat-icon">{{ item.icon }}</span>
+                  <span>{{ item.label }}</span>
+                </a>
+              } @else {
+                <span class="nav-link disabled" [title]="item.title || 'Próximamente'">
+                  <span class="mat-icon">{{ item.icon }}</span>
+                  <span>{{ item.label }}</span>
+                </span>
+              }
+            }
+          </div>
+        }
+      </div>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <a routerLink="/super-admin/auditoria" class="nav-link footer-link" routerLinkActive="active">
+      <span class="mat-icon">history</span>
+      <span>Auditoría</span>
+    </a>
+    <div class="user-block">
+      <div class="user-avatar">{{ iniciales }}</div>
+      <span class="user-name">{{ user?.nombre || 'Super Administrador' }}</span>
+    </div>
+    <button type="button" class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+  </div>
+</aside>

@@ -1,0 +1,67 @@
+<div class="dashboard-container">
+  <app-super-admin-sidebar />
+
+  <main class="main-content">
+    <header class="topbar">
+      <h2>Documentos PDF por empresa</h2>
+      <div class="topbar-actions">
+        <a routerLink="/super-admin/empresas/nueva" class="btn-primary-sm">+ Nueva empresa</a>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="info-banner">
+        <div class="info-icon">📌</div>
+        <div>
+          <strong>Roles rápido</strong>
+          <p>
+            <strong>Super Admin</strong> y <strong>Admin de empresa</strong> pueden <strong>subir y gestionar PDFs</strong>
+            (el alcance global vs solo su empresa es la diferencia principal).
+            El <strong>usuario estándar</strong> solo <strong>consulta</strong> documentos, recordatorios e IA según su empresa.
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="loading-state">
+        <div class="spinner-lg"></div>
+        <p>Cargando empresas…</p>
+      </div>
+
+      <div *ngIf="!loading && empresas.length === 0" class="empty-state">
+        <span class="empty-icon">📄</span>
+        <h3>No hay empresas todavía</h3>
+        <p>Crea una empresa y vuelve aquí para subir sus normativas PDF.</p>
+        <a routerLink="/super-admin/empresas/nueva" class="btn-primary">Crear empresa</a>
+      </div>
+
+      <div *ngIf="!loading && empresas.length > 0" class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Empresa</th>
+              <th>RUC</th>
+              <th>Estado</th>
+              <th>Acciones PDF</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let e of empresas">
+              <td class="cell-name">{{ e.nombre }}</td>
+              <td>{{ e.ruc || '—' }}</td>
+              <td>
+                <span class="status-badge" [class.activo]="e.activa" [class.inactivo]="!e.activa">
+                  {{ e.activa ? 'Activa' : 'Suspendida' }}
+                </span>
+              </td>
+              <td class="cell-actions">
+                <a [routerLink]="['/super-admin', 'empresas', e.id, 'documentos']" class="link-action">📂 Listar</a>
+                <a [routerLink]="['/super-admin', 'empresas', e.id, 'ia']" class="link-action">🤖 IA</a>
+                <a [routerLink]="['/super-admin', 'empresas', e.id, 'documentos', 'subir']" class="link-action primary">⬆ Subir PDF</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>

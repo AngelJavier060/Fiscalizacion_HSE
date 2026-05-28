@@ -1,0 +1,328 @@
+<div class="u-layout">
+  <app-super-admin-sidebar />
+
+  <main class="u-main">
+
+    <!-- ── Top bar ───────────────────────────────────── -->
+    <header class="u-topbar">
+      <div class="u-topbar-left">
+        <nav class="u-breadcrumb">
+          <span>Super Admin</span>
+          <span class="u-sep">›</span>
+          <span class="u-current">Usuarios</span>
+        </nav>
+        <h1 class="u-title">Usuarios del sistema</h1>
+      </div>
+      <div class="u-topbar-right">
+        <button type="button" class="u-btn-primary" (click)="abrirNuevo()">
+          <span class="mat-icon">person_add</span>
+          Nuevo usuario
+        </button>
+      </div>
+    </header>
+
+    <!-- ── Canvas ───────────────────────────────────── -->
+    <div class="u-canvas">
+
+      <!-- descripción -->
+      <p class="u-intro">
+        Gestión global de usuarios. Los <strong>roles</strong> definen permisos.
+        No es posible crear ni eliminar cuentas <strong>Super Admin</strong> desde aquí.
+      </p>
+
+      <!-- ── Loading skeleton ─────────────────────── -->
+      <div *ngIf="loading" class="u-skeleton-wrap">
+        <div class="u-skel-row" *ngFor="let i of [1,2,3,4]"></div>
+      </div>
+
+      <!-- ── Estado vacío ─────────────────────────── -->
+      <div *ngIf="!loading && usuarios.length === 0" class="u-empty">
+        <span class="mat-icon u-empty-icon">group_off</span>
+        <p>No hay usuarios registrados aún.</p>
+        <button type="button" class="u-btn-primary" (click)="abrirNuevo()">
+          <span class="mat-icon">person_add</span>
+          Crear primer usuario
+        </button>
+      </div>
+
+      <!-- ── Tabla ─────────────────────────────────── -->
+      <div *ngIf="!loading && usuarios.length > 0" class="u-card">
+
+        <!-- búsqueda rápida y contador -->
+        <div class="u-table-header">
+          <span class="u-count">{{ usuarios.length }} usuario{{ usuarios.length !== 1 ? 's' : '' }}</span>
+          <span class="u-badge-all">Todas las empresas</span>
+        </div>
+
+        <div class="u-table-wrap">
+          <table class="u-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Correo / Usuario</th>
+                <th>Rol</th>
+                <th>Empresa</th>
+                <th>Estado</th>
+                <th>Vigencia</th>
+                <th class="th-actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of usuarios" class="u-row">
+
+                <!-- Nombre con avatar -->
+                <td class="td-name">
+                  <div class="u-avatar" [ngClass]="'av-' + claseRol(u.rol)">
+                    {{ u.nombre.charAt(0).toUpperCase() }}
+                  </div>
+                  <span class="u-name">{{ u.nombre }}</span>
+                </td>
+
+                <!-- Email -->
+                <td class="td-email">{{ u.email }}</td>
+
+                <!-- Rol -->
+                <td>
+                  <div class="u-rol-cell">
+                    <span class="u-rol" [ngClass]="claseRol(u.rol)">{{ etiquetaRol(u.rol) }}</span>
+                    <span class="u-acc-chip" *ngIf="tieneAccesoPersonalizado(u)"
+                          title="Accesos a módulos personalizados">
+                      <span class="mat-icon">tune</span>
+                      Personalizado
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Empresa -->
+                <td class="td-empresa">{{ u.empresaNombre || '—' }}</td>
+
+                <!-- Estado -->
+                <td>
+                  <span class="u-status" [class.status-on]="u.activo" [class.status-off]="!u.activo">
+                    <span class="u-dot"></span>
+                    {{ u.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+
+                <!-- Vigencia -->
+                <td>
+                  <span class="u-vig" [ngClass]="'vig-' + vigenciaInfo(u).estado" [title]="vigenciaInfo(u).etiqueta">
+                    <span class="mat-icon">{{
+                      vigenciaInfo(u).estado === 'sin_limite' ? 'all_inclusive' :
+                      vigenciaInfo(u).estado === 'vencido' ? 'event_busy' :
+                      vigenciaInfo(u).estado === 'por_vencer' ? 'hourglass_bottom' :
+                      vigenciaInfo(u).estado === 'pendiente' ? 'schedule' : 'event_available'
+                    }}</span>
+                    {{ vigenciaInfo(u).etiqueta }}
+                  </span>
+                </td>
+
+                <!-- Acciones -->
+                <td class="td-actions">
+                  <button type="button" class="u-ico-btn edit" (click)="abrirEditar(u)" title="Editar usuario">
+                    <span class="mat-icon">edit</span>
+                  </button>
+                  <button
+                    type="button"
+                    class="u-ico-btn lock"
+                    (click)="toggleActivo(u)"
+                    [title]="u.activo ? 'Desactivar usuario' : 'Activar usuario'"
+                  >
+                    <span class="mat-icon">{{ u.activo ? 'lock' : 'lock_open' }}</span>
+                  </button>
+                  <button
+                    *ngIf="puedeEliminar(u)"
+                    type="button"
+                    class="u-ico-btn del"
+                    (click)="eliminar(u)"
+                    title="Eliminar usuario"
+                  >
+                    <span class="mat-icon">delete</span>
+                  </button>
+                  <span *ngIf="!puedeEliminar(u)" class="u-ico-btn disabled" title="No disponible para Super Admin">
+                    <span class="mat-icon">block</span>
+                  </span>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pie de tabla -->
+        <div class="u-table-footer">
+          <span>Mostrando {{ usuarios.length }} de {{ usuarios.length }} resultado{{ usuarios.length !== 1 ? 's' : '' }}</span>
+        </div>
+
+      </div><!-- /u-card -->
+    </div><!-- /u-canvas -->
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════ MODAL ══ -->
+<div class="u-modal-backdrop" *ngIf="modalAbierto" (click)="cerrarModal()" aria-hidden="true"></div>
+
+<div class="u-modal-panel" *ngIf="modalAbierto" role="dialog" aria-modal="true">
+  <div class="u-modal-card" (click)="$event.stopPropagation()">
+
+    <!-- Cabecera -->
+    <div class="u-modal-head">
+      <div class="u-modal-head-left">
+        <div class="u-modal-icon">
+          <span class="mat-icon">{{ editingUser ? 'manage_accounts' : 'person_add' }}</span>
+        </div>
+        <div>
+          <h3 class="u-modal-title">{{ editingUser ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+          <p class="u-modal-sub" *ngIf="editingUser?.rol === 'SUPER_ADMIN'">
+            Solo nombre, correo y contraseña son editables en cuentas Super Admin
+          </p>
+          <p class="u-modal-sub" *ngIf="!editingUser">
+            El correo es el nombre de usuario para acceder al sistema
+          </p>
+        </div>
+      </div>
+      <button type="button" class="u-btn-close" (click)="cerrarModal()" aria-label="Cerrar">
+        <span class="mat-icon">close</span>
+      </button>
+    </div>
+
+    <!-- Formulario -->
+    <form [formGroup]="form" (ngSubmit)="guardar()" class="u-modal-body">
+
+      <div class="u-form-row">
+        <label for="u-nombre">Nombre para mostrar *</label>
+        <input id="u-nombre" type="text" formControlName="nombre"
+               autocomplete="name" placeholder="Ej. Elvin Valle" />
+        <span class="u-field-error" *ngIf="errorCampo('nombre')">{{ errorCampo('nombre') }}</span>
+      </div>
+
+      <div class="u-form-row">
+        <label for="u-email">Correo electrónico (usuario de acceso) *</label>
+        <input id="u-email" type="email" formControlName="email"
+               autocomplete="username" placeholder="usuario@correo.com" />
+        <span class="u-field-hint">Se usa para iniciar sesión.</span>
+        <span class="u-field-error" *ngIf="errorCampo('email')">{{ errorCampo('email') }}</span>
+      </div>
+
+      <div class="u-form-row">
+        <label for="u-pass">Contraseña {{ editingUser ? '(opcional)' : '*' }}</label>
+        <input id="u-pass" type="password" formControlName="password"
+               autocomplete="new-password"
+               [placeholder]="editingUser ? 'Dejar vacío para no cambiar' : 'Mínimo 6 caracteres'" />
+        <span class="u-field-hint" *ngIf="!editingUser">Mínimo 6 caracteres.</span>
+        <span class="u-field-error" *ngIf="errorCampo('password')">{{ errorCampo('password') }}</span>
+      </div>
+
+      <div class="u-form-grid">
+        <div class="u-form-row" *ngIf="!editingUser || editingUser.rol !== 'SUPER_ADMIN'">
+          <label for="u-rol">Rol *</label>
+          <select id="u-rol" formControlName="rol" (change)="onRolChange()">
+            <option value="USUARIO">Usuario</option>
+            <option value="ADMIN_EMPRESA">Admin empresa</option>
+          </select>
+          <span class="u-field-error" *ngIf="errorCampo('rol')">{{ errorCampo('rol') }}</span>
+        </div>
+
+        <div class="u-form-row" *ngIf="!editingUser || editingUser.rol !== 'SUPER_ADMIN'">
+          <label for="u-emp">Empresa *</label>
+          <select id="u-emp" formControlName="empresaId">
+            <option [ngValue]="null">Seleccione empresa…</option>
+            <option *ngFor="let e of empresasActivas" [ngValue]="e.id">{{ e.nombre }}</option>
+          </select>
+          <span class="u-field-error" *ngIf="errorCampo('empresaId')">{{ errorCampo('empresaId') }}</span>
+          <span class="u-field-error" *ngIf="empresasActivas.length === 0">
+            No hay empresas activas. Cree una empresa primero.
+          </span>
+        </div>
+      </div>
+
+      <!-- Vigencia de acceso -->
+      <div class="u-vig-section">
+        <div class="u-vig-section-head">
+          <span class="mat-icon">event_available</span>
+          <span>Vigencia de acceso <small>(opcional)</small></span>
+        </div>
+        <p class="u-vig-hint">Si defines fechas, el acceso del usuario se limita a ese periodo. Déjalo vacío para acceso sin límite.</p>
+        <div class="u-form-grid">
+          <div class="u-form-row">
+            <label for="u-vig-desde">Acceso desde</label>
+            <input id="u-vig-desde" type="date" formControlName="vigenciaDesde" />
+          </div>
+          <div class="u-form-row">
+            <label for="u-vig-hasta">Acceso hasta</label>
+            <input id="u-vig-hasta" type="date" formControlName="vigenciaHasta" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Accesos a módulos -->
+      <div class="u-acc-section" *ngIf="!editingUser || editingUser.rol !== 'SUPER_ADMIN'">
+        <div class="u-acc-head">
+          <span class="mat-icon">tune</span>
+          <span>Accesos a módulos</span>
+        </div>
+
+        <div class="u-acc-modes">
+          <button type="button" class="u-acc-mode" [class.active]="accesoModo === 'rol'"
+                  (click)="setAccesoModo('rol')">
+            <span class="mat-icon">badge</span>
+            <span class="u-acc-mode-text">
+              <strong>Según su rol</strong>
+              <small>Hereda los módulos del rol seleccionado</small>
+            </span>
+          </button>
+          <button type="button" class="u-acc-mode" [class.active]="accesoModo === 'custom'"
+                  (click)="setAccesoModo('custom')">
+            <span class="mat-icon">tune</span>
+            <span class="u-acc-mode-text">
+              <strong>Personalizado</strong>
+              <small>Elige módulos solo para este usuario</small>
+            </span>
+          </button>
+        </div>
+
+        <!-- vista según rol (solo lectura) -->
+        <div class="u-acc-hint" *ngIf="accesoModo === 'rol'">
+          <span class="mat-icon">info</span>
+          Este usuario tendrá los <strong>{{ contarModulosActivos() }}</strong> módulos habilitados para el rol
+          <strong>{{ etiquetaRol(rolSeleccionado) }}</strong>. Cámbialos en "Roles y Permisos".
+        </div>
+
+        <!-- selección personalizada -->
+        <div class="u-acc-list" *ngIf="accesoModo === 'custom'">
+          <div class="u-acc-count">
+            <strong>{{ contarModulosActivos() }}</strong> de {{ permisos.totalModulos }} módulos habilitados
+          </div>
+          <ng-container *ngFor="let grupo of permisos.grupos">
+            <div class="u-acc-group">{{ grupo.grupo }}</div>
+            <button type="button" class="u-acc-item" *ngFor="let m of grupo.modulos"
+                    [class.on]="accesoModulos[m.id]" (click)="toggleModuloAcceso(m.id)">
+              <span class="u-acc-item-icon"><span class="mat-icon">{{ m.icon }}</span></span>
+              <span class="u-acc-item-text">
+                <strong>{{ m.label }}</strong>
+                <small>{{ m.descripcion }}</small>
+              </span>
+              <span class="u-acc-switch" [class.on]="accesoModulos[m.id]">
+                <span class="u-acc-thumb"></span>
+              </span>
+            </button>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="u-form-error" *ngIf="errorMsg">
+        <span class="mat-icon">error_outline</span>
+        {{ errorMsg }}
+      </div>
+
+      <div class="u-modal-foot">
+        <button type="button" class="u-btn-ghost" (click)="cerrarModal()">Cancelar</button>
+        <button type="submit" class="u-btn-primary" [disabled]="submitting">
+          <span class="mat-icon">{{ submitting ? 'hourglass_top' : 'save' }}</span>
+          {{ submitting ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

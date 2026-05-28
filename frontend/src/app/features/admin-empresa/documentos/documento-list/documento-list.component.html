@@ -1,0 +1,251 @@
+<div class="docs-page">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1 class="brand-title">
+        <span class="mat-icon brand-icon">security</span>
+        Fiscalización HSE
+      </h1>
+      <p class="brand-sub">{{ esRutaSuperAdmin ? 'Panel de Gestión' : 'Mi Empresa' }}</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a [routerLink]="nav.sidebarInicio" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: esRutaSuperAdmin }" class="nav-link">
+        <span class="mat-icon">business</span>
+        <span>{{ esRutaSuperAdmin ? 'Empresas' : 'Dashboard' }}</span>
+      </a>
+      <a [routerLink]="nav.documentos" routerLinkActive="active" class="nav-link">
+        <span class="mat-icon">description</span>
+        <span>Documentos</span>
+      </a>
+      @if (esRutaSuperAdmin) {
+        <a [routerLink]="nav.ia" routerLinkActive="active" class="nav-link">
+          <span class="mat-icon">psychology</span>
+          <span>IA</span>
+        </a>
+      } @else {
+        <a routerLink="/admin-empresa/recordatorios" routerLinkActive="active" class="nav-link">
+          <span class="mat-icon">notifications</span>
+          <span>Recordatorios</span>
+        </a>
+        <a [routerLink]="nav.ia" routerLinkActive="active" class="nav-link">
+          <span class="mat-icon">psychology</span>
+          <span>FISCALIZA-AI</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-block">
+        <div class="user-avatar">{{ inicialesUsuario }}</div>
+        <div class="user-meta">
+          <span class="user-name">{{ user?.nombre || 'Administrador' }}</span>
+          <span class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</span>
+        </div>
+      </div>
+      <button type="button" class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <!-- Top bar -->
+  <header class="top-app-bar">
+    <span class="topbar-title">Gestión Documental HSE</span>
+    <div class="topbar-actions">
+      <button type="button" class="icon-btn" title="Notificaciones" aria-label="Notificaciones">
+        <span class="mat-icon">notifications</span>
+      </button>
+      <button type="button" class="icon-btn" title="Historial" aria-label="Historial">
+        <span class="mat-icon">history</span>
+      </button>
+      <div class="topbar-avatar">{{ inicialesUsuario }}</div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="page-main">
+    <div class="page-header">
+      <div class="page-heading">
+        <span class="mat-icon heading-icon">description</span>
+        <h2>Documentos Normativos</h2>
+      </div>
+      <a [routerLink]="nav.subir" class="btn-primary">
+        <span class="mat-icon">add</span>
+        Subir Documento
+      </a>
+    </div>
+
+    @if (empresaId) {
+      <section class="search-card">
+        <div class="search-card-head">
+          <h3>Buscar en mis PDF</h3>
+          <p>
+            Resultados y explicaciones se basan <strong>solo</strong> en el texto de tus documentos subidos.
+            Con API DeepSeek configurada obtienes hallazgos redactados y términos clave explicados.
+          </p>
+        </div>
+        <div class="search-row">
+          <div class="search-field">
+            <span class="mat-icon search-icon">search</span>
+            <input
+              type="search"
+              [(ngModel)]="consultaBusqueda"
+              (keyup.enter)="buscarAsistido()"
+              placeholder="Ej.: certificado, EPP, cláusula, declaración..."
+              class="search-input" />
+          </div>
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="buscarAsistido()"
+            [disabled]="buscandoIa || !consultaBusqueda.trim()">
+            {{ buscandoIa ? 'Buscando…' : 'Buscar' }}
+          </button>
+          @if (busquedaAsistida) {
+            <button type="button" class="btn-ghost" (click)="limpiarBusquedaAsistida()">Cerrar</button>
+          }
+        </div>
+        @if (buscandoIa) {
+          <p class="search-status">Analizando fragmentos de tus documentos…</p>
+        }
+        @if (busquedaAsistida?.advertencia) {
+          <div class="alert-banner" role="status">{{ busquedaAsistida!.advertencia }}</div>
+        }
+        @if (busquedaAsistida?.analisis) {
+          <article class="analisis-md" [innerHTML]="busquedaAsistida!.analisis | markdown"></article>
+        }
+      </section>
+    }
+
+    @if (loading) {
+      <div class="state-panel">
+        <div class="spinner"></div>
+        <p>Cargando documentos…</p>
+      </div>
+    } @else if (!empresaId) {
+      <div class="state-panel">
+        <span class="mat-icon state-icon">warning</span>
+        <h3>No se pudo determinar la empresa</h3>
+        <p>Si eres administrador de empresa, verifica que tu usuario tenga empresa asignada.</p>
+        <a routerLink="/admin-empresa/dashboard" class="btn-primary">Ir al panel</a>
+      </div>
+    } @else if (documentos.length === 0) {
+      <div class="state-panel">
+        <span class="mat-icon state-icon">description</span>
+        <h3>No hay documentos</h3>
+        <p>Sube tu primer documento normativo HSE</p>
+        <a [routerLink]="nav.subir" class="btn-primary">
+          <span class="mat-icon">add</span>
+          Subir Documento
+        </a>
+      </div>
+    } @else {
+      <div class="docs-grid">
+        @for (doc of documentos; track doc.id) {
+          <article class="doc-card">
+            <div class="doc-card-top">
+              <span class="badge-pdf">PDF</span>
+              <span class="doc-lang">{{ getCodigoIdioma(doc.idiomaDetectado) }} {{ getNombreIdioma(doc.idiomaDetectado) }}</span>
+            </div>
+
+            <div class="doc-card-body">
+              <h4 class="doc-title">
+                <a [routerLink]="nav.detalle(doc.id)">{{ doc.titulo }}</a>
+              </h4>
+              @if (doc.descripcion) {
+                <p class="doc-desc">{{ doc.descripcion }}</p>
+              }
+
+              <div class="doc-meta">
+                <span class="meta-item">
+                  <span class="mat-icon">folder</span>
+                  {{ formatearTamano(doc.archivoTamano) }}
+                </span>
+                <span class="meta-item">
+                  <span class="mat-icon">article</span>
+                  {{ doc.cantidadPuntos || 0 }} puntos clave
+                </span>
+              </div>
+
+              @if (doc.requiereTraduccion && !doc.traducido) {
+                <span class="chip chip-warn">Pendiente traducción</span>
+              }
+              @if (doc.traducido) {
+                <span class="chip chip-ok">Traducido</span>
+              }
+            </div>
+
+            <div class="doc-card-footer">
+              @if (doc.puntosGeneradosIa) {
+                <span class="chip chip-ia">
+                  <span class="mat-icon">psychology</span>
+                  IA
+                </span>
+              } @else {
+                <span></span>
+              }
+              <div class="doc-actions">
+                <a [routerLink]="nav.detalle(doc.id)" class="btn-outline-sm">Ver</a>
+                <button type="button" class="btn-icon-action" (click)="abrirEdicion(doc)" title="Editar nombre">
+                  <span class="mat-icon">edit</span>
+                </button>
+                <button type="button" class="btn-icon-danger" (click)="eliminar(doc)" title="Eliminar">
+                  <span class="mat-icon">delete</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </main>
+
+  <!-- Modal: editar nombre / descripción -->
+  @if (docEditando) {
+    <div class="modal-overlay" (click)="cerrarEdicion()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+          <h3>Editar documento</h3>
+          <button type="button" class="icon-btn" (click)="cerrarEdicion()" title="Cerrar">
+            <span class="mat-icon">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <label class="field">
+            <span class="field-label">Nombre del documento</span>
+            <input
+              type="text"
+              class="field-input"
+              [(ngModel)]="tituloEditado"
+              (keyup.enter)="guardarEdicion()"
+              placeholder="Ej.: Reglamento interno de seguridad"
+              maxlength="255"
+              autofocus />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Descripción <span class="field-optional">(opcional)</span></span>
+            <textarea
+              class="field-input field-textarea"
+              [(ngModel)]="descripcionEditada"
+              placeholder="Breve descripción del contenido del documento"
+              rows="3"></textarea>
+          </label>
+
+          @if (errorEdicion) {
+            <p class="field-error">{{ errorEdicion }}</p>
+          }
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" (click)="cerrarEdicion()" [disabled]="guardandoEdicion">
+            Cancelar
+          </button>
+          <button type="button" class="btn-primary" (click)="guardarEdicion()" [disabled]="guardandoEdicion || !tituloEditado.trim()">
+            {{ guardandoEdicion ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

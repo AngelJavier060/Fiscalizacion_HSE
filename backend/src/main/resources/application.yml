@@ -1,0 +1,79 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: fiscalizacion-hse
+  # En desarrollo carga automáticamente application-local.yml (gitignored).
+  # En producción defina SPRING_PROFILES_ACTIVE=prod (u otro) para no usar "local".
+  profiles:
+    default: local
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:fiscalizacion_hse}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:Alexandra1}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    date-format: yyyy-MM-dd'T'HH:mm:ss'Z'
+    time-zone: UTC
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 105MB
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8100,http://localhost:8081,http://localhost}
+
+  jwt:
+    secret: ${JWT_SECRET:aGVsbG8gZXN0byBlcyB1biBzZWNyZXRvIHBhcmEgZWwgamR3IGRlIGZpc2NhbGl6YWNpb24gaHNl}
+    expiration-ms: 86400000
+
+  superadmin:
+    email: ${SUPER_ADMIN_EMAIL:admin@fiscalizacionhse.com}
+    password: ${SUPER_ADMIN_PASSWORD:AdminHSE2024!}
+    nombre: Super Administrador
+
+  # IA: en local use perfil "local" y application-local.yml (gitignored), o variable DEEPSEEK_API_KEY.
+  ia:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY:}
+      api-url: https://api.deepseek.com/v1/chat/completions
+
+  documentos:
+    upload-dir: uploads/documentos
+    # 100 MiB (PDF normativos voluminosos)
+    max-tamano: 104857600
+
+  tts:
+    google-api-key: ${GOOGLE_TTS_API_KEY:}
+    deepseek-api-key: ${DEEPSEEK_AUDIO_API_KEY:}
+    deepseek-api-url: https://api.deepseek.com/v1/audio/speech
+
+logging:
+  level:
+    com.fiscalizacionhse: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: WARN

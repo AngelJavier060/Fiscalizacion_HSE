@@ -1,0 +1,115 @@
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-small">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="#059669"/>
+          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand">Fiscalización HSE</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Mi Empresa</div>
+      <a routerLink="/admin-empresa/dashboard" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a routerLink="/admin-empresa/documentos" class="nav-item"><span class="nav-icon">📄</span> Documentos</a>
+      <a class="nav-item"><span class="nav-icon">👥</span> Usuarios</a>
+      <div class="nav-label">Configuración</div>
+      <a routerLink="/admin-empresa/recordatorios" class="nav-item active"><span class="nav-icon">🔔</span> Recordatorios</a>
+      <a class="nav-item"><span class="nav-icon">⚙️</span> Ajustes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar admin">{{ user?.nombre?.charAt(0) || 'A' }}</div>
+        <div>
+          <p class="user-name">{{ user?.nombre || 'Admin' }}</p>
+          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+        </div>
+      </div>
+      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <h2>🔔 Recordatorios</h2>
+      <div class="topbar-actions">
+        <a routerLink="/admin-empresa/recordatorios/nuevo" class="btn-primary">+ Nuevo Recordatorio</a>
+      </div>
+    </header>
+
+    <div class="content">
+      <div *ngIf="loading" class="loading-state"><div class="spinner-lg"></div><p>Cargando...</p></div>
+
+      <div *ngIf="!loading && recordatorios.length === 0" class="empty-state">
+        <span class="empty-icon">🔔</span>
+        <h3>No hay recordatorios</h3>
+        <p>Crea recordatorios para que los usuarios reciban notificaciones sobre documentos importantes</p>
+        <a routerLink="/admin-empresa/recordatorios/nuevo" class="btn-primary">Crear Recordatorio</a>
+      </div>
+
+      <div *ngIf="!loading && recordatorios.length > 0" class="recordatorios-list">
+        <div *ngFor="let r of recordatorios" class="recordatorio-card" [class.inactivo]="!r.activo">
+          <div class="rec-header">
+            <div class="rec-indicator" [class.active]="r.activo" [class.inactive]="!r.activo"></div>
+            <div class="rec-info">
+              <h4>{{ r.titulo }}</h4>
+              <p *ngIf="r.descripcion" class="rec-desc">{{ r.descripcion }}</p>
+            </div>
+            <div class="rec-badges">
+              <span class="badge-recurrencia">{{ getRecurrenciaLabel(r.tipoRecurrencia) }}</span>
+              <span *ngIf="r.incluirAudio" class="badge-audio">🔊 Audio</span>
+            </div>
+          </div>
+
+          <div class="rec-body">
+            <div class="rec-details">
+              <div class="detail">
+                <span class="label">Inicio:</span>
+                <span>{{ r.fechaInicio | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="detail" *ngIf="r.fechaFin">
+                <span class="label">Fin:</span>
+                <span>{{ r.fechaFin | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="detail">
+                <span class="label">Hora:</span>
+                <span>{{ r.horaRecordatorio }}</span>
+              </div>
+              <div class="detail">
+                <span class="label">Próxima ejecución:</span>
+                <span [class.vencido]="getProximaEjecucion(r.proximaEjecucion).includes('Vencido')">
+                  {{ getProximaEjecucion(r.proximaEjecucion) }}
+                </span>
+              </div>
+              <div class="detail" *ngIf="r.documentoTitulo">
+                <span class="label">Documento:</span>
+                <span>{{ r.documentoTitulo }}</span>
+              </div>
+            </div>
+
+            <div class="rec-destinatarios" *ngIf="r.destinatarios?.length">
+              <span class="label">Destinatarios:</span>
+              <div class="avatars">
+                <div *ngFor="let d of r.destinatarios.slice(0, 5)" class="avatar-sm" 
+                     [title]="d.nombre + ' (' + d.email + ')'">
+                  {{ d.nombre?.charAt(0) }}
+                </div>
+                <span *ngIf="r.destinatarios.length > 5" class="avatar-more">
+                  +{{ r.destinatarios.length - 5 }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rec-footer">
+            <button (click)="toggleActivo(r)" class="btn-sm" [class.active]="r.activo">
+              {{ r.activo ? '🔴 Pausar' : '🟢 Activar' }}
+            </button>
+            <button (click)="eliminar(r)" class="btn-sm danger">🗑️ Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

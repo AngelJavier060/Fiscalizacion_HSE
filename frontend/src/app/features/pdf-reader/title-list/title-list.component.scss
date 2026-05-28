@@ -1,0 +1,129 @@
+.title-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 0.5rem;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+}
+
+.title-list-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.title-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.4;
+  font-family: inherit;
+
+  &:hover {
+    background: rgba(124, 58, 237, 0.06);
+    border-color: rgba(124, 58, 237, 0.15);
+    color: #e2e8f0;
+  }
+
+  &.active {
+    background: rgba(124, 58, 237, 0.12);
+    border-color: rgba(124, 58, 237, 0.3);
+    color: #ddd6fe;
+    box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.1);
+  }
+}
+
+.title-indicator {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #334155;
+
+  .title-item.active &,
+  .title-item:hover & {
+    border-color: rgba(124, 58, 237, 0.3);
+    color: #a78bfa;
+  }
+}
+
+.title-text {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+  font-weight: 500;
+}
+
+.title-play-icon {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+
+  .title-item:hover &,
+  .title-item.active & {
+    opacity: 0.8;
+  }
+
+  .title-item.active & {
+    opacity: 1;
+  }
+}
+
+/* Barras de animación de reproducción */
+.title-playing {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 20px;
+}
+
+.bar {
+  width: 3px;
+  background: #a78bfa;
+  border-radius: 2px;
+  animation: sound-wave 1.2s ease-in-out infinite;
+
+  &.bar1 { height: 60%; animation-delay: 0s; }
+  &.bar2 { height: 100%; animation-delay: 0.15s; }
+  &.bar3 { height: 40%; animation-delay: 0.3s; }
+  &.bar4 { height: 80%; animation-delay: 0.45s; }
+}
+
+@keyframes sound-wave {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1); }
+}

@@ -1,0 +1,142 @@
+<div class="landing">
+  <header class="landing-header" [class.landing-header--compact]="headerCompact()">
+    <div class="landing-header__inner">
+      <a class="landing-brand" href="/" aria-label="Improvement Solutions - Inicio">
+        <span class="landing-brand__icon material-symbols-outlined" aria-hidden="true">rocket_launch</span>
+        <span class="landing-brand__text">Improvement Solutions</span>
+      </a>
+
+      <nav class="landing-nav" aria-label="Principal">
+        <a class="landing-nav__link landing-nav__link--active" href="#">Documentación</a>
+        <a class="landing-nav__link" href="#">Estándares</a>
+        <a class="landing-nav__link" href="#">Biblioteca</a>
+      </nav>
+
+      <div class="landing-header__actions">
+        <button type="button" class="btn-acceder" (click)="irAlLogin()">
+          Acceder
+        </button>
+        <button type="button" class="landing-menu-mobile material-symbols-outlined" aria-label="Menú">
+          menu
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero__dots" aria-hidden="true"></div>
+      <div class="hero__inner">
+        <div class="hero__grid">
+          <div class="hero__content">
+            <span class="hero__badge">Research &amp; Development</span>
+            <h1 class="hero__title">
+              Investiga y domina los
+              <em>estándares del mañana</em>
+            </h1>
+            <p class="hero__lead">
+              Accede al centro de conocimiento técnico definitivo. Encuentra documentación crítica,
+              guías de integración y normativas globales en un solo lugar.
+            </p>
+            <div class="hero__search">
+              <span class="material-symbols-outlined hero__search-icon" aria-hidden="true">search</span>
+              <input
+                type="search"
+                class="hero__search-input"
+                placeholder="Busca APIs, normativas, estándares o guías técnicas..."
+                aria-label="Buscar en el hub"
+              />
+              <button type="button" class="hero__search-btn" (click)="irAlLogin()">
+                Explorar ahora
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="hero__visual">
+            <div class="hero__card">
+              <div class="hero__card-image-wrap">
+                <img
+                  class="hero__card-image"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBErxOieD5m26rLHbePhNRiNb8g4TLef88pD_fWMyq3tKlUwodz0IDjAuFvGf2vjJuSvJ6EJNHYuTzy09lh8wliOOI0fX_QFiCwqE2Y4r9TDaAF94bI3KQYAejD1mbtUvXX5Q3-3VL_N_59aGKcvYPxAX3y23k96FSWJFuMD_bRi-MFid4f4Aqbq4C_FM8-3XRnU6U-8c_l9IwfYC1ofDEJyftwmo0iTLaHsbHfDA0tg80Ur-QszwjVAxwziO7LTay6gE-8Nbh6c80"
+                  alt="Panel de rendimiento técnico"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            <aside class="hero__stat glass" aria-label="Indicador de disponibilidad">
+              <div class="hero__stat-head">
+                <span class="hero__stat-icon material-symbols-outlined" aria-hidden="true">terminal</span>
+                <div>
+                  <p class="hero__stat-label">Uptime API</p>
+                  <p class="hero__stat-value">99.99%</p>
+                </div>
+              </div>
+              <div class="hero__stat-bar" role="presentation">
+                <span class="hero__stat-bar-fill"></span>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pillars">
+      <div class="pillars__inner">
+        <header class="pillars__header">
+          <h2>Nuestros Pilares de Conocimiento</h2>
+          <span class="pillars__line" aria-hidden="true"></span>
+        </header>
+        <div class="pillars__grid">
+          <article class="pillar-card">
+            <span class="pillar-card__icon material-symbols-outlined" aria-hidden="true">integration_instructions</span>
+            <h3>Documentación de APIs</h3>
+            <p>Especificaciones técnicas detalladas y guías de integración paso a paso para plataformas modernas.</p>
+          </article>
+          <article class="pillar-card">
+            <span class="pillar-card__icon pillar-card__icon--secondary material-symbols-outlined" aria-hidden="true">menu_book</span>
+            <h3>Biblioteca Normativa</h3>
+            <p>Repositorio integral de estándares globales y regulaciones locales actualizadas al instante.</p>
+          </article>
+          <article class="pillar-card">
+            <span class="pillar-card__icon pillar-card__icon--tertiary material-symbols-outlined" aria-hidden="true">school</span>
+            <h3>Centro de Aprendizaje</h3>
+            <p>Tutoriales, papers de investigación y mejores prácticas para implementaciones técnicas de alto nivel.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="cta__inner">
+        <div class="cta__card">
+          <h2>¿Listo para profundizar en el conocimiento técnico?</h2>
+          <p>
+            Únete a los equipos de ingeniería que ya utilizan Improvement Solutions para acelerar
+            su investigación y cumplimiento técnico.
+          </p>
+          <div class="cta__actions">
+            <button type="button" class="cta__btn-primary" (click)="irAlLogin()">Acceder al sistema</button>
+            <a class="cta__btn-secondary" href="mailto:soporte@improvementsolutions.com">Solicitar demo técnica</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="landing-footer">
+    <div class="landing-footer__inner">
+      <div class="landing-footer__brand">
+        <strong>Improvement Solutions</strong>
+        <p>Hub de investigación institucional y tecnológica para un futuro estandarizado y eficiente.</p>
+      </div>
+      <nav class="landing-footer__links" aria-label="Legal">
+        <a href="#">Privacidad</a>
+        <a href="#">Términos</a>
+        <a href="#">Documentación</a>
+        <a href="#">Soporte</a>
+      </nav>
+      <p class="landing-footer__copy">© 2024 Improvement Solutions. Fiscalización HSE.</p>
+    </div>
+  </footer>
+</div>

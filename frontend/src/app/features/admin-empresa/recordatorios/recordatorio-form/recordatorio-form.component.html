@@ -1,0 +1,169 @@
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-small">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="#059669"/>
+          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand">Fiscalización HSE</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Mi Empresa</div>
+      <a routerLink="/admin-empresa/dashboard" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
+      <a routerLink="/admin-empresa/documentos" class="nav-item"><span class="nav-icon">📄</span> Documentos</a>
+      <a class="nav-item"><span class="nav-icon">👥</span> Usuarios</a>
+      <div class="nav-label">Configuración</div>
+      <a routerLink="/admin-empresa/recordatorios" class="nav-item active"><span class="nav-icon">🔔</span> Recordatorios</a>
+      <a class="nav-item"><span class="nav-icon">⚙️</span> Ajustes</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar admin">{{ user?.nombre?.charAt(0) || 'A' }}</div>
+        <div>
+          <p class="user-name">{{ user?.nombre || 'Admin' }}</p>
+          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+        </div>
+      </div>
+      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <h2>🔔 Nuevo Recordatorio</h2>
+      <a routerLink="/admin-empresa/recordatorios" class="btn-back">← Volver</a>
+    </header>
+
+    <div class="content">
+      <div class="form-container">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <!-- Título -->
+          <div class="form-group">
+            <label>Título *</label>
+            <input type="text" formControlName="titulo" placeholder="¿Sobre qué quieres recordar?" />
+          </div>
+
+          <!-- Descripción -->
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea formControlName="descripcion" rows="2" placeholder="Detalles del recordatorio..."></textarea>
+          </div>
+
+          <!-- Recurrencia -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tipo de recurrencia</label>
+              <select formControlName="tipoRecurrencia">
+                <option *ngFor="let t of tiposRecurrencia" [value]="t.value">{{ t.label }}</option>
+              </select>
+            </div>
+
+            <ng-container [ngSwitch]="form.get('tipoRecurrencia')?.value">
+              <div class="form-group" *ngSwitchCase="'CUSTOM'">
+                <label>Cada cuántos días</label>
+                <input type="number" formControlName="intervaloDias" min="1" max="365" />
+              </div>
+              <div class="form-group" *ngSwitchCase="'WEEKLY'">
+                <label>Día de la semana</label>
+                <select formControlName="diaSemana">
+                  <option value="1">Lunes</option>
+                  <option value="2">Martes</option>
+                  <option value="3">Miércoles</option>
+                  <option value="4">Jueves</option>
+                  <option value="5">Viernes</option>
+                  <option value="6">Sábado</option>
+                  <option value="0">Domingo</option>
+                </select>
+              </div>
+              <div class="form-group" *ngSwitchCase="'MONTHLY'">
+                <label>Día del mes</label>
+                <input type="number" formControlName="diaMes" min="1" max="31" />
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Fechas -->
+          <div class="form-row">
+            <div class="form-group">
+              <label>Fecha de inicio *</label>
+              <input type="date" formControlName="fechaInicio" />
+            </div>
+            <div class="form-group">
+              <label>Fecha de fin (opcional)</label>
+              <input type="date" formControlName="fechaFin" />
+            </div>
+            <div class="form-group">
+              <label>Hora del recordatorio</label>
+              <input type="time" formControlName="horaRecordatorio" />
+            </div>
+          </div>
+
+          <!-- Documento relacionado -->
+          <div class="form-group">
+            <label>Documento relacionado (opcional)</label>
+            <select formControlName="documentoId">
+              <option [value]="null">— Sin documento —</option>
+              <option *ngFor="let doc of documentos" [value]="doc.id">{{ doc.titulo }}</option>
+            </select>
+          </div>
+
+          <!-- Audio -->
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="incluirAudio" />
+              <span class="checkbox-text">
+                🔊 Incluir recordatorio en audio (TTS)
+                <small>Genera un audio de voz para notificar en el teléfono</small>
+              </span>
+            </label>
+          </div>
+
+          <!-- Mensaje personalizado -->
+          <div class="form-group">
+            <label>Mensaje personalizado (opcional)</label>
+            <textarea formControlName="mensajePersonalizado" rows="3"
+                      placeholder="Si no escribes nada, se generará un mensaje automático..."></textarea>
+          </div>
+
+          <!-- Destinatarios -->
+          <div class="form-group">
+            <label>Destinatarios (selecciona a quién notificar)</label>
+            <div class="usuarios-grid">
+              <div *ngFor="let u of usuarios" class="usuario-chip"
+                   [class.selected]="form.get('destinatarioIds')?.value?.includes(u.id)"
+                   (click)="toggleDestinatario(u.id)">
+                <span class="chip-avatar">{{ u.nombre?.charAt(0) }}</span>
+                <span class="chip-info">
+                  <strong>{{ u.nombre }}</strong>
+                  <small>{{ u.email }}</small>
+                </span>
+                <span class="chip-check" *ngIf="form.get('destinatarioIds')?.value?.includes(u.id)">✓</span>
+              </div>
+              <div *ngIf="usuarios.length === 0" class="no-usuarios">
+                No hay usuarios disponibles. Crea usuarios primero.
+              </div>
+            </div>
+          </div>
+
+          <!-- Info box -->
+          <div class="info-box">
+            <span class="info-icon">⏰</span>
+            <div class="info-content">
+              <strong>El scheduler ejecuta los recordatorios cada 5 minutos</strong>
+              <p>Los usuarios recibirán una notificación en su bandeja cuando se ejecute el recordatorio. Si activaste el audio, podrán escuchar el recordatorio en su teléfono.</p>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a routerLink="/admin-empresa/recordatorios" class="btn-secondary">Cancelar</a>
+            <button type="submit" [disabled]="form.invalid || enviando" class="btn-primary">
+              {{ enviando ? 'Creando...' : '🔔 Crear Recordatorio' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>

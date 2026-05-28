@@ -1,0 +1,57 @@
+<div class="audio-controls">
+  <div class="controls-row">
+    <!-- Play / Reanudar -->
+    <button
+      class="ctrl-btn ctrl-play"
+      (click)="onPlay()"
+      [disabled]="!estado().activo || !estado().pausado"
+      [class.active]="estado().activo && !estado().pausado"
+      title="Reproducir"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      <span class="ctrl-label">Play</span>
+    </button>
+
+    <!-- Pausa -->
+    <button
+      class="ctrl-btn ctrl-pause"
+      (click)="onPause()"
+      [disabled]="!estado().activo || estado().pausado"
+      title="Pausar"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="6" y="4" width="4" height="16"/>
+        <rect x="14" y="4" width="4" height="16"/>
+      </svg>
+      <span class="ctrl-label">Pausa</span>
+    </button>
+
+    <!-- Stop -->
+    <button
+      class="ctrl-btn ctrl-stop"
+      (click)="onStop()"
+      [disabled]="!estado().activo"
+      title="Detener"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="6" y="6" width="12" height="12"/>
+      </svg>
+      <span class="ctrl-label">Stop</span>
+    </button>
+  </div>
+
+  <!-- Estado de la reproducción -->
+  <div class="controls-status">
+    @if (estado().activo) {
+      @if (estado().pausado) {
+        <span class="status-badge paused">⏸ Pausado</span>
+      } @else {
+        <span class="status-badge playing">🔊 Reproduciendo</span>
+      }
+    } @else {
+      <span class="status-badge idle">⏹ Sin reproducción</span>
+    }
+  </div>
+</div>

@@ -1,0 +1,89 @@
+@import '../../super-admin/dashboard/dashboard.component.scss';
+
+.user-avatar.user {
+  background: #0284c7;
+}
+
+.badge-user {
+  padding: 0.25rem 0.75rem;
+  background: rgba(2, 132, 199, 0.1);
+  color: #38bdf8;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(2, 132, 199, 0.2);
+}
+
+.card-icon {
+  &.pendientes { background: rgba(139, 92, 246, 0.1); }
+  &.docs { background: rgba(59, 130, 246, 0.1); }
+  &.notificaciones { background: rgba(217, 119, 6, 0.1); }
+}
+
+.card-sub {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.welcome-section {
+  margin-top: 2rem;
+}
+
+.welcome-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 2rem;
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-bottom: 0.75rem;
+  }
+
+  p {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+
+    li {
+      color: #cbd5e1;
+      font-size: 0.875rem;
+    }
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .feature-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+
+    &.pending {
+      background: rgba(100, 116, 139, 0.1);
+      color: #64748b;
+      border: 1px solid #334155;
+    }
+
+    &:not(.pending) {
+      background: rgba(5, 150, 105, 0.1);
+      color: #34d399;
+      border: 1px solid rgba(5, 150, 105, 0.2);
+    }
+  }
+}

@@ -1,0 +1,281 @@
+<div class="dashboard-container">
+  <app-super-admin-sidebar />
+
+  <main class="main-content">
+
+    <!-- ── Top App Bar ──────────────────────────────────── -->
+    <header class="top-app-bar">
+      <div class="topbar-left">
+        <span class="topbar-route">Dashboard</span>
+        <span class="topbar-sep">/</span>
+        <span class="topbar-sub">Resumen general</span>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" title="Notificaciones">
+          <span class="mat-icon">notifications</span>
+          <span class="notif-dot"></span>
+        </button>
+        <button type="button" class="icon-btn" title="Ayuda">
+          <span class="mat-icon">help_outline</span>
+        </button>
+        <div class="topbar-divider"></div>
+        <div class="topbar-user">
+          <div class="user-info">
+            <span class="user-role">SUPER ADMIN</span>
+            <span class="user-name">{{ nombreUsuario }}</span>
+          </div>
+          <div class="topbar-avatar">
+            <span class="mat-icon">person</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Canvas ──────────────────────────────────────── -->
+    <div class="dashboard-canvas">
+
+      <!-- Bienvenida + fecha -->
+      <div class="welcome-row">
+        <div>
+          <h2 class="welcome-title">Bienvenido, {{ nombreUsuario }}</h2>
+          <p class="welcome-sub">Plataforma de gestión estratégica y supervisión normativa HSE.</p>
+        </div>
+        <div class="date-chip">
+          <span class="mat-icon">calendar_today</span>
+          <span>{{ fechaHoy }}</span>
+        </div>
+      </div>
+
+      <!-- ── Stats Grid ──────────────────────────────── -->
+      @if (cargandoStats) {
+        <div class="skeleton-grid">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="skeleton-card"></div>
+          }
+        </div>
+      } @else {
+        <div class="stats-grid">
+
+          <!-- Empresas -->
+          <article class="stat-card accent-blue">
+            <div class="sc-bg-icon">
+              <span class="mat-icon fill">apartment</span>
+            </div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap blue">
+                <span class="mat-icon">domain</span>
+              </div>
+              <span class="sc-label">Total Empresas</span>
+            </div>
+            <p class="sc-value">{{ totalEmpresas }}</p>
+            <div class="sc-bar">
+              <div class="sc-bar-fill blue" [style.width.%]="pctEmpresasActivas"></div>
+            </div>
+            <p class="sc-meta success">
+              <span class="mat-icon">trending_up</span>
+              {{ empresasActivas }} activas &nbsp;·&nbsp;
+              {{ empresasSuspendidas }} suspendidas
+            </p>
+          </article>
+
+          <!-- Usuarios -->
+          <article class="stat-card accent-teal">
+            <div class="sc-bg-icon">
+              <span class="mat-icon fill">group</span>
+            </div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap teal">
+                <span class="mat-icon">groups</span>
+              </div>
+              <span class="sc-label">Usuarios</span>
+            </div>
+            <p class="sc-value">{{ usuariosActivos }}</p>
+            <div class="sc-bar">
+              <div class="sc-bar-fill teal" [style.width.%]="pctUsuariosActivos"></div>
+            </div>
+            <p class="sc-meta success">
+              <span class="mat-icon">check_circle</span>
+              {{ totalUsuarios }} registrados en total
+            </p>
+          </article>
+
+          <!-- Suspendidas / Alerta -->
+          <article class="stat-card accent-red">
+            <div class="sc-bg-icon">
+              <span class="mat-icon fill">pending_actions</span>
+            </div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap red">
+                <span class="mat-icon">description</span>
+              </div>
+              <span class="sc-label">Empresas Suspendidas</span>
+            </div>
+            <p class="sc-value red">{{ empresasSuspendidas }}</p>
+            <div class="sc-bar">
+              <div class="sc-bar-fill red" [style.width.%]="pctSuspendidas"></div>
+            </div>
+            <p class="sc-meta warn">
+              <span class="mat-icon">warning</span>
+              Revisar acceso y licencias
+            </p>
+          </article>
+
+          <!-- Auditorías -->
+          <article class="stat-card accent-violet">
+            <div class="sc-bg-icon">
+              <span class="mat-icon fill">shield</span>
+            </div>
+            <div class="sc-header">
+              <div class="sc-icon-wrap violet">
+                <span class="mat-icon">verified_user</span>
+              </div>
+              <span class="sc-label">Auditorías del Mes</span>
+            </div>
+            <p class="sc-value">{{ registrosAuditoria }}</p>
+            <div class="sc-bar">
+              <div class="sc-bar-fill violet" style="width: 72%"></div>
+            </div>
+            <p class="sc-meta muted">
+              <span class="mat-icon">schedule</span>
+              <a routerLink="/super-admin/auditoria">Ver registro completo</a>
+            </p>
+          </article>
+
+        </div>
+      }
+
+      <!-- ── Fila central: Salud del sistema + Actividad reciente ── -->
+      <div class="mid-grid">
+
+        <!-- Salud del sistema -->
+        <section class="card-panel health-panel">
+          <div class="panel-head">
+            <div class="panel-title-wrap">
+              <span class="mat-icon panel-title-icon">monitor_heart</span>
+              <h3 class="panel-title">Salud del Sistema</h3>
+            </div>
+            <span class="status-chip ok">
+              <span class="mat-icon">check_circle</span> Operativo
+            </span>
+          </div>
+          <div class="health-list">
+            @for (m of systemMetrics; track m.label) {
+              <div class="health-item">
+                <div class="hi-info">
+                  <span class="mat-icon hi-icon">{{ m.icon }}</span>
+                  <span class="hi-label">{{ m.label }}</span>
+                </div>
+                <div class="hi-bar-wrap">
+                  <div class="hi-bar">
+                    <div class="hi-bar-fill" [style.width.%]="m.value"
+                         [class.warn]="m.value < 50" [class.ok]="m.value >= 80"></div>
+                  </div>
+                  <span class="hi-pct">{{ m.value }}%</span>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- Actividad reciente -->
+        <section class="card-panel activity-panel">
+          <div class="panel-head">
+            <div class="panel-title-wrap">
+              <span class="mat-icon panel-title-icon">history</span>
+              <h3 class="panel-title">Actividad Reciente</h3>
+            </div>
+            <a routerLink="/super-admin/auditoria" class="panel-link">Ver todo</a>
+          </div>
+          <ul class="activity-list">
+            @for (ev of actividadReciente; track ev.id) {
+              <li class="activity-item">
+                <div class="ai-dot" [class]="ev.tipo"></div>
+                <div class="ai-body">
+                  <p class="ai-msg">{{ ev.mensaje }}</p>
+                  <span class="ai-time">{{ ev.tiempo }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </section>
+
+      </div>
+
+      <!-- ── Acciones Rápidas ────────────────────────── -->
+      <section class="quick-section">
+        <div class="section-head">
+          <h3 class="section-title">Acciones Rápidas</h3>
+          <span class="section-sub">Atajos de administración</span>
+        </div>
+        <div class="actions-grid">
+          <a routerLink="/super-admin/empresas/nueva" class="action-card ac-primary">
+            <div class="ac-icon">
+              <span class="mat-icon">add_business</span>
+            </div>
+            <div class="ac-text">
+              <span class="ac-title">Nueva Empresa</span>
+              <span class="ac-desc">Registrar organización</span>
+            </div>
+            <span class="mat-icon ac-arrow">chevron_right</span>
+          </a>
+
+          <a routerLink="/super-admin/roles" class="action-card">
+            <div class="ac-icon secondary">
+              <span class="mat-icon">manage_accounts</span>
+            </div>
+            <div class="ac-text">
+              <span class="ac-title">Gestionar Roles</span>
+              <span class="ac-desc">Permisos y accesos</span>
+            </div>
+            <span class="mat-icon ac-arrow">chevron_right</span>
+          </a>
+
+          <a routerLink="/super-admin/documentos" class="action-card">
+            <div class="ac-icon teal">
+              <span class="mat-icon">upload_file</span>
+            </div>
+            <div class="ac-text">
+              <span class="ac-title">Subir Documento PDF</span>
+              <span class="ac-desc">Cargar normativas</span>
+            </div>
+            <span class="mat-icon ac-arrow">chevron_right</span>
+          </a>
+
+          <a routerLink="/super-admin/auditoria" class="action-card">
+            <div class="ac-icon violet">
+              <span class="mat-icon">bar_chart</span>
+            </div>
+            <div class="ac-text">
+              <span class="ac-title">Ver Reportes</span>
+              <span class="ac-desc">Analítica y auditoría</span>
+            </div>
+            <span class="mat-icon ac-arrow">chevron_right</span>
+          </a>
+
+          <a routerLink="/super-admin/ia-chat" class="action-card">
+            <div class="ac-icon ai">
+              <span class="mat-icon">smart_toy</span>
+            </div>
+            <div class="ac-text">
+              <span class="ac-title">Fiscaliza AI</span>
+              <span class="ac-desc">Consultar normativas</span>
+            </div>
+            <span class="mat-icon ac-arrow">chevron_right</span>
+          </a>
+
+          <a routerLink="/super-admin/usuarios" class="action-card">
+            <div class="ac-icon orange">
+              <span class="mat-icon">person_add</span>
+            </div>
+            <div class="ac-text">
+              <span class="ac-title">Nuevo Usuario</span>
+              <span class="ac-desc">Crear cuenta</span>
+            </div>
+            <span class="mat-icon ac-arrow">chevron_right</span>
+          </a>
+        </div>
+      </section>
+
+    </div><!-- /canvas -->
+  </main>
+</div>

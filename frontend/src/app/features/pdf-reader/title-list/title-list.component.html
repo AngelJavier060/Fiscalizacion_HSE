@@ -1,0 +1,39 @@
+<div class="title-list">
+  @if (titulos().length === 0) {
+    <div class="title-list-empty">
+      No se detectaron títulos en este PDF.
+    </div>
+  } @else {
+    <div class="title-list-items">
+      @for (titulo of titulos(); track $index) {
+        <button
+          class="title-item"
+          [class.active]="esTituloActivo($index)"
+          (click)="onClicTitulo(titulo, $index)"
+          [attr.aria-label]="'Escuchar: ' + titulo.texto"
+        >
+          <span class="title-indicator">
+            @if (esTituloActivo($index)) {
+              <span class="title-playing">
+                <span class="bar bar1"></span>
+                <span class="bar bar2"></span>
+                <span class="bar bar3"></span>
+                <span class="bar bar4"></span>
+              </span>
+            } @else {
+              <span class="title-num">{{ $index + 1 }}</span>
+            }
+          </span>
+          <span class="title-text">{{ titulo.texto }}</span>
+          <span class="title-play-icon">
+            @if (esTituloActivo($index)) {
+              🔊
+            } @else {
+              ▶
+            }
+          </span>
+        </button>
+      }
+    </div>
+  }
+</div>

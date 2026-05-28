@@ -1,0 +1,75 @@
+# =============================================================================
+# FISCALIZACIÓN HSE — Docker Compose (base compartido)
+# =============================================================================
+# Uso local:  docker compose --env-file .env -f docker-compose.yml -f docker-compose.local.yml up -d
+# Uso prod:   docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Desarrollo SIN Docker (sin cambios):
+#   - Backend:  mvn spring-boot:run  → localhost:8080, DB en 5434
+#   - Frontend: ng serve              → localhost:4200
+#   - App móvil: api_config.dart      → 10.0.2.2:8080
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: fiscalizacion-hse-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fiscalizacion_hse}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fiscalizacion-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-fiscalizacion_hse}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fiscalizacion-hse-api
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-fiscalizacion_hse}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      JWT_SECRET: ${JWT_SECRET:-aGVsbG8gZXN0byBlcyB1biBzZWNyZXRvIHBhcmEgZmlybWEgZGUgZmlzY2FsaXphY2lvbiBoc2U=}
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL:-admin@fiscalizacionhse.com}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD:-AdminHSE2024!}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost:8100,http://localhost:8081,http://localhost}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      GOOGLE_TTS_API_KEY: ${GOOGLE_TTS_API_KEY:-}
+      DEEPSEEK_AUDIO_API_KEY: ${DEEPSEEK_AUDIO_API_KEY:-}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - fiscalizacion-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fiscalizacion-hse-web
+    depends_on:
+      - backend
+    networks:
+      - fiscalizacion-network
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  fiscalizacion-network:
+    driver: bridge

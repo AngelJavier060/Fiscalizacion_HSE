@@ -1,0 +1,324 @@
+<div class="doc-detail-page">
+  
+  <!-- ===== TOP APP BAR (fixed) ===== -->
+  <header class="top-app-bar">
+    <div class="topbar-left">
+      <button class="btn-back" (click)="volver()" title="Volver">
+        <span class="mat-icon">arrow_back</span>
+      </button>
+      <h1 class="doc-title">ENAP - {{ documento?.titulo || 'Documento' }}</h1>
+    </div>
+    <nav class="topbar-center">
+      <div class="top-nav">
+        <a class="nav-tab active">Documentos</a>
+        <a class="nav-tab">Normativa</a>
+        <a class="nav-tab">Lectura</a>
+      </div>
+    </nav>
+    <div class="topbar-right">
+      <button class="btn-outline" (click)="cargarPdfPreview(documento?.id)" title="Imprimir">
+        <span class="mat-icon">print</span>
+        Imprimir
+      </button>
+      <button class="btn-primary" (click)="abrirPdfNuevaPestana()">
+        <span class="mat-icon">picture_as_pdf</span>
+        Ver PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== MAIN LAYOUT ===== -->
+  <div class="main-layout">
+
+    <!-- ===== LEFT SIDEBAR: Section Tree ===== -->
+    <aside class="section-tree-panel">
+      <div class="search-section">
+        <div class="search-wrapper">
+          <span class="mat-icon search-icon">search</span>
+          <input type="text" class="search-input"
+                 placeholder="Buscar en secciones..."
+                 [(ngModel)]="terminoBusqueda"
+                 (input)="filtrarSecciones()">
+        </div>
+      </div>
+      <div class="tree-scroll">
+        <h3 class="tree-heading">Índice de lectura</h3>
+        <p class="tree-hint">Índice del libro estructurado (H1/H2) · clic para escuchar esa parte</p>
+        @if (cargandoTexto) {
+          <div class="tree-loading"><div class="spinner-xs"></div> Cargando...</div>
+        } @else if (seccionesFiltradas.length === 0) {
+          <div class="tree-empty">{{ terminoBusqueda ? 'Sin resultados' : 'Use «Estructurar libro (H1/H2)» en el panel derecho' }}</div>
+        } @else {
+          <div class="section-list">
+            @for (sec of seccionesFiltradas; track sec.titulo) {
+              <div class="section-tree-item"
+                   [class.active]="seccionActiva === sec"
+                   [class.playing]="seccionActiva === sec && hayAudioActivo && !estadoVoz.pausado"
+                   [class.depth-1]="sec.profundidad >= 1"
+                   [class.depth-2]="sec.profundidad >= 2"
+                   (click)="seleccionarYReproducir(sec)">
+                @if (seccionActiva === sec && hayAudioActivo && !estadoVoz.pausado) {
+                  <div class="playing-indicator">
+                    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                  </div>
+                } @else {
+                  <span class="mat-icon tree-icon">{{ iconoSeccion(sec) }}</span>
+                }
+                <div class="item-content">
+                  <span class="item-title">{{ tituloSinNumero(sec.titulo) }}</span>
+                  <span class="item-meta">{{ sec.duracionLabel || '—' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @if (textoCargado) {
+        <div class="audio-panel-sidebar">
+          <div class="audio-panel-head">
+            <span class="mat-icon">record_voice_over</span>
+            <span>Lectura por voz</span>
+          </div>
+          <p class="audio-source">Fuente: Libro estructurado (panel derecho) · no el PDF</p>
+          <p class="audio-hint">Ajusta la velocidad mientras lee · 0,5× lento · 2× rápido</p>
+          <label class="audio-field">
+            <span>Voz ({{ vocesDisponibles.length }} disponibles)</span>
+            <select [ngModel]="vozSeleccionadaId" (ngModelChange)="cambiarVoz($event)" [disabled]="!vocesDisponibles.length">
+              @if (vocesDisponibles.length === 0) {
+                <option value="">Sin voces — recarga la página</option>
+              }
+              @for (v of vocesDisponibles; track v.id) {
+                <option [value]="v.id">{{ v.etiqueta }}</option>
+              }
+            </select>
+          </label>
+          <div class="audio-speed-block">
+            <span class="speed-block-label">Velocidad de lectura</span>
+            <div class="speed-row">
+              <button type="button" class="speed-btn" (click)="ajustarVelocidad(-0.1)" [disabled]="velocidadLectura <= 0.5" title="Más lento">−</button>
+              <input type="range" min="0.5" max="2" step="0.05"
+                     [(ngModel)]="velocidadLectura"
+                     (ngModelChange)="cambiarVelocidad($event)">
+              <button type="button" class="speed-btn" (click)="ajustarVelocidad(0.1)" [disabled]="velocidadLectura >= 2" title="Más rápido">+</button>
+              <span class="speed-val">{{ velocidadLectura | number:'1.2-2' }}×</span>
+            </div>
+            <div class="speed-presets">
+              <button type="button" class="speed-preset" [class.active]="velocidadLectura === 0.8" (click)="establecerVelocidad(0.8)">0,8×</button>
+              <button type="button" class="speed-preset" [class.active]="velocidadLectura === 1" (click)="establecerVelocidad(1)">1×</button>
+              <button type="button" class="speed-preset" [class.active]="velocidadLectura === 1.2" (click)="establecerVelocidad(1.2)">1,2×</button>
+              <button type="button" class="speed-preset" [class.active]="velocidadLectura === 1.5" (click)="establecerVelocidad(1.5)">1,5×</button>
+            </div>
+          </div>
+          <div class="audio-controls">
+            @if (puedeContinuarLectura && !hayAudioActivo) {
+              <button type="button" class="audio-btn continuar" (click)="reanudarDesdeDondeQuedo()" [disabled]="!textoEditado.trim()">
+                <span class="mat-icon">play_circle</span>
+                Continuar
+              </button>
+            }
+            <button type="button" class="audio-btn primary" (click)="togglePlayPause()" [disabled]="!textoEditado.trim()">
+              <span class="mat-icon">{{ hayAudioActivo && !estadoVoz.pausado ? 'pause' : 'play_arrow' }}</span>
+            </button>
+            <button type="button" class="audio-btn" (click)="pararLectura()" [disabled]="!hayAudioActivo" title="Parar y guardar posición">
+              <span class="mat-icon">stop</span>
+            </button>
+            <button type="button" class="audio-btn outline" (click)="probarVoz()" [disabled]="!vozSoportada || cargandoVoces">
+              <span class="mat-icon">hearing</span>
+              Probar
+            </button>
+            <button type="button" class="audio-btn outline" (click)="leerDocumentoCompleto()" [disabled]="!textoEditado.trim()" title="Leer desde el inicio">
+              <span class="mat-icon">menu_book</span>
+              Desde inicio
+            </button>
+          </div>
+          @if (marcadorLectura && !hayAudioActivo) {
+            <p class="audio-marcador">
+              <span class="mat-icon">bookmark</span>
+              Quedaste en {{ etiquetaMarcador }}
+            </p>
+          }
+          @if ((hayAudioActivo || puedeContinuarEnMemoria) && estadoVoz.totalFragmentos > 0) {
+            <div class="audio-progress">
+              <div class="audio-progress-track">
+                <div class="audio-progress-fill" [style.width.%]="progresoLecturaPct"></div>
+              </div>
+              <span class="audio-progress-label">
+                {{ estadoVoz.fragmentoActual }}/{{ estadoVoz.totalFragmentos }}
+                · {{ progresoLecturaPct }}%
+              </span>
+            </div>
+          }
+          @if (marcadorLectura && !hayAudioActivo && !puedeContinuarEnMemoria) {
+            <div class="audio-progress">
+              <div class="audio-progress-track">
+                <div class="audio-progress-fill" [style.width.%]="marcadorLectura.progresoPct"></div>
+              </div>
+              <span class="audio-progress-label">Marcador · {{ marcadorLectura.progresoPct }}%</span>
+            </div>
+          }
+          @if ((textoLecturaActual && hayAudioActivo) || (puedeContinuarEnMemoria && textoLecturaActual)) {
+            <p class="audio-cursor-hint">
+              <span class="mat-icon">gps_fixed</span>
+              Posición: <mark>{{ textoLecturaMini }}</mark>
+            </p>
+          }
+          <p class="audio-status" [class.error]="!!audioError">{{ etiquetaReproduccion() }}</p>
+        </div>
+      }
+      <div class="file-info-footer">
+        <div class="file-info-row">
+          <span class="mat-icon fi-icon">info</span>
+          <span class="fi-label">Archivo</span>
+        </div>
+        <p class="fi-details">
+          Actualizado: {{ documento?.createdAt | date:'MMM yyyy' }}<br>
+          Tamaño: {{ formatearTamano(documento?.archivoTamano) }}<br>
+          Idioma: {{ documento?.idiomaDetectado?.toUpperCase() || 'ES' }}
+        </p>
+      </div>
+    </aside>
+
+    <!-- ===== SPLIT VIEW: PDF (Left) + Editor (Right) ===== -->
+    <main class="split-main">
+
+      <!-- ===== LEFT SIDE: PDF ORIGINAL ===== -->
+      <div class="pdf-side">
+        <!-- PDF Toolbar -->
+        <div class="pdf-toolbar">
+          <div class="toolbar-left">
+            <button class="tbar-btn" title="Acercar"><span class="mat-icon">zoom_in</span></button>
+            <span class="zoom-label">100%</span>
+            <button class="tbar-btn" title="Alejar"><span class="mat-icon">zoom_out</span></button>
+          </div>
+          <span class="pdf-title-label">PDF original <span class="ref-tag">solo referencia</span></span>
+          <div class="toolbar-right">
+            <button class="tbar-btn" title="Ajustar"><span class="mat-icon">fit_screen</span></button>
+          </div>
+        </div>
+
+        <!-- PDF Content -->
+        <div class="pdf-viewport">
+          @if (cargandoPdf) {
+            <div class="pdf-loading-state">
+              <div class="spinner-md"></div>
+              <span>Cargando PDF...</span>
+            </div>
+          } @else if (pdfSafeUrl) {
+            <iframe class="pdf-frame" [src]="pdfSafeUrl" title="PDF Viewer"></iframe>
+          } @else {
+            <div class="pdf-placeholder" (click)="cargarPdf()">
+              <span class="mat-icon pdf-big-icon">picture_as_pdf</span>
+              <p>Haz clic para cargar el PDF</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ===== RIGHT SIDE: EDITOR ===== -->
+      <div class="editor-side">
+        <header class="editor-panel-header libro-panel-header" aria-label="Libro estructurado">
+          <div class="libro-panel-brand">
+            <div class="header-icon-wrap" aria-hidden="true">
+              <span class="mat-icon">auto_stories</span>
+            </div>
+            <div class="header-text">
+              <h2 class="header-title">{{ libroPanelTitulo }}</h2>
+              <p class="header-subtitle">{{ libroPanelSubtitulo }}</p>
+              <div class="libro-jerarquia-chips" aria-label="Jerarquía del documento">
+                <span class="chip chip-h1">H1 Libro</span>
+                <span class="chip chip-h2">H2 Estándar</span>
+                <span class="chip chip-h3">H3 Apartado</span>
+              </div>
+            </div>
+          </div>
+          <div class="libro-panel-actions">
+            @if (textoCargado) {
+              <div class="header-speed" title="Velocidad de lectura">
+                <button type="button" class="speed-mini" (click)="ajustarVelocidad(-0.05)" [disabled]="velocidadLectura <= 0.5">−</button>
+                <span class="speed-mini-val">{{ velocidadLectura | number:'1.1-1' }}×</span>
+                <button type="button" class="speed-mini" (click)="ajustarVelocidad(0.05)" [disabled]="velocidadLectura >= 2">+</button>
+              </div>
+            }
+            @if (textoCargado) {
+              <span class="meta-badge">{{ secciones.length }} secciones</span>
+            }
+            <button class="btn-outline small" type="button" (click)="reestructurarTextoAutomatico()" [disabled]="!textoCargado || reestructurando" title="Genera H1 del libro y H2 por cada estándar ESV desde el texto del PDF">
+              @if (reestructurando) {
+                <span class="btn-spinner"></span> Estructurando…
+              } @else {
+                Estructurar libro (H1/H2)
+              }
+            </button>
+            @if (estructuraResultado) {
+              <span class="estructura-ok">{{ estructuraResultado }}</span>
+            }
+            @if (editorLastSaved) {
+              <span class="save-status">
+                <span class="mat-icon">check_circle</span>
+                Guardado · {{ editorLastSaved }}
+              </span>
+            }
+            <button class="btn-primary small" (click)="guardarTextoEditado()" [disabled]="guardandoTexto || !textoCargado">
+              <span class="mat-icon">{{ guardandoTexto ? 'hourglass_top' : 'save' }}</span>
+              {{ guardandoTexto ? 'Guardando…' : 'Guardar texto' }}
+            </button>
+          </div>
+        </header>
+
+        @if (avisoEstructuraLibro && textoCargado && !reestructurando) {
+          <div class="libro-estructura-aviso" role="status">
+            <span class="mat-icon">auto_stories</span>
+            <div>
+              <strong>Paso recomendado</strong>
+              <p>Pulse <em>Estructurar libro (H1/H2)</em> para armar el índice como en Word (sin programas externos). Luego haga pequeñas correcciones y <strong>Guarde</strong> — la IA y la lectura por voz usan solo este panel.</p>
+            </div>
+            <button type="button" class="btn-primary small" (click)="reestructurarTextoAutomatico()">Estructurar ahora</button>
+          </div>
+        }
+
+        <div class="editor-area">
+          @if (reestructurando) {
+            <div class="estructura-overlay">
+              <div class="estructura-overlay-inner">
+                <div class="spinner-md"></div>
+                <p class="estructura-msg">{{ estructuraMensaje }}</p>
+                <div class="progress-track">
+                  <div class="progress-fill" [style.width.%]="estructuraProgreso"></div>
+                </div>
+                <span class="progress-pct">{{ estructuraProgreso }}%</span>
+              </div>
+            </div>
+          }
+          @if (cargandoTexto) {
+            <div class="editor-loading">
+              <div class="spinner-md"></div>
+              <p>Cargando texto extraído...</p>
+            </div>
+          } @else if (textoCargado) {
+            <app-editor-texto-rico
+              #editorRico
+              [(ngModel)]="textoEditado"
+              (ngModelChange)="onEditorChange($event)"
+              (onBlurContent)="onEditorBlur($event)"
+              [embedded]="true"
+              [showFooter]="false"
+              placeholder="Edita el contenido del documento..."
+              (onSave)="guardarTextoEditado($event)"
+            ></app-editor-texto-rico>
+          } @else {
+            <div class="editor-loading">
+              <p>No hay contenido disponible.</p>
+            </div>
+          }
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ===== FLOATING AI BUTTON ===== -->
+  <button class="fab-ai" (click)="abrirIaChat()" title="Preguntar a la IA">
+    <span class="mat-icon">psychology</span>
+  </button>
+</div>

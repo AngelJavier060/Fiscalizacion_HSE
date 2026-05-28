@@ -1,0 +1,108 @@
+<div class="dashboard-container">
+  <app-super-admin-sidebar />
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-canvas">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-header-text">
+          <h1 class="page-title">Gestión de Empresas</h1>
+          <p class="page-subtitle">Administra las organizaciones y sus accesos al sistema.</p>
+        </div>
+        <a routerLink="/super-admin/empresas/nueva" class="btn-primary">
+          <span class="mat-icon">add</span>
+          Nueva Empresa
+        </a>
+      </div>
+
+      <!-- Informational Banner -->
+      <div class="info-banner">
+        <span class="mat-icon fill banner-icon">info</span>
+        <p>
+          Para <strong class="accent">subir PDF</strong> de normativas, entra en
+          <a routerLink="/super-admin/documentos">Documentos PDF</a>
+          o pulsa el icono <span class="mat-icon inline-icon">description</span> en cada fila.
+          <strong>Super Admin</strong> y <strong>Admin empresa</strong> gestionan archivos;
+          el <strong>usuario</strong> solo consulta.
+        </p>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="state-block">
+        <div class="spinner-lg"></div>
+        <p>Cargando empresas...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && empresas.length === 0" class="state-block empty-state">
+        <div class="empty-icon-wrap">
+          <span class="mat-icon">domain_add</span>
+        </div>
+        <h3>No hay empresas registradas</h3>
+        <p>Haz clic en "Nueva Empresa" para registrar la primera organización en el sistema.</p>
+        <a routerLink="/super-admin/empresas/nueva" class="btn-primary">Crear Empresa</a>
+      </div>
+
+      <!-- Data Table -->
+      <div *ngIf="!loading && empresas.length > 0" class="table-card">
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>RUC</th>
+                <th>Email</th>
+                <th class="th-center">Usuarios</th>
+                <th class="th-center">Estado</th>
+                <th class="th-center">Vigencia</th>
+                <th class="th-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let empresa of empresas" class="data-row">
+                <td class="cell-name">{{ empresa.nombre }}</td>
+                <td class="cell-muted">{{ empresa.ruc || '—' }}</td>
+                <td class="cell-muted cell-email">{{ empresa.email || '—' }}</td>
+                <td class="cell-muted th-center">{{ empresa.cantidadUsuarios }}</td>
+                <td class="th-center">
+                  <span class="status-badge" [class.activo]="empresa.activa" [class.inactivo]="!empresa.activa">
+                    {{ empresa.activa ? 'Activa' : 'Suspendida' }}
+                  </span>
+                </td>
+                <td class="th-center">
+                  <span class="vig-badge" [ngClass]="'vig-' + vigenciaInfo(empresa).estado">
+                    {{ vigenciaInfo(empresa).etiqueta }}
+                  </span>
+                </td>
+                <td>
+                  <div class="cell-actions">
+                    <a [routerLink]="['/super-admin', 'empresas', empresa.id, 'documentos']"
+                       class="btn-icon" title="Documentos PDF">
+                      <span class="mat-icon">description</span>
+                    </a>
+                    <a [routerLink]="['/super-admin', 'empresas', empresa.id, 'ia']"
+                       class="btn-icon icon-ai" title="FISCALIZA-AI">
+                      <span class="mat-icon">smart_toy</span>
+                    </a>
+                    <a [routerLink]="['/super-admin', 'empresas', empresa.id, 'editar']"
+                       class="btn-icon icon-edit" title="Editar">
+                      <span class="mat-icon">edit</span>
+                    </a>
+                    <button (click)="toggleActivo(empresa)" class="btn-icon icon-lock"
+                            [title]="empresa.activa ? 'Suspender' : 'Activar'">
+                      <span class="mat-icon">{{ empresa.activa ? 'lock' : 'lock_open' }}</span>
+                    </button>
+                    <button (click)="eliminar(empresa)" class="btn-icon icon-delete" title="Eliminar">
+                      <span class="mat-icon">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

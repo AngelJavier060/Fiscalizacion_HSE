@@ -1,0 +1,59 @@
+# ============================================
+# FISCALIZACION HSE - .gitignore
+# ============================================
+
+# Backend
+backend/target/
+backend/*.jar
+backend/*.war
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/*.iml
+backend/.idea/
+backend/.vscode/
+backend/venv/
+backend/__pycache__/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.vscode/
+frontend/*.log
+
+# App
+app/node_modules/
+app/.dart_tool/
+app/.packages/
+app/.pub/
+app/build/
+app/android/.gradle/
+app/ios/Pods/
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Env y secretos
+.env
+.env.local
+.env.*.local
+*.local
+
+# Claves locales (DeepSeek, etc.); no versionar
+backend/src/main/resources/application-local.yml
+
+# Docker (datos locales, no versionar)
+docker-data/

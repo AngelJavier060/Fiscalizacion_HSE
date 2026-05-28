@@ -1,0 +1,131 @@
+@import '../dashboard/dashboard.component.scss';
+
+.info-banner {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+
+  .info-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  strong {
+    color: #f1f5f9;
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+}
+
+.table-container {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+  }
+
+  td {
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: #e2e8f0;
+    border-bottom: 1px solid #334155;
+    vertical-align: middle;
+  }
+}
+
+.cell-name {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.cell-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.link-action {
+  color: #93c5fd;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.8125rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &.primary {
+    color: #34d399;
+  }
+}
+
+.btn-primary-sm {
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    filter: brightness(1.08);
+  }
+}
+
+.status-badge {
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &.activo {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+  }
+
+  &.inactivo {
+    background: rgba(248, 113, 113, 0.12);
+    color: #f87171;
+  }
+}
+
+.empty-state,
+.loading-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+}
+
+.sidebar-nav .nav-item {
+  display: block;
+  font-size: 0.875rem;
+}

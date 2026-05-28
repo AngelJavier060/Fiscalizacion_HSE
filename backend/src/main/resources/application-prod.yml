@@ -1,0 +1,10 @@
+# Perfil producción / Docker — sin application-local.yml
+spring:
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    com.fiscalizacionhse: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN

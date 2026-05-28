@@ -1,0 +1,112 @@
+<div class="rp-layout">
+  <app-super-admin-sidebar />
+
+  <main class="rp-main">
+
+    <!-- ── Top bar ───────────────────────────────────── -->
+    <header class="rp-topbar">
+      <div class="rp-topbar-left">
+        <nav class="rp-breadcrumb">
+          <span>Super Admin</span>
+          <span class="rp-sep">›</span>
+          <span class="rp-current">Roles y Permisos</span>
+        </nav>
+        <h1 class="rp-title">Roles y Permisos</h1>
+      </div>
+      <div class="rp-topbar-right">
+        <button type="button" class="rp-btn-ghost" (click)="restaurar()">
+          <span class="mat-icon">restart_alt</span>
+          Restaurar
+        </button>
+        <button type="button" class="rp-btn-primary" (click)="guardar()" [disabled]="guardando || cargando">
+          <span class="mat-icon">{{ guardando ? 'hourglass_top' : (guardado ? 'check' : 'save') }}</span>
+          {{ guardando ? 'Guardando…' : (guardado ? 'Guardado' : 'Guardar cambios') }}
+        </button>
+      </div>
+    </header>
+
+    <!-- ── Canvas ───────────────────────────────────── -->
+    <div class="rp-canvas">
+
+      <p class="rp-intro">
+        Habilita o deshabilita cada <strong>módulo</strong> para cada <strong>rol</strong>.
+        El rol <strong>Super Admin</strong> siempre tiene acceso completo y no puede modificarse.
+      </p>
+
+      <!-- ── Resumen de roles ─────────────────────────── -->
+      <div class="rp-roles-summary">
+        <div class="rp-role-card" *ngFor="let rol of roles" [style.--rc]="rol.color">
+          <div class="rp-role-head">
+            <span class="rp-role-dot"></span>
+            <span class="rp-role-name">{{ rol.label }}</span>
+            <span class="rp-role-lock" *ngIf="rol.bloqueado" title="No editable">
+              <span class="mat-icon">lock</span>
+            </span>
+          </div>
+          <p class="rp-role-desc">{{ rol.descripcion }}</p>
+          <div class="rp-role-count">
+            <strong>{{ contarHabilitados(rol.id) }}</strong> / {{ totalModulos }} módulos
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Matriz ───────────────────────────────────── -->
+      <div class="rp-card">
+        <div class="rp-table-wrap">
+          <table class="rp-matrix">
+            <thead>
+              <tr>
+                <th class="rp-th-modulo">Módulo</th>
+                <th class="rp-th-rol" *ngFor="let rol of roles">
+                  <span class="rp-th-rol-name">{{ rol.label }}</span>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <ng-container *ngFor="let grupo of grupos">
+                <!-- separador de grupo -->
+                <tr class="rp-group-row">
+                  <td [attr.colspan]="roles.length + 1">{{ grupo.grupo }}</td>
+                </tr>
+
+                <tr class="rp-mod-row" *ngFor="let m of grupo.modulos">
+                  <td class="rp-td-modulo">
+                    <div class="rp-mod-info">
+                      <span class="rp-mod-icon"><span class="mat-icon">{{ m.icon }}</span></span>
+                      <div class="rp-mod-text">
+                        <span class="rp-mod-label">{{ m.label }}</span>
+                        <span class="rp-mod-desc">{{ m.descripcion }}</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="rp-td-toggle" *ngFor="let rol of roles">
+                    <button
+                      type="button"
+                      class="rp-switch"
+                      [class.on]="estaActivo(m.id, rol.id)"
+                      [class.locked]="rol.bloqueado"
+                      [disabled]="rol.bloqueado"
+                      (click)="toggle(m.id, rol)"
+                      [attr.aria-label]="(estaActivo(m.id, rol.id) ? 'Deshabilitar ' : 'Habilitar ') + m.label + ' para ' + rol.label"
+                    >
+                      <span class="rp-switch-track"><span class="rp-switch-thumb"></span></span>
+                    </button>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="rp-note">
+        <span class="mat-icon">info</span>
+        Por ahora los cambios se guardan localmente para diseñar la interfaz. En la siguiente
+        etapa conectaremos esta matriz con el backend para que apliquen de verdad.
+      </p>
+
+    </div>
+  </main>
+</div>

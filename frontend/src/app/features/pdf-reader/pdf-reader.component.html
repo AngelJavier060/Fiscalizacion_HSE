@@ -1,0 +1,95 @@
+<div class="pdf-reader-container">
+  <!-- Header -->
+  <header class="reader-header">
+    <div class="reader-header-content">
+      <h1 class="reader-title">
+        <span class="reader-icon">🎧</span>
+        Lector de Títulos PDF
+      </h1>
+      <p class="reader-subtitle">
+        Sube un PDF y escucha solo sus títulos en voz fluida, como en Pocket FM
+      </p>
+    </div>
+  </header>
+
+  <!-- Uploader -->
+  <section class="reader-section">
+    <app-pdf-uploader
+      (pdfProcesado)="onPdfProcesado($event)"
+      (subirNuevo)="onSubirNuevo()"
+    ></app-pdf-uploader>
+  </section>
+
+  <!-- Contenido principal (solo cuando hay títulos) -->
+  @if (pdfTitleService.titulos().length > 0) {
+    <section class="reader-section reader-main">
+      <!-- Lista de títulos -->
+      <div class="reader-list-panel">
+        <div class="panel-header">
+          <h2>
+            <span class="panel-icon">📋</span>
+            Títulos detectados
+          </h2>
+          <span class="badge-total">{{ pdfTitleService.titulos().length }} título{{ pdfTitleService.titulos().length !== 1 ? 's' : '' }}</span>
+        </div>
+        <app-title-list
+          [titulos]="pdfTitleService.titulos()"
+          (tituloClic)="onTituloClic($event.titulo, $event.indice)"
+        ></app-title-list>
+      </div>
+
+      <!-- Controles de audio -->
+      <div class="reader-controls-panel">
+        <div class="panel-header">
+          <h2>
+            <span class="panel-icon">🎛️</span>
+            Control de audio
+          </h2>
+        </div>
+        
+        @if (tituloSeleccionado) {
+          <div class="now-playing">
+            <span class="now-label">Leyendo:</span>
+            <span class="now-text">{{ tituloSeleccionado.texto }}</span>
+          </div>
+        } @else {
+          <div class="now-playing empty">
+            <span class="now-label">Selecciona un título de la lista para escucharlo</span>
+          </div>
+        }
+
+        <app-audio-controls></app-audio-controls>
+      </div>
+    </section>
+  }
+
+  <!-- Estado vacío (sin PDF cargado) -->
+  @if (pdfTitleService.titulos().length === 0 && !pdfTitleService.procesando() && !pdfTitleService.error()) {
+    <section class="reader-section reader-empty">
+      <div class="empty-state">
+        <div class="empty-icon">📄</div>
+        <h2>Sube tu primer PDF</h2>
+        <p>Arrastra o selecciona un archivo PDF para empezar. La app detectará automáticamente los títulos y podrás escucharlos uno por uno.</p>
+        <div class="empty-features">
+          <div class="feature-item">
+            <span class="feature-icon">🔍</span>
+            <span>Detección inteligente de títulos por tamaño de letra</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🔊</span>
+            <span>Lectura en voz fluida con Web Speech API</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🚀</span>
+            <span>Todo en el navegador, sin servidores</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- Footer -->
+  <footer class="reader-footer">
+    <p>⚡ 100% en el navegador • Sin backend • Sin registro • Solo títulos</p>
+  </footer>
+</div>

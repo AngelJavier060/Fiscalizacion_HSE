@@ -1,0 +1,132 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-small">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="#059669"/>
+          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand">Fiscalización HSE</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Mi Empresa</div>
+      <a routerLink="/admin-empresa/dashboard" routerLinkActive="active" class="nav-item" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a *ngIf="tieneModulo('documentos')" routerLink="/admin-empresa/documentos" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">📄</span> Documentos
+      </a>
+      <div class="nav-label" *ngIf="tieneModulo('usuarios')">Accesos</div>
+      <a *ngIf="tieneModulo('usuarios')" routerLink="/admin-empresa/usuarios" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">👥</span> Usuarios
+      </a>
+      <a *ngIf="tieneModulo('usuarios')" routerLink="/admin-empresa/roles" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🎭</span> Roles
+      </a>
+      <div class="nav-label" *ngIf="tieneModulo('ia')">Inteligencia</div>
+      <a *ngIf="tieneModulo('ia')" routerLink="/admin-empresa/ia" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🤖</span> FISCALIZA-AI
+      </a>
+      <div class="nav-label" *ngIf="tieneModulo('recordatorios')">Configuración</div>
+      <a *ngIf="tieneModulo('recordatorios')" routerLink="/admin-empresa/recordatorios" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">🔔</span> Recordatorios
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar admin">{{ user?.nombre?.charAt(0) || 'A' }}</div>
+        <div>
+          <p class="user-name">{{ user?.nombre || 'Admin' }}</p>
+          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+        </div>
+      </div>
+      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <h2>Dashboard - {{ user?.empresaNombre || 'Mi Empresa' }}</h2>
+      <div class="topbar-actions">
+        <span class="badge-admin">ADMIN EMPRESA</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Tarjetas -->
+      <div class="cards-grid">
+        <a *ngIf="tieneModulo('documentos')" routerLink="/admin-empresa/documentos" class="card card-link">
+          <div class="card-icon documentos">📄</div>
+          <div class="card-info">
+            <h3>Documentos</h3>
+            <p class="card-hint">Ver y gestionar PDF normativos</p>
+          </div>
+        </a>
+        <a *ngIf="tieneModulo('documentos')" routerLink="/admin-empresa/documentos/subir" class="card card-link card-cta">
+          <div class="card-icon" style="background:rgba(16,185,129,0.15)">⬆️</div>
+          <div class="card-info">
+            <h3>Subir documento</h3>
+            <p class="card-hint">Añadir un PDF al sistema</p>
+          </div>
+        </a>
+        <a *ngIf="tieneModulo('usuarios')" routerLink="/admin-empresa/usuarios" class="card card-link">
+          <div class="card-icon usuarios">👥</div>
+          <div class="card-info">
+            <h3>Usuarios</h3>
+            <p class="card-hint">Equipo con acceso a la empresa</p>
+          </div>
+        </a>
+        <a *ngIf="tieneModulo('usuarios')" routerLink="/admin-empresa/roles" class="card card-link">
+          <div class="card-icon" style="background: rgba(168, 85, 247, 0.12)">🎭</div>
+          <div class="card-info">
+            <h3>Roles</h3>
+            <p class="card-hint">Permisos Admin / Usuario</p>
+          </div>
+        </a>
+        <a *ngIf="tieneModulo('recordatorios')" routerLink="/admin-empresa/recordatorios" class="card card-link">
+          <div class="card-icon recordatorios">🔔</div>
+          <div class="card-info">
+            <h3>Recordatorios</h3>
+            <p class="card-hint">Gestionar alertas</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Próximos pasos -->
+      <div class="info-section">
+        <h3>📋 Próximos pasos</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-info">
+              <h4>Subir documentos normativos</h4>
+              <p>Carga los PDFs con las normativas HSE de tu empresa</p>
+            </div>
+            <a routerLink="/admin-empresa/documentos/subir" class="step-action btn-primary-sm">Subir PDF</a>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-info">
+              <h4>Gestionar usuarios</h4>
+              <p>Crea los usuarios que accederán a la documentación</p>
+            </div>
+            <a routerLink="/admin-empresa/usuarios" class="step-action btn-primary-sm">Ver usuarios</a>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-info">
+              <h4>Configurar recordatorios</h4>
+              <p>Define qué documentos recordar y cada cuánto tiempo</p>
+            </div>
+            <a routerLink="/admin-empresa/recordatorios" class="step-action btn-secondary-sm">Recordatorios</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,104 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-small">
+        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="#0284c7"/>
+          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="brand">Fiscalización HSE</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Mi Panel</div>
+      <a class="nav-item active">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a class="nav-item" *ngIf="tieneModulo('documentos')">
+        <span class="nav-icon">📄</span> Documentos
+      </a>
+      <a class="nav-item" *ngIf="tieneModulo('recordatorios')">
+        <span class="nav-icon">🔔</span> Mis Recordatorios
+      </a>
+      <a class="nav-item" *ngIf="tieneModulo('ia')">
+        <span class="nav-icon">🔍</span> Buscar
+      </a>
+      <a class="nav-item" *ngIf="tieneModulo('ia')">
+        <span class="nav-icon">🤖</span> Preguntar a la IA
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar user">{{ user?.nombre?.charAt(0) || 'U' }}</div>
+        <div>
+          <p class="user-name">{{ user?.nombre || 'Usuario' }}</p>
+          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+        </div>
+      </div>
+      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <h2>Dashboard</h2>
+      <div class="topbar-actions">
+        <span class="badge-user">USUARIO</span>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Tarjetas -->
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon pendientes">📋</div>
+          <div class="card-info">
+            <h3>Mis Pendientes Hoy</h3>
+            <p class="card-value">0</p>
+            <p class="card-sub">Revisa lo que tienes pendiente</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon docs">📄</div>
+          <div class="card-info">
+            <h3>Documentos</h3>
+            <p class="card-value">0</p>
+            <p class="card-sub">Disponibles para consulta</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon notificaciones">🔔</div>
+          <div class="card-info">
+            <h3>Notificaciones</h3>
+            <p class="card-value">0</p>
+            <p class="card-sub">Sin leer</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bienvenida -->
+      <div class="welcome-section">
+        <div class="welcome-card">
+          <h3>👋 ¡Bienvenido a Fiscalización HSE!</h3>
+          <p>Este es tu centro de control. Aquí podrás:</p>
+          <ul>
+            <li>📄 Consultar documentos y normativas HSE</li>
+            <li>🔔 Recibir recordatorios automáticos</li>
+            <li>🔍 Buscar información en todos los documentos</li>
+            <li>🤖 Hacer preguntas a la IA sobre las normativas</li>
+          </ul>
+          <div class="badges">
+            <span class="feature-badge">Fase 1: Core ✓</span>
+            <span class="feature-badge pending">Fase 2: Documentos</span>
+            <span class="feature-badge pending">Fase 3: Recordatorios</span>
+            <span class="feature-badge pending">Fase 4: IA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

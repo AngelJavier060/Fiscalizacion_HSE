@@ -1,0 +1,674 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0..1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+// ── Tokens de diseño ────────────────────────────────────────────────
+$primary:       #003ec7;
+$primary-light: #1a5cf8;
+$on-primary:    #ffffff;
+$secondary:     #006b5b;
+$teal:          #00897b;
+$error:         #ba1a1a;
+$violet:        #5c35c2;
+$orange:        #d45800;
+
+$surface:                 #faf8ff;
+$surface-container:       #eaedff;
+$surface-container-low:   #f2f3ff;
+$surface-container-lowest:#ffffff;
+$on-surface:              #131b2e;
+$on-surface-variant:      #434656;
+$outline:                 #737688;
+$outline-variant:         #c3c5d9;
+$background:              #f2f3ff;
+
+$sidebar-width: 280px;
+$topbar-height: 56px;
+$radius-sm:  8px;
+$radius-md:  12px;
+$radius-lg:  16px;
+$shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+$shadow-md:  0 4px 12px rgba(0,62,199,.08);
+$shadow-lg:  0 8px 24px rgba(0,62,199,.12);
+
+// ── Utilidades globales ──────────────────────────────────────────────
+.mat-icon {
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+
+  &.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+}
+
+// ── Layout ───────────────────────────────────────────────────────────
+:host { display: block; }
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: $background;
+  color: $on-surface;
+  font-family: 'Inter', sans-serif;
+}
+
+// La barra lateral usa position:fixed pero su :host reserva 280px como flex-item.
+// .main-content con flex:1 ocupa TODO el espacio restante sin margin-left extra.
+.main-content {
+  flex: 1;
+  min-width: 0;           // evita overflow en flex
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: $background;
+}
+
+// ── Top App Bar ──────────────────────────────────────────────────────
+$topbar-height: 60px;
+
+.top-app-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: $topbar-height;
+  padding: 0 32px;
+  background: rgba($primary, 0.08);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba($outline-variant, 0.6);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.topbar-route {
+  color: $primary;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.topbar-sep, .topbar-sub {
+  color: $outline;
+  font-size: 14px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: $on-surface-variant;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+
+  &:hover { background: $surface-container; color: $primary; }
+}
+
+.notif-dot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 7px; height: 7px;
+  background: $error;
+  border-radius: 50%;
+  border: 1.5px solid $surface-container-lowest;
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 28px;
+  background: $outline-variant;
+  margin: 0 6px;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-role {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: $primary;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: $on-surface-variant;
+  line-height: 1.2;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: $primary;
+  color: $on-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .mat-icon { font-size: 16px; }
+}
+
+// ── Canvas ───────────────────────────────────────────────────────────
+.dashboard-canvas {
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+// ── Welcome Row ──────────────────────────────────────────────────────
+.welcome-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba($outline-variant, 0.5);
+}
+
+.welcome-title {
+  margin: 0 0 6px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: $on-surface;
+}
+
+.welcome-sub {
+  margin: 0;
+  font-size: 16px;
+  color: $outline;
+  max-width: 600px;
+}
+
+.date-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: $surface-container-lowest;
+  border: 1px solid $outline-variant;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $on-surface-variant;
+  white-space: nowrap;
+  .mat-icon { font-size: 15px; color: $primary; }
+}
+
+// ── Stats Grid ───────────────────────────────────────────────────────
+// minmax(180px, 1fr) → siempre 4 columnas en pantallas > 900px totales
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.skeleton-card {
+  height: 140px;
+  background: linear-gradient(90deg, $surface-container 25%, $surface-container-low 50%, $surface-container 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: $radius-md;
+}
+
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 28px 22px;
+  background: $surface-container-lowest;
+  border: 1px solid $outline-variant;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  transition: box-shadow 0.25s, transform 0.25s;
+
+  &:hover {
+    box-shadow: $shadow-lg;
+    transform: translateY(-4px);
+    .sc-bg-icon { opacity: 0.22; }
+  }
+
+  &.accent-blue  { border-top: 4px solid $primary; }
+  &.accent-teal  { border-top: 4px solid $teal; }
+  &.accent-red   { border-top: 4px solid $error; }
+  &.accent-violet{ border-top: 4px solid $violet; }
+}
+
+.sc-bg-icon {
+  position: absolute;
+  top: 6px; right: 6px;
+  font-size: 100px;
+  opacity: 0.07;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  font-variation-settings: 'FILL' 1;
+  color: currentColor;
+}
+
+.sc-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.sc-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .mat-icon { font-size: 24px; }
+
+  &.blue   { background: rgba($primary, .12); color: $primary; }
+  &.teal   { background: rgba($teal, .12);    color: $teal; }
+  &.red    { background: rgba($error, .1);    color: $error; }
+  &.violet { background: rgba($violet, .12);  color: $violet; }
+}
+
+.sc-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: $outline;
+}
+
+.sc-value {
+  margin: 0 0 12px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 60px;
+  font-weight: 800;
+  line-height: 1;
+  color: $primary;
+  letter-spacing: -0.04em;
+
+  &.red { color: $error; }
+}
+
+.sc-bar {
+  height: 6px;
+  background: $surface-container;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.sc-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s ease;
+
+  &.blue   { background: linear-gradient(90deg, $primary, $primary-light); }
+  &.teal   { background: linear-gradient(90deg, $teal, #26c6b9); }
+  &.red    { background: linear-gradient(90deg, $error, #f44336); }
+  &.violet { background: linear-gradient(90deg, $violet, #9c6dff); }
+}
+
+.sc-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  .mat-icon { font-size: 15px; }
+
+  &.success { color: $secondary; }
+  &.warn    { color: $error; }
+  &.muted   { color: $on-surface-variant; }
+
+  a { color: inherit; text-decoration: none; &:hover { text-decoration: underline; } }
+}
+
+// ── Mid grid ─────────────────────────────────────────────────────────
+.mid-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.card-panel {
+  background: $surface-container-lowest;
+  border: 1px solid $outline-variant;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  padding: 28px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.panel-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-title-icon {
+  font-size: 22px;
+  color: $primary;
+}
+
+.panel-title {
+  margin: 0;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: $on-surface;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  .mat-icon { font-size: 13px; }
+
+  &.ok {
+    background: rgba($secondary, .12);
+    color: $secondary;
+  }
+}
+
+.panel-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: $primary;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+// ── Health Panel ─────────────────────────────────────────────────────
+.health-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.health-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.hi-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.hi-icon {
+  font-size: 20px;
+  color: $primary;
+}
+
+.hi-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: $on-surface-variant;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hi-bar-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hi-bar {
+  flex: 1;
+  height: 10px;
+  background: $surface-container;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.hi-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, $primary, $primary-light);
+  transition: width 1.2s ease;
+
+  &.warn { background: linear-gradient(90deg, $error, #f44336); }
+  &.ok   { background: linear-gradient(90deg, $secondary, #26c6b9); }
+}
+
+.hi-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: $on-surface;
+  width: 36px;
+  text-align: right;
+}
+
+// ── Activity Panel ───────────────────────────────────────────────────
+.activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid $surface-container;
+
+  &:last-child { border-bottom: none; }
+}
+
+.ai-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+
+  &.login     { background: $secondary; box-shadow: 0 0 0 3px rgba($secondary,.15); }
+  &.upload    { background: $primary;   box-shadow: 0 0 0 3px rgba($primary,.15); }
+  &.empresa   { background: $violet;    box-shadow: 0 0 0 3px rgba($violet,.15); }
+  &.auditoria { background: $orange;    box-shadow: 0 0 0 3px rgba($orange,.15); }
+  &.error     { background: $error;     box-shadow: 0 0 0 3px rgba($error,.15); }
+}
+
+.ai-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.ai-msg {
+  margin: 0 0 3px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $on-surface;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-time {
+  font-size: 12px;
+  color: $outline;
+}
+
+// ── Quick Actions ─────────────────────────────────────────────────────
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  margin: 0;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: $on-surface;
+}
+
+.section-sub {
+  font-size: 13px;
+  color: $outline;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  background: $surface-container-lowest;
+  border: 1px solid $outline-variant;
+  border-radius: $radius-md;
+  text-decoration: none;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+
+  &:hover {
+    background: $surface-container-low;
+    border-color: $primary;
+    box-shadow: $shadow-md;
+    transform: translateY(-1px);
+
+    .ac-arrow { opacity: 1; transform: translateX(2px); }
+  }
+
+  &.ac-primary {
+    background: $primary;
+    border-color: $primary;
+    .ac-title, .ac-desc { color: $on-primary !important; }
+    .ac-arrow { color: rgba($on-primary, 0.6); }
+
+    &:hover {
+      background: $primary-light;
+      border-color: $primary-light;
+    }
+  }
+}
+
+.ac-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: $surface-container;
+  color: $primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  .mat-icon { font-size: 26px; }
+
+  &.secondary { background: rgba($secondary, .12); color: $secondary; }
+  &.teal      { background: rgba($teal, .12);      color: $teal; }
+  &.violet    { background: rgba($violet, .12);    color: $violet; }
+  &.ai        { background: linear-gradient(135deg, $primary, $violet); color: white; }
+  &.orange    { background: rgba($orange, .12);    color: $orange; }
+}
+
+.ac-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ac-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: $on-surface;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ac-desc {
+  font-size: 12px;
+  color: $outline;
+  margin-top: 3px;
+}
+
+.ac-arrow {
+  font-size: 18px;
+  color: $outline-variant;
+  opacity: 0.5;
+  transition: opacity 0.18s, transform 0.18s;
+}
+
+// ── Responsive ───────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .main-content { margin-left: 0; }
+  .welcome-title { font-size: 22px; }
+  .date-chip { display: none; }
+  .user-info { display: none; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

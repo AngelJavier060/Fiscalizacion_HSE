@@ -1,0 +1,79 @@
+<div class="uploader-container">
+  <!-- Cuando NO hay títulos todavía: mostrar el área de subida grande -->
+  @if (pdfTitleService.titulos().length === 0 && !pdfTitleService.procesando()) {
+    <div
+      class="uploader-dropzone"
+      [class.drag-over]="dragOver"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <input
+        #fileInput
+        type="file"
+        accept=".pdf,application/pdf"
+        (change)="onFileSelected($event)"
+        class="uploader-input"
+        id="pdf-file-input"
+      />
+      <label for="pdf-file-input" class="uploader-label">
+        <div class="uploader-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="6" width="32" height="40" rx="4" stroke="#94a3b8" stroke-width="2" fill="none"/>
+            <line x1="16" y1="22" x2="32" y2="22" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="28" x2="28" y2="28" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="34" x2="24" y2="34" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+            <path d="M24 14 L24 10 M24 10 L20 14 M24 10 L28 14" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="uploader-text">
+          <span class="uploader-title">Arrastra tu PDF aquí o haz clic para seleccionar</span>
+          <span class="uploader-hint">Solo archivos .pdf</span>
+        </div>
+      </label>
+    </div>
+  }
+
+  <!-- Cuando hay un PDF cargado: mostrar barra compacta para subir otro -->
+  @if (pdfTitleService.titulos().length > 0) {
+    <div class="uploader-bar">
+      <div class="uploader-bar-info">
+        <span class="bar-icon">📄</span>
+        <div class="bar-text">
+          <span class="bar-filename">{{ pdfTitleService.nombreArchivo() }}</span>
+          <span class="bar-count">{{ pdfTitleService.titulos().length }} títulos detectados</span>
+        </div>
+      </div>
+      <div class="uploader-bar-actions">
+        <input
+          #fileInput2
+          type="file"
+          accept=".pdf,application/pdf"
+          (change)="onFileSelected($event)"
+          class="uploader-input"
+          id="pdf-file-input-2"
+        />
+        <label for="pdf-file-input-2" class="btn-subir-nuevo">
+          Subir otro PDF
+        </label>
+      </div>
+    </div>
+  }
+
+  <!-- Indicador de procesamiento -->
+  @if (pdfTitleService.procesando()) {
+    <div class="uploader-processing">
+      <div class="processing-spinner"></div>
+      <span>Procesando PDF, detectando títulos...</span>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (pdfTitleService.error(); as errorMsg) {
+    <div class="uploader-error">
+      <span class="error-icon">⚠️</span>
+      <span>{{ errorMsg }}</span>
+      <button class="error-close" (click)="pdfTitleService.error.set(null)">✕</button>
+    </div>
+  }
+</div>
