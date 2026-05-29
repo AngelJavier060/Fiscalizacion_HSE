@@ -1,116 +1,117 @@
-<div class="dashboard-container">
+<div class="docs-page">
+  <!-- Sidebar (mismo layout que lista de documentos) -->
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-small">
-        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-          <rect width="48" height="48" rx="12" fill="#059669"/>
-          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <span class="brand">Fiscalización HSE</span>
+    <div class="sidebar-brand">
+      <h1 class="brand-title">
+        <span class="mat-icon brand-icon">security</span>
+        Fiscalización HSE
+      </h1>
+      <p class="brand-sub">{{ esRutaSuperAdmin ? 'Panel de Gestión' : 'Mi Empresa' }}</p>
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-label">{{ esRutaSuperAdmin ? 'Super Admin' : 'Mi Empresa' }}</div>
-      <a [routerLink]="nav.sidebarInicio" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: esRutaSuperAdmin }" class="nav-item">
-        <span class="nav-icon">{{ esRutaSuperAdmin ? '🏢' : '📊' }}</span>
-        {{ esRutaSuperAdmin ? 'Empresas' : 'Dashboard' }}
+      <a [routerLink]="nav.sidebarInicio" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: esRutaSuperAdmin }" class="nav-link">
+        <span class="mat-icon">business</span>
+        <span>{{ esRutaSuperAdmin ? 'Empresas' : 'Dashboard' }}</span>
       </a>
-      <a [routerLink]="nav.documentos" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">📄</span> Documentos
+      <a [routerLink]="nav.documentos" routerLinkActive="active" class="nav-link">
+        <span class="mat-icon">description</span>
+        <span>Documentos</span>
       </a>
-      <ng-container *ngIf="esRutaSuperAdmin">
-        <div class="nav-label">Inteligencia</div>
-        <a [routerLink]="nav.ia" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">🤖</span> FISCALIZA-AI
+      @if (esRutaSuperAdmin) {
+        <a [routerLink]="nav.ia" routerLinkActive="active" class="nav-link">
+          <span class="mat-icon">psychology</span>
+          <span>IA</span>
         </a>
-      </ng-container>
+      }
     </nav>
 
     <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar admin">{{ user?.nombre?.charAt(0) || 'A' }}</div>
-        <div>
-          <p class="user-name">{{ user?.nombre || 'Admin' }}</p>
-          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+      <div class="user-block">
+        <div class="user-avatar">{{ inicialesUsuario }}</div>
+        <div class="user-meta">
+          <span class="user-name">{{ user?.nombre || 'Administrador' }}</span>
+          <span class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</span>
         </div>
       </div>
-      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+      <button type="button" class="btn-logout" (click)="logout()">Cerrar Sesión</button>
     </div>
   </aside>
 
-  <main class="main-content">
-    <header class="topbar">
-      <h2>📄 Subir Documento Normativo</h2>
-      <a [routerLink]="nav.documentos" class="btn-back">← Volver</a>
-    </header>
+  <header class="top-app-bar">
+    <span class="topbar-title">Subir documento normativo</span>
+    <div class="topbar-actions">
+      <a [routerLink]="nav.documentos" class="btn-back">
+        <span class="mat-icon">arrow_back</span>
+        Volver
+      </a>
+    </div>
+  </header>
 
-    <div class="content">
+  <main class="page-main">
+    <div class="upload-layout">
       <div class="form-container">
-        <!-- Error -->
-        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+        @if (errorMessage) {
+          <div class="error-message">{{ errorMessage }}</div>
+        }
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <!-- Drop Zone -->
-          <div class="upload-zone" 
+          <div class="upload-zone"
                [class.has-file]="archivoSeleccionado"
                (dragover)="$event.preventDefault()"
                (drop)="onDrop($event)">
-            
-            <ng-container *ngIf="!archivoSeleccionado">
-              <div class="upload-icon">📄</div>
+
+            @if (!archivoSeleccionado) {
+              <div class="upload-icon mat-icon">upload_file</div>
               <h3>Arrastra tu PDF aquí</h3>
               <p>o haz clic para seleccionar</p>
-              <input type="file" accept=".pdf,application/pdf" 
-                     (change)="onArchivoSeleccionado($event)" class="file-input"/>
+              <input type="file" accept=".pdf,application/pdf"
+                     (change)="onArchivoSeleccionado($event)" class="file-input" />
               <span class="upload-hint">PDF hasta 100 MB</span>
-            </ng-container>
-
-            <ng-container *ngIf="archivoSeleccionado">
+            } @else {
               <div class="file-selected">
-                <span class="file-icon">📑</span>
+                <span class="mat-icon file-icon">picture_as_pdf</span>
                 <div class="file-info">
                   <strong>{{ archivoSeleccionado.name }}</strong>
                   <span>{{ (archivoSeleccionado.size / 1048576).toFixed(1) }} MB</span>
                 </div>
-                <button type="button" (click)="removerArchivo()" class="btn-remove">✕</button>
+                <button type="button" (click)="removerArchivo()" class="btn-remove" aria-label="Quitar archivo">
+                  <span class="mat-icon">close</span>
+                </button>
               </div>
-            </ng-container>
+            }
           </div>
 
-          <!-- Título -->
           <div class="form-group">
             <label>Título del documento *</label>
             <input type="text" formControlName="titulo" placeholder="Nombre del documento normativo" />
           </div>
 
-          <!-- Descripción -->
           <div class="form-group">
             <label>Descripción</label>
             <textarea formControlName="descripcion" placeholder="Breve descripción del contenido..." rows="3"></textarea>
           </div>
 
-          <!-- Info del procesamiento -->
           <div class="info-box">
-            <span class="info-icon">🤖</span>
+            <span class="mat-icon info-icon">smart_toy</span>
             <div class="info-content">
               <strong>Procesamiento automático</strong>
               <p>
-                Al subir, el sistema guarda el PDF, extrae el texto (PDF grandes de decenas de MB pueden tardar varios minutos solo en esta etapa),
-                detecta idioma, traduce si hace falta y genera un primer lote de <strong>puntos clave</strong> con IA.
-                Para manejar mejor la espera en documentos muy extensos, la primera vez solo analiza hasta unas pocas secciones;
-                después puede usar en el detalle del documento <strong>«Regenerar puntos IA»</strong> para ampliar el análisis.
+                Al subir, el sistema guarda el PDF, extrae el texto, detecta idioma, traduce si hace falta
+                y genera un primer lote de <strong>puntos clave</strong> con IA.
+                En documentos muy extensos puede usar en el detalle <strong>«Regenerar puntos IA»</strong>
+                para ampliar el análisis.
               </p>
             </div>
           </div>
 
-          <!-- Botón -->
-          <button type="submit" class="btn-submit" 
+          <button type="submit" class="btn-submit"
                   [disabled]="form.invalid || !archivoSeleccionado || subiendo">
-            <span *ngIf="!subiendo">
-              {{ archivoSeleccionado ? '🚀 Subir y procesar documento' : 'Selecciona un PDF primero' }}
-            </span>
-            <span *ngIf="subiendo" class="spinner"></span>
+            @if (!subiendo) {
+              {{ archivoSeleccionado ? 'Subir y procesar documento' : 'Selecciona un PDF primero' }}
+            } @else {
+              <span class="spinner"></span>
+            }
           </button>
         </form>
       </div>

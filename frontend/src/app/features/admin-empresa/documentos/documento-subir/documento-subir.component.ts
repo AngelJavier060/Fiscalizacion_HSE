@@ -38,6 +38,15 @@ export class DocumentoSubirComponent implements OnInit {
   });
   esRutaSuperAdmin = false;
 
+  get inicialesUsuario(): string {
+    const nombre = this.user?.nombre?.trim() || 'A';
+    const partes = nombre.split(/\s+/);
+    if (partes.length >= 2) {
+      return (partes[0][0] + partes[1][0]).toUpperCase();
+    }
+    return nombre.substring(0, 2).toUpperCase();
+  }
+
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
