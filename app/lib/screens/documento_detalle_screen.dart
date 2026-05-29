@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../models/documento_model.dart';
 import '../services/documento_service.dart';
+import '../services/documento_sync_service.dart';
+import '../services/documento_offline_service.dart';
 
 /// Paleta clara MD3 (consistente con FISCALIZA-AI y lector).
 class _Pal {
@@ -31,32 +35,99 @@ class DocumentoDetalleScreen extends StatefulWidget {
   State<DocumentoDetalleScreen> createState() => _DocumentoDetalleScreenState();
 }
 
-class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen> {
+class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen>
+    with WidgetsBindingObserver {
   DocumentoDetalle? _detalle;
   bool _isLoading = true;
+  bool _reprocesando = false;
+  Timer? _pollTimer;
+  static const _pollInterval = Duration(seconds: 10);
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadDetalle();
+    _iniciarPollContinuo();
   }
 
-  Future<void> _loadDetalle() async {
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadDetalle();
+    }
+  }
+
+  void _iniciarPollContinuo() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(_pollInterval, (_) => _loadDetalle(silencioso: true));
+  }
+
+  Future<void> _loadDetalle({bool silencioso = false}) async {
     try {
-      final detalle = await DocumentoService.getDocumentoDetalle(widget.documentoId);
+      final detalle =
+          await DocumentoService.getDocumentoDetalle(widget.documentoId);
+      final cambio = _detalle != null &&
+          await DocumentoSyncService.documentoCambioEnServidor(detalle.documento);
+      if (cambio) {
+        await DocumentoOfflineService.eliminar(widget.documentoId);
+      }
+      await DocumentoSyncService.registrarDocumento(detalle.documento);
       if (mounted) {
         setState(() {
           _detalle = detalle;
-          _isLoading = false;
+          if (!silencioso) _isLoading = false;
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted && !silencioso) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _reprocesar() async {
+    if (_reprocesando) return;
+    setState(() => _reprocesando = true);
+    try {
+      await DocumentoService.reprocesar(widget.documentoId);
+      if (mounted) await _loadDetalle();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo reprocesar el documento')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _reprocesando = false);
+    }
+  }
+
+  void _abrirLector() {
+    if (_detalle?.documento.isProcesando ?? false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('El PDF aún se está procesando. Espere unos minutos.'),
+        ),
+      );
+      return;
+    }
+    Navigator.pushNamed(
+      context,
+      '/documento-lector',
+      arguments: {'id': widget.documentoId, 'titulo': widget.titulo},
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final doc = _detalle?.documento;
+
     return Scaffold(
       backgroundColor: _Pal.bg,
       appBar: AppBar(
@@ -91,7 +162,28 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      // Info del documento
+                      if (doc != null && doc.isProcesando)
+                        _EstadoBanner(
+                          icon: Icons.sync_rounded,
+                          color: _Pal.primary,
+                          titulo: 'Procesando PDF…',
+                          subtitulo:
+                              'Extrayendo texto. La lista se actualiza sola.',
+                        ),
+                      if (doc != null && doc.isError)
+                        _EstadoBanner(
+                          icon: Icons.error_outline_rounded,
+                          color: _Pal.error,
+                          titulo: 'Error al procesar',
+                          subtitulo: doc.errorProcesamiento ??
+                              'No se pudo extraer el texto del PDF.',
+                          accion: _reprocesando
+                              ? null
+                              : TextButton(
+                                  onPressed: _reprocesar,
+                                  child: const Text('Reprocesar PDF'),
+                                ),
+                        ),
                       Card(
                         color: _Pal.surface,
                         elevation: 0,
@@ -164,21 +256,14 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
-                      // Acción principal: leer y escuchar
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () => Navigator.pushNamed(
-                            context,
-                            '/documento-lector',
-                            arguments: {
-                              'id': widget.documentoId,
-                              'titulo': widget.titulo,
-                            },
-                          ),
+                          onPressed: _abrirLector,
                           icon: const Icon(Icons.headphones_rounded),
-                          label: const Text('Leer y escuchar'),
+                          label: Text(doc?.isProcesando == true
+                              ? 'Esperando procesamiento…'
+                              : 'Leer y escuchar'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _Pal.primary,
                             foregroundColor: Colors.white,
@@ -194,8 +279,6 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-
-                      // Puntos Clave
                       Row(
                         children: [
                           const Icon(Icons.checklist_rounded,
@@ -228,7 +311,6 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
-
                       if (_detalle!.puntosClave.isEmpty)
                         Card(
                           color: _Pal.surface,
@@ -337,6 +419,62 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen> {
                     ],
                   ),
                 ),
+    );
+  }
+}
+
+class _EstadoBanner extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String titulo;
+  final String subtitulo;
+  final Widget? accion;
+
+  const _EstadoBanner({
+    required this.icon,
+    required this.color,
+    required this.titulo,
+    required this.subtitulo,
+    this.accion,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: color.withValues(alpha: 0.08),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(titulo,
+                      style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text(subtitulo,
+                      style: const TextStyle(
+                          color: _Pal.onSurfaceVar, fontSize: 13)),
+                  if (accion != null) accion!,
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

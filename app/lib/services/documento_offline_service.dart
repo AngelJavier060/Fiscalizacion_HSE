@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/documento_model.dart';
 import 'documento_service.dart';
+import 'documento_sync_service.dart';
 
 /// Guarda el texto de los documentos en el teléfono para leerlos SIN internet
 /// (igual que la música descargada). El texto se guarda en un archivo local y
@@ -29,29 +30,48 @@ class DocumentoOfflineService {
 
   /// Descarga el texto del backend y lo guarda en el teléfono.
   static Future<void> descargar(int id, String titulo) async {
+    final doc = await DocumentoService.getDocumento(id);
     final texto = await DocumentoService.getTextoCompleto(id);
-    await guardarTexto(texto, titulo);
+    await guardarTexto(
+      texto,
+      titulo,
+      updatedAt: doc.updatedAt ?? doc.createdAt,
+    );
+    await DocumentoSyncService.registrarDocumento(doc);
   }
 
   /// Guarda en el teléfono un texto ya obtenido (para cachear automáticamente).
-  static Future<void> guardarTexto(DocumentoTexto texto, String titulo) async {
+  static Future<void> guardarTexto(
+    DocumentoTexto texto,
+    String titulo, {
+    String? updatedAt,
+  }) async {
+    if (!texto.tieneTexto) return;
     final file = await _archivo(texto.id);
     await file.writeAsString(jsonEncode({
       'id': texto.id,
       'titulo': texto.titulo,
       'textoCompleto': texto.textoCompleto,
+      'textoEstructurado': texto.textoEstructurado,
+      'textoEditor': texto.textoEditor,
       'idioma': texto.idioma,
+      'updatedAt': updatedAt,
     }));
-    await _registrar(texto.id, titulo, texto.textoCompleto.length);
+    await _registrar(texto.id, titulo, texto.textoParaLectura.length, updatedAt);
   }
 
-  /// Lee el texto guardado en el teléfono (o null si no está descargado).
+  /// Lee el texto guardado en el teléfono (o null si no está o está vacío).
   static Future<DocumentoTexto?> obtener(int id) async {
     try {
       final file = await _archivo(id);
       if (!await file.exists()) return null;
       final data = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
-      return DocumentoTexto.fromJson(data);
+      final texto = DocumentoTexto.fromJson(data);
+      if (!texto.tieneTexto) {
+        await eliminar(id);
+        return null;
+      }
+      return texto;
     } catch (_) {
       return null;
     }
@@ -77,15 +97,28 @@ class DocumentoOfflineService {
     return _leerIndice(prefs).keys.map(int.parse).toSet();
   }
 
-  static Future<void> _registrar(int id, String titulo, int chars) async {
+  static Future<void> _registrar(
+    int id,
+    String titulo,
+    int chars,
+    String? updatedAt,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final idx = _leerIndice(prefs);
     idx[id.toString()] = {
       'titulo': titulo,
       'chars': chars,
       'fecha': DateTime.now().toIso8601String(),
+      'updatedAt': updatedAt,
     };
     await prefs.setString(_keyIndice, jsonEncode(idx));
+  }
+
+  static Future<String?> getUpdatedAt(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final entry = _leerIndice(prefs)[id.toString()];
+    if (entry is Map) return entry['updatedAt'] as String?;
+    return null;
   }
 
   static Map<String, dynamic> _leerIndice(SharedPreferences prefs) {

@@ -1112,6 +1112,7 @@ public class DocumentoService {
                 .subidoPorId(d.getSubidoPor().getId())
                 .subidoPorNombre(d.getSubidoPor().getNombre())
                 .createdAt(d.getCreatedAt())
+                .updatedAt(d.getUpdatedAt())
                 .build();
     }
 

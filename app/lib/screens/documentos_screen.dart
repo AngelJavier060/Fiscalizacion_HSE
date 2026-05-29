@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -6,6 +8,7 @@ import '../models/documento_model.dart';
 import '../models/user_model.dart';
 import '../services/documento_service.dart';
 import '../services/documento_offline_service.dart';
+import '../services/documento_sync_service.dart';
 import '../services/auth_service.dart';
 
 /// Paleta clara MD3 (consistente con FISCALIZA-AI y lector).
@@ -29,8 +32,10 @@ class DocumentosScreen extends StatefulWidget {
   State<DocumentosScreen> createState() => _DocumentosScreenState();
 }
 
-class _DocumentosScreenState extends State<DocumentosScreen> {
+class _DocumentosScreenState extends State<DocumentosScreen>
+    with WidgetsBindingObserver {
   static const _keyEmpresaSel = 'doc_empresa_seleccionada';
+  static const _pollInterval = Duration(seconds: 15);
 
   List<DocumentoModel> _documentos = [];
   List<DocumentoModel> _documentosFiltrados = [];
@@ -42,11 +47,50 @@ class _DocumentosScreenState extends State<DocumentosScreen> {
   // Selector de empresa (solo para SUPER_ADMIN que no pertenece a una empresa)
   bool _esSuperAdmin = false;
   List<EmpresaOpcion> _empresas = [];
+  Timer? _pollTimer;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadDocumentos();
+    _iniciarPollContinuo();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refrescarSilencioso();
+    }
+  }
+
+  void _iniciarPollContinuo() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(_pollInterval, (_) => _refrescarSilencioso());
+  }
+
+  Future<void> _refrescarSilencioso() async {
+    if (_empresaId <= 0) return;
+    try {
+      final docs = await DocumentoService.getDocumentos(_empresaId);
+      await DocumentoSyncService.aplicarListaServidor(docs);
+      if (!mounted) return;
+      setState(() {
+        _documentos = docs;
+        if (_busqueda.isEmpty) {
+          _documentosFiltrados = docs;
+        } else {
+          _filtrar(_busqueda);
+        }
+      });
+    } catch (_) {}
   }
 
   Future<void> _loadDocumentos() async {
@@ -98,6 +142,7 @@ class _DocumentosScreenState extends State<DocumentosScreen> {
       }
 
       final docs = await DocumentoService.getDocumentos(_empresaId);
+      await DocumentoSyncService.aplicarListaServidor(docs);
       if (mounted) {
         setState(() {
           _documentos = docs;
@@ -559,6 +604,22 @@ class _DocumentoCardState extends State<_DocumentoCard> {
                       style: const TextStyle(
                           color: _Pal.onSurfaceVar, fontSize: 11),
                     ),
+                    if (documento.isProcesando)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 6),
+                        child: _ChipEstado(
+                          label: 'Procesando PDF…',
+                          color: _Pal.primary,
+                        ),
+                      ),
+                    if (documento.isError)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: _ChipEstado(
+                          label: 'Error al procesar',
+                          color: _Pal.error,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -574,6 +635,33 @@ class _DocumentoCardState extends State<_DocumentoCard> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChipEstado extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _ChipEstado({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(99),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

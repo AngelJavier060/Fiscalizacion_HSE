@@ -33,4 +33,5 @@ public class DocumentoResponse {
     private Long subidoPorId;
     private String subidoPorNombre;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

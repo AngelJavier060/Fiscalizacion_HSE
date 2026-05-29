@@ -11,15 +11,25 @@ class ApiService {
   static Future<Map<String, dynamic>> get(
     String endpoint, {
     Map<String, String>? params,
+    Duration? receiveTimeout,
   }) async {
     try {
       final headers = await AuthService.getAuthHeaders();
-      final response = await _client.get(
+      final request = http.Request(
+        'GET',
         ApiConfig.uri(endpoint, params: params),
-        headers: headers,
+      )..headers.addAll(headers);
+
+      final streamed = await _client.send(request).timeout(
+        receiveTimeout ?? ApiConfig.receiveTimeout,
+        onTimeout: () => throw ApiException(
+          'La respuesta tardó demasiado. Verifica tu conexión e inténtalo de nuevo.',
+        ),
       );
+      final response = await http.Response.fromStream(streamed);
       return _handleResponse(response);
     } catch (e) {
+      if (e is ApiException) rethrow;
       throw ApiException('Error GET $endpoint: $e');
     }
   }
@@ -56,6 +66,31 @@ class ApiService {
       return _handleResponse(response);
     } catch (e) {
       throw ApiException('Error POST $endpoint: $e');
+    }
+  }
+
+  /// PUT request autenticado
+  static Future<Map<String, dynamic>> put(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    Duration? receiveTimeout,
+  }) async {
+    try {
+      final headers = await AuthService.getAuthHeaders();
+      final request = http.Request('PUT', ApiConfig.uri(endpoint))
+        ..headers.addAll(headers)
+        ..body = body != null ? jsonEncode(body) : '';
+      final streamed = await _client.send(request).timeout(
+        receiveTimeout ?? ApiConfig.receiveTimeout,
+        onTimeout: () => throw ApiException(
+          'La respuesta tardó demasiado. Verifica tu conexión e inténtalo de nuevo.',
+        ),
+      );
+      final response = await http.Response.fromStream(streamed);
+      return _handleResponse(response);
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Error PUT $endpoint: $e');
     }
   }
 

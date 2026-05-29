@@ -17,9 +17,10 @@ class ApiConfig {
     Enviroment.production: 'https://hse.improvement-solution.com/api/v1',
   };
 
-  // Timeouts
-  static const Duration connectTimeout = Duration(seconds: 15);
-  static const Duration receiveTimeout = Duration(seconds: 30);
+  // Timeouts — texto-completo de PDFs grandes puede tardar más
+  static const Duration connectTimeout = Duration(seconds: 30);
+  static const Duration receiveTimeout = Duration(seconds: 60);
+  static const Duration textoCompletoTimeout = Duration(seconds: 120);
 
   // Endpoints
   // OJO: el context-path del backend es /api/v1 y los controladores REST usan

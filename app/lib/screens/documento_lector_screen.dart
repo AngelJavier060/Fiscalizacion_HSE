@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import '../services/documento_service.dart';
 import '../services/documento_offline_service.dart';
+import '../services/documento_sync_service.dart';
+import '../services/api_service.dart';
 import '../services/fondo_sonido.dart';
 import '../services/lectura_progreso_service.dart';
 import 'preguntar_voz_sheet.dart';
@@ -32,7 +35,8 @@ class DocumentoLectorScreen extends StatefulWidget {
   State<DocumentoLectorScreen> createState() => _DocumentoLectorScreenState();
 }
 
-class _DocumentoLectorScreenState extends State<DocumentoLectorScreen> {
+class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
+    with WidgetsBindingObserver {
   // Paleta clara MD3 (igual que FISCALIZA-AI)
   static const _bg = Color(0xFFFAF8FF);
   static const _surface = Color(0xFFFFFFFF);
@@ -72,8 +76,17 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen> {
 
   bool _cargando = true;
   String? _error;
+  bool _procesandoPdf = false;
+  bool _reprocesando = false;
+  Timer? _pollTimer;
+  Timer? _syncTimer;
+  DocumentoModel? _metaDocumento;
 
-  // Disponibilidad offline (texto guardado en el teléfono) y origen de la lectura.
+  // Edición de texto (sincroniza con la web vía PUT /texto-extraido).
+  final TextEditingController _editorController = TextEditingController();
+  String _textoCompletoRaw = '';
+  bool _modoEdicion = false;
+  bool _guardandoEdicion = false;
   bool _descargado = false;
   bool _leidoOffline = false;
 
@@ -114,10 +127,51 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initTts();
     _initFondo();
     _cargarTexto();
     _cargarEmpresa();
+    _iniciarSyncContinuo();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _recargarSiCambioEnServidor();
+    }
+  }
+
+  void _iniciarSyncContinuo() {
+    _syncTimer?.cancel();
+    _syncTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      _recargarSiCambioEnServidor();
+    });
+  }
+
+  Future<void> _recargarSiCambioEnServidor() async {
+    if (!mounted || _procesandoPdf || _modoEdicion || _guardandoEdicion) return;
+    try {
+      final doc = await DocumentoService.getDocumento(widget.documentoId);
+      final cambio = _metaDocumento == null ||
+          await DocumentoSyncService.documentoCambioEnServidor(doc);
+      if (!cambio) return;
+      _metaDocumento = doc;
+      if (doc.isProcesando) {
+        if (!_procesandoPdf) {
+          setState(() {
+            _cargando = true;
+            _procesandoPdf = true;
+            _error = null;
+          });
+          _iniciarPollProcesamiento();
+        }
+        return;
+      }
+      if (_reproduciendo) return;
+      await DocumentoOfflineService.eliminar(widget.documentoId);
+      await _cargarTextoDesdeServidorOuOffline();
+    } catch (_) {}
   }
 
   Future<void> _initFondo() async {
@@ -279,57 +333,284 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen> {
   }
 
   Future<void> _cargarTexto() async {
+    if (!mounted) return;
+    setState(() {
+      _cargando = true;
+      _error = null;
+      _procesandoPdf = false;
+    });
+
     try {
-      // 1) Offline primero: si ya está guardado en el teléfono, se lee SIN internet.
-      DocumentoTexto? texto =
-          await DocumentoOfflineService.obtener(widget.documentoId);
-      bool desdeOffline = texto != null;
-
-      // 2) Si no está guardado, se pide al backend y se guarda para la próxima vez.
-      if (texto == null) {
-        texto = await DocumentoService.getTextoCompleto(widget.documentoId);
-        try {
-          await DocumentoOfflineService.guardarTexto(texto, widget.titulo);
-        } catch (_) {
-          // Si no se pudo guardar, igual se puede leer en línea.
-        }
-      }
-
-      final fragmentos = _dividirEnFragmentos(texto.textoCompleto);
-
+      final doc = await DocumentoService.getDocumento(widget.documentoId);
+      _metaDocumento = doc;
+      await DocumentoSyncService.registrarDocumento(doc);
       if (!mounted) return;
 
-      if (fragmentos.isEmpty) {
+      if (doc.isProcesando) {
         setState(() {
-          _error =
-              'Este documento aún no tiene texto extraído para leer en voz alta.';
+          _cargando = true;
+          _procesandoPdf = true;
+          _error = null;
+        });
+        _iniciarPollProcesamiento();
+        return;
+      }
+
+      if (doc.isError) {
+        setState(() {
           _cargando = false;
+          _procesandoPdf = false;
+          _error = doc.errorProcesamiento ??
+              'Error al procesar el PDF. Puede reprocesarlo.';
         });
         return;
       }
 
-      setState(() {
-        _fragmentos = fragmentos;
-        _keys
-          ..clear()
-          ..addAll(List.generate(fragmentos.length, (_) => GlobalKey()));
-        _bloques = _construirBloques(fragmentos);
-        _descargado = true;
-        _leidoOffline = desdeOffline;
-        _cargando = false;
-      });
-
-      await _ofrecerContinuar();
+      await _cargarTextoDesdeServidorOuOffline();
     } catch (e) {
       if (mounted) {
         setState(() {
           _error =
-              'No se pudo cargar el documento. Conéctate a internet una vez para '
-              'descargarlo; después podrás escucharlo sin conexión.';
+              'No se pudo cargar el documento. Verifica tu conexión e inténtalo de nuevo.';
           _cargando = false;
+          _procesandoPdf = false;
         });
       }
     }
+  }
+
+  void _iniciarPollProcesamiento() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
+      if (!mounted) return;
+      try {
+        final doc = await DocumentoService.getDocumento(widget.documentoId);
+        if (!mounted) return;
+        if (doc.isCompletado) {
+          _pollTimer?.cancel();
+          await DocumentoOfflineService.eliminar(widget.documentoId);
+          await _cargarTextoDesdeServidorOuOffline();
+        } else if (doc.isError) {
+          _pollTimer?.cancel();
+          setState(() {
+            _cargando = false;
+            _procesandoPdf = false;
+            _error = doc.errorProcesamiento ??
+                'Error al procesar el PDF. Puede reprocesarlo.';
+          });
+        }
+      } catch (_) {}
+    });
+  }
+
+  Future<void> _cargarTextoDesdeServidorOuOffline() async {
+    final online = await _hayInternet();
+    DocumentoTexto? texto;
+    var desdeOffline = false;
+
+    // Con internet: siempre pedir al servidor (evita caché vacía guardada antes)
+    if (online) {
+      try {
+        final meta = _metaDocumento ??
+            await DocumentoService.getDocumento(widget.documentoId);
+        _metaDocumento = meta;
+        final cambio =
+            await DocumentoSyncService.documentoCambioEnServidor(meta);
+        if (cambio) {
+          await DocumentoOfflineService.eliminar(widget.documentoId);
+        }
+        texto = await DocumentoService.getTextoCompleto(widget.documentoId);
+        if (texto.tieneTexto) {
+          await DocumentoOfflineService.guardarTexto(
+            texto,
+            widget.titulo,
+            updatedAt: meta.updatedAt ?? meta.createdAt,
+          );
+          await DocumentoSyncService.registrarDocumento(meta);
+        } else {
+          await DocumentoOfflineService.eliminar(widget.documentoId);
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setState(() {
+          _error = e is ApiException
+              ? e.message
+              : 'No se pudo descargar el texto del documento.';
+          _cargando = false;
+          _procesandoPdf = false;
+        });
+        return;
+      }
+    }
+
+    // Sin internet o respuesta vacía: intentar caché local
+    if (texto == null || !texto.tieneTexto) {
+      final local = await DocumentoOfflineService.obtener(widget.documentoId);
+      if (local != null && local.tieneTexto) {
+        texto = local;
+        desdeOffline = true;
+      }
+    }
+
+    if (texto == null || !texto.tieneTexto) {
+      if (!mounted) return;
+      setState(() {
+        _error = online
+            ? 'Este documento no tiene texto extraído todavía. '
+                'Pulse Reprocesar PDF para extraerlo de nuevo.'
+            : 'Sin texto descargado en el teléfono. Conéctese a internet '
+                'y pulse Recargar texto.';
+        _cargando = false;
+        _procesandoPdf = false;
+      });
+      return;
+    }
+
+    final contenido = texto.textoParaLectura;
+    if (!mounted) return;
+
+    if (contenido.trim().isEmpty) {
+      setState(() {
+        _error =
+            'No se pudo preparar el texto para lectura. Pulse Reprocesar PDF.';
+        _cargando = false;
+        _procesandoPdf = false;
+      });
+      return;
+    }
+
+    _aplicarContenidoTexto(contenido, desdeOffline: desdeOffline);
+    await _ofrecerContinuar();
+  }
+
+  void _aplicarContenidoTexto(String contenido, {required bool desdeOffline}) {
+    final fragmentos = _dividirEnFragmentos(contenido);
+    if (fragmentos.isEmpty) {
+      setState(() {
+        _error =
+            'No se pudo preparar el texto para lectura. Pulse Reprocesar PDF.';
+        _cargando = false;
+        _procesandoPdf = false;
+      });
+      return;
+    }
+    _textoCompletoRaw = contenido;
+    setState(() {
+      _fragmentos = fragmentos;
+      _keys
+        ..clear()
+        ..addAll(List.generate(fragmentos.length, (_) => GlobalKey()));
+      _bloques = _construirBloques(fragmentos);
+      _descargado = true;
+      _leidoOffline = desdeOffline;
+      _cargando = false;
+      _procesandoPdf = false;
+      _error = null;
+      _indiceActual = 0;
+      _palabraInicio = 0;
+      _palabraFin = 0;
+    });
+  }
+
+  Future<void> _entrarEdicion() async {
+    if (_modoEdicion || _fragmentos.isEmpty) return;
+    await _pausar();
+    _editorController.text = _textoCompletoRaw.isNotEmpty
+        ? _textoCompletoRaw
+        : _fragmentos.join('\n\n');
+    setState(() => _modoEdicion = true);
+  }
+
+  void _cancelarEdicion() {
+    setState(() => _modoEdicion = false);
+  }
+
+  Future<void> _guardarEdicion() async {
+    final plain = _editorController.text.trim();
+    if (plain.isEmpty || _guardandoEdicion) return;
+
+    setState(() => _guardandoEdicion = true);
+    try {
+      final html = DocumentoTexto.planoAHtmlParaGuardar(plain);
+      final doc = await DocumentoService.guardarTextoExtraido(
+        widget.documentoId,
+        html,
+      );
+      _metaDocumento = doc;
+      await DocumentoSyncService.registrarDocumento(doc);
+
+      final textoResp =
+          await DocumentoService.getTextoCompleto(widget.documentoId);
+      if (textoResp.tieneTexto) {
+        await DocumentoOfflineService.guardarTexto(
+          textoResp,
+          widget.titulo,
+          updatedAt: doc.updatedAt ?? doc.createdAt,
+        );
+      }
+
+      if (!mounted) return;
+      _aplicarContenidoTexto(
+        textoResp.textoParaLectura.isNotEmpty ? textoResp.textoParaLectura : plain,
+        desdeOffline: false,
+      );
+      setState(() {
+        _modoEdicion = false;
+        _guardandoEdicion = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Texto guardado. Los cambios se verán también en la web.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _guardandoEdicion = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e is ApiException
+                ? e.message
+                : 'No se pudo guardar el texto. Verifica tu conexión.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _reprocesarPdf() async {
+    if (_reprocesando) return;
+    setState(() {
+      _reprocesando = true;
+      _cargando = true;
+      _error = null;
+      _procesandoPdf = true;
+    });
+    try {
+      await DocumentoOfflineService.eliminar(widget.documentoId);
+      await DocumentoService.reprocesar(widget.documentoId);
+      if (!mounted) return;
+      _iniciarPollProcesamiento();
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _reprocesando = false;
+          _cargando = false;
+          _procesandoPdf = false;
+          _error = 'No se pudo reprocesar el documento.';
+        });
+      }
+    } finally {
+      if (mounted) setState(() => _reprocesando = false);
+    }
+  }
+
+  Future<void> _recargarTexto() async {
+    await DocumentoOfflineService.eliminar(widget.documentoId);
+    _pollTimer?.cancel();
+    await _cargarTexto();
   }
 
   Future<void> _confirmarQuitarDescarga() async {
@@ -686,6 +967,10 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen> {
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
+    _syncTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    _editorController.dispose();
     _guardarProgreso();
     _tts.stop();
     _fondo.dispose();
@@ -713,7 +998,34 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen> {
               color: _onSurface, fontWeight: FontWeight.w700, fontSize: 16),
         ),
         actions: [
-          if (_descargado && !_cargando)
+          if (!_cargando && _error == null && !_modoEdicion)
+            IconButton(
+              onPressed: _entrarEdicion,
+              icon: const Icon(Icons.edit_note_rounded),
+              color: _primary,
+              tooltip: 'Editar y estructurar texto',
+            ),
+          if (_modoEdicion)
+            IconButton(
+              onPressed: _guardandoEdicion ? null : _guardarEdicion,
+              icon: _guardandoEdicion
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.save_rounded),
+              color: _secondary,
+              tooltip: 'Guardar en servidor',
+            ),
+          if (_modoEdicion)
+            IconButton(
+              onPressed: _guardandoEdicion ? null : _cancelarEdicion,
+              icon: const Icon(Icons.close_rounded),
+              color: _onSurfaceVar,
+              tooltip: 'Cancelar edición',
+            ),
+          if (_descargado && !_cargando && !_modoEdicion)
             IconButton(
               onPressed: _confirmarQuitarDescarga,
               icon: const Icon(Icons.offline_pin_rounded),
@@ -730,12 +1042,38 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen> {
         ],
       ),
       body: _cargando
-          ? const Center(child: CircularProgressIndicator(color: _primary))
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(color: _primary),
+                  if (_procesandoPdf) ...[
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Procesando PDF…',
+                      style: TextStyle(color: _onSurfaceVar, fontSize: 15),
+                    ),
+                    const SizedBox(height: 8),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        'Extrayendo texto del documento. Esto puede tardar unos minutos.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: _onSurfaceVar, fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            )
           : _error != null
               ? _buildError()
-              : _buildLector(),
-      bottomNavigationBar:
-          (_cargando || _error != null) ? null : _buildReproductor(),
+              : _modoEdicion
+                  ? _buildEditor()
+                  : _buildLector(),
+      bottomNavigationBar: (_cargando || _error != null || _modoEdicion)
+          ? null
+          : _buildReproductor(),
     );
   }
 
@@ -753,9 +1091,120 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen> {
               textAlign: TextAlign.center,
               style: const TextStyle(color: _onSurfaceVar, fontSize: 15, height: 1.4),
             ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _reprocesando ? null : _reprocesarPdf,
+              icon: _reprocesando
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh_rounded),
+              label: Text(_reprocesando ? 'Reprocesando…' : 'Reprocesar PDF'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primary,
+                foregroundColor: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: _recargarTexto,
+              icon: const Icon(Icons.cloud_download_outlined),
+              label: const Text('Recargar texto'),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEditor() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          color: _high.withValues(alpha: 0.35),
+          child: const Text(
+            'Edite el texto: elimine lo que no necesite y deje líneas en blanco '
+            'entre párrafos. Al guardar, se actualiza la base de datos y la web.',
+            style: TextStyle(color: _onSurfaceVar, fontSize: 13, height: 1.4),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: TextField(
+              controller: _editorController,
+              maxLines: null,
+              expands: true,
+              textAlignVertical: TextAlignVertical.top,
+              style: const TextStyle(
+                color: _onSurface,
+                fontSize: 15,
+                height: 1.55,
+              ),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: _surface,
+                hintText: 'Contenido del procedimiento…',
+                hintStyle: TextStyle(color: _onSurfaceVar.withValues(alpha: 0.7)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _border),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _primary, width: 1.5),
+                ),
+              ),
+            ),
+          ),
+        ),
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _guardandoEdicion ? null : _cancelarEdicion,
+                    child: const Text('Cancelar'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _guardandoEdicion ? null : _guardarEdicion,
+                    icon: _guardandoEdicion
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.cloud_upload_outlined),
+                    label: Text(_guardandoEdicion ? 'Guardando…' : 'Guardar'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

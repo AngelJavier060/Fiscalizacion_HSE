@@ -7,6 +7,7 @@ class DocumentoService {
   static Future<List<DocumentoModel>> getDocumentos(int empresaId) async {
     final response = await ApiService.get(
       '${ApiConfig.documentosList}/$empresaId',
+      params: {'page': '0', 'size': '200'},
     );
     final content = response['content'] as List<dynamic>? ?? [];
     return content
@@ -14,12 +15,20 @@ class DocumentoService {
         .toList();
   }
 
+  /// Metadata de un documento (estado de procesamiento, etc.).
+  static Future<DocumentoModel> getDocumento(int documentoId) async {
+    final response = await ApiService.get(
+      '${ApiConfig.documentosDetalle}/$documentoId',
+    );
+    return DocumentoModel.fromJson(response);
+  }
+
   /// Obtener detalle de un documento con sus puntos clave
   static Future<DocumentoDetalle> getDocumentoDetalle(int documentoId) async {
     final docResponse = await ApiService.get(
       '${ApiConfig.documentosDetalle}/$documentoId',
     );
-    
+
     final puntosResponse = await ApiService.getList(
       '${ApiConfig.puntosClave}/$documentoId',
     );
@@ -36,8 +45,31 @@ class DocumentoService {
   static Future<DocumentoTexto> getTextoCompleto(int documentoId) async {
     final response = await ApiService.get(
       '${ApiConfig.documentosDetalle}/$documentoId/texto-completo',
+      receiveTimeout: ApiConfig.textoCompletoTimeout,
     );
     return DocumentoTexto.fromJson(response);
+  }
+
+  /// Reprocesar PDF en segundo plano (ERROR o atascado).
+  static Future<DocumentoModel> reprocesar(int documentoId) async {
+    final response = await ApiService.post(
+      '${ApiConfig.documentosDetalle}/$documentoId/reprocesar',
+      body: {},
+    );
+    return DocumentoModel.fromJson(response);
+  }
+
+  /// Guardar texto editado (sincroniza con la web).
+  static Future<DocumentoModel> guardarTextoExtraido(
+    int documentoId,
+    String texto,
+  ) async {
+    final response = await ApiService.put(
+      '${ApiConfig.documentosDetalle}/$documentoId/texto-extraido',
+      body: {'texto': texto},
+      receiveTimeout: ApiConfig.textoCompletoTimeout,
+    );
+    return DocumentoModel.fromJson(response);
   }
 
   /// Lista de empresas (solo SUPER_ADMIN). Devuelve pares {id, nombre}.
