@@ -172,6 +172,15 @@
               @if (doc.traducido) {
                 <span class="chip chip-ok">Traducido</span>
               }
+              @if (estadoProcesamiento(doc) === 'PROCESANDO') {
+                <span class="chip chip-processing">
+                  <span class="mat-icon">sync</span>
+                  Procesando PDF…
+                </span>
+              }
+              @if (estadoProcesamiento(doc) === 'ERROR') {
+                <span class="chip chip-error" [title]="doc.errorProcesamiento || ''">Error al procesar</span>
+              }
             </div>
 
             <div class="doc-card-footer">
@@ -196,6 +205,20 @@
           </article>
         }
       </div>
+
+      @if (totalPages > 1) {
+        <nav class="pagination-bar" aria-label="Paginación de documentos">
+          <button type="button" class="btn-ghost" (click)="irPagina(page - 1)" [disabled]="page === 0">
+            Anterior
+          </button>
+          <span class="pagination-info">
+            Página {{ page + 1 }} de {{ totalPages }} ({{ totalElements }} documentos)
+          </span>
+          <button type="button" class="btn-ghost" (click)="irPagina(page + 1)" [disabled]="page >= totalPages - 1">
+            Siguiente
+          </button>
+        </nav>
+      }
     }
   </main>
 

@@ -23,8 +23,8 @@ export class DocumentoSubirComponent implements OnInit {
   /** Límite alineado con Spring multipart (application.yml). */
   private static readonly MAX_ARCHIVO_BYTES = 100 * 1024 * 1024;
 
-  /** PDF grandes + extracción + IA pueden tardar varios minutos. */
-  private static readonly UPLOAD_TIMEOUT_MS = 25 * 60 * 1000;
+  /** Solo espera la subida del archivo; extracción e IA corren en segundo plano en el servidor. */
+  private static readonly UPLOAD_TIMEOUT_MS = 3 * 60 * 1000;
 
   form: FormGroup;
   archivoSeleccionado: File | null = null;
@@ -84,7 +84,10 @@ export class DocumentoSubirComponent implements OnInit {
   }
 
   private procesarArchivo(file: File): void {
-    if (file.type !== 'application/pdf') {
+    const esPdf = file.type === 'application/pdf'
+      || file.type === 'application/octet-stream'
+      || file.name.toLowerCase().endsWith('.pdf');
+    if (!esPdf) {
       this.errorMessage = 'Solo se permiten archivos PDF';
       this.archivoSeleccionado = null;
       return;

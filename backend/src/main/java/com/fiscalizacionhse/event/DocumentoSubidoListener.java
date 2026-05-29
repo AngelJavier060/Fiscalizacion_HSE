@@ -15,7 +15,7 @@ public class DocumentoSubidoListener {
 
     private final DocumentoService documentoService;
 
-    @Async
+    @Async("documentoTaskExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onDocumentoSubido(DocumentoSubidoEvent event) {
         log.info("⏳ Procesamiento en segundo plano del documento {}", event.documentoId());

@@ -43,6 +43,9 @@
         <strong>Error al procesar</strong>
         <p>{{ errorProcesamiento }}</p>
       </div>
+      <button type="button" class="btn-primary small" (click)="reprocesarDocumento()" [disabled]="reprocesandoDoc">
+        {{ reprocesandoDoc ? 'Reencolando…' : 'Reprocesar PDF' }}
+      </button>
     </div>
   }
 
@@ -327,7 +330,20 @@
             ></app-editor-texto-rico>
           } @else {
             <div class="editor-loading">
-              <p>No hay contenido disponible.</p>
+              @if (procesandoDocumento) {
+                <div class="spinner-md"></div>
+                <p>Extrayendo texto del PDF…</p>
+              } @else {
+                <p>No hay contenido disponible todavía.</p>
+                <button type="button" class="btn-primary small" (click)="recargarTextoDocumento()">
+                  Recargar texto
+                </button>
+                @if (documento?.estadoProcesamiento === 'ERROR') {
+                  <button type="button" class="btn-outline small" (click)="reprocesarDocumento()" [disabled]="reprocesandoDoc">
+                    Reprocesar PDF
+                  </button>
+                }
+              }
             </div>
           }
         </div>

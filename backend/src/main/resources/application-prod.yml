@@ -2,6 +2,19 @@
 spring:
   jpa:
     show-sql: false
+    open-in-view: false
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  data:
+    web:
+      pageable:
+        default-page-size: 50
+        max-page-size: 200
 
 logging:
   level:

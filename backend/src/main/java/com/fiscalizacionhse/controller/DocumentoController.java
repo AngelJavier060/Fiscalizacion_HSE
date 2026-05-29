@@ -38,7 +38,7 @@ public class DocumentoController {
     @GetMapping("/empresa/{empresaId}")
     public ResponseEntity<Page<DocumentoResponse>> listarPorEmpresa(
             @PathVariable Long empresaId,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 50, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(documentoService.listarPorEmpresa(empresaId, pageable));
     }
 
@@ -49,7 +49,7 @@ public class DocumentoController {
     public ResponseEntity<Page<DocumentoResponse>> buscar(
             @PathVariable Long empresaId,
             @RequestParam(required = false) String q,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 50, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(documentoService.buscar(empresaId, q, pageable));
     }
 
@@ -148,6 +148,17 @@ public class DocumentoController {
     @PostMapping("/{id}/regenerar-puntos-ia")
     public ResponseEntity<List<PuntoClaveResponse>> regenerarPuntosIa(@PathVariable Long id) {
         return ResponseEntity.ok(documentoService.regenerarPuntosIa(id));
+    }
+
+    /**
+     * Reprocesar extracción de texto e IA (documentos en ERROR o atascados).
+     */
+    @PostMapping("/{id}/reprocesar")
+    public ResponseEntity<DocumentoResponse> reprocesar(
+            @PathVariable Long id,
+            Authentication authentication) {
+        long usuarioId = AuthPrincipalIds.usuarioId(authentication);
+        return ResponseEntity.ok(documentoService.solicitarReprocesamiento(id, usuarioId));
     }
 
     /**

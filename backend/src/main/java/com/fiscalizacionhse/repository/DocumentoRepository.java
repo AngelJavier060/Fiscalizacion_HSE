@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,4 +54,10 @@ public interface DocumentoRepository extends JpaRepository<Documento, Long> {
     Page<Documento> buscarPorTermino(@Param("empresaId") Long empresaId,
                                       @Param("termino") String termino,
                                       Pageable pageable);
+
+    List<Documento> findByEstadoProcesamientoAndActivoTrueAndUpdatedAtBefore(
+            String estadoProcesamiento, LocalDateTime updatedAtBefore);
+
+    List<Documento> findByEstadoProcesamientoAndActivoTrueAndUpdatedAtBeforeOrderByUpdatedAtAsc(
+            String estadoProcesamiento, LocalDateTime updatedAtBefore, org.springframework.data.domain.Pageable pageable);
 }

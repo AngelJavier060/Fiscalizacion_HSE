@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
@@ -26,11 +26,16 @@ export interface BusquedaAsistidaUi {
   templateUrl: './documento-list.component.html',
   styleUrls: ['./documento-list.component.scss'],
 })
-export class DocumentoListComponent implements OnInit {
+export class DocumentoListComponent implements OnInit, OnDestroy {
   documentos: any[] = [];
   loading = true;
+  page = 0;
+  pageSize = 50;
+  totalElements = 0;
+  totalPages = 0;
   user: any;
   empresaId: number | null = null;
+  private pollListaTimer?: ReturnType<typeof setInterval>;
   /** Navegación coherente (admin empresa vs super admin por empresa) */
   nav: DocumentoLinks = documentNavigationLinks({
     empresaId: null,
@@ -98,14 +103,76 @@ export class DocumentoListComponent implements OnInit {
 
   cargarDocumentos(): void {
     this.loading = true;
-    this.http.get(`${environment.apiUrl}/documentos/empresa/${this.empresaId}`)
+    this.http.get(
+      `${environment.apiUrl}/documentos/empresa/${this.empresaId}?page=${this.page}&size=${this.pageSize}`
+    )
       .subscribe({
         next: (response: any) => {
-          this.documentos = response.content || [];
+          this.documentos = response.content || response || [];
+          this.totalElements = response.totalElements ?? this.documentos.length;
+          this.totalPages = response.totalPages ?? 1;
           this.loading = false;
+          this.actualizarPollLista();
         },
         error: () => this.loading = false,
       });
+  }
+
+  irPagina(nueva: number): void {
+    if (nueva < 0 || nueva >= this.totalPages || nueva === this.page) {
+      return;
+    }
+    this.page = nueva;
+    this.cargarDocumentos();
+  }
+
+  ngOnDestroy(): void {
+    this.detenerPollLista();
+  }
+
+  private actualizarPollLista(): void {
+    const hayProcesando = this.documentos.some(
+      (d) => (d.estadoProcesamiento || 'COMPLETADO') === 'PROCESANDO'
+    );
+    if (hayProcesando && !this.pollListaTimer) {
+      this.pollListaTimer = setInterval(() => this.refrescarSilencioso(), 5000);
+    } else if (!hayProcesando) {
+      this.detenerPollLista();
+    }
+  }
+
+  private detenerPollLista(): void {
+    if (this.pollListaTimer) {
+      clearInterval(this.pollListaTimer);
+      this.pollListaTimer = undefined;
+    }
+  }
+
+  private refrescarSilencioso(): void {
+    if (!this.empresaId) return;
+    this.http.get(
+      `${environment.apiUrl}/documentos/empresa/${this.empresaId}?page=${this.page}&size=${this.pageSize}`
+    )
+      .subscribe({
+        next: (response: any) => {
+          this.documentos = response.content || response || [];
+          this.totalElements = response.totalElements ?? this.documentos.length;
+          this.totalPages = response.totalPages ?? 1;
+          this.actualizarPollLista();
+        },
+      });
+  }
+
+  estadoProcesamiento(doc: any): string {
+    return doc?.estadoProcesamiento || 'COMPLETADO';
+  }
+
+  etiquetaEstado(doc: any): string | null {
+    switch (this.estadoProcesamiento(doc)) {
+      case 'PROCESANDO': return 'Procesando…';
+      case 'ERROR': return 'Error al procesar';
+      default: return null;
+    }
   }
 
   eliminar(doc: any): void {

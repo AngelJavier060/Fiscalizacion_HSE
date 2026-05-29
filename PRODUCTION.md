@@ -253,4 +253,40 @@ La subida procesa el PDF de forma síncrona (extracción de texto + IA) y puede 
    ```bash
    docker logs -f fiscalizacion-hse-api
    ```
-   Debe verse `Paso 1/5` … `Paso 5/5`. Si el documento aparece en la lista tras el timeout, el proxy era el cuello de botella.
+   Debe verse `Paso 2/5` … `Paso 5/5`. Si el documento aparece en la lista tras el timeout, el proxy era el cuello de botella.
+
+---
+
+## Subida masiva (miles de procedimientos PDF)
+
+El backend está preparado para **ráfagas grandes** de subidas:
+
+| Mecanismo | Comportamiento |
+|-----------|----------------|
+| Subida HTTP | Guarda el PDF y responde al instante (`PROCESANDO`) |
+| Procesamiento | Cola en segundo plano: 2 PDFs en paralelo, hasta 2000 en espera |
+| Transacciones BD | Cortas (solo lecturas/escrituras puntuales; PDF + IA fuera de TX) |
+| Pool JDBC | HikariCP 20 conexiones (perfil `prod`) |
+| Recuperación | Cada 10 min reencola hasta 20 docs atascados > 20 min en `PROCESANDO` |
+| Lista web | Paginación 50 por página |
+
+**Flujo recomendado para cargar muchos PDFs:**
+
+1. Suba en lotes (p. ej. 50–100 a la vez). La respuesta HTTP es rápida; el procesamiento continúa en cola.
+2. En la lista verá chips **Procesando PDF…**; la página se actualiza sola cada 5 s mientras haya pendientes.
+3. Si un documento queda en **Error al procesar**, abra el detalle y use **Reprocesar PDF**.
+4. Tras `git pull` y rebuild, los documentos viejos sin texto pueden reprocesarse desde el detalle.
+
+**Monitoreo en VPS:**
+
+```bash
+docker logs -f fiscalizacion-hse-api | grep -E "doc-proc|Procesamiento|Reencolando"
+docker stats fiscalizacion-hse-api --no-stream
+```
+
+Si la RAM del VPS se satura, el contenedor backend usa `-Xmx1536m` en `docker-compose.prod.yml`. Con PDFs muy grandes, suba de a lotes más pequeños o aumente RAM del servidor.
+
+**NPM (obligatorio para subidas grandes):**
+
+- Custom Location `/api` → `:8090` con `client_max_body_size 105M;`
+- No enrutar `/api` por el frontend (evita 502/504)

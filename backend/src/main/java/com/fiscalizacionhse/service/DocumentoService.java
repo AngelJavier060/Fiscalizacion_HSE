@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.time.LocalDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -56,6 +57,10 @@ public class DocumentoService {
     private final AuditoriaService auditoriaService;
     private final IaBusquedaService iaBusquedaService;
     private final ApplicationEventPublisher eventPublisher;
+    private final org.springframework.cache.CacheManager cacheManager;
+    private final DocumentoProcesamientoPersistence procesamientoPersistence;
+
+    private static final int MINUTOS_PROCESAMIENTO_ACTIVO = 3;
 
     /**
      * Archivo PDF en disco para previsualización / descarga (debe existir ruta_archivo).
@@ -178,6 +183,48 @@ public class DocumentoService {
         return toResponse(documento);
     }
 
+    /**
+     * Reprocesar PDF (ERROR o atascado). No bloquea la petición HTTP.
+     */
+    @Transactional
+    public DocumentoResponse solicitarReprocesamiento(Long documentoId, Long usuarioId) {
+        Documento documento = buscar(documentoId);
+        if ("PROCESANDO".equals(documento.getEstadoProcesamiento())
+                && documento.getUpdatedAt().isAfter(LocalDateTime.now().minusMinutes(MINUTOS_PROCESAMIENTO_ACTIVO))) {
+            throw new BadRequestException("El documento se está procesando. Espere unos minutos e intente de nuevo.");
+        }
+        documento.setEstadoProcesamiento("PROCESANDO");
+        documento.setErrorProcesamiento(null);
+        documentoRepository.save(documento);
+        evictTextoCompletoCache(documentoId);
+        eventPublisher.publishEvent(new DocumentoSubidoEvent(documentoId, usuarioId));
+        return toResponse(documento);
+    }
+
+    private void evictTextoCompletoCache(Long documentoId) {
+        var cache = cacheManager.getCache("textoCompleto");
+        if (cache != null) {
+            cache.evict(documentoId);
+        }
+    }
+
+    private boolean debeOmitirProcesamientoDuplicado(Documento documento) {
+        if ("COMPLETADO".equals(documento.getEstadoProcesamiento())
+                && documento.getTextoExtraido() != null
+                && !documento.getTextoExtraido().isBlank()) {
+            log.info("Documento {} ya procesado, omitiendo", documento.getId());
+            return true;
+        }
+        if ("PROCESANDO".equals(documento.getEstadoProcesamiento())
+                && (documento.getTextoExtraido() == null || documento.getTextoExtraido().isBlank())
+                && documento.getUpdatedAt().isAfter(LocalDateTime.now().minusMinutes(MINUTOS_PROCESAMIENTO_ACTIVO))) {
+            log.info("Documento {} en procesamiento activo ({}), omitiendo duplicado",
+                    documento.getId(), documento.getUpdatedAt());
+            return true;
+        }
+        return false;
+    }
+
     private static boolean esPdfValido(MultipartFile archivo) {
         String tipo = archivo.getContentType();
         if ("application/pdf".equals(tipo)) {
@@ -189,17 +236,22 @@ public class DocumentoService {
 
     /**
      * Pasos 2–5 tras la subida: extracción, idioma, traducción e IA.
+     * Sin @Transactional global: PDF + IA pueden tardar minutos sin retener conexiones JDBC.
      */
-    @Transactional
     public void ejecutarProcesamientoPostSubida(Long documentoId, Long usuarioId) {
-        Documento documento = documentoRepository.findById(documentoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Documento", documentoId));
+        Documento documento = procesamientoPersistence.cargar(documentoId);
+        if (debeOmitirProcesamientoDuplicado(documento)) {
+            return;
+        }
+        procesamientoPersistence.marcarProcesando(documentoId);
+
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", usuarioId));
         Empresa empresa = documento.getEmpresa();
+        String titulo = documento.getTitulo();
+        String rutaArchivo = documento.getRutaArchivo();
 
         try {
-            String rutaArchivo = documento.getRutaArchivo();
             log.info("📝 Paso 2/5 - Extrayendo texto de documento {}", documentoId);
             String textoPlano = prepararTextoConSaltos(pdfService.extraerTexto(rutaArchivo));
             textoPlano = quitarArtefactosPagina(textoPlano);
@@ -210,19 +262,15 @@ public class DocumentoService {
             boolean requiereTraduccion = !"es".equals(idiomaDetectado) && !"desconocido".equals(idiomaDetectado);
             log.info("🌐 Paso 3/5 - Idioma: {} (traducción: {})", idiomaDetectado, requiereTraduccion);
 
-            documento.setTextoExtraido(textoExtraido);
-            documento.setIdiomaOriginal(idiomaDetectado);
-            documento.setIdiomaDetectado(idiomaDetectado);
-            documento.setRequiereTraduccion(requiereTraduccion);
-            documento = documentoRepository.save(documento);
+            procesamientoPersistence.guardarTextoExtraido(
+                    documentoId, textoExtraido, idiomaDetectado, requiereTraduccion);
 
+            String textoTraducido = null;
             if (requiereTraduccion) {
                 log.info("🌍 Paso 4/5 - Traducción...");
                 try {
-                    String textoTraducido = traduccionService.traducirAIngles(textoExtraido, idiomaDetectado);
-                    documento.setTextoTraducido(textoTraducido);
-                    documento.setTraducido(true);
-                    documento = documentoRepository.save(documento);
+                    textoTraducido = traduccionService.traducirAIngles(textoExtraido, idiomaDetectado);
+                    procesamientoPersistence.guardarTraduccion(documentoId, textoTraducido);
                     log.info("✅ Traducción completada");
                 } catch (Exception e) {
                     log.error("❌ Error en traducción: {}", e.getMessage());
@@ -230,18 +278,19 @@ public class DocumentoService {
             }
 
             log.info("🤖 Paso 5/5 - Extrayendo puntos clave con IA...");
+            boolean puntosGenerados = false;
             try {
-                String textoParaAnalisis = textoTraducidoValido(documento)
-                        ? documento.getTextoTraducido()
+                String textoParaAnalisis = (textoTraducido != null && !textoTraducido.isBlank())
+                        ? textoTraducido
                         : textoExtraido;
 
                 List<IaService.PuntoClaveIa> puntosIa = iaService.extraerPuntosClaveSubidaRapida(
-                        documento.getTitulo(), textoParaAnalisis);
+                        titulo, textoParaAnalisis);
 
                 if (!puntosIa.isEmpty()) {
                     List<PuntoClave> puntosGuardados = new ArrayList<>();
                     for (IaService.PuntoClaveIa puntoIa : puntosIa) {
-                        PuntoClave punto = PuntoClave.builder()
+                        puntosGuardados.add(PuntoClave.builder()
                                 .contenido(puntoIa.getContenido())
                                 .titulo(puntoIa.getTitulo())
                                 .tema(puntoIa.getTema())
@@ -253,12 +302,10 @@ public class DocumentoService {
                                         ? puntoIa.getConfianza()
                                         : BigDecimal.valueOf(0.85))
                                 .revisado(false)
-                                .documento(documento)
-                                .build();
-                        puntosGuardados.add(punto);
+                                .build());
                     }
-                    puntoClaveRepository.saveAll(puntosGuardados);
-                    documento.setPuntosGeneradosIa(true);
+                    procesamientoPersistence.guardarPuntosIa(documentoId, puntosGuardados);
+                    puntosGenerados = true;
                     log.info("✅ {} puntos clave extraídos", puntosGuardados.size());
                 } else {
                     log.warn("⚠️ No se extrajeron puntos clave");
@@ -267,23 +314,20 @@ public class DocumentoService {
                 log.error("❌ Error al extraer puntos clave con IA: {}", e.getMessage());
             }
 
-            documento.setEstadoProcesamiento("COMPLETADO");
-            documento.setErrorProcesamiento(null);
-            documentoRepository.save(documento);
+            procesamientoPersistence.marcarCompletado(documentoId, puntosGenerados);
 
             auditoriaService.registrar(
                     usuario, empresa, "PROCESAR_DOCUMENTO", "Documento",
-                    documento.getId(),
-                    "Procesamiento completado: " + documento.getTitulo() +
+                    documentoId,
+                    "Procesamiento completado: " + titulo +
                             " (" + idiomaDetectado + ", " + textoExtraido.length() + " caracteres)",
                     null);
 
         } catch (Exception e) {
             log.error("❌ Error procesando documento {}: {}", documentoId, e.getMessage(), e);
-            documento.setEstadoProcesamiento("ERROR");
-            documento.setErrorProcesamiento(
+            procesamientoPersistence.marcarError(
+                    documentoId,
                     e.getMessage() != null ? e.getMessage() : "Error desconocido al procesar el PDF");
-            documentoRepository.save(documento);
         }
     }
 
@@ -404,7 +448,10 @@ public class DocumentoService {
      * Obtener el texto completo extraído de un documento con sus secciones detectadas.
      * Los datos se cachean 30 minutos para acceso rápido en modo lectura.
      */
-    @org.springframework.cache.annotation.Cacheable(value = "textoCompleto", key = "#documentoId")
+    @org.springframework.cache.annotation.Cacheable(
+            value = "textoCompleto",
+            key = "#documentoId",
+            unless = "#result.textoCompleto == null || #result.textoCompleto.isBlank()")
     public com.fiscalizacionhse.dto.response.TextoCompletoResponse obtenerTextoCompleto(Long documentoId) {
         Documento d = buscar(documentoId);
         String texto = textoTraducidoValido(d) ? d.getTextoTraducido() : d.getTextoExtraido();

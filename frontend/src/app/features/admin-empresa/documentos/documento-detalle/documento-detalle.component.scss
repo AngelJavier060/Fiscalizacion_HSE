@@ -154,6 +154,13 @@ $success: #059669;
   background: $primary-fixed;
   border-bottom: 1px solid $secondary-container;
   color: $on-surface;
+  flex-wrap: wrap;
+
+  .btn-primary.small,
+  .btn-outline.small {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
 
   .mat-icon {
     font-size: 22px;

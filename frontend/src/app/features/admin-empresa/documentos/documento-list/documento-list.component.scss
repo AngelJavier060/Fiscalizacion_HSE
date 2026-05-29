@@ -611,6 +611,30 @@ $topbar-height: 64px;
   border: 1px solid #a7f3d0;
 }
 
+.chip-processing {
+  background: #eff4ff;
+  color: #00356a;
+  border: 1px solid #a7c8fe;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  .mat-icon {
+    font-size: 14px;
+    animation: spin-list 1.2s linear infinite;
+  }
+}
+
+.chip-error {
+  background: #ffdad6;
+  color: #ba1a1a;
+  border: 1px solid #ffb4ab;
+}
+
+@keyframes spin-list {
+  to { transform: rotate(360deg); }
+}
+
 .doc-card-footer {
   display: flex;
   align-items: center;
@@ -686,6 +710,22 @@ $topbar-height: 64px;
     background: $error-container;
     border-color: rgba($error, 0.35);
   }
+}
+
+.pagination-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid $outline-variant;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: $on-surface-variant;
 }
 
 // ─── Modal de edición ──────────────────────
