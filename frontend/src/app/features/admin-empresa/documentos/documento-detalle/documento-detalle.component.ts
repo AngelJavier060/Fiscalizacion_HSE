@@ -144,6 +144,7 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
   private seccionesEditorCache: SeccionTexto[] = [];
   private htmlEditorCache = '';
   private readonly STORAGE_MARCADOR_PREFIX = 'hse-lectura-doc-';
+  private pollProcesamientoTimer?: ReturnType<typeof setInterval>;
 
   @ViewChild(EditorTextoRicoComponent) editorRico?: EditorTextoRicoComponent;
 
@@ -251,8 +252,18 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.syncSeccionesTimer) clearTimeout(this.syncSeccionesTimer);
+    this.detenerPollProcesamiento();
     this.revokePdfUrl();
     this.textoVoz.detener();
+  }
+
+  get procesandoDocumento(): boolean {
+    return this.documento?.estadoProcesamiento === 'PROCESANDO';
+  }
+
+  get errorProcesamiento(): string | null {
+    if (this.documento?.estadoProcesamiento !== 'ERROR') return null;
+    return this.documento?.errorProcesamiento || 'Error al procesar el PDF';
   }
 
   private async iniciarLector(documentoId: number): Promise<void> {
@@ -899,6 +910,11 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
         next: (doc: any) => {
           this.documento = doc;
           this.loading = false;
+          if (doc.estadoProcesamiento === 'PROCESANDO') {
+            this.iniciarPollProcesamiento(id);
+          } else {
+            this.detenerPollProcesamiento();
+          }
           this.cargarMarcadorDesdeStorage(id);
           this.cdr.markForCheck();
         },
@@ -907,6 +923,36 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
           this.router.navigate(this.nav.documentos);
         },
       });
+  }
+
+  private iniciarPollProcesamiento(id: number): void {
+    this.detenerPollProcesamiento();
+    this.pollProcesamientoTimer = setInterval(() => this.verificarEstadoProcesamiento(id), 3000);
+  }
+
+  private detenerPollProcesamiento(): void {
+    if (this.pollProcesamientoTimer) {
+      clearInterval(this.pollProcesamientoTimer);
+      this.pollProcesamientoTimer = undefined;
+    }
+  }
+
+  private verificarEstadoProcesamiento(id: number): void {
+    this.http.get(`${environment.apiUrl}/documentos/${id}`).subscribe({
+      next: (doc: any) => {
+        const previo = this.documento?.estadoProcesamiento;
+        this.documento = doc;
+        if (doc.estadoProcesamiento === 'COMPLETADO' && previo === 'PROCESANDO') {
+          this.detenerPollProcesamiento();
+          this.cache.invalidar(id);
+          this.cargarPuntos(id);
+          this.iniciarLector(id);
+        } else if (doc.estadoProcesamiento === 'ERROR') {
+          this.detenerPollProcesamiento();
+        }
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   cargarPuntos(id: number): void {

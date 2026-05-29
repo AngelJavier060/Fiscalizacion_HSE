@@ -61,6 +61,14 @@ public class Documento {
     @Builder.Default
     private Boolean puntosGeneradosIa = false;
 
+    /** PROCESANDO | COMPLETADO | ERROR — post-subida (texto, traducción, IA). */
+    @Column(name = "estado_procesamiento", nullable = false, length = 20)
+    @Builder.Default
+    private String estadoProcesamiento = "COMPLETADO";
+
+    @Column(name = "error_procesamiento", columnDefinition = "TEXT")
+    private String errorProcesamiento;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean activo = true;

@@ -23,6 +23,8 @@ public class DocumentoResponse {
     private Boolean requiereTraduccion;
     private Boolean traducido;
     private Boolean puntosGeneradosIa;
+    private String estadoProcesamiento;
+    private String errorProcesamiento;
     private Long cantidadPuntos;
     private Long cantidadPuntosRevisados;
     private Boolean activo;

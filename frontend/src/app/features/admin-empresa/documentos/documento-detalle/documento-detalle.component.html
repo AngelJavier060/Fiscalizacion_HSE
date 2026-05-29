@@ -27,8 +27,27 @@
     </div>
   </header>
 
+  @if (procesandoDocumento) {
+    <div class="procesamiento-banner">
+      <span class="mat-icon spin">sync</span>
+      <div>
+        <strong>Procesando documento…</strong>
+        <p>Extrayendo texto del PDF y generando puntos clave con IA. Puede tardar 1–2 minutos.</p>
+      </div>
+    </div>
+  }
+  @if (errorProcesamiento) {
+    <div class="procesamiento-banner error">
+      <span class="mat-icon">error</span>
+      <div>
+        <strong>Error al procesar</strong>
+        <p>{{ errorProcesamiento }}</p>
+      </div>
+    </div>
+  }
+
   <!-- ===== MAIN LAYOUT ===== -->
-  <div class="main-layout">
+  <div class="main-layout" [class.con-banner-proceso]="procesandoDocumento || errorProcesamiento">
 
     <!-- ===== LEFT SIDEBAR: Section Tree ===== -->
     <aside class="section-tree-panel">

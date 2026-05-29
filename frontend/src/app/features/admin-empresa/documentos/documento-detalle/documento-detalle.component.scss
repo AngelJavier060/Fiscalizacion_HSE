@@ -141,6 +141,57 @@ $success: #059669;
   }
 }
 
+.procesamiento-banner {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 45;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: $primary-fixed;
+  border-bottom: 1px solid $secondary-container;
+  color: $on-surface;
+
+  .mat-icon {
+    font-size: 22px;
+    color: $primary;
+    flex-shrink: 0;
+    margin-top: 2px;
+
+    &.spin {
+      animation: spin-banner 1.2s linear infinite;
+    }
+  }
+
+  strong {
+    display: block;
+    font-size: 0.875rem;
+    margin-bottom: 0.15rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: $on-surface-variant;
+  }
+
+  &.error {
+    background: $error-container;
+    border-bottom-color: #ffb4ab;
+
+    .mat-icon {
+      color: $error;
+    }
+  }
+}
+
+@keyframes spin-banner {
+  to { transform: rotate(360deg); }
+}
+
 // ─── MAIN LAYOUT ────────────────────────────
 .main-layout {
   display: flex;
@@ -149,6 +200,10 @@ $success: #059669;
   padding-top: 64px;
   height: 100%;
   overflow: hidden;
+
+  &.con-banner-proceso {
+    padding-top: 120px;
+  }
 }
 
 // ─── SIDEBAR: SECTION TREE ──────────────────

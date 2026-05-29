@@ -209,3 +209,30 @@ Los volúmenes `postgres_data` y `uploads_data` conservan datos.
 ss -tlnp | grep 8005
 # Detenga el proceso conflictivo o cambie FRONTEND_HOST_PORT en .env
 ```
+
+**504 Gateway Timeout al subir PDF**
+
+La subida procesa el PDF de forma síncrona (extracción de texto + IA) y puede tardar **varios minutos**. Nginx y Nginx Proxy Manager cortan por defecto a ~60 s.
+
+1. **Contenedor frontend** — `frontend/nginx.conf` ya incluye timeouts de 30 min. Tras actualizar el código:
+   ```bash
+   cd /opt/fiscalizacion-hse
+   git pull origin main
+   docker compose --env-file .env -f docker-compose.yml -f docker-compose.prod.yml up -d --build frontend
+   ```
+
+2. **Nginx Proxy Manager** (dominio HTTPS) — en el Proxy Host de `hse.improvement-solution.com`, pestaña **Advanced**, pegue:
+   ```nginx
+   client_max_body_size 105M;
+   proxy_connect_timeout 75s;
+   proxy_send_timeout 1800s;
+   proxy_read_timeout 1800s;
+   send_timeout 1800s;
+   ```
+   Guarde y pruebe de nuevo la subida.
+
+3. **Verificar que el backend sigue procesando** (no es error de la app si el 504 es solo del proxy):
+   ```bash
+   docker logs -f fiscalizacion-hse-api
+   ```
+   Debe verse `Paso 1/5` … `Paso 5/5`. Si el documento aparece en la lista tras el timeout, el proxy era el cuello de botella.

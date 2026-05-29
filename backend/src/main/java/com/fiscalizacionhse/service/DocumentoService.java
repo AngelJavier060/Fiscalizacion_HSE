@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,6 +54,8 @@ public class DocumentoService {
     private final IaService iaService;
     private final AuditoriaService auditoriaService;
     private final IaBusquedaService iaBusquedaService;
+    @Lazy
+    private final DocumentoProcesamientoAsyncService procesamientoAsyncService;
 
     /**
      * Archivo PDF en disco para previsualización / descarga (debe existir ruta_archivo).
@@ -127,16 +130,11 @@ public class DocumentoService {
     }
 
     /**
-     * Subir un documento PDF con procesamiento completo:
-     * 1. Guardar archivo
-     * 2. Extraer texto con PDFBox
-     * 3. Detectar idioma
-     * 4. Traducir si es inglés
-     * 5. Extraer puntos clave con IA
+     * Subir PDF: guarda el archivo y responde de inmediato; el resto se procesa en segundo plano
+     * (evita 504 del proxy en subidas con extracción + IA).
      */
     @Transactional
     public DocumentoResponse subirDocumento(DocumentoRequest request, MultipartFile archivo, Long usuarioId) {
-        // Validaciones
         if (archivo == null || archivo.isEmpty()) {
             throw new BadRequestException("Debe adjuntar un archivo PDF");
         }
@@ -149,23 +147,9 @@ public class DocumentoService {
         Empresa empresa = empresaRepository.findById(request.getEmpresaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Empresa", request.getEmpresaId()));
 
-        // 1. Guardar archivo
         String rutaArchivo = pdfService.guardarArchivo(archivo);
-        log.info("📁 Paso 1/5 - Archivo guardado: {}", rutaArchivo);
+        log.info("📁 Archivo guardado (respuesta inmediata al cliente): {}", rutaArchivo);
 
-        // 2. Extraer texto del PDF y auto-estructurar (H2 por estándar, sin trabajo manual)
-        String textoPlano = prepararTextoConSaltos(pdfService.extraerTexto(rutaArchivo));
-        textoPlano = quitarArtefactosPagina(textoPlano);
-        String textoExtraido = autoEstructurarDesdeTextoExtraido(textoPlano);
-        log.info("📝 Paso 2/5 - Texto extraído: {} chars → HTML estructurado: {} chars",
-                textoPlano.length(), textoExtraido.length());
-
-        // 3. Detectar idioma
-        String idiomaDetectado = idiomaService.detectar(textoExtraido);
-        boolean requiereTraduccion = !"es".equals(idiomaDetectado) && !"desconocido".equals(idiomaDetectado);
-        log.info("🌐 Paso 3/5 - Idioma detectado: {} (requiere traducción: {})", idiomaDetectado, requiereTraduccion);
-
-        // Crear entidad Documento
         Documento documento = Documento.builder()
                 .titulo(request.getTitulo())
                 .descripcion(request.getDescripcion())
@@ -173,10 +157,8 @@ public class DocumentoService {
                 .archivoTipo(archivo.getContentType())
                 .archivoTamano(archivo.getSize())
                 .rutaArchivo(rutaArchivo)
-                .textoExtraido(textoExtraido)
-                .idiomaOriginal(idiomaDetectado)
-                .idiomaDetectado(idiomaDetectado)
-                .requiereTraduccion(requiereTraduccion)
+                .estadoProcesamiento("PROCESANDO")
+                .requiereTraduccion(false)
                 .traducido(false)
                 .puntosGeneradosIa(false)
                 .empresa(empresa)
@@ -185,71 +167,115 @@ public class DocumentoService {
 
         documento = documentoRepository.save(documento);
 
-        // 4. Traducir si es necesario
-        if (requiereTraduccion) {
-            log.info("🌍 Paso 4/5 - Iniciando traducción...");
-            try {
-                String textoTraducido = traduccionService.traducirAIngles(textoExtraido, idiomaDetectado);
-                documento.setTextoTraducido(textoTraducido);
-                documento.setTraducido(true);
-                documento = documentoRepository.save(documento);
-                log.info("✅ Traducción completada y guardada");
-            } catch (Exception e) {
-                log.error("❌ Error en traducción: {}", e.getMessage());
-                // No fallar, el documento queda marcado como pendiente de traducción
-            }
-        }
-
-        // 5. Extraer puntos clave con IA
-        log.info("🤖 Paso 5/5 - Extrayendo puntos clave con IA...");
-        try {
-            String textoParaAnalisis = textoTraducidoValido(documento)
-                    ? documento.getTextoTraducido()
-                    : textoExtraido;
-
-            List<IaService.PuntoClaveIa> puntosIa = iaService.extraerPuntosClaveSubidaRapida(
-                    documento.getTitulo(), textoParaAnalisis);
-
-            if (!puntosIa.isEmpty()) {
-                List<PuntoClave> puntosGuardados = new ArrayList<>();
-                for (IaService.PuntoClaveIa puntoIa : puntosIa) {
-                    PuntoClave punto = PuntoClave.builder()
-                            .contenido(puntoIa.getContenido())
-                            .titulo(puntoIa.getTitulo())
-                            .tema(puntoIa.getTema())
-                            .codigo(puntoIa.getCodigo())
-                            .tipo(puntoIa.getTipo() != null ? puntoIa.getTipo() : "GENERAL")
-                            .orden(puntoIa.getOrden())
-                            .esIa(true)
-                            .confianzaIa(puntoIa.getConfianza() != null
-                                    ? puntoIa.getConfianza()
-                                    : BigDecimal.valueOf(0.85))
-                            .revisado(false)
-                            .documento(documento)
-                            .build();
-                    puntosGuardados.add(punto);
-                }
-                puntoClaveRepository.saveAll(puntosGuardados);
-                documento.setPuntosGeneradosIa(true);
-                documento = documentoRepository.save(documento);
-                log.info("✅ {} puntos clave extraídos y guardados", puntosGuardados.size());
-            } else {
-                log.warn("⚠️ No se extrajeron puntos clave del documento");
-            }
-        } catch (Exception e) {
-            log.error("❌ Error al extraer puntos clave con IA: {}", e.getMessage());
-            // No fallar, el admin puede generarlos manualmente después
-        }
-
-        // Auditar
         auditoriaService.registrar(
                 usuario, empresa, "SUBIR_DOCUMENTO", "Documento",
                 documento.getId(),
-                "Documento subido: " + documento.getTitulo() +
-                " (" + idiomaDetectado + ", " + textoExtraido.length() + " caracteres)",
+                "Documento subido (procesamiento en curso): " + documento.getTitulo(),
                 null);
 
+        procesamientoAsyncService.procesarDocumento(documento.getId(), usuarioId);
+
         return toResponse(documento);
+    }
+
+    /**
+     * Pasos 2–5 tras la subida: extracción, idioma, traducción e IA.
+     */
+    @Transactional
+    public void ejecutarProcesamientoPostSubida(Long documentoId, Long usuarioId) {
+        Documento documento = documentoRepository.findById(documentoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Documento", documentoId));
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", usuarioId));
+        Empresa empresa = documento.getEmpresa();
+
+        try {
+            String rutaArchivo = documento.getRutaArchivo();
+            log.info("📝 Paso 2/5 - Extrayendo texto de documento {}", documentoId);
+            String textoPlano = prepararTextoConSaltos(pdfService.extraerTexto(rutaArchivo));
+            textoPlano = quitarArtefactosPagina(textoPlano);
+            String textoExtraido = autoEstructurarDesdeTextoExtraido(textoPlano);
+            log.info("📝 Texto extraído: {} chars → HTML: {} chars", textoPlano.length(), textoExtraido.length());
+
+            String idiomaDetectado = idiomaService.detectar(textoExtraido);
+            boolean requiereTraduccion = !"es".equals(idiomaDetectado) && !"desconocido".equals(idiomaDetectado);
+            log.info("🌐 Paso 3/5 - Idioma: {} (traducción: {})", idiomaDetectado, requiereTraduccion);
+
+            documento.setTextoExtraido(textoExtraido);
+            documento.setIdiomaOriginal(idiomaDetectado);
+            documento.setIdiomaDetectado(idiomaDetectado);
+            documento.setRequiereTraduccion(requiereTraduccion);
+            documento = documentoRepository.save(documento);
+
+            if (requiereTraduccion) {
+                log.info("🌍 Paso 4/5 - Traducción...");
+                try {
+                    String textoTraducido = traduccionService.traducirAIngles(textoExtraido, idiomaDetectado);
+                    documento.setTextoTraducido(textoTraducido);
+                    documento.setTraducido(true);
+                    documento = documentoRepository.save(documento);
+                    log.info("✅ Traducción completada");
+                } catch (Exception e) {
+                    log.error("❌ Error en traducción: {}", e.getMessage());
+                }
+            }
+
+            log.info("🤖 Paso 5/5 - Extrayendo puntos clave con IA...");
+            try {
+                String textoParaAnalisis = textoTraducidoValido(documento)
+                        ? documento.getTextoTraducido()
+                        : textoExtraido;
+
+                List<IaService.PuntoClaveIa> puntosIa = iaService.extraerPuntosClaveSubidaRapida(
+                        documento.getTitulo(), textoParaAnalisis);
+
+                if (!puntosIa.isEmpty()) {
+                    List<PuntoClave> puntosGuardados = new ArrayList<>();
+                    for (IaService.PuntoClaveIa puntoIa : puntosIa) {
+                        PuntoClave punto = PuntoClave.builder()
+                                .contenido(puntoIa.getContenido())
+                                .titulo(puntoIa.getTitulo())
+                                .tema(puntoIa.getTema())
+                                .codigo(puntoIa.getCodigo())
+                                .tipo(puntoIa.getTipo() != null ? puntoIa.getTipo() : "GENERAL")
+                                .orden(puntoIa.getOrden())
+                                .esIa(true)
+                                .confianzaIa(puntoIa.getConfianza() != null
+                                        ? puntoIa.getConfianza()
+                                        : BigDecimal.valueOf(0.85))
+                                .revisado(false)
+                                .documento(documento)
+                                .build();
+                        puntosGuardados.add(punto);
+                    }
+                    puntoClaveRepository.saveAll(puntosGuardados);
+                    documento.setPuntosGeneradosIa(true);
+                    log.info("✅ {} puntos clave extraídos", puntosGuardados.size());
+                } else {
+                    log.warn("⚠️ No se extrajeron puntos clave");
+                }
+            } catch (Exception e) {
+                log.error("❌ Error al extraer puntos clave con IA: {}", e.getMessage());
+            }
+
+            documento.setEstadoProcesamiento("COMPLETADO");
+            documento.setErrorProcesamiento(null);
+            documentoRepository.save(documento);
+
+            auditoriaService.registrar(
+                    usuario, empresa, "PROCESAR_DOCUMENTO", "Documento",
+                    documento.getId(),
+                    "Procesamiento completado: " + documento.getTitulo() +
+                            " (" + idiomaDetectado + ", " + textoExtraido.length() + " caracteres)",
+                    null);
+
+        } catch (Exception e) {
+            log.error("❌ Error procesando documento {}: {}", documentoId, e.getMessage(), e);
+            documento.setEstadoProcesamiento("ERROR");
+            documento.setErrorProcesamiento(
+                    e.getMessage() != null ? e.getMessage() : "Error desconocido al procesar el PDF");
+            documentoRepository.save(documento);
+        }
     }
 
     /**
@@ -1018,6 +1044,8 @@ public class DocumentoService {
                 .requiereTraduccion(d.getRequiereTraduccion())
                 .traducido(d.getTraducido())
                 .puntosGeneradosIa(d.getPuntosGeneradosIa())
+                .estadoProcesamiento(d.getEstadoProcesamiento())
+                .errorProcesamiento(d.getErrorProcesamiento())
                 .cantidadPuntos(cantPuntos)
                 .cantidadPuntosRevisados(cantPuntosRevisados)
                 .empresaId(d.getEmpresa().getId())
