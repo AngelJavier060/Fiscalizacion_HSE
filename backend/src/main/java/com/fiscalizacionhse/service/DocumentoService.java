@@ -109,6 +109,7 @@ public class DocumentoService {
     /**
      * Listar documentos de una empresa
      */
+    @Transactional(readOnly = true)
     public Page<DocumentoResponse> listarPorEmpresa(Long empresaId, Pageable pageable) {
         return documentoRepository
                 .findByEmpresaIdAndActivoTrueOrderByCreatedAtDesc(empresaId, pageable)
@@ -118,6 +119,7 @@ public class DocumentoService {
     /**
      * Buscar documentos por término
      */
+    @Transactional(readOnly = true)
     public Page<DocumentoResponse> buscar(Long empresaId, String termino, Pageable pageable) {
         if (termino == null || termino.isBlank()) {
             return listarPorEmpresa(empresaId, pageable);
@@ -130,6 +132,7 @@ public class DocumentoService {
     /**
      * Obtener un documento por ID
      */
+    @Transactional(readOnly = true)
     public DocumentoResponse obtener(Long id) {
         return toResponse(buscar(id));
     }

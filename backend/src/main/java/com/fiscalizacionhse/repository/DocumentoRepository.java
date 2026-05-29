@@ -3,6 +3,7 @@ package com.fiscalizacionhse.repository;
 import com.fiscalizacionhse.model.Documento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface DocumentoRepository extends JpaRepository<Documento, Long> {
 
+    @EntityGraph(attributePaths = {"empresa", "subidoPor"})
     Page<Documento> findByEmpresaIdAndActivoTrueOrderByCreatedAtDesc(Long empresaId, Pageable pageable);
 
     List<Documento> findByEmpresaIdAndActivoTrue(Long empresaId);
@@ -39,6 +41,7 @@ public interface DocumentoRepository extends JpaRepository<Documento, Long> {
 
     long countByEmpresaIdAndActivoTrue(Long empresaId);
 
+    @EntityGraph(attributePaths = {"empresa", "subidoPor"})
     @Query(value = """
         SELECT d FROM Documento d
         WHERE d.empresa.id = :empresaId
