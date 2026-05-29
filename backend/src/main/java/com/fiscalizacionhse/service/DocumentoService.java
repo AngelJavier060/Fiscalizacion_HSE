@@ -3,6 +3,7 @@ package com.fiscalizacionhse.service;
 import com.fiscalizacionhse.dto.request.DocumentoRequest;
 import com.fiscalizacionhse.dto.response.DocumentoResponse;
 import com.fiscalizacionhse.dto.response.PuntoClaveResponse;
+import com.fiscalizacionhse.event.DocumentoSubidoEvent;
 import com.fiscalizacionhse.exception.BadRequestException;
 import com.fiscalizacionhse.exception.ResourceNotFoundException;
 import com.fiscalizacionhse.model.Documento;
@@ -17,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,8 +55,7 @@ public class DocumentoService {
     private final IaService iaService;
     private final AuditoriaService auditoriaService;
     private final IaBusquedaService iaBusquedaService;
-    @Lazy
-    private final DocumentoProcesamientoAsyncService procesamientoAsyncService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Archivo PDF en disco para previsualización / descarga (debe existir ruta_archivo).
@@ -138,7 +138,7 @@ public class DocumentoService {
         if (archivo == null || archivo.isEmpty()) {
             throw new BadRequestException("Debe adjuntar un archivo PDF");
         }
-        if (!"application/pdf".equals(archivo.getContentType())) {
+        if (!esPdfValido(archivo)) {
             throw new BadRequestException("Solo se permiten archivos PDF");
         }
 
@@ -173,9 +173,18 @@ public class DocumentoService {
                 "Documento subido (procesamiento en curso): " + documento.getTitulo(),
                 null);
 
-        procesamientoAsyncService.procesarDocumento(documento.getId(), usuarioId);
+        eventPublisher.publishEvent(new DocumentoSubidoEvent(documento.getId(), usuarioId));
 
         return toResponse(documento);
+    }
+
+    private static boolean esPdfValido(MultipartFile archivo) {
+        String tipo = archivo.getContentType();
+        if ("application/pdf".equals(tipo)) {
+            return true;
+        }
+        String nombre = archivo.getOriginalFilename();
+        return nombre != null && nombre.toLowerCase(Locale.ROOT).endsWith(".pdf");
     }
 
     /**

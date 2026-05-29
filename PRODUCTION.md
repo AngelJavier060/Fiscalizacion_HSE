@@ -210,6 +210,24 @@ ss -tlnp | grep 8005
 # Detenga el proceso conflictivo o cambie FRONTEND_HOST_PORT en .env
 ```
 
+**502 Bad Gateway al subir PDF**
+
+El proxy (NPM) no llega al backend o la petición pasa por **dos proxies** (NPM → frontend → backend) y falla con archivos grandes.
+
+**Solución recomendada:** en Nginx Proxy Manager, enrutar `/api` **directo al backend :8090** (no al frontend :8005). Guía completa en `nginx-npm-advanced.example.conf`.
+
+Resumen NPM:
+1. Proxy Host principal → `172.17.0.1:8005` (solo Angular)
+2. **Custom Location** `/api` → `172.17.0.1:8090` (backend)
+3. En esa location: `client_max_body_size 105M;`
+4. **No** poner `location /` en la pestaña Advanced (rompe NPM → 502)
+
+Verificar en el VPS:
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8090/api/v1/api/ia/salud
+docker logs --tail 50 fiscalizacion-hse-api
+```
+
 **504 Gateway Timeout al subir PDF**
 
 La subida procesa el PDF de forma síncrona (extracción de texto + IA) y puede tardar **varios minutos**. Nginx y Nginx Proxy Manager cortan por defecto a ~60 s.
