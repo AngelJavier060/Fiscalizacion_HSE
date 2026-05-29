@@ -62,7 +62,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private cerrarPorInactividad(): void {
     // Solo cierra si hay una sesión activa (no afecta a login ni landing).
     if (this.auth.isAuthenticated()) {
-      this.auth.logout();
+      this.auth.logout('/');
     }
   }
 }

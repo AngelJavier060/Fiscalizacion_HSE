@@ -22,10 +22,10 @@ export class AuthService {
     );
   }
 
-  logout(): void {
+  logout(redirectTo = '/auth/login'): void {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
-    this.router.navigate(['/auth/login']);
+    this.router.navigateByUrl(redirectTo);
   }
 
   isAuthenticated(): boolean {
