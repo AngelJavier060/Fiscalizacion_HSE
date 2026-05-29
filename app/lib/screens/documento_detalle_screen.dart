@@ -38,7 +38,9 @@ class DocumentoDetalleScreen extends StatefulWidget {
 class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen>
     with WidgetsBindingObserver {
   DocumentoDetalle? _detalle;
+  DocumentoTexto? _texto;
   bool _isLoading = true;
+  bool _cargandoTexto = true;
   bool _reprocesando = false;
   Timer? _pollTimer;
   static const _pollInterval = Duration(seconds: 10);
@@ -48,6 +50,7 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadDetalle();
+    _cargarTexto();
     _iniciarPollContinuo();
   }
 
@@ -68,6 +71,21 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen>
   void _iniciarPollContinuo() {
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(_pollInterval, (_) => _loadDetalle(silencioso: true));
+  }
+
+  Future<void> _cargarTexto() async {
+    try {
+      final texto =
+          await DocumentoService.getTextoCompleto(widget.documentoId);
+      if (mounted) {
+        setState(() {
+          _texto = texto;
+          _cargandoTexto = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _cargandoTexto = false);
+    }
   }
 
   Future<void> _loadDetalle({bool silencioso = false}) async {
@@ -122,6 +140,29 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen>
       '/documento-lector',
       arguments: {'id': widget.documentoId, 'titulo': widget.titulo},
     );
+  }
+
+  void _abrirEditor() async {
+    if (_detalle?.documento.isProcesando ?? false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Espere a que termine el procesamiento del PDF.'),
+        ),
+      );
+      return;
+    }
+    final guardado = await Navigator.pushNamed<bool>(
+      context,
+      '/documento-editor',
+      arguments: {
+        'id': widget.documentoId,
+        'titulo': widget.titulo,
+      },
+    );
+    if (guardado == true) {
+      await _cargarTexto();
+      await _loadDetalle(silencioso: true);
+    }
   }
 
   @override
@@ -256,6 +297,8 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen>
                         ),
                       ),
                       const SizedBox(height: 16),
+                      _buildSeccionTexto(doc),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
@@ -278,7 +321,7 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
                           const Icon(Icons.checklist_rounded,
@@ -419,6 +462,121 @@ class _DocumentoDetalleScreenState extends State<DocumentoDetalleScreen>
                     ],
                   ),
                 ),
+    );
+  }
+
+  Widget _buildSeccionTexto(DocumentoModel? doc) {
+    final procesando = doc?.isProcesando ?? false;
+    final tieneTexto = _texto?.tieneTexto ?? false;
+    final preview = _texto?.textoParaLectura ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.article_outlined,
+                color: _Pal.onSurface, size: 22),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Texto del procedimiento',
+                style: TextStyle(
+                  color: _Pal.onSurface,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            if (!procesando && !_cargandoTexto)
+              TextButton.icon(
+                onPressed: _abrirEditor,
+                icon: const Icon(Icons.edit_rounded, size: 18),
+                label: const Text('Editar'),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Material(
+          color: _Pal.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: _Pal.primary, width: 2),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: procesando ? null : _abrirEditor,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_cargandoTexto)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: CircularProgressIndicator(color: _Pal.primary),
+                      ),
+                    )
+                  else if (procesando)
+                    const Text(
+                      'El PDF se está procesando. Espere para ver y editar el texto.',
+                      style: TextStyle(color: _Pal.onSurfaceVar, height: 1.45),
+                    )
+                  else if (tieneTexto)
+                    Text(
+                      preview,
+                      maxLines: 12,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: _Pal.onSurface,
+                        fontSize: 15,
+                        height: 1.55,
+                      ),
+                    )
+                  else
+                    const Text(
+                      'Aún no hay texto. Toque aquí para escribir o pegar '
+                      'el contenido del procedimiento.',
+                      style: TextStyle(
+                        color: _Pal.onSurfaceVar,
+                        fontSize: 14,
+                        height: 1.45,
+                      ),
+                    ),
+                  if (!procesando && !_cargandoTexto) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _Pal.container,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.touch_app_rounded,
+                              color: _Pal.primary, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Toque para editar y guardar',
+                            style: TextStyle(
+                              color: _Pal.primary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

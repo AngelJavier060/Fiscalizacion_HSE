@@ -24,11 +24,14 @@ import 'preguntar_voz_sheet.dart';
 class DocumentoLectorScreen extends StatefulWidget {
   final int documentoId;
   final String titulo;
+  /// Si true, abre el editor en cuanto cargue el texto.
+  final bool abrirEnEdicion;
 
   const DocumentoLectorScreen({
     super.key,
     required this.documentoId,
     required this.titulo,
+    this.abrirEnEdicion = false,
   });
 
   @override
@@ -87,6 +90,7 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
   String _textoCompletoRaw = '';
   bool _modoEdicion = false;
   bool _guardandoEdicion = false;
+  bool _autoEditPendiente = false;
   bool _descargado = false;
   bool _leidoOffline = false;
 
@@ -130,6 +134,7 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
     WidgetsBinding.instance.addObserver(this);
     _initTts();
     _initFondo();
+    _autoEditPendiente = widget.abrirEnEdicion;
     _cargarTexto();
     _cargarEmpresa();
     _iniciarSyncContinuo();
@@ -357,11 +362,15 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
       }
 
       if (doc.isError) {
+        if (_autoEditPendiente) {
+          _abrirEdicionVacia();
+          return;
+        }
         setState(() {
           _cargando = false;
           _procesandoPdf = false;
           _error = doc.errorProcesamiento ??
-              'Error al procesar el PDF. Puede reprocesarlo.';
+              'Error al procesar el PDF. Puede reprocesarlo o editar el texto.';
         });
         return;
       }
@@ -454,12 +463,17 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
 
     if (texto == null || !texto.tieneTexto) {
       if (!mounted) return;
+      if (_autoEditPendiente) {
+        _abrirEdicionVacia();
+        return;
+      }
       setState(() {
         _error = online
             ? 'Este documento no tiene texto extraído todavía. '
-                'Pulse Reprocesar PDF para extraerlo de nuevo.'
+                'Pulse Reprocesar PDF para extraerlo de nuevo, '
+                'o edite el texto manualmente.'
             : 'Sin texto descargado en el teléfono. Conéctese a internet '
-                'y pulse Recargar texto.';
+                'y pulse Recargar texto, o edite manualmente.';
         _cargando = false;
         _procesandoPdf = false;
       });
@@ -470,9 +484,14 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
     if (!mounted) return;
 
     if (contenido.trim().isEmpty) {
+      if (_autoEditPendiente) {
+        _abrirEdicionVacia();
+        return;
+      }
       setState(() {
         _error =
-            'No se pudo preparar el texto para lectura. Pulse Reprocesar PDF.';
+            'No se pudo preparar el texto para lectura. Pulse Reprocesar PDF '
+            'o edite el texto manualmente.';
         _cargando = false;
         _procesandoPdf = false;
       });
@@ -510,15 +529,44 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
       _palabraInicio = 0;
       _palabraFin = 0;
     });
+    if (_autoEditPendiente) {
+      _autoEditPendiente = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _abrirPantallaEditor();
+      });
+    }
+  }
+
+  Future<void> _abrirPantallaEditor() async {
+    final guardado = await Navigator.pushNamed<bool>(
+      context,
+      '/documento-editor',
+      arguments: {
+        'id': widget.documentoId,
+        'titulo': widget.titulo,
+      },
+    );
+    if (guardado == true && mounted) {
+      await DocumentoOfflineService.eliminar(widget.documentoId);
+      await _cargarTexto();
+    }
+  }
+
+  void _abrirEdicionVacia() {
+    _autoEditPendiente = false;
+    _abrirPantallaEditor();
   }
 
   Future<void> _entrarEdicion() async {
-    if (_modoEdicion || _fragmentos.isEmpty) return;
+    if (_modoEdicion) return;
     await _pausar();
     _editorController.text = _textoCompletoRaw.isNotEmpty
         ? _textoCompletoRaw
-        : _fragmentos.join('\n\n');
-    setState(() => _modoEdicion = true);
+        : (_fragmentos.isNotEmpty ? _fragmentos.join('\n\n') : '');
+    setState(() {
+      _modoEdicion = true;
+      _error = null;
+    });
   }
 
   void _cancelarEdicion() {
@@ -998,12 +1046,22 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
               color: _onSurface, fontWeight: FontWeight.w700, fontSize: 16),
         ),
         actions: [
-          if (!_cargando && _error == null && !_modoEdicion)
-            IconButton(
-              onPressed: _entrarEdicion,
-              icon: const Icon(Icons.edit_note_rounded),
-              color: _primary,
-              tooltip: 'Editar y estructurar texto',
+          if (!_cargando && !_modoEdicion)
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: TextButton.icon(
+                onPressed: _abrirPantallaEditor,
+                icon: const Icon(Icons.edit_rounded, size: 20),
+                label: const Text(
+                  'Editar',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: _primary,
+                  backgroundColor: _primary.withValues(alpha: 0.12),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                ),
+              ),
             ),
           if (_modoEdicion)
             IconButton(
@@ -1073,7 +1131,13 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
                   : _buildLector(),
       bottomNavigationBar: (_cargando || _error != null || _modoEdicion)
           ? null
-          : _buildReproductor(),
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildBarraEditarFija(),
+                _buildReproductor(),
+              ],
+            ),
     );
   }
 
@@ -1112,6 +1176,16 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
               onPressed: _recargarTexto,
               icon: const Icon(Icons.cloud_download_outlined),
               label: const Text('Recargar texto'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _abrirPantallaEditor,
+              icon: const Icon(Icons.edit_note_rounded),
+              label: const Text('Editar o escribir texto'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _primary,
+                side: const BorderSide(color: _primary),
+              ),
             ),
           ],
         ),
@@ -1211,7 +1285,7 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
   Widget _buildLector() {
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       itemCount: _fragmentos.length,
       itemBuilder: (context, index) {
         final esActual = index == _indiceActual;
@@ -1220,6 +1294,7 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
           padding: const EdgeInsets.only(bottom: 6),
           child: GestureDetector(
             onTap: () => _reproducirDesdeFragmento(index),
+            onLongPress: _abrirPantallaEditor,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -1239,6 +1314,40 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
           ),
         );
       },
+    );
+  }
+
+  /// Barra fija encima del reproductor: siempre visible al leer.
+  Widget _buildBarraEditarFija() {
+    return Material(
+      color: const Color(0xFFEAEDFF),
+      elevation: 4,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: _abrirPantallaEditor,
+              icon: const Icon(Icons.edit_rounded, size: 22),
+              label: const Text(
+                'EDITAR TEXTO DEL PROCEDIMIENTO',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primary,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 

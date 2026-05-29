@@ -8,6 +8,7 @@ import 'screens/home_screen.dart';
 import 'screens/documentos_screen.dart';
 import 'screens/documento_detalle_screen.dart';
 import 'screens/documento_lector_screen.dart';
+import 'screens/documento_editor_screen.dart';
 import 'screens/notificaciones_screen.dart';
 import 'screens/ia_chat_screen.dart';
 import 'screens/perfil_screen.dart';
@@ -116,6 +117,16 @@ class FiscalizacionHSEApp extends StatelessWidget {
           final args = settings.arguments as Map<String, dynamic>;
           return MaterialPageRoute(
             builder: (context) => DocumentoLectorScreen(
+              documentoId: args['id'] as int,
+              titulo: args['titulo'] as String,
+              abrirEnEdicion: args['editar'] == true,
+            ),
+          );
+        }
+        if (settings.name == '/documento-editor') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (context) => DocumentoEditorScreen(
               documentoId: args['id'] as int,
               titulo: args['titulo'] as String,
             ),
