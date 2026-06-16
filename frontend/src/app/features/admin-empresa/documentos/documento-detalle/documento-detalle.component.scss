@@ -37,6 +37,42 @@ $success: #059669;
   height: 100vh;
   max-height: 100dvh;
   overflow: hidden;
+
+  // ─── Font-size CSS custom properties ──────────
+  --fs-xs: 10px;
+  --fs-sm: 11px;
+  --fs-base: 12px;
+  --fs-md: 13px;
+  --fs-lg: 14px;
+  --fs-xl: 16px;
+  --fs-xxl: 20px;
+  --fs-title: 24px;
+
+  &[data-font-size='grande'] {
+    --fs-xs: 11px;
+    --fs-sm: 12px;
+    --fs-base: 13px;
+    --fs-md: 14px;
+    --fs-lg: 15px;
+    --fs-xl: 17px;
+    --fs-xxl: 22px;
+    --fs-title: 26px;
+  }
+
+  &[data-font-size='extra'] {
+    --fs-xs: 12px;
+    --fs-sm: 13px;
+    --fs-base: 14px;
+    --fs-md: 15px;
+    --fs-lg: 16px;
+    --fs-xl: 18px;
+    --fs-xxl: 24px;
+    --fs-title: 28px;
+  }
+
+  // ─── Aumento global proporcional ──────────
+  &[data-font-size='grande'] .doc-detail-page { zoom: 1.1; }
+  &[data-font-size='extra']  .doc-detail-page { zoom: 1.2; }
 }
 
 .doc-detail-page {
@@ -111,6 +147,40 @@ $success: #059669;
         &:hover:not(.active) { background: $surface-container-high; }
       }
     }
+  }
+}
+
+.font-size-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: $surface-container-low;
+  border: 1px solid $outline-variant;
+  border-radius: 8px;
+}
+
+.btn-size {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 5px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: $on-surface-variant;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  line-height: 1;
+  &:hover { background: $surface-container-high; }
+  &.active {
+    background: $primary;
+    color: $on-primary;
   }
 }
 
@@ -1022,7 +1092,584 @@ $success: #059669;
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes eq-bar { 0% { height: 4px; } 100% { height: 14px; } }
 
-// ─── SCROLLBAR ──────────────────────────────
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background-color: $outline-variant; border-radius: 10px; }
+// ─── NORMATIVA / PUNTOS CLAVES ────────────────
+.nc-panel {
+  flex: 1;
+  min-height: 0;
+  padding-top: 64px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem 2rem;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  background: $surface;
+  box-sizing: border-box;
+}
+
+.nc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.nc-header-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: $primary;
+  margin: 0 0 0.25rem;
+}
+
+.nc-header-subtitle {
+  font-size: 14px;
+  line-height: 1.4;
+  color: $on-surface-variant;
+  margin: 0;
+}
+
+.nc-header-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  @media (min-width: 768px) {
+    width: auto;
+    flex-shrink: 0;
+  }
+}
+
+.nc-search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  @media (min-width: 768px) {
+    width: 16rem;
+    flex: none;
+  }
+}
+
+.nc-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $on-surface-variant;
+  font-size: 20px;
+  pointer-events: none;
+}
+
+.nc-search-input {
+  width: 100%;
+  padding: 0.5rem 1rem 0.5rem 2.75rem;
+  background: $surface-container-lowest;
+  border: 1px solid $outline-variant;
+  border-radius: 8px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: $on-surface;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  &::placeholder { color: $outline; }
+  &:focus { border-color: $primary; box-shadow: 0 0 0 1px rgba($primary, 0.2); }
+}
+
+.nc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  .mat-icon { font-size: 18px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.nc-btn-primary {
+  background: $primary;
+  color: $on-primary;
+  border-color: $primary;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  &:hover:not(:disabled) { background: $primary-container; }
+}
+
+.nc-btn-ia {
+  background: $surface;
+  color: $primary;
+  border-color: $outline-variant;
+  &:hover:not(:disabled) { background: $surface-container-high; border-color: $primary; }
+  .mat-icon {
+    background: linear-gradient(135deg, #00356a, #799dd6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+.nc-btn-outline {
+  background: $surface;
+  color: $on-surface-variant;
+  border-color: $outline-variant;
+  &:hover:not(:disabled) { background: $surface-container-high; border-color: $primary; color: $primary; }
+}
+
+.nc-btn-sm { padding: 0.4rem 0.75rem; font-size: 12px; }
+
+.nc-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba($primary, 0.25);
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: nc-spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes nc-spin { to { transform: rotate(360deg); } }
+
+.nc-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: $error-container;
+  border-radius: 8px;
+  font-size: 13px;
+  color: $on-error-container;
+  .mat-icon { font-size: 20px; flex-shrink: 0; }
+}
+
+.nc-input-card {
+  background: $surface-container-lowest;
+  border: 1px solid $outline-variant;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.nc-input-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.nc-textarea {
+  flex: 1;
+  width: 100%;
+  border: none;
+  padding: 0;
+  background: transparent;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: $on-surface;
+  resize: none;
+  outline: none;
+  min-height: 3rem;
+  box-sizing: border-box;
+  &::placeholder { color: $outline; }
+}
+
+.nc-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nc-filter-btn {
+  padding: 0.45rem 1rem;
+  border: 1px solid $outline-variant;
+  border-radius: 999px;
+  background: $surface-container-lowest;
+  color: $on-surface-variant;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  &:hover { background: $surface-container-high; }
+  &.active { background: $primary; color: $on-primary; border-color: $primary; }
+}
+
+.nc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.25);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.nc-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.nc-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem;
+  color: $outline;
+  p { margin: 0; font-size: 14px; }
+}
+
+.nc-spinner-lg {
+  width: 24px; height: 24px;
+  border: 2.5px solid $outline-variant;
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: nc-spin 0.6s linear infinite;
+}
+
+.nc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  .nc-empty-icon { font-size: 48px; color: $outline-variant; margin-bottom: 0.75rem; }
+  h3 { margin: 0 0 0.5rem; font-size: 18px; font-weight: 700; color: $on-surface; }
+  p { margin: 0; font-size: 14px; color: $on-surface-variant; line-height: 1.5; max-width: 500px; }
+}
+
+.nc-group { display: flex; flex-direction: column; gap: 0; }
+
+.nc-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.25rem 0.5rem;
+}
+
+.nc-group-icon { font-size: 20px; color: $primary; }
+
+.nc-group-label {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $on-surface-variant;
+}
+
+.nc-group-count {
+  margin-left: auto;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  background: $surface-container-high;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  color: $outline;
+}
+
+.nc-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: $surface-container-lowest;
+  border: 1px solid $outline-variant;
+  border-radius: 8px;
+  transition: border-color 0.15s;
+  position: relative;
+  &:hover { border-color: rgba($primary, 0.3); }
+  &.nc-card-ia { border-left: 4px solid $success; }
+  &.nc-card-manual { border-left: 4px solid $outline-variant; }
+  &.nc-card-pending { background: rgba(#f59e0b, 0.02); }
+}
+
+.nc-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+
+.nc-card-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+
+.nc-card-title {
+  margin: 0;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: $primary;
+  flex: 1;
+  min-width: 0;
+}
+
+.nc-card-badges { display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
+
+.nc-badge-conf {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.125rem 0.45rem;
+  border-radius: 4px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  &.nc-conf-alta { background: rgba($success, 0.12); color: $success; }
+  &.nc-conf-media { background: rgba(#f59e0b, 0.12); color: #b45309; }
+  &.nc-conf-baja { background: rgba($error, 0.1); color: $error; }
+}
+
+.nc-conf-dot {
+  width: 6px; height: 6px; border-radius: 50%; display: inline-block;
+  &.nc-dot-alta { background: $success; }
+  &.nc-dot-media { background: #f59e0b; }
+  &.nc-dot-baja { background: $error; }
+}
+
+.nc-badge-type {
+  padding: 0.125rem 0.45rem;
+  border-radius: 4px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+  &.nc-type-ia, &.nc-type-manual { background: $surface-container-high; color: $on-surface-variant; }
+}
+
+.nc-badge-revisado {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.125rem 0.4rem;
+  border-radius: 4px;
+  background: rgba($success, 0.08);
+  color: $success;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  .mat-icon { font-size: 14px; }
+}
+
+.nc-card-content {
+  p { margin: 0; font-family: 'Hanken Grotesk', sans-serif; font-size: 14px; line-height: 1.5; color: $on-surface-variant; white-space: pre-wrap; }
+  &.nc-content-long {
+    p { max-height: 5em; overflow: hidden; position: relative; &::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2em; background: linear-gradient(transparent, $surface-container-lowest); } }
+    &.nc-content-expanded { p { max-height: none; &::after { display: none; } } }
+  }
+}
+
+.nc-expand-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.3rem;
+  border: 1px solid $outline-variant;
+  border-radius: 6px;
+  background: $surface-container-low;
+  color: $primary;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+  &:hover { background: $surface-container-high; }
+}
+
+.nc-ref {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  background: rgba($primary, 0.04);
+  border: 1px solid rgba($primary, 0.1);
+  border-radius: 6px;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 12px;
+  color: $on-surface-variant;
+  .mat-icon { font-size: 14px; color: $primary; }
+}
+
+.nc-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  align-self: flex-start;
+  .nc-card:hover & { opacity: 1; }
+}
+
+.nc-action-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid $outline-variant;
+  border-radius: 8px;
+  background: $surface-container-lowest;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+  .mat-icon { font-size: 18px; color: $on-surface-variant; transition: color 0.12s; }
+  &:hover { background: $surface-container-high; .mat-icon { color: $primary; } }
+  &.nc-action-danger {
+    &:hover { background: rgba($error, 0.08); .mat-icon { color: $error; } }
+  }
+}
+
+.nc-edit-mode { width: 100%; }
+
+.nc-edit-textarea {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid $primary;
+  border-radius: 8px;
+  background: $surface-container-lowest;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: $on-surface;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: 0 0 0 2px rgba($primary, 0.12);
+}
+
+.nc-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.nc-footer-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 2rem;
+  @media (min-width: 768px) { grid-template-columns: 2fr 1fr; }
+}
+
+.nc-footer-card {
+  border-radius: 12px;
+  padding: 1.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.nc-footer-ai {
+  background: $primary-container;
+  color: $on-primary-container;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nc-footer-card-content { position: relative; z-index: 1; }
+
+.nc-footer-title {
+  margin: 0 0 0.5rem;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.nc-footer-text {
+  margin: 0;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  opacity: 0.8;
+  max-width: 28rem;
+  strong { font-weight: 700; }
+}
+
+.nc-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: opacity 0.12s;
+  &:hover:not(:disabled) { opacity: 1; text-decoration: underline; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  .mat-icon { font-size: 16px; }
+}
+
+.nc-footer-ai-glow {
+  position: absolute;
+  right: -1rem;
+  bottom: -1rem;
+  opacity: 0.1;
+  transition: transform 0.7s;
+  .nc-footer-ai:hover & { transform: scale(1.1); }
+  .mat-icon { font-size: 140px; }
+}
+
+.nc-footer-confianza {
+  background: $surface-container-lowest;
+  border: 1px solid $outline-variant;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.35rem;
+}
+
+.nc-footer-conf-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba($success, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .mat-icon { font-size: 24px; color: $success; }
+}
+
+.nc-footer-conf-pct {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: $primary;
+}
+
+.nc-footer-conf-label {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $outline;
+}

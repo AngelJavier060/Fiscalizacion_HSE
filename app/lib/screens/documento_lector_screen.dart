@@ -1046,23 +1046,60 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
               color: _onSurface, fontWeight: FontWeight.w700, fontSize: 16),
         ),
         actions: [
-          if (!_cargando && !_modoEdicion)
+          if (!_cargando && !_modoEdicion) ...[
             Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: TextButton.icon(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+              child: ElevatedButton.icon(
                 onPressed: _abrirPantallaEditor,
-                icon: const Icon(Icons.edit_rounded, size: 20),
+                icon: const Icon(Icons.edit_rounded, size: 18),
                 label: const Text(
-                  'Editar',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  'EDITAR',
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
                 ),
-                style: TextButton.styleFrom(
-                  foregroundColor: _primary,
-                  backgroundColor: _primary.withValues(alpha: 0.12),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  minimumSize: const Size(0, 36),
+                  elevation: 0,
                 ),
               ),
             ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert_rounded, color: _onSurfaceVar),
+              tooltip: 'Más opciones',
+              onSelected: (value) {
+                if (value == 'voz') _abrirPreguntarVoz();
+                if (value == 'offline') _confirmarQuitarDescarga();
+              },
+              itemBuilder: (context) => [
+                if (_empresaId != null)
+                  const PopupMenuItem(
+                    value: 'voz',
+                    child: ListTile(
+                      leading: Icon(Icons.mic_rounded),
+                      title: Text('Preguntar por voz'),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                  ),
+                if (_descargado)
+                  const PopupMenuItem(
+                    value: 'offline',
+                    child: ListTile(
+                      leading: Icon(Icons.offline_pin_rounded),
+                      title: Text('Quitar descarga offline'),
+                      subtitle: Text(
+                        'Libera espacio en el teléfono',
+                        style: TextStyle(fontSize: 11),
+                      ),
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                  ),
+              ],
+            ),
+          ],
           if (_modoEdicion)
             IconButton(
               onPressed: _guardandoEdicion ? null : _guardarEdicion,
@@ -1082,20 +1119,6 @@ class _DocumentoLectorScreenState extends State<DocumentoLectorScreen>
               icon: const Icon(Icons.close_rounded),
               color: _onSurfaceVar,
               tooltip: 'Cancelar edición',
-            ),
-          if (_descargado && !_cargando && !_modoEdicion)
-            IconButton(
-              onPressed: _confirmarQuitarDescarga,
-              icon: const Icon(Icons.offline_pin_rounded),
-              color: _secondary,
-              tooltip: 'Guardado en el teléfono (sin internet)',
-            ),
-          if (_empresaId != null && _error == null && !_cargando)
-            IconButton(
-              onPressed: _abrirPreguntarVoz,
-              icon: const Icon(Icons.mic_rounded),
-              color: _primary,
-              tooltip: 'Preguntar por voz',
             ),
         ],
       ),

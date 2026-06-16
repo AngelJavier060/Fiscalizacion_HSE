@@ -435,24 +435,32 @@ class _DocumentoCardState extends State<_DocumentoCard> {
   }
 
   /// Portada del documento: primera página del PDF (con respaldo al ícono).
+  /// Al hacer clic abre el visor PDF con zoom.
   Widget _portada() {
     final url =
         '${ApiConfig.baseUrl}${ApiConfig.documentosDetalle}/${widget.documento.id}/paginas/1/preview';
-    return SizedBox(
-      width: 48,
-      height: 62,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: _token == null
-            ? _iconoPdf()
-            : CachedNetworkImage(
-                imageUrl: url,
-                httpHeaders: {'Authorization': 'Bearer $_token'},
-                fit: BoxFit.cover,
-                fadeInDuration: const Duration(milliseconds: 200),
-                placeholder: (c, u) => _iconoPdf(),
-                errorWidget: (c, u, e) => _iconoPdf(),
-              ),
+    return GestureDetector(
+      onTap: () => Navigator.pushNamed(
+        context,
+        '/documento-pdf',
+        arguments: {'id': widget.documento.id, 'titulo': widget.documento.titulo},
+      ),
+      child: SizedBox(
+        width: 48,
+        height: 62,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: _token == null
+              ? _iconoPdf()
+              : CachedNetworkImage(
+                  imageUrl: url,
+                  httpHeaders: {'Authorization': 'Bearer $_token'},
+                  fit: BoxFit.cover,
+                  fadeInDuration: const Duration(milliseconds: 200),
+                  placeholder: (c, u) => _iconoPdf(),
+                  errorWidget: (c, u, e) => _iconoPdf(),
+                ),
+        ),
       ),
     );
   }

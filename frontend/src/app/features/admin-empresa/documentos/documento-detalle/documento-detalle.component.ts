@@ -62,6 +62,8 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
 
   /** Pestaña activa */
   pestanaActiva: 'lectura' | 'ia' = 'lectura';
+  /** Pestaña principal del topbar */
+  pestanaPrincipal: 'documentos' | 'normativa' | 'lectura' = 'documentos';
 
   /** Vista previa del PDF (blob + URL segura para iframe) */
   pdfSafeUrl: SafeResourceUrl | null = null;
@@ -72,6 +74,33 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
   errorMsgPuntos: string | null = null;
   // Nuevo punto manual
   nuevoPunto = '';
+  get puedeAgregarPunto(): boolean {
+    return this.nuevoPunto.trim().length > 0;
+  }
+
+  get puntosIa(): number {
+    return this.puntosClave.filter(p => p.esIa).length;
+  }
+
+  get puntosManuales(): number {
+    return this.puntosClave.filter(p => !p.esIa).length;
+  }
+
+  get puntosRevisados(): number {
+    return this.puntosClave.filter(p => p.revisado).length;
+  }
+
+  get pctRevisados(): number {
+    return this.puntosClave.length > 0
+      ? Math.round((this.puntosRevisados / this.puntosClave.length) * 100)
+      : 0;
+  }
+
+  autoExpand(event: Event): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  }
   editandoPuntoId: number | null = null;
   editandoPuntoTexto = '';
 
@@ -149,6 +178,25 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
 
   @ViewChild(EditorTextoRicoComponent) editorRico?: EditorTextoRicoComponent;
 
+  // ─── Tamaño de fuente ─────────────────────────
+  tamanoFuente: 'normal' | 'grande' | 'extra' = 'normal';
+
+  setTamanoFuente(nuevo: 'normal' | 'grande' | 'extra'): void {
+    this.tamanoFuente = nuevo;
+    document.documentElement.setAttribute('data-font-size', nuevo);
+    localStorage.setItem('hse-font-size', nuevo);
+  }
+
+  private restaurarTamanoFuente(): void {
+    const guardado = localStorage.getItem('hse-font-size') as 'normal' | 'grande' | 'extra' | null;
+    if (guardado && ['normal', 'grande', 'extra'].includes(guardado)) {
+      this.tamanoFuente = guardado;
+      document.documentElement.setAttribute('data-font-size', guardado);
+    } else {
+      document.documentElement.setAttribute('data-font-size', 'normal');
+    }
+  }
+
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
@@ -159,6 +207,7 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.user = this.authService.getUserData();
+    this.restaurarTamanoFuente();
     const ctx = buildDocumentoContext(this.route, this.authService);
     this.esRutaSuperAdmin = ctx.esRutaSuperAdmin;
     this.nav = documentNavigationLinks(ctx);
@@ -255,6 +304,7 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
     this.detenerPollProcesamiento();
     this.revokePdfUrl();
     this.textoVoz.detener();
+    document.documentElement.removeAttribute('data-font-size');
   }
 
   get procesandoDocumento(): boolean {
@@ -878,6 +928,13 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         }, 5000);
       }
+    }
+  }
+
+  cambiarPestanaPrincipal(pestana: 'documentos' | 'normativa' | 'lectura'): void {
+    this.pestanaPrincipal = pestana;
+    if (pestana === 'normativa' && this.puntosClave.length === 0 && !this.cargandoPuntos && this.documento?.id) {
+      this.cargarPuntos(this.documento.id);
     }
   }
 

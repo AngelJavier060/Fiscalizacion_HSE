@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/splash_screen.dart';
@@ -9,15 +10,19 @@ import 'screens/documentos_screen.dart';
 import 'screens/documento_detalle_screen.dart';
 import 'screens/documento_lector_screen.dart';
 import 'screens/documento_editor_screen.dart';
+import 'screens/documento_pdf_screen.dart';
 import 'screens/notificaciones_screen.dart';
 import 'screens/ia_chat_screen.dart';
 import 'screens/perfil_screen.dart';
+import 'screens/permisos_screen.dart';
 import 'services/auth_service.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'widgets/inactivity_watcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es');
   
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('jwt_token');
@@ -42,6 +47,16 @@ class FiscalizacionHSEApp extends StatelessWidget {
       scaffoldMessengerKey: scaffoldMessengerKey,
       title: 'Fiscalización HSE',
       debugShowCheckedModeBanner: false,
+      locale: const Locale('es', 'ES'),
+      supportedLocales: const [
+        Locale('es', 'ES'),
+        Locale('en', 'US'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: const Color(0xFF059669), // Verde HSE
@@ -102,6 +117,7 @@ class FiscalizacionHSEApp extends StatelessWidget {
         '/notificaciones': (context) => const NotificacionesScreen(),
         '/ia-chat': (context) => const IaChatScreen(),
         '/perfil': (context) => const PerfilScreen(),
+    '/permisos': (context) => const PermisosScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/documento-detalle') {
@@ -120,6 +136,15 @@ class FiscalizacionHSEApp extends StatelessWidget {
               documentoId: args['id'] as int,
               titulo: args['titulo'] as String,
               abrirEnEdicion: args['editar'] == true,
+            ),
+          );
+        }
+        if (settings.name == '/documento-pdf') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (context) => DocumentoPdfScreen(
+              documentoId: args['id'] as int,
+              titulo: args['titulo'] as String,
             ),
           );
         }

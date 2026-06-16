@@ -55,6 +55,13 @@ class _HomeScreenState extends State<HomeScreen> {
     '/notificaciones',
     '/ia-chat',
     '/perfil',
+    '/permisos',
+    '/usuarios',
+    '/empresas',
+    '/actividades',
+    '/controles',
+    '/conocimientos',
+    '/puntos-clave',
   };
 
   @override

@@ -171,11 +171,14 @@ public class PuntoClaveService {
     @Transactional
     public void eliminar(Long id) {
         PuntoClave punto = buscar(id);
+        // Capturar datos ANTES de borrar (el entity queda detached tras delete)
+        String tituloDoc = punto.getDocumento().getTitulo();
+        var empresa = punto.getDocumento().getEmpresa();
         puntoClaveRepository.delete(punto);
 
         auditoriaService.registrar(
-                null, punto.getDocumento().getEmpresa(), "ELIMINAR_PUNTO_CLAVE", "PuntoClave",
-                id, "Punto clave eliminado del documento: " + punto.getDocumento().getTitulo(), null);
+                null, empresa, "ELIMINAR_PUNTO_CLAVE", "PuntoClave",
+                id, "Punto clave eliminado del documento: " + tituloDoc, null);
     }
 
     private PuntoClave buscar(Long id) {

@@ -34,6 +34,7 @@ class ApiConfig {
   static const String documentosDetalle = '/api/documentos';
   static const String documentosBuscar = '/api/documentos/buscar';
   static const String puntosClave = '/api/puntos-clave/documento';
+  static const String puntoClaveById = '/api/puntos-clave';
 
   static const String notificacionesBandeja = '/api/notificaciones/bandeja';
   static const String notificacionesNoLeidas = '/api/notificaciones/no-leidas';
@@ -46,6 +47,8 @@ class ApiConfig {
   static const String iaBuscar = '/api/ia/buscar';
   static const String iaHistorial = '/api/ia/historial';
   static const String iaEstado = '/api/ia/estado';
+
+  static const String permisosTrabajo = '/api/permisos-trabajo';
 
   /// Obtiene la URL base según plataforma y entorno
   static String get baseUrl {

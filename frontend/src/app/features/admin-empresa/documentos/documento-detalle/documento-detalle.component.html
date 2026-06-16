@@ -10,9 +10,9 @@
     </div>
     <nav class="topbar-center">
       <div class="top-nav">
-        <a class="nav-tab active">Documentos</a>
-        <a class="nav-tab">Normativa</a>
-        <a class="nav-tab">Lectura</a>
+        <a class="nav-tab" [class.active]="pestanaPrincipal === 'documentos'" (click)="pestanaPrincipal = 'documentos'">Documentos</a>
+        <a class="nav-tab" [class.active]="pestanaPrincipal === 'normativa'" (click)="cambiarPestanaPrincipal('normativa')">Puntos Claves</a>
+        <a class="nav-tab" [class.active]="pestanaPrincipal === 'lectura'" (click)="cambiarPestanaPrincipal('lectura')">Lectura</a>
       </div>
     </nav>
     <div class="topbar-right">
@@ -20,6 +20,11 @@
         <span class="mat-icon">print</span>
         Imprimir
       </button>
+      <div class="font-size-group" title="Tamaño de texto">
+        <button class="btn-size" [class.active]="tamanoFuente === 'normal'" (click)="setTamanoFuente('normal')" title="Normal">A</button>
+        <button class="btn-size" [class.active]="tamanoFuente === 'grande'" (click)="setTamanoFuente('grande')" title="Grande">A+</button>
+        <button class="btn-size" [class.active]="tamanoFuente === 'extra'" (click)="setTamanoFuente('extra')" title="Extra grande">A++</button>
+      </div>
       <button class="btn-primary" (click)="abrirPdfNuevaPestana()">
         <span class="mat-icon">picture_as_pdf</span>
         Ver PDF
@@ -49,6 +54,7 @@
     </div>
   }
 
+  @if (pestanaPrincipal !== 'normativa') {
   <!-- ===== MAIN LAYOUT ===== -->
   <div class="main-layout" [class.con-banner-proceso]="procesandoDocumento || errorProcesamiento">
 
@@ -351,6 +357,203 @@
 
     </main>
   </div>
+  }
+
+  @if (pestanaPrincipal === 'normativa') {
+  <!-- ===== PUNTOS CLAVES PANEL ===== -->
+  <main class="nc-panel">
+
+    <!-- Header Row -->
+    <div class="nc-header">
+      <div>
+        <h2 class="nc-header-title">Controles y Extractos</h2>
+        <p class="nc-header-subtitle">Gestiona los puntos clave extraídos y validados del documento.</p>
+      </div>
+      <div class="nc-header-actions">
+        <div class="nc-search-wrapper">
+          <span class="mat-icon nc-search-icon">search</span>
+          <input type="text" class="nc-search-input"
+                 placeholder="Buscar punto clave…"
+                 [(ngModel)]="terminoBusqueda"
+                 (input)="filtrarSecciones()">
+        </div>
+        <button class="nc-btn nc-btn-ia" (click)="regenerarPuntosIa()" [disabled]="regenerandoIa" title="Extraer puntos clave con IA">
+          @if (regenerandoIa) {
+            <span class="nc-spinner"></span> Extrayendo…
+          } @else {
+            <span class="mat-icon">auto_awesome</span>
+            Extraer con IA
+          }
+        </button>
+        @if (cantidadPendientes > 0) {
+          <button class="nc-btn nc-btn-outline" (click)="marcarTodosRevisados()" title="Marcar todos como revisados">
+            <span class="mat-icon">checklist</span>
+            {{ cantidadPendientes }} pendientes
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (errorMsgPuntos) {
+      <div class="nc-error">
+        <span class="mat-icon">error</span>
+        <span>{{ errorMsgPuntos }}</span>
+      </div>
+    }
+
+    <!-- Input Prompt Area -->
+    <div class="nc-input-card">
+      <div class="nc-input-row">
+        <textarea class="nc-textarea"
+                  [(ngModel)]="nuevoPunto"
+                  placeholder="Agregar punto clave manualmente…"
+                  rows="1"
+                  (input)="autoExpand($event)"></textarea>
+        <button class="nc-btn nc-btn-primary" (click)="agregarPuntoManual()" [disabled]="!puedeAgregarPunto">
+          <span class="mat-icon">add</span>
+          Agregar
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="nc-filters">
+      <button class="nc-filter-btn" [class.active]="filtro === 'todos'" (click)="filtro = 'todos'">Todos</button>
+      <button class="nc-filter-btn" [class.active]="filtro === 'ia'" (click)="filtro = 'ia'">
+        IA @if (cantidadPendientes > 0) { <span class="nc-badge">{{ cantidadPendientes }}</span> }
+      </button>
+      <button class="nc-filter-btn" [class.active]="filtro === 'manual'" (click)="filtro = 'manual'">Manual</button>
+      <button class="nc-filter-btn" [class.active]="filtro === 'no-revisados'" (click)="filtro = 'no-revisados'">No revisados</button>
+    </div>
+
+    <!-- Lista de Puntos Clave -->
+    <div class="nc-list">
+      @if (cargandoPuntos) {
+        <div class="nc-loading">
+          <div class="nc-spinner-lg"></div>
+          <p>Cargando puntos clave…</p>
+        </div>
+      } @else if (puntosAgrupadosPorTema.length === 0) {
+        <div class="nc-empty">
+          <span class="mat-icon nc-empty-icon">playlist_remove</span>
+          <h3>No hay puntos clave todavía</h3>
+          <p>Usa <strong>Extraer con IA</strong> para generarlos automáticamente desde el contenido del documento, o agrega puntos manualmente.</p>
+        </div>
+      } @else {
+        @for (grupo of puntosAgrupadosPorTema; track grupo.tema) {
+          <!-- Grupo -->
+          <div class="nc-group">
+            <div class="nc-group-header">
+              <span class="mat-icon nc-group-icon">folder_open</span>
+              <span class="nc-group-label">{{ grupo.tema }}</span>
+              <span class="nc-group-count">{{ grupo.puntos.length }} {{ grupo.puntos.length === 1 ? 'item' : 'items' }}</span>
+            </div>
+
+            @for (punto of grupo.puntos; track punto.id) {
+              <div class="nc-card" [class.nc-card-ia]="punto.esIa" [class.nc-card-manual]="!punto.esIa" [class.nc-card-pending]="punto.esIa && !punto.revisado">
+                
+                @if (editandoPuntoId === punto.id) {
+                  <!-- MODO EDICIÓN -->
+                  <div class="nc-edit-mode">
+                    <textarea class="nc-edit-textarea"
+                              [(ngModel)]="editandoPuntoTexto"
+                              rows="4"></textarea>
+                    <div class="nc-edit-actions">
+                      <button class="nc-btn nc-btn-primary nc-btn-sm" (click)="guardarEdicion(punto)" [disabled]="!editandoPuntoTexto.trim()">
+                        <span class="mat-icon">save</span> Guardar
+                      </button>
+                      <button class="nc-btn nc-btn-outline nc-btn-sm" (click)="cancelarEdicion()">
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <!-- MODO VISUALIZACIÓN -->
+                  <div class="nc-card-body">
+                    <div class="nc-card-top">
+                      <h4 class="nc-card-title">{{ tituloPunto(punto) }}</h4>
+                      <div class="nc-card-badges">
+                        @if (punto.esIa && punto.confianzaIa != null) {
+                          <span class="nc-badge-conf" [class]="'nc-conf-' + getConfianzaClase(punto.confianzaIa)">
+                            <span class="nc-conf-dot" [class]="'nc-dot-' + getConfianzaClase(punto.confianzaIa)"></span>
+                            {{ getNivelConfianza(punto.confianzaIa) }}
+                          </span>
+                        }
+                        <span class="nc-badge-type" [class.nc-type-ia]="punto.esIa" [class.nc-type-manual]="!punto.esIa">
+                          {{ etiquetaTipo(punto) }}
+                        </span>
+                        @if (punto.esIa && punto.revisado) {
+                          <span class="nc-badge-revisado">
+                            <span class="mat-icon">verified</span> Revisado
+                          </span>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="nc-card-content" [class.nc-content-long]="esContenidoLargo(punto)" [class.nc-content-expanded]="estaExpandido(punto)">
+                      <p>{{ punto.contenido }}</p>
+                    </div>
+                    @if (esContenidoLargo(punto)) {
+                      <button class="nc-expand-btn" (click)="toggleExpandir(punto)">
+                        {{ estaExpandido(punto) ? '▲ Mostrar menos' : '▼ Mostrar más' }}
+                      </button>
+                    }
+
+                    @if (punto.referenciaNormativa) {
+                      <div class="nc-ref">
+                        <span class="mat-icon">link</span>
+                        <span>{{ punto.referenciaNormativa }}</span>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="nc-card-actions">
+                    @if (punto.esIa && !punto.revisado) {
+                      <button class="nc-action-btn" (click)="marcarRevisado(punto)" title="Validar">
+                        <span class="mat-icon">check_circle</span>
+                      </button>
+                    }
+                    <button class="nc-action-btn" (click)="iniciarEdicion(punto)" title="Editar">
+                      <span class="mat-icon">edit</span>
+                    </button>
+                    <button class="nc-action-btn nc-action-danger" (click)="eliminarPunto(punto.id)" title="Eliminar">
+                      <span class="mat-icon">delete</span>
+                    </button>
+                  </div>
+                }
+              </div>
+          }
+          </div>
+        }
+
+        <!-- Footer Stats -->
+        <div class="nc-footer-cards">
+          <div class="nc-footer-card nc-footer-ai">
+            <div class="nc-footer-card-content">
+              <h3 class="nc-footer-title">Resumen Automático</h3>
+              <p class="nc-footer-text">El documento contiene <strong>{{ puntosClave.length }} puntos clave</strong>, de los cuales <strong>{{ puntosIa }}</strong> fueron generados por IA y <strong>{{ puntosManuales }}</strong> son manuales.</p>
+              <button class="nc-footer-link" (click)="regenerarPuntosIa()" [disabled]="regenerandoIa">
+                {{ regenerandoIa ? 'Extrayendo…' : 'Generar reporte completo' }}
+                <span class="mat-icon">arrow_forward</span>
+              </button>
+            </div>
+            <div class="nc-footer-ai-glow">
+              <span class="mat-icon">auto_awesome</span>
+            </div>
+          </div>
+          <div class="nc-footer-card nc-footer-confianza">
+            <div class="nc-footer-conf-icon">
+              <span class="mat-icon">verified</span>
+            </div>
+            <span class="nc-footer-conf-pct">{{ pctRevisados }}%</span>
+            <span class="nc-footer-conf-label">Revisados</span>
+          </div>
+        </div>
+      }
+    </div>
+
+  </main>
+  }
 
   <!-- ===== FLOATING AI BUTTON ===== -->
   <button class="fab-ai" (click)="abrirIaChat()" title="Preguntar a la IA">

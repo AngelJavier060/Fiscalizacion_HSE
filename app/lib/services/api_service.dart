@@ -134,6 +134,18 @@ class ApiService {
     if (response.statusCode == 401) {
       throw ApiException('Sesión expirada. Inicia sesión nuevamente.');
     }
+    if (response.statusCode == 403) {
+      String mensaje = 'No tienes permiso para acceder a este recurso.';
+      try {
+        if (response.body.isNotEmpty) {
+          final body = jsonDecode(response.body);
+          if (body is Map && body.containsKey('mensaje')) {
+            mensaje = body['mensaje'];
+          }
+        }
+      } catch (_) {}
+      throw ApiException(mensaje);
+    }
     final error = response.body.isNotEmpty
         ? jsonDecode(response.body)
         : {'mensaje': 'Error ${response.statusCode}'};
@@ -150,7 +162,26 @@ class ApiService {
       }
       return [];
     }
-    throw ApiException('Error ${response.statusCode}');
+    if (response.statusCode == 401) {
+      throw ApiException('Sesión expirada. Inicia sesión nuevamente.');
+    }
+    if (response.statusCode == 403) {
+      // Intentar extraer mensaje del backend
+      String mensaje = 'No tienes permiso para acceder a este recurso.';
+      try {
+        if (response.body.isNotEmpty) {
+          final body = jsonDecode(response.body);
+          if (body is Map && body.containsKey('mensaje')) {
+            mensaje = body['mensaje'];
+          }
+        }
+      } catch (_) {}
+      throw ApiException(mensaje);
+    }
+    final error = response.body.isNotEmpty
+        ? jsonDecode(response.body)
+        : {'mensaje': 'Error ${response.statusCode}'};
+    throw ApiException(error['mensaje'] ?? 'Error del servidor');
   }
 }
 
