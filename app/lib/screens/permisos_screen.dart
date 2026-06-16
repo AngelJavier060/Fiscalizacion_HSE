@@ -64,11 +64,11 @@ class _PermisosScreenState extends State<PermisosScreen> {
       for (final p in server) map[p.id] = p;
       for (final p in locales) map[p.id] = p;
       final combined = map.values.toList()..sort((a, b) => b.startDate.compareTo(a.startDate));
-      if (mounted) setState(() { _permisos = combined; _filteredPermisos = List.from(combined); _isLoading = false; _error = server.isEmpty && locales.isNotEmpty ? 'Sin conexion al servidor. Mostrando datos locales.' : server.isEmpty && locales.isEmpty ? 'Sin conexion al servidor.' : null; });
+      if (mounted) setState(() { _permisos = combined; _filteredPermisos = List.from(combined); _isLoading = false; _error = server.isEmpty && locales.isNotEmpty ? 'Sin internet. Tus datos estan respaldados en la app local.' : server.isEmpty && locales.isEmpty ? 'Sin internet. Trabajando con datos locales.' : null; });
     } catch (e) {
       if (mounted) {
         final locales = await PermisoOfflineService.listarPermisos();
-        setState(() { _permisos = locales.isNotEmpty ? locales : PermitModel.demoPermits(); _filteredPermisos = List.from(_permisos); _isLoading = false; _error = locales.isNotEmpty ? 'Sin conexion al servidor. Mostrando datos locales.' : 'Sin conexion al servidor. Mostrando datos de demostracion.'; });
+        setState(() { _permisos = locales.isNotEmpty ? locales : PermitModel.demoPermits(); _filteredPermisos = List.from(_permisos); _isLoading = false; _error = locales.isNotEmpty ? 'Sin internet. Tus datos estan respaldados en la app local.' : 'Sin internet. Mostrando datos de demostracion local.'; });
       }
     }
   }

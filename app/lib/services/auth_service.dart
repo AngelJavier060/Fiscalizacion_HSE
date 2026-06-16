@@ -41,7 +41,7 @@ class AuthService {
     } on AuthException {
       rethrow;
     } catch (e) {
-      throw AuthException('Sin conexión con el servidor. Verifica que el backend esté activo.', 0);
+      throw AuthException('No hay conexión con el servidor. Tus datos están seguros en la app local. Cuando tengas internet, los cambios se sincronizarán automáticamente.', 0);
     }
   }
 
