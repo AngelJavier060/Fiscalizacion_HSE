@@ -1,7 +1,7 @@
 /// Configuración de la API para la app móvil
 class ApiConfig {
   // Cambiar según entorno: desarrollo, staging, producción
-  static const Enviroment _env = Enviroment.production;
+  static const Enviroment _env = Enviroment.development;
 
   // URLs base según entorno
   static const Map<Enviroment, String> _baseUrls = {

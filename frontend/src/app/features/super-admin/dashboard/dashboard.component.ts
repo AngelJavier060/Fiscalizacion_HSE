@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -8,6 +8,7 @@ import { EmpresaService } from '../../../core/services/empresa.service';
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
+import { PermisosTrabajoService } from '../../../core/services/permisos-trabajo.service';
 import { environment } from '../../../../environments/environment';
 
 interface SystemMetric {
@@ -35,8 +36,9 @@ export class DashboardComponent implements OnInit {
   private usuarioService = inject(UsuarioService);
   private authService   = inject(AuthService);
   private http          = inject(HttpClient);
+  private permisosService = inject(PermisosTrabajoService);
 
-  // ── Estado ────────────────────────────────────────────────────────
+  // â”€â”€ Estado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   cargandoStats    = true;
   totalEmpresas    = 0;
   empresasActivas  = 0;
@@ -44,8 +46,10 @@ export class DashboardComponent implements OnInit {
   totalUsuarios    = 0;
   usuariosActivos  = 0;
   registrosAuditoria = 0;
+  totalPermisos = 0;
+  permisosVigentes = 0;
 
-  // ── Métricas calculadas ───────────────────────────────────────────
+  // â”€â”€ MÃ©tricas calculadas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   get pctEmpresasActivas(): number {
     return this.totalEmpresas ? Math.round((this.empresasActivas / this.totalEmpresas) * 100) : 0;
   }
@@ -56,7 +60,7 @@ export class DashboardComponent implements OnInit {
     return this.totalEmpresas ? Math.round((this.empresasSuspendidas / this.totalEmpresas) * 100) : 0;
   }
 
-  // ── Salud del sistema ─────────────────────────────────────────────
+  // â”€â”€ Salud del sistema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly systemMetrics: SystemMetric[] = [
     { label: 'Disponibilidad API',   icon: 'cloud_done',      value: 98 },
     { label: 'Documentos indexados', icon: 'description',     value: 84 },
@@ -65,10 +69,10 @@ export class DashboardComponent implements OnInit {
     { label: 'Fiscaliza AI',         icon: 'smart_toy',       value: 95 },
   ];
 
-  // ── Actividad reciente (se llena dinámicamente) ───────────────────
+  // â”€â”€ Actividad reciente (se llena dinÃ¡micamente) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   actividadReciente: ActividadItem[] = [];
 
-  // ── Fecha ─────────────────────────────────────────────────────────
+  // â”€â”€ Fecha â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   readonly fechaHoy: string = new Intl.DateTimeFormat('es-ES', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   }).format(new Date()).replace(/^\w/, c => c.toUpperCase());
@@ -77,7 +81,7 @@ export class DashboardComponent implements OnInit {
     return this.authService.getUserData()?.nombre || 'Super Administrador';
   }
 
-  // ── Init ──────────────────────────────────────────────────────────
+  // â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   ngOnInit(): void {
     forkJoin({
       empresas: this.empresaService.listar(0, 500),
@@ -98,9 +102,22 @@ export class DashboardComponent implements OnInit {
         this.usuariosActivos = listaUsuarios.filter((u: { activo?: boolean }) => u.activo).length;
 
         this.registrosAuditoria = auditoria?.total ?? 0;
-        this.cargandoStats = false;
 
-        this._buildActividadReciente(listaEmpresas, listaUsuarios);
+        // Cargar stats de permisos
+        const empresasIds = listaEmpresas.filter((e: any) => e.id).map((e: any) => e.id);
+        Promise.allSettled(
+          empresasIds.map((id: number) => this.permisosService.contar(id).toPromise())
+        ).then((resultados) => {
+          for (const r of resultados) {
+            if (r.status === 'fulfilled' && r.value) {
+              this.totalPermisos += r.value.total;
+              this.permisosVigentes += r.value.vigentes;
+            }
+          }
+        }).finally(() => {
+          this.cargandoStats = false;
+          this._buildActividadReciente(listaEmpresas, listaUsuarios);
+        });
       },
       error: () => {
         this.cargandoStats = false;
@@ -109,14 +126,14 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────
+  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   private _buildActividadReciente(
     empresas: Array<{ nombre?: string; activa?: boolean }>,
     usuarios: Array<{ nombre?: string; activo?: boolean }>,
   ): void {
     const items: ActividadItem[] = [];
 
-    // Mostrar últimas empresas registradas
+    // Mostrar Ãºltimas empresas registradas
     empresas.slice(-3).reverse().forEach((e, i) => {
       items.push({
         id: i,
@@ -128,7 +145,7 @@ export class DashboardComponent implements OnInit {
       });
     });
 
-    // Mostrar últimos usuarios
+    // Mostrar Ãºltimos usuarios
     usuarios.slice(-3).reverse().forEach((u, i) => {
       items.push({
         id: 100 + i,
@@ -142,7 +159,7 @@ export class DashboardComponent implements OnInit {
       items.unshift({
         id: 999,
         tipo: 'auditoria',
-        mensaje: `${this.registrosAuditoria} registros de auditoría este mes`,
+        mensaje: `${this.registrosAuditoria} registros de auditorÃ­a este mes`,
         tiempo: 'Este mes',
       });
     }
@@ -152,9 +169,11 @@ export class DashboardComponent implements OnInit {
 
   private _buildActividadFallback(): void {
     this.actividadReciente = [
-      { id: 1, tipo: 'login',    mensaje: 'Inicio de sesión — Super Admin',   tiempo: 'Ahora' },
+      { id: 1, tipo: 'login',    mensaje: 'Inicio de sesiÃ³n â€” Super Admin',   tiempo: 'Ahora' },
       { id: 2, tipo: 'upload',   mensaje: 'Sistema iniciado correctamente',    tiempo: 'Hoy' },
-      { id: 3, tipo: 'auditoria',mensaje: 'Backend pendiente de conexión',     tiempo: '—' },
+      { id: 3, tipo: 'auditoria',mensaje: 'Backend pendiente de conexiÃ³n',     tiempo: 'â€”' },
     ];
   }
 }
+
+

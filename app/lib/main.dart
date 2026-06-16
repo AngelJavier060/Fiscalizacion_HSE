@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'screens/splash_screen.dart';
 import 'presentation/screens/landing_screen.dart';
 import 'screens/login_screen.dart';
@@ -16,6 +18,7 @@ import 'screens/ia_chat_screen.dart';
 import 'screens/perfil_screen.dart';
 import 'screens/permisos_screen.dart';
 import 'services/auth_service.dart';
+import 'services/permiso_offline_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'widgets/inactivity_watcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +26,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es');
+  
+  // Iniciar escucha de conectividad para sincronización automática
+  _initConnectivityListener();
   
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('jwt_token');
@@ -32,6 +38,21 @@ void main() async {
       child: FiscalizacionHSEApp(isLoggedIn: token != null),
     ),
   );
+}
+
+/// Escucha cambios de conectividad y sincroniza datos pendientes
+/// automáticamente cuando se restablece la conexión a internet.
+void _initConnectivityListener() {
+  Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+    final isOnline = results.any((c) => c != ConnectivityResult.none);
+    if (isOnline) {
+      // Sincronizar permisos pendientes
+      PermisoOfflineService.sincronizarPendientes();
+    }
+  });
+  
+  // Intentar sincronizar al inicio también
+  PermisoOfflineService.sincronizarPendientes();
 }
 
 class FiscalizacionHSEApp extends StatelessWidget {

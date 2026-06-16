@@ -1,4 +1,16 @@
-﻿import "dart:async";
+#!/usr/bin/env python3
+"""Generate the complete document_scanner_screen.dart file."""
+
+# Read template from a file or use raw strings
+import os
+
+# Build the file path relative to workspace
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(script_dir)
+target_path = os.path.join(project_root, "app", "lib", "screens", "document_scanner_screen.dart")
+
+# Content as a raw triple-quoted Python string
+content = """import "dart:async";
 import "dart:io";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -31,8 +43,7 @@ class DocumentScannerScreen extends StatefulWidget {
   State<DocumentScannerScreen> createState() => _DocumentScannerScreenState();
 }
 
-class _DocumentScannerScreenState extends State<DocumentScannerScreen>
-    with WidgetsBindingObserver {
+class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
   final ImagePicker _picker = ImagePicker();
   final List<_ScannedPage> _pages = [];
   final Set<int> _selectedPages = {};
@@ -117,7 +128,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
         final r = (sp.r - bp.r) ~/ 4 + sp.r;
         final g = (sp.g - bp.g) ~/ 4 + sp.g;
         final b = (sp.b - bp.b) ~/ 4 + sp.b;
-        result.setPixel(x, y, result.getColor(r.clamp(0,255), g.clamp(0,255), b.clamp(0,255)));
+        result.setPixel(x, y, img.getColor(r.clamp(0,255), g.clamp(0,255), b.clamp(0,255)));
       }
     }
     return result;
@@ -138,20 +149,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
     final d = Directory("${out.path}/pdfs");
     if (!await d.exists()) await d.create(recursive: true);
     int cnt = 0;
-    for (final p in paths) {
-      final f = File(p);
-      if (!await f.exists()) continue;
-      try {
-        final bytes = await f.readAsBytes();
-        pdf.addPage(pw.Page(
-          pageFormat: PdfPageFormat.a4,
-          build: (_) => pw.Center(
-            child: pw.Image(pw.MemoryImage(bytes), fit: pw.BoxFit.contain),
-          ),
-        ));
-        cnt++;
-      } catch (_) {}
-    }
+    for (final p in paths) { final f = File(p); if (!await f.exists()) continue; try { pdf.addPage(pw.Page(pageFormat: PdfPageFormat.a4, build: (_) => pw.Center(child: pw.Image(pw.MemoryImage(await f.readAsBytes()), fit: pw.BoxFit.contain)))); cnt++; } catch (_) {} }
     if (cnt == 0) return "";
     final ts = DateTime.now().millisecondsSinceEpoch;
     final fp = "${d.path}/documento_$ts.pdf";
@@ -239,7 +237,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
     return Column(children: [
       Expanded(child: Padding(padding: const EdgeInsets.all(8), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Stack(fit: StackFit.expand, children: [
         _buildPageImage(page.path),
-        Positioned(top: 12, right: 12, child: GestureDetector(onTap: () => _toggleSelection(page.id), child: Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: sel ? _ScanPal.green : _ScanPal.onSurfaceDim, shape: BoxShape.circle), child: Icon(sel ? Icons.check : Icons.close, color: Colors.white, size: 18)))),
+        Positioned(top: 12, right: 12, child: GestureDetector(onTap: () => _toggleSelection(page.id), child: Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: sel ? _ScanPal.green : _ScanPal.onSurfaceDim, shape: BoxShape.circle), child: Icon(sel ? Icons.check : Icons.close, color: Colors.white, size: 18))))),
         Positioned(bottom: 12, left: 12, child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(8)), child: Text("${page.width}x${page.height} px", style: const TextStyle(color: Colors.white, fontSize: 10)))),
       ])))),
       Container(height: 110, color: _ScanPal.surface, child: ListView.builder(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), itemCount: _pages.length, itemBuilder: (_, i) => _buildThumbnail(i))),
@@ -294,4 +292,11 @@ class _ScannedPage {
   final int id; final String path; final String originalPath; final DateTime capturedAt; final int width; final int height;
   const _ScannedPage({required this.id, required this.path, required this.originalPath, required this.capturedAt, this.width = 0, this.height = 0});
 }
+"""
 
+# Ensure target directory exists
+os.makedirs(os.path.dirname(target_path), exist_ok=True)
+
+with open(target_path, 'w', encoding='utf-8') as f:
+    f.write(content)
+print(f"Written {len(content)} bytes to {target_path}")

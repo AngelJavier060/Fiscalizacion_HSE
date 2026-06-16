@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -43,7 +43,7 @@ export class SuperAdminSidebarComponent {
     },
     {
       id: 'hse',
-      label: 'Gestión HSE',
+      label: 'GestiÃ³n HSE',
       collapsed: false,
       items: [
         { id: 'documentos', label: 'Documentos', icon: 'description', route: '/super-admin/documentos' },
@@ -52,35 +52,29 @@ export class SuperAdminSidebarComponent {
           label: 'Actividades diarias',
           icon: 'event_note',
           disabled: true,
-          title: 'Próximamente',
+          title: 'PrÃ³ximamente',
         },
         {
           id: 'controles',
-          label: 'Controles críticos',
+          label: 'Controles crÃ­ticos',
           icon: 'security',
           disabled: true,
-          title: 'Próximamente',
+          title: 'PrÃ³ximamente',
         },
-        {
-          id: 'permiso',
-          label: 'Permiso',
-          icon: 'lock_person',
-          disabled: true,
-          title: 'Próximamente',
-        },
+                { id: 'permiso', label: 'Permisos', icon: 'lock_person', route: '/super-admin/permisos' },
         {
           id: 'conocimientos',
           label: 'Conocimientos',
           icon: 'menu_book',
           disabled: true,
-          title: 'Próximamente',
+          title: 'PrÃ³ximamente',
         },
         {
           id: 'puntos',
           label: 'Puntos clave',
           icon: 'star',
           disabled: true,
-          title: 'Próximamente',
+          title: 'PrÃ³ximamente',
         },
       ],
     },
@@ -113,6 +107,9 @@ export class SuperAdminSidebarComponent {
     if (item.id === 'fiscaliza-ai') {
       return url.includes('/ia');
     }
+    if (item.id === 'permiso') {
+      return url.includes('/super-admin/permisos');
+    }
     if (item.id === 'empresas') {
       return url.includes('/super-admin/empresas');
     }
@@ -133,3 +130,5 @@ export class SuperAdminSidebarComponent {
     this.authService.logout();
   }
 }
+
+

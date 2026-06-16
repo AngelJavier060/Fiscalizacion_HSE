@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+"""Generate the DocumentScannerScreen dart file."""
+import os, base64
+
+# Base64 encoded dart code (to avoid shell escaping issues)
+b64 = """
+aW1wb3J0ICJkYXJ0OmFzeW5jIjsKaW1wb3J0ICJkYXJ0OmlvIjsKaW1wb3J0ICJwYWNrYWdlOmZs
+dXR0ZXIvbWF0ZXJpYWwuZGFydCI7CmltcG9ydCAicGFja2FnZTpmbHV0dGVyL3NlcnZpY2VzLmRh
+cnQiOwppbXBvcnQgInBhY2thZ2U6aW1hZ2UvaW1hZ2UuZGFydCIgYXMgaW1nOwppbXBvcnQgInBh
+Y2thZ2U6aW1hZ2VfcGlja2VyL2ltYWdlX3BpY2tlci5kYXJ0IjsKaW1wb3J0ICJwYWNrYWdlOmlu
+dGwvaW50bC5kYXJ0IjsKaW1wb3J0ICJwYWNrYWdlOnBhdGhfcHJvdmlkZXIvcGF0aF9wcm92aWRl
+ci5kYXJ0IjsKaW1wb3J0ICJwYWNrYWdlOnBkZi9wZGYuZGFydCI7CmltcG9ydCAicGFja2FnZTpw
+ZGYvd2lkZ2V0cy5kYXJ0IiBhcyBwdzsKaW1wb3J0ICIuLi9tb2RlbHMvcGVybWl0X21vZGVsLmRh
+cnQiOwppbXBvcnQgIi4uL3NlcnZpY2VzL3Blcm1pc29fb2ZmbGluZV9zZXJ2aWNlLmRhcnQiOwoK
+Y2xhc3MgX1NjYW5QYWwgewogIHN0YXRpYyBjb25zdCBiZyA9IENvbG9yKDB4RkYwRDBEMEQpOwog
+IHN0YXRpYyBjb25zdCBzdXJmYWNlID0gQ29sb3IoMHhGRjFBMUExQSk7CiAgc3RhdGljIGNvbnN0
+IHN1cmZhY2VMaWdodCA9IENvbG9yKDB4RkYyQTJBMkEpOwogIHN0YXRpYyBjb25zdCBhY2NlbnQg
+PSBDb2xvcigweEZGNEE5MEUyKTsKICBzdGF0aWMgY29uc3QgZ3JlZW4gPSBDb2xvcigweEZGMzRD
+NzU5KTsKICBzdGF0aWMgY29uc3QgYW1iZXIgPSBDb2xvcigweEZGRkNDMDApOwogIHN0YXRpYyBj
+b25zdCByZWQgPSBDb2xvcigweEZGRjNCMzApOwogIHN0YXRpYyBjb25zdCBvblN1cmZhY2UgPSBD
+b2xvcigweEZGRjVGNUY3KTsKICBzdGF0aWMgY29uc3Qgb25TdXJmYWNlRGltID0gQ29sb3IoMHhG
+RjhFOEU5Myk7CiAgc3RhdGljIGNvbnN0IGJvcmRlciA9IENvbG9yKDB4RkYzODM4MEEpOwp9
+"""
+
+# This is getting too complex with base64. Let me just write the file directly.
+path = r'D:\PROGRAMAS 2025 CONTRUCCION\Fiscalizacion HSE\app\lib\screens\document_scanner_screen.dart'
+
+content = open(r'D:\PROGRAMAS 2025 CONTRUCCION\Fiscalizacion HSE\temp\scanner_source.txt', 'r').read()
+
+with open(path, 'w', encoding='utf-8') as f:
+    f.write(content)
+print("OK")

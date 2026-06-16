@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+﻿import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { EmpresaListComponent } from './empresas/empresa-list/empresa-list.component';
 import { EmpresaFormComponent } from './empresas/empresa-form/empresa-form.component';
@@ -7,6 +7,7 @@ import { DocumentoListComponent } from '../admin-empresa/documentos/documento-li
 import { DocumentoSubirComponent } from '../admin-empresa/documentos/documento-subir/documento-subir.component';
 import { DocumentoDetalleComponent } from '../admin-empresa/documentos/documento-detalle/documento-detalle.component';
 import { DocumentosHubComponent } from './documentos-hub/documentos-hub.component';
+import { PermisosListComponent } from './permisos/permisos-list.component';
 
 import { UsuariosListComponent } from './usuarios/usuarios-list.component';
 import { RolesPanelComponent } from './roles/roles-panel.component';
@@ -26,6 +27,8 @@ export const superAdminRoutes: Routes = [
   { path: 'empresas/:empresaId/documentos', component: DocumentoListComponent },
   { path: 'empresas/:id/editar', component: EmpresaFormComponent },
   { path: 'empresas', component: EmpresaListComponent },
+  { path: 'permisos', component: PermisosListComponent },
   { path: 'auditoria', component: AuditoriaComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 ];
+

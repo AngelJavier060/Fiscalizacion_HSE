@@ -1,9 +1,9 @@
-<div class="dashboard-container">
+﻿<div class="dashboard-container">
   <app-super-admin-sidebar />
 
   <main class="main-content">
 
-    <!-- ── Top App Bar ──────────────────────────────────── -->
+    <!-- â”€â”€ Top App Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <header class="top-app-bar">
       <div class="topbar-left">
         <span class="topbar-route">Dashboard</span>
@@ -31,14 +31,14 @@
       </div>
     </header>
 
-    <!-- ── Canvas ──────────────────────────────────────── -->
+    <!-- â”€â”€ Canvas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="dashboard-canvas">
 
       <!-- Bienvenida + fecha -->
       <div class="welcome-row">
         <div>
           <h2 class="welcome-title">Bienvenido, {{ nombreUsuario }}</h2>
-          <p class="welcome-sub">Plataforma de gestión estratégica y supervisión normativa HSE.</p>
+          <p class="welcome-sub">Plataforma de gestiÃ³n estratÃ©gica y supervisiÃ³n normativa HSE.</p>
         </div>
         <div class="date-chip">
           <span class="mat-icon">calendar_today</span>
@@ -46,7 +46,7 @@
         </div>
       </div>
 
-      <!-- ── Stats Grid ──────────────────────────────── -->
+      <!-- â”€â”€ Stats Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       @if (cargandoStats) {
         <div class="skeleton-grid">
           @for (i of [1,2,3,4]; track i) {
@@ -73,7 +73,7 @@
             </div>
             <p class="sc-meta success">
               <span class="mat-icon">trending_up</span>
-              {{ empresasActivas }} activas &nbsp;·&nbsp;
+              {{ empresasActivas }} activas &nbsp;Â·&nbsp;
               {{ empresasSuspendidas }} suspendidas
             </p>
           </article>
@@ -120,7 +120,7 @@
             </p>
           </article>
 
-          <!-- Auditorías -->
+          <!-- AuditorÃ­as -->
           <article class="stat-card accent-violet">
             <div class="sc-bg-icon">
               <span class="mat-icon fill">shield</span>
@@ -129,7 +129,7 @@
               <div class="sc-icon-wrap violet">
                 <span class="mat-icon">verified_user</span>
               </div>
-              <span class="sc-label">Auditorías del Mes</span>
+              <span class="sc-label">AuditorÃ­as del Mes</span>
             </div>
             <p class="sc-value">{{ registrosAuditoria }}</p>
             <div class="sc-bar">
@@ -144,7 +144,7 @@
         </div>
       }
 
-      <!-- ── Fila central: Salud del sistema + Actividad reciente ── -->
+      <!-- â”€â”€ Fila central: Salud del sistema + Actividad reciente â”€â”€ -->
       <div class="mid-grid">
 
         <!-- Salud del sistema -->
@@ -201,11 +201,11 @@
 
       </div>
 
-      <!-- ── Acciones Rápidas ────────────────────────── -->
+      <!-- â”€â”€ Acciones RÃ¡pidas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
       <section class="quick-section">
         <div class="section-head">
-          <h3 class="section-title">Acciones Rápidas</h3>
-          <span class="section-sub">Atajos de administración</span>
+          <h3 class="section-title">Acciones RÃ¡pidas</h3>
+          <span class="section-sub">Atajos de administraciÃ³n</span>
         </div>
         <div class="actions-grid">
           <a routerLink="/super-admin/empresas/nueva" class="action-card ac-primary">
@@ -214,7 +214,7 @@
             </div>
             <div class="ac-text">
               <span class="ac-title">Nueva Empresa</span>
-              <span class="ac-desc">Registrar organización</span>
+              <span class="ac-desc">Registrar organizaciÃ³n</span>
             </div>
             <span class="mat-icon ac-arrow">chevron_right</span>
           </a>
@@ -247,7 +247,7 @@
             </div>
             <div class="ac-text">
               <span class="ac-title">Ver Reportes</span>
-              <span class="ac-desc">Analítica y auditoría</span>
+              <span class="ac-desc">AnalÃ­tica y auditorÃ­a</span>
             </div>
             <span class="mat-icon ac-arrow">chevron_right</span>
           </a>
@@ -279,3 +279,5 @@
     </div><!-- /canvas -->
   </main>
 </div>
+
+

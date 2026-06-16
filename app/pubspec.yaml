@@ -69,6 +69,10 @@ dependencies:
   # Imagen / cámara (estilo CamScanner)
   image_picker: ^1.0.7
   google_mlkit_text_recognition: ^0.13.0
+  pdf: ^3.12.0
+  image: ^4.8.0
+
+  open_filex: ^4.4.0
 
   # QR (solo si se requiere a futuro)
   # mobile_scanner: ^5.2.3

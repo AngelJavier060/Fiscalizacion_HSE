@@ -25,6 +25,31 @@ extension CriticalTaskX on CriticalTask {
   }
 }
 
+class ExtensionModel {
+  final DateTime fechaExtension;
+  final String scanPath;
+  final DateTime createdAt;
+
+  const ExtensionModel({
+    required this.fechaExtension,
+    required this.scanPath,
+    required this.createdAt,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'fechaExtension': fechaExtension.toIso8601String(),
+        'scanPath': scanPath,
+        'createdAt': createdAt.toIso8601String(),
+      };
+
+  factory ExtensionModel.fromJson(Map<String, dynamic> json) =>
+      ExtensionModel(
+        fechaExtension: DateTime.parse(json['fechaExtension'] as String),
+        scanPath: json['scanPath'] as String? ?? '',
+        createdAt: DateTime.parse(json['createdAt'] as String),
+      );
+}
+
 class PermitModel {
   final String id;
   final String title;
@@ -43,6 +68,8 @@ class PermitModel {
   final DateTime? startTime;
   final DateTime? endTime;
   final int? empresaId;
+  // ── Extensión ──
+  final List<ExtensionModel> extensiones;
 
   PermitModel({
     required this.id,
@@ -61,6 +88,7 @@ class PermitModel {
     this.startTime,
     this.endTime,
     this.empresaId,
+    this.extensiones = const [],
   });
 
   /// Estado calculado automáticamente por fechas.
@@ -91,6 +119,19 @@ class PermitModel {
     return ((remaining / total) * 100).clamp(0, 100);
   }
 
+  /// True si tiene al menos un PDF escaneado
+  bool get tieneScan => imagePath != null && imagePath!.isNotEmpty;
+
+  /// True si tiene extensiones registradas
+  bool get tieneExtension => extensiones.isNotEmpty;
+
+  /// Fecha final considerando la última extensión
+  DateTime get fechaFinalEfectiva =>
+      extensiones.isNotEmpty ? extensiones.last.fechaExtension : endDate;
+
+  /// Días restantes considerando extensiones
+  int get remainingDaysEfectivo => fechaFinalEfectiva.difference(DateTime.now()).inDays;
+
   /// Crea una copia con campos actualizados.
   PermitModel copyWith({
     String? id,
@@ -109,6 +150,7 @@ class PermitModel {
     DateTime? startTime,
     DateTime? endTime,
     int? empresaId,
+    List<ExtensionModel>? extensiones,
   }) =>
       PermitModel(
         id: id ?? this.id,
@@ -127,6 +169,7 @@ class PermitModel {
         startTime: startTime ?? this.startTime,
         endTime: endTime ?? this.endTime,
         empresaId: empresaId ?? this.empresaId,
+        extensiones: extensiones ?? this.extensiones,
       );
 
   // ── Datos de demostración ──────────────────────────────────────────

@@ -1,0 +1,178 @@
+﻿<div class="permisos-container">
+  <app-super-admin-sidebar />
+
+  <main class="main-content">
+    <header class="top-app-bar">
+      <div class="topbar-left">
+        <span class="topbar-route">Gesti&oacute;n HSE</span>
+        <span class="topbar-sep">/</span>
+        <span class="topbar-sub">Permisos de trabajo</span>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" title="Recargar" (click)="cargarTodosLosPermisos()">
+          <span class="mat-icon">refresh</span>
+        </button>
+        <div class="topbar-divider"></div>
+        <div class="topbar-user">
+          <div class="user-info">
+            <span class="user-role">SUPER ADMIN</span>
+            <span class="user-name">{{ nombreUsuario }}</span>
+          </div>
+          <div class="topbar-avatar"><span class="mat-icon">person</span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-canvas">
+      <!-- Stats summary -->
+      <div class="stats-row">
+        <div class="stat-mini">
+          <span class="stat-number">{{ permisos.length }}</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-mini green">
+          <span class="stat-number">{{ totalVigentes }}</span>
+          <span class="stat-label">Vigentes</span>
+        </div>
+        <div class="stat-mini amber">
+          <span class="stat-number">{{ totalPorVencer }}</span>
+          <span class="stat-label">Por vencer</span>
+        </div>
+        <div class="stat-mini red">
+          <span class="stat-number">{{ totalExpirados }}</span>
+          <span class="stat-label">Expirados</span>
+        </div>
+        <div class="stat-mini blue">
+          <span class="stat-number">{{ contarPdfs }}</span>
+          <span class="stat-label">PDFs</span>
+        </div>
+        <div class="stat-mini violet">
+          <span class="stat-number">{{ empresas.length }}</span>
+          <span class="stat-label">Empresas</span>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-row">
+        <div class="search-box">
+          <span class="mat-icon">search</span>
+          <input
+            type="text"
+            placeholder="Buscar por ID, t&iacute;tulo, &aacute;rea o responsable..."
+            [(ngModel)]="filtroTexto"
+            (input)="aplicarFiltros()"
+          />
+        </div>
+        <select [(ngModel)]="filtroEmpresa" (change)="aplicarFiltros()" class="filter-select">
+          <option value="">Todas las empresas</option>
+          <option *ngFor="let emp of empresas" [value]="emp.id">{{ emp.nombre }}</option>
+        </select>
+        <select [(ngModel)]="filtroStatus" (change)="aplicarFiltros()" class="filter-select">
+          <option value="">Todos los estados</option>
+          <option value="active">Vigentes</option>
+          <option value="warning">Por vencer</option>
+          <option value="expired">Expirados</option>
+        </select>
+      </div>
+
+      <!-- Loading -->
+      @if (cargando) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando permisos de todas las empresas...</p>
+        </div>
+      } @else if (error) {
+        <div class="error-state">{{ error }}</div>
+      } @else if (permisosFiltrados.length === 0) {
+        <div class="empty-state">
+          <span class="mat-icon empty-icon">lock_person</span>
+          <h3>No se encontraron permisos</h3>
+          <p>
+            {{ filtroTexto || filtroEmpresa || filtroStatus ? 'Intente con otros filtros.' : 'No hay permisos de trabajo registrados en ninguna empresa.' }}
+          </p>
+        </div>
+      } @else {
+        <!-- Tabla -->
+        <div class="table-wrapper">
+          <table class="permisos-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>T&iacute;tulo</th>
+                <th>Empresa</th>
+                <th>&Aacute;rea</th>
+                <th>Responsable</th>
+                <th>Vence</th>
+                <th>D&iacute;as</th>
+                <th>Estado</th>
+                <th>PDF</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of permisosPagina; track trackById($index, p)) {
+                <tr>
+                  <td class="cell-id">{{ p.id }}</td>
+                  <td class="cell-title">{{ p.title }}</td>
+                  <td>{{ p.empresaNombre || '&mdash;' }}</td>
+                  <td>{{ p.area || '&mdash;' }}</td>
+                  <td>{{ p.responsible || '&mdash;' }}</td>
+                  <td>{{ p.endDate | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span class="days-badge" [style.background]="statusColor(p.status) + '22'" [style.color]="statusColor(p.status)">
+                      {{ p.remainingDays >= 0 ? p.remainingDays + ' d&iacute;as' : 'Vencido' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-badge" [class]="statusClass(p.status)">
+                      {{ statusLabel(p.status) }}
+                    </span>
+                  </td>
+                  <td class="cell-pdf">
+                    @if (tienePdf(p)) {
+                      <span class="pdf-icon" title="Ver PDF">📄</span>
+                    } @else {
+                      <span class="no-pdf">&mdash;</span>
+                    }
+                  </td>
+                  <td class="cell-actions">
+                    <button class="action-btn" title="Ver detalle" (click)="verDetalle(p.id)">
+                      <span class="mat-icon">visibility</span>
+                    </button>
+                    <button class="action-btn" title="Editar" (click)="editar(p.id)">
+                      <span class="mat-icon">edit</span>
+                    </button>
+                    <button class="action-btn delete" title="Eliminar" (click)="eliminar(p)">
+                      <span class="mat-icon">delete</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginacion -->
+        @if (totalPaginas.length > 1) {
+          <div class="pagination">
+            <button (click)="cambiarPagina(pagina - 1)" [disabled]="pagina <= 1">
+              <span class="mat-icon">chevron_left</span>
+            </button>
+            @for (p of paginationArray(); track $index) {
+              <button (click)="cambiarPagina(p)" [class.active]="pagina === p">
+                {{ p }}
+              </button>
+            }
+            <button (click)="cambiarPagina(pagina + 1)" [disabled]="pagina >= totalPaginas.length">
+              <span class="mat-icon">chevron_right</span>
+            </button>
+          </div>
+        }
+
+        <div class="table-footer">
+          <span>{{ permisosFiltrados.length }} permiso(s) encontrado(s)</span>
+        </div>
+      }
+    </div>
+  </main>
+</div>

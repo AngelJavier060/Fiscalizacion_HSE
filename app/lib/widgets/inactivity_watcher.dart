@@ -11,11 +11,9 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
-/// Detecta inactividad del usuario (sin toques ni movimientos) y, pasado el
-/// límite, cierra la sesión automáticamente y vuelve al login.
-///
-/// Envuelve a [MaterialApp]; el [Listener] recibe los eventos de puntero de
-/// toda la app sin bloquearlos.
+/// Envuelve la app para detectar inactividad. Por defecto el tiempo es muy alto
+/// (24h) para no cerrar sesión automáticamente. El usuario cierra sesión
+/// manualmente desde el botón de salida en el menú.
 class InactivityWatcher extends StatefulWidget {
   final Widget child;
   final Duration limite;
@@ -23,7 +21,7 @@ class InactivityWatcher extends StatefulWidget {
   const InactivityWatcher({
     super.key,
     required this.child,
-    this.limite = const Duration(minutes: 5),
+    this.limite = const Duration(hours: 24),
   });
 
   @override

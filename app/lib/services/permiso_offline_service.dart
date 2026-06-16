@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 import '../models/permit_model.dart';
+import 'permiso_service.dart';
+import 'auth_service.dart';
 
 /// Servicio de almacenamiento offline para permisos escaneados.
 ///
@@ -136,15 +139,34 @@ class PermisoOfflineService {
     if (pendientes.isEmpty) return 0;
 
     int sincronizados = 0;
+    int empresaId = 0;
+
+    try {
+      final userData = await AuthService().getUserData();
+      empresaId = (userData['empresaId'] as num?)?.toInt() ?? 0;
+    } catch (_) {}
 
     for (final id in pendientes) {
       try {
         final permit = await obtenerPermiso(id);
         if (permit != null) {
-          // Aquí se enviaría al backend:
-          // await ApiService.post('/api/permisos', body: _permitToJson(permit));
-          //
-          // Simulación: asumimos éxito
+          // Enviar al backend
+          final permitConEmpresa = empresaId > 0
+              ? permit.copyWith(empresaId: empresaId)
+              : permit;
+
+          try {
+            // Intentar crear en el backend
+            await PermisoService.crear(permitConEmpresa);
+          } catch (e) {
+            // Si falla por que ya existe, intentar actualizar
+            try {
+              await PermisoService.actualizar(permitConEmpresa);
+            } catch (_) {
+              // Si también falla, reintentar después
+              continue;
+            }
+          }
 
           await _removerDePendientes(id, prefs);
           sincronizados++;
@@ -253,6 +275,8 @@ class PermisoOfflineService {
       'nota': p.nota,
       'startTime': p.startTime?.toIso8601String(),
       'endTime': p.endTime?.toIso8601String(),
+      'empresaId': p.empresaId ?? 0,
+      'extensiones': p.extensiones.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -263,6 +287,13 @@ class PermisoOfflineService {
         (e) => e.name == json['criticalTask'],
         orElse: () => CriticalTask.hot,
       );
+    }
+
+    List<ExtensionModel> extensiones = [];
+    if (json['extensiones'] != null && json['extensiones'] is List) {
+      extensiones = (json['extensiones'] as List)
+          .map((e) => ExtensionModel.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
 
     return PermitModel(
@@ -287,6 +318,7 @@ class PermisoOfflineService {
       endTime: json['endTime'] != null
           ? DateTime.tryParse(json['endTime'] as String)
           : null,
+      extensiones: extensiones,
     );
   }
 }

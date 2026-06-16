@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/permit_model.dart';
+import '../services/permiso_service.dart';
+import '../services/permiso_offline_service.dart';
+import '../services/auth_service.dart';
 import '../widgets/scan_button.dart';
 
 // ── Colores del tema (MD3 adaptado del HTML) ────────────────────────
@@ -21,7 +24,9 @@ class _Pal {
 /// Pantalla de creación de un nuevo permiso de trabajo.
 /// Diseño adaptado fielmente del HTML proporcionado.
 class NuevoPermisoScreen extends StatefulWidget {
-  const NuevoPermisoScreen({super.key});
+  final PermitModel? permit;
+
+  const NuevoPermisoScreen({super.key, this.permit});
 
   @override
   State<NuevoPermisoScreen> createState() => _NuevoPermisoScreenState();
@@ -49,6 +54,35 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
   TimeOfDay _horaFin = const TimeOfDay(hour: 17, minute: 0);
 
   bool _isSaving = false;
+  bool _isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final permit = widget.permit;
+    if (permit != null) {
+      _isEditing = true;
+      _idController.text = permit.id;
+      _descripcionController.text = permit.description ?? '';
+      _emisorController.text = permit.emisor ?? '';
+      _ejecutanteController.text = permit.ejecutante ?? '';
+      _empresaController.text = permit.empresaEjecutante ?? '';
+      _areaController.text = permit.area;
+      _notaController.text = permit.nota ?? '';
+      _responsableController.text = permit.responsible;
+      _selectedTask = permit.criticalTask;
+      _fechaInicio = permit.startDate;
+      _fechaFin = permit.endDate;
+      if (permit.startTime != null) {
+        _horaInicio = TimeOfDay.fromDateTime(permit.startTime!);
+      }
+      if (permit.endTime != null) {
+        _horaFin = TimeOfDay.fromDateTime(permit.endTime!);
+      }
+    } else {
+      _idController.text = 'PT-${DateTime.now().year}-${DateTime.now().millisecond.toString().padLeft(4, '0')}';
+    }
+  }
 
   @override
   void dispose() {
@@ -208,9 +242,9 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
                   ),
                   const SizedBox(width: 12),
                   // Título
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Nuevo permiso de trabajo',
+                      _isEditing ? 'Editar permiso' : 'Nuevo permiso de trabajo',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -976,3 +1010,7 @@ class _TimeField extends StatelessWidget {
     );
   }
 }
+
+
+
+
