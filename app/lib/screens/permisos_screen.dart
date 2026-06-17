@@ -321,7 +321,7 @@ class _PermisoCard extends StatelessWidget {
                           const Icon(Icons.picture_as_pdf, size: 14, color: _Pal.brand),
                           const SizedBox(width: 4),
                         ],
-                        Text(permit.id, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: _Pal.brand)),
+                        Text(permit.id, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _Pal.textLight)),
                       ],
                     ),
                     const SizedBox(height: 4),

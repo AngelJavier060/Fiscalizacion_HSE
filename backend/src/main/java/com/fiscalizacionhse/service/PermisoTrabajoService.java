@@ -3,6 +3,7 @@ package com.fiscalizacionhse.service;
 import com.fiscalizacionhse.dto.request.PermisoTrabajoRequest;
 import com.fiscalizacionhse.dto.response.PermisoTrabajoResponse;
 import com.fiscalizacionhse.exception.ResourceNotFoundException;
+import com.fiscalizacionhse.exception.ConflictException;
 import com.fiscalizacionhse.model.Empresa;
 import com.fiscalizacionhse.model.PermisoTrabajo;
 import com.fiscalizacionhse.model.Usuario;
@@ -53,6 +54,14 @@ public class PermisoTrabajoService {
     // ── Crear nuevo permiso ───────────────────────────────────────────
     @Transactional
     public PermisoTrabajoResponse crear(PermisoTrabajoRequest request, Long usuarioId) {
+        // Validar que no exista un permiso con el mismo ID
+        if (repository.findById(request.getId()).isPresent()) {
+            throw new ConflictException(
+                "Ya existe un permiso de trabajo con el ID '" + request.getId() +
+                "'. No es posible crear uno duplicado."
+            );
+        }
+
         Empresa empresa = empresaRepository.findById(request.getEmpresaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Empresa", request.getEmpresaId()));
         Usuario usuario = usuarioRepository.findById(usuarioId)

@@ -1,6 +1,9 @@
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import '../models/permit_model.dart';
 import 'api_service.dart';
+import 'auth_service.dart';
 
 /// Servicio API para permisos de trabajo HSE.
 /// Conecta con [PermisoTrabajoController] del backend.
@@ -56,6 +59,40 @@ class PermisoService {
       'vigentes': (response['vigentes'] as int?) ?? 0,
       'expirados': (response['expirados'] as int?) ?? 0,
     };
+  }
+
+  /// Subir archivo (PDF/imagen) a un permiso de trabajo
+  static Future<String> subirArchivo(String permitId, String filePath) async {
+    final file = File(filePath);
+    if (!await file.exists()) {
+      throw ApiException('El archivo no existe: $filePath');
+    }
+
+    final headers = await AuthService.getAuthHeaders();
+    headers.remove('Content-Type'); // MultipartRequest establece su propio Content-Type
+
+    final request = http.MultipartRequest(
+      'POST',
+      ApiConfig.uri('${ApiConfig.permisosTrabajo}/$permitId/archivo'),
+    );
+    request.headers.addAll(headers);
+
+    request.files.add(await http.MultipartFile.fromPath(
+      'archivo',
+      filePath,
+    ));
+
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      if (response.statusCode == 201) {
+        return response.body; // Ruta del archivo en el servidor
+      }
+      throw ApiException('Error al subir archivo: ${response.statusCode}');
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Error de conexión al subir archivo: $e');
+    }
   }
 
   // ── Serialización ──────────────────────────────────────────

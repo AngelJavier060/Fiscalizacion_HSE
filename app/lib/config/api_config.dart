@@ -50,17 +50,8 @@ class ApiConfig {
 
   static const String permisosTrabajo = '/api/permisos-trabajo';
 
-  /// Obtiene la URL base según plataforma y entorno
-  static String get baseUrl {
-    // Detectar plataforma
-    if (const bool.fromEnvironment('dart.library.io')) {
-      // En iOS usa localhost, en Android usa 10.0.2.2
-      if (const bool.fromEnvironment('is_ios')) {
-        return _iosBaseUrls[_env]!;
-      }
-    }
-    return _baseUrls[_env]!;
-  }
+  /// URL base según el entorno configurado
+  static String get baseUrl => _baseUrls[_env]!;
 
   /// Construye URL completa para un endpoint
   static Uri uri(String endpoint, {Map<String, String>? params}) {

@@ -27,6 +27,16 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflict(ConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.builder()
+                        .codigo(HttpStatus.CONFLICT.value())
+                        .mensaje(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .build());
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiError> handleBadRequest(BadRequestException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

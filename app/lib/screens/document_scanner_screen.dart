@@ -50,7 +50,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
     if (_isCapturing) return;
     setState(() => _isCapturing = true);
     try {
-      final XFile? photo = await _picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear, imageQuality: 100, maxWidth: 4096, maxHeight: 4096);
+      final XFile? photo = await _picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear, imageQuality: 80, maxWidth: 1920, maxHeight: 1920);
       if (photo != null && mounted) await _processCapturedPage(photo.path);
     } catch (e) { if (mounted) _showStatus("Error al capturar: $e", isError: true); }
     finally { if (mounted) setState(() => _isCapturing = false); }
@@ -58,26 +58,24 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
 
   Future<void> _processCapturedPage(String originalPath) async {
     setState(() { _isProcessing = true; _statusMessage = "Procesando imagen..."; });
-    try {
+        try {
       final bytes = await File(originalPath).readAsBytes();
       img.Image? image = img.decodeImage(bytes);
       if (image == null) throw Exception("No se pudo decodificar");
-      setState(() => _statusMessage = "Enderezando...");
       image = img.bakeOrientation(image);
-      setState(() => _statusMessage = "Ajustando contraste...");
-      image = _ajustarContraste(image);
-      setState(() => _statusMessage = "Mejorando nitidez...");
-      image = _sharpenImage(image);
-      setState(() => _statusMessage = "Reduciendo ruido...");
-      image = img.gaussianBlur(image, radius: 1);
-      setState(() => _statusMessage = "Guardando imagen procesada...");
+      // Escalar a resolución máxima para agilizar
+      final maxDim = 1200;
+      if (image.width > maxDim || image.height > maxDim) {
+        image = img.copyResize(image, width: image.width > image.height ? maxDim : null, height: image.height >= image.width ? maxDim : null);
+      }
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final outputDir = await getApplicationDocumentsDirectory();
       final scansDir = Directory("${outputDir.path}/scans");
-      if (!await scansDir.exists()) await scansDir.create(recursive: true);
-      final processedPath = "${scansDir.path}/scan_$timestamp.jpg";
+            if (!await scansDir.exists()) await scansDir.create(recursive: true);
+            final idBase = (widget.permit?.id ?? 'temp').replaceAll(RegExp(r'[\s/\-]'), '_');
+            final processedPath = "${scansDir.path}/${idBase}_pag${_pages.length + 1}.jpg";
       final img2 = image!;
-      await File(processedPath).writeAsBytes(img.encodeJpg(img2, quality: 95));
+      await File(processedPath).writeAsBytes(img.encodeJpg(img2, quality: 80));
       if (!mounted) return;
       final page = _ScannedPage(id: timestamp, path: processedPath, originalPath: originalPath, capturedAt: DateTime.now(), width: img2.width, height: img2.height);
       setState(() { _pages.add(page); _selectedPages.add(page.id); _currentPageIndex = _pages.length - 1; _isProcessing = false; _statusMessage = "Pag ${_pages.length} - ${img2.width}x${img2.height} - OK"; });
@@ -88,8 +86,9 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
         final ts = DateTime.now().millisecondsSinceEpoch;
         final outDir = await getApplicationDocumentsDirectory();
         final sDir = Directory("${outDir.path}/scans");
-        if (!await sDir.exists()) await sDir.create(recursive: true);
-        final fb = "${sDir.path}/scan_$ts.jpg";
+                if (!await sDir.exists()) await sDir.create(recursive: true);
+                final idBase = (widget.permit?.id ?? 'temp').replaceAll(RegExp(r'[\s/\-]'), '_');
+                final fb = "${sDir.path}/${idBase}_pag${_pages.length + 1}.jpg";
         await File(originalPath).copy(fb);
         if (mounted) {
           final p = _ScannedPage(id: ts, path: fb, originalPath: originalPath, capturedAt: DateTime.now());
@@ -152,9 +151,9 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
         cnt++;
       } catch (_) {}
     }
-    if (cnt == 0) return "";
-    final ts = DateTime.now().millisecondsSinceEpoch;
-    final fp = "${d.path}/documento_$ts.pdf";
+        if (cnt == 0) return "";
+          final idBase = (widget.permit?.id ?? 'documento').replaceAll(RegExp(r'[\s/\-]'), '_');
+          final fp = "${d.path}/${idBase}.pdf";
     await File(fp).writeAsBytes(await pdf.save());
     return fp;
   }

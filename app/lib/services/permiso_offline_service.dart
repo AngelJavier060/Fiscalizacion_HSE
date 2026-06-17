@@ -168,6 +168,9 @@ class PermisoOfflineService {
             }
           }
 
+          // Subir los archivos (PDFs/imágenes) al servidor
+          await _subirArchivosPermiso(permit);
+
           await _removerDePendientes(id, prefs);
           sincronizados++;
         } else {
@@ -181,6 +184,31 @@ class PermisoOfflineService {
     }
 
     return sincronizados;
+  }
+
+  /// Sube todos los archivos (PDFs e imágenes) de un permiso al servidor
+  static Future<void> _subirArchivosPermiso(PermitModel permit) async {
+    if (permit.imagePath == null || permit.imagePath!.isEmpty) return;
+
+    final rutas = permit.imagePath!.split('|');
+    for (final ruta in rutas) {
+      final trimmed = ruta.trim();
+      if (trimmed.isEmpty) continue;
+
+      final file = File(trimmed);
+      if (!await file.exists()) continue;
+
+      try {
+        // Solo subir archivos que parezcan locales (no rutas del servidor)
+        if (!trimmed.contains('uploads/')) {
+          await PermisoService.subirArchivo(permit.id, trimmed);
+          debugPrint('✅ Archivo subido: $trimmed');
+        }
+      } catch (e) {
+        debugPrint('⚠️ Error subiendo archivo $trimmed: $e');
+        // No detener la sincronización por un archivo
+      }
+    }
   }
 
   // ─── Verificar si hay pendientes por sincronizar ──────────────

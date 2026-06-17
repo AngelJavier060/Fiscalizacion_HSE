@@ -103,8 +103,9 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(children: [
           _Card(child: Column(children: [
-            Row(children: [
-              Expanded(child: Text(_permit.id, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: _C.onSurface))),
+                        Row(children: [
+              Expanded(child: Text(_permit.id, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: _C.textLight))),
+              const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(color: _sbg, borderRadius: BorderRadius.circular(20)),
@@ -153,8 +154,10 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
             const SizedBox(height: 12),
             _Card(title: "Nota", icon: Icons.note_outlined, child: Text(_permit.nota!, style: const TextStyle(fontSize: 14, color: _C.onSurface, height: 1.5))),
           ],
-          const SizedBox(height: 12),
+                    const SizedBox(height: 12),
           _buildDocumentSection(),
+          const SizedBox(height: 12),
+          _buildVerificacionSection(),
           const SizedBox(height: 12),
           _buildExtensionSection(),
           const SizedBox(height: 32),
@@ -200,7 +203,7 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
     ]);
   }
 
-  Widget _buildDocumentSection() {
+    Widget _buildDocumentSection() {
     final paths = _permit.imagePath != null && _permit.imagePath!.isNotEmpty ? _permit.imagePath!.split("|") : <String>[];
     String? pdfPath; String? firstImg;
     for (final p in paths) {
@@ -208,7 +211,7 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
       else if (firstImg == null && File(p).existsSync()) firstImg = p;
     }
     final hasDoc = pdfPath != null || firstImg != null;
-    return _Card(title: "Documento", icon: Icons.document_scanner_outlined, child: Column(children: [
+    return _Card(title: "Permiso de trabajo", icon: Icons.assignment_outlined, child: Column(children: [
       const SizedBox(height: 4),
       if (pdfPath != null)
         Container(height: 160, decoration: BoxDecoration(color: const Color(0xFFFCE4EC), borderRadius: BorderRadius.circular(12)),
@@ -230,12 +233,56 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
         Container(height: 100, decoration: BoxDecoration(color: _C.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: _C.border)),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.image_outlined, size: 28, color: _C.subtitle.withValues(alpha: 0.5)), const SizedBox(width: 8),
-            Text("Sin documento", style: TextStyle(fontSize: 14, color: _C.subtitle.withValues(alpha: 0.6))),
+            Text("Sin permiso escaneado", style: TextStyle(fontSize: 14, color: _C.subtitle.withValues(alpha: 0.6))),
           ])),
       const SizedBox(height: 12),
       SizedBox(width: double.infinity, child: OutlinedButton.icon(
         onPressed: _scan, icon: Icon(hasDoc ? Icons.refresh : Icons.camera_alt_outlined, size: 18),
-        label: Text(hasDoc ? "Re-escanear" : "Escanear documento"),
+        label: Text(hasDoc ? "Re-escanear permiso" : "Escanear permiso de trabajo"),
+        style: OutlinedButton.styleFrom(foregroundColor: _C.primary, side: const BorderSide(color: _C.border), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+      )),
+    ]));
+  }
+
+  Widget _buildVerificacionSection() {
+    // Reutilizamos el mismo imagePath para verificación o paths separados
+    final paths = _permit.imagePath != null && _permit.imagePath!.isNotEmpty ? _permit.imagePath!.split("|") : <String>[];
+    String? pdfPath; String? firstImg;
+    for (final p in paths) {
+      if (p.endsWith(".pdf") && File(p).existsSync()) pdfPath = p;
+      else if (firstImg == null && File(p).existsSync()) firstImg = p;
+    }
+    final hasDoc = pdfPath != null || firstImg != null;
+    return _Card(title: "Verificación de permiso de trabajo", icon: Icons.verified_outlined, child: Column(children: [
+      const SizedBox(height: 4),
+      Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(color: _C.brandLight, borderRadius: BorderRadius.circular(10), border: Border.all(color: _C.primary.withValues(alpha: 0.1))),
+        child: const Row(children: [
+          Icon(Icons.info_outline, size: 18, color: _C.primary),
+          SizedBox(width: 8),
+          Expanded(child: Text("Escanee el permiso firmado y verificado por el supervisor.", style: TextStyle(fontSize: 12, color: _C.subtitle, height: 1.4))),
+        ]),
+      ),
+      const SizedBox(height: 12),
+      if (hasDoc)
+        Container(height: 100, decoration: BoxDecoration(color: _C.greenBg, borderRadius: BorderRadius.circular(12)),
+          child: const Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.check_circle, size: 24, color: _C.green),
+            SizedBox(width: 8),
+            Text("Documento de verificación adjunto", style: TextStyle(color: _C.green, fontSize: 13, fontWeight: FontWeight.w600)),
+          ])))
+      else
+        Container(height: 80, decoration: BoxDecoration(color: _C.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: _C.border, style: BorderStyle.solid)),
+          child: const Center(child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.verified_outlined, size: 24, color: _C.textLight),
+            SizedBox(width: 8),
+            Text("Pendiente de verificación", style: TextStyle(fontSize: 14, color: _C.textLight)),
+          ]))),
+      const SizedBox(height: 12),
+      SizedBox(width: double.infinity, child: OutlinedButton.icon(
+        onPressed: _scan, icon: const Icon(Icons.camera_alt_outlined, size: 18),
+        label: Text(hasDoc ? "Actualizar verificación" : "Escanear verificación"),
         style: OutlinedButton.styleFrom(foregroundColor: _C.primary, side: const BorderSide(color: _C.border), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
       )),
     ]));

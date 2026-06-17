@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authService = AuthService();
       final response = await authService.login(
-        _emailCtrl.text.trim(),
+        _emailCtrl.text.trim().toLowerCase(),
         _passwordCtrl.text,
       );
       if (!mounted) return;
