@@ -1,7 +1,8 @@
-﻿import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription, interval } from 'rxjs';
 import { SuperAdminSidebarComponent } from '../shared/super-admin-sidebar/super-admin-sidebar.component';
 import { PermisosTrabajoService, PermisoTrabajoResponse } from '../../../core/services/permisos-trabajo.service';
 import { EmpresaService } from '../../../core/services/empresa.service';
@@ -14,7 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './permisos-list.component.html',
   styleUrls: ['./permisos-list.component.scss'],
 })
-export class PermisosListComponent implements OnInit {
+export class PermisosListComponent implements OnInit, OnDestroy {
   private permisosService = inject(PermisosTrabajoService);
   private empresaService = inject(EmpresaService);
   private authService = inject(AuthService);
@@ -34,6 +35,9 @@ export class PermisosListComponent implements OnInit {
   // Paginacion local
   pagina = 1;
   porPagina = 20;
+
+  // Polling auto cada 30 s
+  private polling$?: Subscription;
 
   get nombreUsuario(): string {
     return this.authService.getUserData()?.nombre || 'Super Administrador';
@@ -55,8 +59,43 @@ export class PermisosListComponent implements OnInit {
     return this.permisos.filter((p) => !!p.imagePath && p.imagePath.length > 0).length;
   }
 
+  ngOnDestroy(): void {
+    this.polling$?.unsubscribe();
+  }
+
   ngOnInit(): void {
     this.cargarEmpresas();
+    this.polling$ = interval(30000).subscribe(() => {
+      if (this.empresas.length > 0) this.recargarPermisos();
+    });
+  }
+
+  /** Recarga solo permisos */
+  recargarPermisos(): void {
+    const solicitudes = this.empresas.map((emp) =>
+      this.permisosService.listarTodos(emp.id).toPromise()
+    );
+    Promise.allSettled(solicitudes).then((resultados) => {
+      const nuevos: PermisoTrabajoResponse[] = [];
+      for (let i = 0; i < resultados.length; i++) {
+        const r = resultados[i];
+        if (r.status === 'fulfilled' && r.value) {
+          const empresa = this.empresas[i];
+          const items = (r.value as PermisoTrabajoResponse[]).map((p) => ({
+            ...p,
+            empresaNombre: p.empresaNombre || empresa.nombre || `Empresa #${empresa.id}`,
+          }));
+          nuevos.push(...items);
+        }
+      }
+      nuevos.sort((a, b) => {
+        const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return db - da;
+      });
+      this.permisos = nuevos;
+      this.aplicarFiltros();
+    });
   }
 
   cargarEmpresas(): void {
