@@ -46,13 +46,17 @@ void _initConnectivityListener() {
   Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
     final isOnline = results.any((c) => c != ConnectivityResult.none);
     if (isOnline) {
+      debugPrint('🔄 Conectividad restablecida, sincronizando datos pendientes...');
       // Sincronizar permisos pendientes
       PermisoOfflineService.sincronizarPendientes();
     }
   });
   
-  // Intentar sincronizar al inicio también
-  PermisoOfflineService.sincronizarPendientes();
+  // Intentar sincronizar al inicio también (después de que el usuario haya iniciado sesión)
+  Future.delayed(const Duration(seconds: 3), () {
+    debugPrint('🔄 Verificando sincronización pendiente al iniciar app...');
+    PermisoOfflineService.sincronizarPendientes();
+  });
 }
 
 class FiscalizacionHSEApp extends StatelessWidget {

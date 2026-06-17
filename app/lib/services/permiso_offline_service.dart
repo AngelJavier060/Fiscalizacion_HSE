@@ -75,13 +75,10 @@ class PermisoOfflineService {
       // 4) Registrar en el índice
       await _registrarEnIndice(permit.id, permit.title);
 
-      // 5) Agregar a cola de sincronización si no hay internet
-      final conn = await Connectivity().checkConnectivity();
-      final isOnline = conn.any((c) => c != ConnectivityResult.none);
-
-      if (!isOnline) {
-        await _agregarAPendientes(permit.id);
-      }
+      // 5) SIEMPRE agregar a cola de sincronización pendiente.
+      //    El mecanismo de sincronización se encargará de enviarlo al backend
+      //    cuando haya conexión, evitando pérdida de datos.
+      await _agregarAPendientes(permit.id);
 
       return true;
     } catch (e) {
@@ -138,6 +135,7 @@ class PermisoOfflineService {
 
     if (pendientes.isEmpty) return 0;
 
+    debugPrint('🔄 Iniciando sincronización de ${pendientes.length} permiso(s) pendiente(s)...');
     int sincronizados = 0;
     int empresaId = 0;
 
@@ -163,13 +161,18 @@ class PermisoOfflineService {
 
           try {
             // Intentar crear en el backend
+            debugPrint('📤 Sincronizando permiso $id...');
             await PermisoService.crear(permitParaBackend);
+            debugPrint('✅ Permiso $id sincronizado correctamente');
           } catch (e) {
             // Si falla por que ya existe, intentar actualizar
             try {
+              debugPrint('📤 Permiso $id ya existe, actualizando...');
               await PermisoService.actualizar(permitParaBackend);
+              debugPrint('✅ Permiso $id actualizado correctamente');
             } catch (_) {
               // Si también falla, reintentar después
+              debugPrint('⚠️ Permiso $id no se pudo sincronizar, reintentará después');
               continue;
             }
           }
@@ -181,6 +184,7 @@ class PermisoOfflineService {
           sincronizados++;
         } else {
           // Si no existe el archivo, remover de pendientes
+          debugPrint('⚠️ Permiso $id no encontrado localmente, removiendo de pendientes');
           await _removerDePendientes(id, prefs);
         }
       } catch (e) {
@@ -189,6 +193,7 @@ class PermisoOfflineService {
       }
     }
 
+    debugPrint('🔄 Sincronización completada: $sincronizados/${pendientes.length} sincronizados');
     return sincronizados;
   }
 
