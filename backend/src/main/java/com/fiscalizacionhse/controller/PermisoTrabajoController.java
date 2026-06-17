@@ -41,6 +41,12 @@ public class PermisoTrabajoController {
         return ResponseEntity.ok(service.listarTodos(empresaId));
     }
 
+    // ── Listar TODOS los permisos (para SUPER_ADMIN sin empresa) ───
+    @GetMapping("/todos")
+    public ResponseEntity<List<PermisoTrabajoResponse>> listarTodosGlobal() {
+        return ResponseEntity.ok(service.listarTodosGlobal());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<PermisoTrabajoResponse> obtener(@PathVariable String id) {
         return ResponseEntity.ok(service.obtener(id));
@@ -111,6 +117,16 @@ public class PermisoTrabajoController {
                 .total(service.contarTotal(empresaId))
                 .vigentes(service.contarVigentes(empresaId))
                 .expirados(service.contarExpirados(empresaId))
+                .build());
+    }
+
+    // ── Contar global (para SUPER_ADMIN) ─────────────────────────────
+    @GetMapping("/contar")
+    public ResponseEntity<ContadoresResponse> contarGlobal() {
+        return ResponseEntity.ok(ContadoresResponse.builder()
+                .total(service.contarTotalGlobal())
+                .vigentes(service.contarVigentesGlobal())
+                .expirados(service.contarExpiradosGlobal())
                 .build());
     }
 

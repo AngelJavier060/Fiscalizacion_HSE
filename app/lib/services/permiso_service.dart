@@ -9,10 +9,12 @@ import 'auth_service.dart';
 /// Conecta con [PermisoTrabajoController] del backend.
 class PermisoService {
   /// Listar todos los permisos de una empresa
+  /// Si [empresaId] es 0 (SUPER_ADMIN), obtiene todos los permisos globales
   static Future<List<PermitModel>> listar(int empresaId) async {
-    final response = await ApiService.getList(
-      '${ApiConfig.permisosTrabajo}/empresa/$empresaId/todos',
-    );
+    final endpoint = empresaId > 0
+        ? '${ApiConfig.permisosTrabajo}/empresa/$empresaId/todos'
+        : '${ApiConfig.permisosTrabajo}/todos';
+    final response = await ApiService.getList(endpoint);
     return response
         .map((e) => _fromJson(e as Map<String, dynamic>))
         .toList();

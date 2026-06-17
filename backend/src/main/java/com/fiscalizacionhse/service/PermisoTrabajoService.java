@@ -46,6 +46,16 @@ public class PermisoTrabajoService {
                 .collect(Collectors.toList());
     }
 
+    // ── Listar TODOS los permisos (para SUPER_ADMIN) ─────────────────
+    @Transactional(readOnly = true)
+    public List<PermisoTrabajoResponse> listarTodosGlobal() {
+        return repository
+                .findAllByActivoTrueOrderByCreatedAtDesc()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     // ── Obtener un permiso por ID ─────────────────────────────────────
     @Transactional(readOnly = true)
     public PermisoTrabajoResponse obtener(String id) {
@@ -146,6 +156,23 @@ public class PermisoTrabajoService {
     @Transactional(readOnly = true)
     public long contarTotal(Long empresaId) {
         return repository.countByEmpresaIdAndActivoTrue(empresaId);
+    }
+
+    // ── Contar permisos globales (para SUPER_ADMIN) ──────────────────
+    @Transactional(readOnly = true)
+    public long contarVigentesGlobal() {
+        LocalDateTime now = LocalDateTime.now();
+        return repository.countAllByActivoTrueAndStartDateBeforeAndEndDateAfter(now, now);
+    }
+
+    @Transactional(readOnly = true)
+    public long contarExpiradosGlobal() {
+        return repository.countAllByActivoTrueAndEndDateBefore(LocalDateTime.now());
+    }
+
+    @Transactional(readOnly = true)
+    public long contarTotalGlobal() {
+        return repository.countAllByActivoTrue();
     }
 
     // ── Mapeo a Response ──────────────────────────────────────────────

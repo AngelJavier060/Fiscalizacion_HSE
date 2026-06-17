@@ -26,4 +26,14 @@ public interface PermisoTrabajoRepository extends JpaRepository<PermisoTrabajo, 
 
     long countByEmpresaIdAndActivoTrueAndStartDateBeforeAndEndDateAfter(
             Long empresaId, LocalDateTime now1, LocalDateTime now2);
+
+    // ── Consultas globales (para SUPER_ADMIN sin empresa asignada) ──
+    List<PermisoTrabajo> findAllByActivoTrueOrderByCreatedAtDesc();
+
+    long countAllByActivoTrue();
+
+    long countAllByActivoTrueAndEndDateBefore(LocalDateTime now);
+
+    long countAllByActivoTrueAndStartDateBeforeAndEndDateAfter(
+            LocalDateTime now1, LocalDateTime now2);
 }
