@@ -149,15 +149,19 @@ class PermisoOfflineService {
         final permit = await obtenerPermiso(id);
         if (permit != null) {
           // Usar el empresaId guardado localmente (pudo elegirse al crear)
-          final permitParaBackend = permit.empresaId != null && permit.empresaId! > 0
-              ? permit
-              : permit.copyWith(empresaId: empresaId);
-
-          // Si sigue sin empresaId válido, no se puede sincronizar
-          if (permitParaBackend.empresaId == null || permitParaBackend.empresaId! <= 0) {
-            debugPrint('⚠️ Permiso $id sin empresaId, omitiendo sincronización');
+          int empresaParaSync = empresaId;
+          
+          // 1. Si el permiso ya tiene empresaId válido guardado localmente, usarlo
+          if (permit.empresaId != null && permit.empresaId! > 0) {
+            empresaParaSync = permit.empresaId!;
+          }
+          // 2. Si aún no hay empresaId válido, NO se puede sincronizar
+          if (empresaParaSync <= 0) {
+            debugPrint('⚠️ Permiso $id sin empresaId válido (empresaId=$empresaParaSync), omitiendo sincronización');
             continue;
           }
+          
+          final permitParaBackend = permit.copyWith(empresaId: empresaParaSync);
 
           try {
             // Intentar crear en el backend
