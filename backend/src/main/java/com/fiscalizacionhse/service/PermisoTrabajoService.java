@@ -29,6 +29,7 @@ public class PermisoTrabajoService {
     private final UsuarioRepository usuarioRepository;
 
     // ── Listar permisos por empresa (paginado) ────────────────────────
+    @Transactional(readOnly = true)
     public Page<PermisoTrabajoResponse> listarPorEmpresa(Long empresaId, Pageable pageable) {
         return repository
                 .findByEmpresaIdAndActivoTrueOrderByCreatedAtDesc(empresaId, pageable)
@@ -36,6 +37,7 @@ public class PermisoTrabajoService {
     }
 
     // ── Listar todos los permisos de una empresa (sin paginar) ───────
+    @Transactional(readOnly = true)
     public List<PermisoTrabajoResponse> listarTodos(Long empresaId) {
         return repository
                 .findByEmpresaIdAndActivoTrueOrderByCreatedAtDesc(empresaId)
@@ -45,6 +47,7 @@ public class PermisoTrabajoService {
     }
 
     // ── Obtener un permiso por ID ─────────────────────────────────────
+    @Transactional(readOnly = true)
     public PermisoTrabajoResponse obtener(String id) {
         PermisoTrabajo permiso = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PermisoTrabajo", id));
@@ -127,17 +130,20 @@ public class PermisoTrabajoService {
     }
 
     // ── Contar permisos por estado ────────────────────────────────────
+    @Transactional(readOnly = true)
     public long contarVigentes(Long empresaId) {
         LocalDateTime now = LocalDateTime.now();
         return repository.countByEmpresaIdAndActivoTrueAndStartDateBeforeAndEndDateAfter(
                 empresaId, now, now);
     }
 
+    @Transactional(readOnly = true)
     public long contarExpirados(Long empresaId) {
         return repository.countByEmpresaIdAndActivoTrueAndEndDateBefore(
                 empresaId, LocalDateTime.now());
     }
 
+    @Transactional(readOnly = true)
     public long contarTotal(Long empresaId) {
         return repository.countByEmpresaIdAndActivoTrue(empresaId);
     }
