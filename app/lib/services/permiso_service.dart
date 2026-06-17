@@ -126,6 +126,7 @@ class PermisoService {
       endTime: json['endTime'] != null
           ? DateTime.tryParse(json['endTime'] as String)
           : null,
+      empresaId: json['empresaId'] as int?,
     );
   }
 
