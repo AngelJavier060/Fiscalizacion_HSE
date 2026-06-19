@@ -152,23 +152,65 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
       return;
     }
 
-    setState(() => _isSaving = true);
+    try {
+      // Obtener empresaId del usuario actual
+      final userData = await AuthService().getUserData();
+      final empresaId = (userData['empresaId'] as num?)?.toInt() ?? 0;
 
-    // Simular un pequeño delay de guardado
-    await Future.delayed(const Duration(milliseconds: 600));
+      // Construir el permiso con el empresaId
+      final permit = _buildPermit().copyWith(empresaId: empresaId);
 
-    if (!mounted) return;
-
-    final permit = _buildPermit();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Permiso creado exitosamente'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xFF3B6D11),
-      ),
-    );
-
-    Navigator.pop(context, permit);
+      // Intentar guardar en el backend primero
+      try {
+        final savedPermit = await PermisoService.crear(permit);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Permiso creado exitosamente en el servidor'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Color(0xFF3B6D11),
+          ),
+        );
+        Navigator.pop(context, savedPermit);
+      } catch (e) {
+        // Si falla (sin conexión), guardar localmente
+        debugPrint('Sin conexión, guardando permiso localmente: $e');
+        final guardadoLocal = await PermisoOfflineService.guardarPermiso(permit);
+        if (!mounted) return;
+        
+        if (guardadoLocal) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sin conexión. Permiso guardado localmente y se sincronizará automáticamente.'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Color(0xFFE65100),
+              duration: Duration(seconds: 4),
+            ),
+          );
+          Navigator.pop(context, permit);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error al guardar el permiso localmente'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: _Pal.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error al guardar permiso: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al guardar: $e'),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: _Pal.error,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   // ── Selector de fecha ─────────────────────────────────────────
