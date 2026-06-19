@@ -61,8 +61,14 @@ class _PermisosScreenState extends State<PermisosScreen> {
       try { server = await PermisoService.listar(empresaId); } catch (_) {}
       final locales = await PermisoOfflineService.listarPermisos();
       final map = <String, PermitModel>{};
+      // Primero cargar los permisos del servidor (tienen prioridad)
       for (final p in server) map[p.id] = p;
-      for (final p in locales) map[p.id] = p;
+      // Luego agregar solo los locales que NO están en el servidor (evitar sobrescritura)
+      for (final p in locales) {
+        if (!map.containsKey(p.id)) {
+          map[p.id] = p;
+        }
+      }
       final combined = map.values.toList()..sort((a, b) => b.startDate.compareTo(a.startDate));
       if (mounted) setState(() { _permisos = combined; _filteredPermisos = List.from(combined); _isLoading = false; _error = server.isEmpty && locales.isNotEmpty ? 'Sin internet. Tus datos estan respaldados en la app local.' : server.isEmpty && locales.isEmpty ? 'Sin internet. Trabajando con datos locales.' : null; });
     } catch (e) {

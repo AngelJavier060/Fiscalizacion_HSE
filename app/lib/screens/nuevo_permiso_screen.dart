@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import '../models/permit_model.dart';
 import '../services/permiso_service.dart';
 import '../services/permiso_offline_service.dart';
@@ -37,7 +38,7 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
 
   // ── Controladores ──────────────────────────────────────────────
   final _idController = TextEditingController(
-    text: 'PT-${DateTime.now().year}-${DateTime.now().millisecond.toString().padLeft(4, '0')}',
+    text: 'TEMP-${const Uuid().v4()}', // UUID temporal para evitar conflictos offline
   );
   final _descripcionController = TextEditingController();
   final _emisorController = TextEditingController();
@@ -164,6 +165,12 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
       try {
         final savedPermit = await PermisoService.crear(permit);
         if (!mounted) return;
+        
+        // Si el ID comenzó con TEMP-, actualizar el almacenamiento local con el ID real del backend
+        if (permit.id.startsWith('TEMP-') && savedPermit.id != permit.id) {
+          await PermisoOfflineService.actualizarIdLocal(permit.id, savedPermit);
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Permiso creado exitosamente en el servidor'),

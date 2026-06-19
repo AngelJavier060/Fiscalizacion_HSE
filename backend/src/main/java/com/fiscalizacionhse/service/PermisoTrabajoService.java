@@ -67,12 +67,26 @@ public class PermisoTrabajoService {
     // ── Crear nuevo permiso ───────────────────────────────────────────
     @Transactional
     public PermisoTrabajoResponse crear(PermisoTrabajoRequest request, Long usuarioId) {
-        // Validar que no exista un permiso con el mismo ID
-        if (repository.findById(request.getId()).isPresent()) {
-            throw new ConflictException(
-                "Ya existe un permiso de trabajo con el ID '" + request.getId() +
-                "'. No es posible crear uno duplicado."
-            );
+        // Si el ID es temporal (TEMP-), generar un ID real
+        String finalId = request.getId();
+        if (finalId != null && finalId.startsWith("TEMP-")) {
+            // Generar ID único con formato PT-{year}-{timestamp}
+            int timestamp = (int) (System.currentTimeMillis() % 10000);
+            finalId = "PT-" + java.time.Year.now().getValue() + "-" + String.format("%04d", timestamp);
+            
+            // Asegurar que el ID generado sea único
+            while (repository.findById(finalId).isPresent()) {
+                timestamp = (timestamp + 1) % 10000;
+                finalId = "PT-" + java.time.Year.now().getValue() + "-" + String.format("%04d", timestamp);
+            }
+        } else {
+            // Validar que no exista un permiso con el mismo ID
+            if (repository.findById(request.getId()).isPresent()) {
+                throw new ConflictException(
+                    "Ya existe un permiso de trabajo con el ID '" + request.getId() +
+                    "'. No es posible crear uno duplicado."
+                );
+            }
         }
 
         Empresa empresa = empresaRepository.findById(request.getEmpresaId())
@@ -81,7 +95,7 @@ public class PermisoTrabajoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", usuarioId));
 
         PermisoTrabajo permiso = PermisoTrabajo.builder()
-                .id(request.getId())
+                .id(finalId)
                 .title(request.getTitle())
                 .area(request.getArea() != null ? request.getArea() : "Sin asignar")
                 .responsible(request.getResponsible() != null ? request.getResponsible() : "Sin asignar")

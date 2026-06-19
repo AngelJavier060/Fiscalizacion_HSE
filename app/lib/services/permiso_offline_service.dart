@@ -166,8 +166,13 @@ class PermisoOfflineService {
           try {
             // Intentar crear en el backend
             debugPrint('📤 Sincronizando permiso $id...');
-            await PermisoService.crear(permitParaBackend);
+            final syncedPermit = await PermisoService.crear(permitParaBackend);
             debugPrint('✅ Permiso $id sincronizado correctamente');
+            
+            // Si el ID comenzó con TEMP-, actualizar el almacenamiento local con el ID real del backend
+            if (id.startsWith('TEMP-') && syncedPermit.id != id) {
+              await actualizarIdLocal(id, syncedPermit);
+            }
           } catch (e) {
             // Si falla por que ya existe, intentar actualizar
             try {
@@ -230,6 +235,45 @@ class PermisoOfflineService {
   static Future<int> pendientesCount() async {
     final prefs = await SharedPreferences.getInstance();
     return _leerPendientes(prefs).length;
+  }
+
+  // ─── Actualizar ID local después de sincronización ─────────────
+  static Future<void> actualizarIdLocal(String oldId, PermitModel newPermit) async {
+    try {
+      final dir = await _getDir();
+      final oldFile = File('${dir.path}/$oldId.json');
+      
+      if (await oldFile.exists()) {
+        // Leer el archivo viejo
+        final content = await oldFile.readAsString();
+        final json = jsonDecode(content) as Map<String, dynamic>;
+        
+        // Actualizar con el nuevo ID y datos del backend
+        json['id'] = newPermit.id;
+        json['empresaId'] = newPermit.empresaId;
+        
+        // Guardar con el nuevo ID
+        final newFile = File('${dir.path}/${newPermit.id}.json');
+        await newFile.writeAsString(jsonEncode(json));
+        
+        // Eliminar el archivo viejo
+        await oldFile.delete();
+        
+        // Actualizar el índice
+        final prefs = await SharedPreferences.getInstance();
+        final idx = _leerIndice(prefs);
+        idx.remove(oldId);
+        idx[newPermit.id] = newPermit.title;
+        await prefs.setString(_keyIndice, jsonEncode(idx));
+        
+        // Actualizar la cola de pendientes
+        await _removerDePendientes(oldId, prefs);
+        
+        debugPrint('✅ ID local actualizado: $oldId -> ${newPermit.id}');
+      }
+    } catch (e) {
+      debugPrint('PermisoOfflineService.actualizarIdLocal error: $e');
+    }
   }
 
   // ─── Eliminar permiso local ────────────────────────────────────
