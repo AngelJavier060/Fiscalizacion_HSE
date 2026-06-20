@@ -30,11 +30,19 @@ class PermisoService {
 
   /// Crear un nuevo permiso
   static Future<PermitModel> crear(PermitModel permit) async {
-    final response = await ApiService.post(
-      ApiConfig.permisosTrabajo,
-      body: _toJson(permit),
-    );
-    return _fromJson(response);
+    debugPrint('🔍 DEBUG APP: Creando permiso - ID: ${permit.id}, empresaId: ${permit.empresaId}');
+    debugPrint('🔍 DEBUG APP: URL: ${ApiConfig.uri(ApiConfig.permisosTrabajo)}');
+    try {
+      final response = await ApiService.post(
+        ApiConfig.permisosTrabajo,
+        body: _toJson(permit),
+      );
+      debugPrint('✅ DEBUG APP: Permiso creado exitosamente - Response: $response');
+      return _fromJson(response);
+    } catch (e) {
+      debugPrint('❌ DEBUG APP: Error al crear permiso: $e');
+      rethrow;
+    }
   }
 
   /// Actualizar un permiso existente
