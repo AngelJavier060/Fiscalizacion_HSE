@@ -91,13 +91,9 @@ class _PermisosScreenState extends State<PermisosScreen> {
   void _nuevoPermiso() async {
     final r = await Navigator.push(context, MaterialPageRoute(builder: (_) => const NuevoPermisoScreen()));
     if (r != null && r is PermitModel) {
-      final dup = _permisos.any((x) => x.id == r.id);
-      if (dup) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('El permiso \"\\" ya existe. Se actualizara.'), backgroundColor: _Pal.warningText, behavior: SnackBarBehavior.floating));
-        final idx = _permisos.indexWhere((x) => x.id == r.id);
-        if (idx >= 0) setState(() => _permisos[idx] = r);
-      } else { setState(() => _permisos.insert(0, r)); }
-      _filtrar();
+      // Recargar desde servidor + local para reflejar el ID real asignado por
+      // el backend tras la sincronización y evitar duplicados visuales.
+      await _loadUserAndPermisos();
     }
   }
 

@@ -67,27 +67,21 @@ public class PermisoTrabajoService {
     // ── Crear nuevo permiso ───────────────────────────────────────────
     @Transactional
     public PermisoTrabajoResponse crear(PermisoTrabajoRequest request, Long usuarioId) {
-        System.out.println("🔍 DEBUG: Creando permiso - ID: " + request.getId() + ", usuarioId: " + usuarioId);
-        System.out.println("🔍 DEBUG: empresaId: " + request.getEmpresaId() + ", title: " + request.getTitle());
-        
-        // Si el ID es temporal (TEMP-), generar un ID real
+        // Si el ID es temporal (TEMP-) o está vacío, generar un ID real único.
         String finalId = request.getId();
-        if (finalId != null && finalId.startsWith("TEMP-")) {
-            System.out.println("🔍 DEBUG: ID temporal detectado, generando ID real");
+        if (finalId == null || finalId.isBlank() || finalId.startsWith("TEMP-")) {
             // Generar ID único con formato PT-{year}-{timestamp}
             int timestamp = (int) (System.currentTimeMillis() % 10000);
             finalId = "PT-" + java.time.Year.now().getValue() + "-" + String.format("%04d", timestamp);
-            
+
             // Asegurar que el ID generado sea único
             while (repository.findById(finalId).isPresent()) {
                 timestamp = (timestamp + 1) % 10000;
                 finalId = "PT-" + java.time.Year.now().getValue() + "-" + String.format("%04d", timestamp);
             }
-            System.out.println("🔍 DEBUG: ID generado: " + finalId);
         } else {
             // Validar que no exista un permiso con el mismo ID
             if (repository.findById(request.getId()).isPresent()) {
-                System.out.println("⚠️ DEBUG: ID duplicado: " + request.getId());
                 throw new ConflictException(
                     "Ya existe un permiso de trabajo con el ID '" + request.getId() +
                     "'. No es posible crear uno duplicado."
@@ -96,17 +90,9 @@ public class PermisoTrabajoService {
         }
 
         Empresa empresa = empresaRepository.findById(request.getEmpresaId())
-                .orElseThrow(() -> {
-                    System.out.println("❌ DEBUG: Empresa no encontrada: " + request.getEmpresaId());
-                    return new ResourceNotFoundException("Empresa", request.getEmpresaId());
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Empresa", request.getEmpresaId()));
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> {
-                    System.out.println("❌ DEBUG: Usuario no encontrado: " + usuarioId);
-                    return new ResourceNotFoundException("Usuario", usuarioId);
-                });
-        
-        System.out.println("✅ DEBUG: Empresa y usuario encontrados, creando permiso");
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", usuarioId));
 
         PermisoTrabajo permiso = PermisoTrabajo.builder()
                 .id(finalId)

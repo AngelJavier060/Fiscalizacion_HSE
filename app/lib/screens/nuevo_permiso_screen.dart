@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import '../models/permit_model.dart';
-import '../services/permiso_service.dart';
 import '../services/permiso_offline_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/scan_button.dart';
@@ -37,9 +36,9 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // ── Controladores ──────────────────────────────────────────────
-  final _idController = TextEditingController(
-    text: 'TEMP-${const Uuid().v4()}', // UUID temporal para evitar conflictos offline
-  );
+  // Vacío por defecto: el usuario puede escribir su número de permiso o dejarlo
+  // en blanco para que el backend genere un ID único automáticamente.
+  final _idController = TextEditingController();
   final _descripcionController = TextEditingController();
   final _emisorController = TextEditingController();
   final _ejecutanteController = TextEditingController();
@@ -80,9 +79,9 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
       if (permit.endTime != null) {
         _horaFin = TimeOfDay.fromDateTime(permit.endTime!);
       }
-    } else {
-      _idController.text = 'PT-${DateTime.now().year}-${DateTime.now().millisecond.toString().padLeft(4, '0')}';
     }
+    // Para permisos nuevos el ID se deja vacío: si el usuario no escribe uno,
+    // se generará un TEMP-{uuid} al guardar y el backend asignará el ID real.
   }
 
   @override
@@ -117,7 +116,7 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
 
     return PermitModel(
       id: _idController.text.trim().isEmpty
-          ? 'PT-${DateTime.now().year}-${DateTime.now().millisecond.toString().padLeft(4, '0')}'
+          ? 'TEMP-${const Uuid().v4()}'
           : _idController.text.trim(),
       title: _selectedTask?.label ?? 'Permiso de trabajo',
       area: _areaController.text.trim().isEmpty
@@ -161,35 +160,41 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
       // Construir el permiso con el empresaId
       final permit = _buildPermit().copyWith(empresaId: empresaId);
 
-      // Guardar directamente en el backend (sin fallback local)
-      try {
-        debugPrint('🔍 GUARDAR: Intentando guardar en backend...');
-        final savedPermit = await PermisoService.crear(permit);
-        if (!mounted) return;
-        
-        debugPrint('✅ GUARDAR: Permiso guardado exitosamente en backend');
-        
+      // 1) SIEMPRE guardar localmente primero: garantiza que los datos
+      //    (incluidas las imágenes escaneadas) nunca se pierdan, incluso
+      //    sin conexión.
+      final guardadoLocal = await PermisoOfflineService.guardarPermiso(permit);
+      if (!guardadoLocal) {
+        throw Exception('No se pudo guardar el permiso en el dispositivo');
+      }
+
+      // 2) Intentar sincronizar de inmediato con el backend. Si no hay
+      //    conexión, quedará en la cola y se sincronizará automáticamente
+      //    cuando se restablezca el internet.
+      final sincronizados = await PermisoOfflineService.sincronizarPendientes();
+
+      if (!mounted) return;
+
+      if (sincronizados > 0) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Permiso creado exitosamente en el servidor'),
+            content: Text('Permiso guardado y sincronizado con el servidor.'),
             behavior: SnackBarBehavior.floating,
             backgroundColor: Color(0xFF3B6D11),
           ),
         );
-        Navigator.pop(context, savedPermit);
-      } catch (e) {
-        debugPrint('❌ GUARDAR: Error al guardar en backend: $e');
-        if (!mounted) return;
-        
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al guardar en el servidor: $e'),
+          const SnackBar(
+            content: Text(
+                'Permiso guardado en el dispositivo. Se sincronizará automáticamente cuando haya conexión.'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: _Pal.error,
-            duration: const Duration(seconds: 5),
+            backgroundColor: Color(0xFFE65100),
+            duration: Duration(seconds: 4),
           ),
         );
       }
+      Navigator.pop(context, permit);
     } catch (e) {
       debugPrint('Error al guardar permiso: $e');
       if (!mounted) return;
@@ -382,7 +387,7 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
                     color: _Pal.onSurface,
                   ),
                   decoration: _inputDecoration().copyWith(
-                    hintText: 'PT-2026-XXXX',
+                    hintText: 'Opcional (se genera automáticamente)',
                   ),
                 ),
                 const SizedBox(height: 20),

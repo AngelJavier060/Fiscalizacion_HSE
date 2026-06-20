@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 import 'auth_service.dart';
@@ -59,19 +58,13 @@ class ApiService {
   }) async {
     try {
       final headers = await AuthService.getAuthHeaders();
-      debugPrint('🔍 DEBUG POST: URL: ${ApiConfig.uri(endpoint)}');
-      debugPrint('🔍 DEBUG POST: Headers: $headers');
-      debugPrint('🔍 DEBUG POST: Body: ${body != null ? jsonEncode(body) : null}');
       final response = await _client.post(
         ApiConfig.uri(endpoint),
         headers: headers,
         body: body != null ? jsonEncode(body) : null,
       );
-      debugPrint('🔍 DEBUG POST: Response status: ${response.statusCode}');
-      debugPrint('🔍 DEBUG POST: Response body: ${response.body}');
       return _handleResponse(response);
     } catch (e) {
-      debugPrint('❌ DEBUG POST: Error: $e');
       throw ApiException('Error POST $endpoint: $e');
     }
   }
