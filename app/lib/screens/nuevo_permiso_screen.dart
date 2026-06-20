@@ -161,15 +161,13 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
       // Construir el permiso con el empresaId
       final permit = _buildPermit().copyWith(empresaId: empresaId);
 
-      // Intentar guardar en el backend primero
+      // Guardar directamente en el backend (sin fallback local)
       try {
+        debugPrint('🔍 GUARDAR: Intentando guardar en backend...');
         final savedPermit = await PermisoService.crear(permit);
         if (!mounted) return;
         
-        // Si el ID comenzó con TEMP-, actualizar el almacenamiento local con el ID real del backend
-        if (permit.id.startsWith('TEMP-') && savedPermit.id != permit.id) {
-          await PermisoOfflineService.actualizarIdLocal(permit.id, savedPermit);
-        }
+        debugPrint('✅ GUARDAR: Permiso guardado exitosamente en backend');
         
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -180,30 +178,17 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
         );
         Navigator.pop(context, savedPermit);
       } catch (e) {
-        // Si falla (sin conexión), guardar localmente
-        debugPrint('Sin conexión, guardando permiso localmente: $e');
-        final guardadoLocal = await PermisoOfflineService.guardarPermiso(permit);
+        debugPrint('❌ GUARDAR: Error al guardar en backend: $e');
         if (!mounted) return;
         
-        if (guardadoLocal) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sin conexión. Permiso guardado localmente y se sincronizará automáticamente.'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Color(0xFFE65100),
-              duration: Duration(seconds: 4),
-            ),
-          );
-          Navigator.pop(context, permit);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Error al guardar el permiso localmente'),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: _Pal.error,
-            ),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al guardar en el servidor: $e'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: _Pal.error,
+            duration: const Duration(seconds: 5),
+          ),
+        );
       }
     } catch (e) {
       debugPrint('Error al guardar permiso: $e');
