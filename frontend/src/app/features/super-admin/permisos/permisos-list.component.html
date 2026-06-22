@@ -12,6 +12,9 @@
         <button type="button" class="icon-btn" title="Recargar" (click)="cargarTodosLosPermisos()">
           <span class="mat-icon">refresh</span>
         </button>
+        <button type="button" class="btn-nuevo" (click)="abrirNuevoPermiso()">
+          <span class="mat-icon">add_circle</span> Nuevo permiso
+        </button>
         <div class="topbar-divider"></div>
         <div class="topbar-user">
           <div class="user-info">
@@ -73,6 +76,12 @@
           <option value="warning">Por vencer</option>
           <option value="expired">Expirados</option>
         </select>
+        <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()" class="filter-select">
+          <option value="">Todos los tipos</option>
+          @for (t of tiposTarea; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
       </div>
 
       <!-- Loading -->
@@ -105,7 +114,7 @@
                 <th>Vence</th>
                 <th>D&iacute;as</th>
                 <th>Estado</th>
-                <th>PDF</th>
+                <th>Archivos</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -128,12 +137,15 @@
                       {{ statusLabel(p.status) }}
                     </span>
                   </td>
-                  <td class="cell-pdf">
-                    @if (tienePdf(p)) {
-                      <span class="pdf-icon" title="Ver PDF">📄</span>
-                    } @else {
-                      <span class="no-pdf">&mdash;</span>
-                    }
+                  <td class="cell-archivos">
+                    <button class="file-badge" [class.has-files]="tienePdf(p)"
+                      (click)="abrirArchivos(p)"
+                      [title]="tienePdf(p) ? contarArchivos(p) + ' archivo(s) — Click para ver/subir' : 'Sin archivos — Click para subir'">
+                      <span class="mat-icon">{{ tienePdf(p) ? 'attach_file' : 'upload_file' }}</span>
+                      @if (tienePdf(p)) {
+                        <span class="badge-num">{{ contarArchivos(p) }}</span>
+                      }
+                    </button>
                   </td>
                   <td class="cell-actions">
                     <button class="action-btn" title="Ver detalle" (click)="verDetalle(p.id)">
@@ -175,4 +187,246 @@
       }
     </div>
   </main>
+
+  <!-- ══ MODAL: Archivos del permiso ══════════════════════════════════════════ -->
+  @if (arqModal.visible) {
+    <div class="modal-overlay" (click)="cerrarArchivos()">
+      <div class="modal-panel archivos-panel" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <h2>Archivos del permiso</h2>
+            <p class="modal-subtitle">
+              <span class="permiso-id-badge">{{ arqModal.permiso?.id }}</span>
+              {{ arqModal.permiso?.title }}
+            </p>
+          </div>
+          <button class="modal-close" (click)="cerrarArchivos()"><span class="mat-icon">close</span></button>
+        </div>
+
+        <!-- Sección subir -->
+        <div class="upload-section">
+          <h3><span class="mat-icon">cloud_upload</span> Subir nuevo archivo</h3>
+          <div class="upload-row">
+            <select [(ngModel)]="arqModal.tipoDoc" class="tipo-select">
+              @for (t of tiposDocumento; track t.value) {
+                <option [value]="t.value">{{ t.label }}</option>
+              }
+            </select>
+            <label class="upload-btn" for="fileUpload">
+              <span class="mat-icon">upload_file</span> Seleccionar archivo
+            </label>
+            <input type="file" id="fileUpload" hidden (change)="subirArchivo($event)"
+              accept=".pdf,.jpg,.jpeg,.png,.docx,.doc,.xlsx,.xls">
+            @if (arqModal.subiendo) {
+              <span class="upload-progress"><span class="spinner-sm"></span> Subiendo...</span>
+            }
+          </div>
+          @if (arqModal.error) {
+            <div class="upload-error">{{ arqModal.error }}</div>
+          }
+          <p class="upload-hint">📎 Formatos: PDF, JPG, PNG, DOCX, XLSX &nbsp;·&nbsp; Máx. 100 MB</p>
+        </div>
+
+        <!-- Lista de archivos agrupada por tipo -->
+        <div class="files-body">
+          @if (arqModal.archivos.length === 0) {
+            <div class="no-files">
+              <span class="mat-icon">folder_open</span>
+              <p>Este permiso no tiene archivos adjuntos todavía.</p>
+            </div>
+          } @else {
+
+            @if (archivosPdf.length > 0) {
+              <div class="file-group">
+                <div class="file-group-header">
+                  <span>📄</span><span>Documentos PDF</span>
+                  <span class="fg-count">{{ archivosPdf.length }}</span>
+                </div>
+                @for (f of archivosPdf; track f.nombre) {
+                  <div class="file-item">
+                    <span class="fi-icon pdf">📄</span>
+                    <div class="fi-info">
+                      <span class="fi-label">{{ f.label }}</span>
+                      <span class="fi-name">{{ f.nombre }}</span>
+                    </div>
+                    <div class="fi-actions">
+                      <button class="fi-btn" title="Ver en nueva pestaña" (click)="verArchivo(arqModal.permiso!, f.nombre)">
+                        <span class="mat-icon">open_in_new</span>
+                      </button>
+                      <button class="fi-btn" title="Descargar" (click)="descargarArchivoBtn(arqModal.permiso!, f.nombre)">
+                        <span class="mat-icon">download</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (archivosImagen.length > 0) {
+              <div class="file-group">
+                <div class="file-group-header">
+                  <span>🖼️</span><span>Imágenes y fotografías</span>
+                  <span class="fg-count">{{ archivosImagen.length }}</span>
+                </div>
+                @for (f of archivosImagen; track f.nombre) {
+                  <div class="file-item">
+                    <span class="fi-icon img">🖼️</span>
+                    <div class="fi-info">
+                      <span class="fi-label">{{ f.label }}</span>
+                      <span class="fi-name">{{ f.nombre }}</span>
+                    </div>
+                    <div class="fi-actions">
+                      <button class="fi-btn" title="Ver imagen" (click)="verArchivo(arqModal.permiso!, f.nombre)">
+                        <span class="mat-icon">open_in_new</span>
+                      </button>
+                      <button class="fi-btn" title="Descargar" (click)="descargarArchivoBtn(arqModal.permiso!, f.nombre)">
+                        <span class="mat-icon">download</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            @if (archivosOtros.length > 0) {
+              <div class="file-group">
+                <div class="file-group-header">
+                  <span>📎</span><span>Otros documentos</span>
+                  <span class="fg-count">{{ archivosOtros.length }}</span>
+                </div>
+                @for (f of archivosOtros; track f.nombre) {
+                  <div class="file-item">
+                    <span class="fi-icon other">📎</span>
+                    <div class="fi-info">
+                      <span class="fi-label">{{ f.label }}</span>
+                      <span class="fi-name">{{ f.nombre }}</span>
+                    </div>
+                    <div class="fi-actions">
+                      <button class="fi-btn" (click)="verArchivo(arqModal.permiso!, f.nombre)">
+                        <span class="mat-icon">open_in_new</span>
+                      </button>
+                      <button class="fi-btn" (click)="descargarArchivoBtn(arqModal.permiso!, f.nombre)">
+                        <span class="mat-icon">download</span>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+          }
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- ══ MODAL: Nuevo permiso ════════════════════════════════════════════════ -->
+  @if (nuevoModal.visible) {
+    <div class="modal-overlay" (click)="cerrarNuevoPermiso()">
+      <div class="modal-panel nuevo-panel" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <h2>Nuevo permiso de trabajo</h2>
+            <p class="modal-subtitle">Complete los campos para registrar un nuevo permiso</p>
+          </div>
+          <button class="modal-close" (click)="cerrarNuevoPermiso()"><span class="mat-icon">close</span></button>
+        </div>
+
+        @if (nuevoModal.error) {
+          <div class="modal-error">{{ nuevoModal.error }}</div>
+        }
+
+        <div class="modal-body">
+          <div class="form-grid">
+
+            <div class="form-col">
+              <label>Empresa *</label>
+              <select [(ngModel)]="nuevoModal.form.empresaId" class="form-control">
+                <option [ngValue]="null">Seleccionar empresa...</option>
+                @for (emp of empresas; track emp.id) {
+                  <option [ngValue]="emp.id">{{ emp.nombre }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-col">
+              <label>Tipo de tarea</label>
+              <select [(ngModel)]="nuevoModal.form.criticalTask" class="form-control">
+                <option value="">Sin especificar</option>
+                @for (t of tiposTarea; track t) {
+                  <option [value]="t">{{ t }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-col-full">
+              <label>T&iacute;tulo del permiso *</label>
+              <input [(ngModel)]="nuevoModal.form.title" class="form-control"
+                placeholder="Ej. Permiso de trabajo en altura — Torre A">
+            </div>
+
+            <div class="form-col">
+              <label>&Aacute;rea de trabajo</label>
+              <input [(ngModel)]="nuevoModal.form.area" class="form-control"
+                placeholder="Ej. Bloque 3 — Piso 8">
+            </div>
+
+            <div class="form-col">
+              <label>Responsable</label>
+              <input [(ngModel)]="nuevoModal.form.responsible" class="form-control"
+                placeholder="Nombre del responsable">
+            </div>
+
+            <div class="form-col">
+              <label>Fecha inicio *</label>
+              <input type="date" [(ngModel)]="nuevoModal.form.startDate" class="form-control">
+            </div>
+
+            <div class="form-col">
+              <label>Fecha fin *</label>
+              <input type="date" [(ngModel)]="nuevoModal.form.endDate" class="form-control">
+            </div>
+
+            <div class="form-col">
+              <label>Emisor</label>
+              <input [(ngModel)]="nuevoModal.form.emisor" class="form-control"
+                placeholder="Quien emite el permiso">
+            </div>
+
+            <div class="form-col">
+              <label>Empresa ejecutante</label>
+              <input [(ngModel)]="nuevoModal.form.empresaEjecutante" class="form-control"
+                placeholder="Empresa que ejecuta el trabajo">
+            </div>
+
+            <div class="form-col-full">
+              <label>Descripci&oacute;n detallada</label>
+              <textarea [(ngModel)]="nuevoModal.form.description" class="form-control" rows="3"
+                placeholder="Describa detalladamente la actividad a realizar..."></textarea>
+            </div>
+
+            <div class="form-col-full">
+              <label>Nota / observaciones</label>
+              <textarea [(ngModel)]="nuevoModal.form.nota" class="form-control" rows="2"
+                placeholder="Observaciones adicionales..."></textarea>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel" (click)="cerrarNuevoPermiso()">Cancelar</button>
+          <button class="btn-save" (click)="guardarNuevoPermiso()" [disabled]="nuevoModal.saving">
+            @if (nuevoModal.saving) { <span class="spinner-sm"></span> }
+            Guardar permiso
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
 </div>

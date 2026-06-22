@@ -8,6 +8,14 @@ import { PermisosTrabajoService, PermisoTrabajoResponse } from '../../../core/se
 import { EmpresaService } from '../../../core/services/empresa.service';
 import { AuthService } from '../../../core/services/auth.service';
 
+export interface ParsedFile {
+  nombre: string;
+  ruta: string;
+  tipo: 'pdf' | 'image' | 'word' | 'excel' | 'other';
+  label: string;
+  ext: string;
+}
+
 @Component({
   selector: 'app-permisos-list',
   standalone: true,
@@ -35,6 +43,59 @@ export class PermisosListComponent implements OnInit, OnDestroy {
   // Paginacion local
   pagina = 1;
   porPagina = 20;
+
+  // Filtro extra
+  filtroTipo = '';
+
+  // Modal: archivos del permiso
+  arqModal: {
+    visible: boolean;
+    permiso: PermisoTrabajoResponse | null;
+    archivos: ParsedFile[];
+    tipoDoc: string;
+    subiendo: boolean;
+    error: string;
+  } = { visible: false, permiso: null, archivos: [], tipoDoc: 'Permiso_de_trabajo', subiendo: false, error: '' };
+
+  // Modal: nuevo permiso
+  nuevoModal: {
+    visible: boolean;
+    saving: boolean;
+    error: string;
+    form: {
+      title: string; area: string; responsible: string;
+      startDate: string; endDate: string; empresaId: number | null;
+      criticalTask: string; description: string;
+      emisor: string; ejecutante: string; empresaEjecutante: string; nota: string;
+    };
+  } = {
+    visible: false, saving: false, error: '',
+    form: { title: '', area: '', responsible: '', startDate: '', endDate: '',
+            empresaId: null, criticalTask: '', description: '',
+            emisor: '', ejecutante: '', empresaEjecutante: '', nota: '' }
+  };
+
+  readonly tiposDocumento = [
+    { value: 'Permiso_de_trabajo',    label: 'Permiso de trabajo' },
+    { value: 'Verificacion_permiso',  label: 'Verificación de permiso' },
+    { value: 'Analisis_riesgo',       label: 'Análisis de riesgo' },
+    { value: 'Permiso_altura',        label: 'Permiso de altura' },
+    { value: 'Espacio_confinado',     label: 'Espacio confinado' },
+    { value: 'Trabajo_caliente',      label: 'Trabajo en caliente' },
+    { value: 'Fotografias',           label: 'Fotografías' },
+    { value: 'Otro',                  label: 'Otro' },
+  ];
+
+  readonly tiposTarea = [
+    'Trabajo en altura',
+    'Trabajo en caliente',
+    'Trabajo eléctrico',
+    'Espacio confinado',
+    'Excavación',
+    'Trabajo con químicos',
+    'Izaje de cargas',
+    'Demolición',
+  ];
 
   // Polling auto cada 30 s
   private polling$?: Subscription;
@@ -165,6 +226,10 @@ export class PermisosListComponent implements OnInit, OnDestroy {
       lista = lista.filter((p) => p.status === this.filtroStatus);
     }
 
+    if (this.filtroTipo) {
+      lista = lista.filter((p) => p.criticalTask === this.filtroTipo);
+    }
+
     this.permisosFiltrados = lista;
     this.pagina = 1;
   }
@@ -239,5 +304,172 @@ export class PermisosListComponent implements OnInit, OnDestroy {
 
   trackById(_: number, item: PermisoTrabajoResponse): string {
     return item.id;
+  }
+
+  // ─── Archivos ──────────────────────────────────────────────────────
+
+  contarArchivos(p: PermisoTrabajoResponse): number {
+    if (!p.imagePath) return 0;
+    return p.imagePath.split('|').filter(r => r.trim()).length;
+  }
+
+  abrirArchivos(p: PermisoTrabajoResponse): void {
+    this.arqModal.permiso  = p;
+    this.arqModal.archivos = this.parsearArchivos(p);
+    this.arqModal.error    = '';
+    this.arqModal.visible  = true;
+  }
+
+  cerrarArchivos(): void {
+    this.arqModal.visible = false;
+    this.arqModal.permiso = null;
+    this.arqModal.archivos = [];
+  }
+
+  parsearArchivos(p: PermisoTrabajoResponse): ParsedFile[] {
+    if (!p.imagePath) return [];
+    return p.imagePath
+      .split('|')
+      .filter(r => r.trim())
+      .map(ruta => {
+        const nombre = ruta.replace(/\\/g, '/').split('/').pop() || ruta;
+        const ext    = nombre.toLowerCase().split('.').pop() || '';
+        const tipo   = this.getTipoArchivo(ext);
+        const label  = this.getLabelArchivo(nombre, p.id);
+        return { nombre, ruta, tipo, label, ext };
+      });
+  }
+
+  private getTipoArchivo(ext: string): ParsedFile['tipo'] {
+    if (ext === 'pdf') return 'pdf';
+    if (['jpg','jpeg','png','webp','gif'].includes(ext)) return 'image';
+    if (['doc','docx'].includes(ext)) return 'word';
+    if (['xls','xlsx'].includes(ext)) return 'excel';
+    return 'other';
+  }
+
+  private getLabelArchivo(nombre: string, permisoId: string): string {
+    const prefix = permisoId.replace(/[^a-zA-Z0-9_\-]/g, '_') + '_';
+    const sinId  = nombre.startsWith(prefix) ? nombre.substring(prefix.length) : nombre;
+    for (const tipo of this.tiposDocumento) {
+      if (sinId.toLowerCase().startsWith(tipo.value.toLowerCase())) {
+        const resto = sinId.substring(tipo.value.length).replace(/^_/, '').replace(/_/g, ' ');
+        return `${tipo.label}${resto ? ': ' + resto : ''}`;
+      }
+    }
+    return sinId.replace(/_/g, ' ');
+  }
+
+  get archivosPdf():    ParsedFile[] { return this.arqModal.archivos.filter(f => f.tipo === 'pdf'); }
+  get archivosImagen(): ParsedFile[] { return this.arqModal.archivos.filter(f => f.tipo === 'image'); }
+  get archivosOtros():  ParsedFile[] { return this.arqModal.archivos.filter(f => f.tipo !== 'pdf' && f.tipo !== 'image'); }
+
+  verArchivo(p: PermisoTrabajoResponse, nombre: string): void {
+    this.permisosService.descargarArchivo(p.id, nombre).subscribe({
+      next: blob => { const u = URL.createObjectURL(blob); window.open(u, '_blank'); },
+      error: ()  => alert('No se pudo abrir el archivo')
+    });
+  }
+
+  descargarArchivoBtn(p: PermisoTrabajoResponse, nombre: string): void {
+    this.permisosService.descargarArchivo(p.id, nombre).subscribe({
+      next: blob => {
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href     = url;
+        link.download = nombre;
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => alert('No se pudo descargar el archivo')
+    });
+  }
+
+  subirArchivo(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length || !this.arqModal.permiso) return;
+
+    const file      = input.files[0];
+    const tipoVal   = this.arqModal.tipoDoc;
+    const renamed   = new File([file], tipoVal + '_' + file.name, { type: file.type });
+
+    this.arqModal.subiendo = true;
+    this.arqModal.error    = '';
+
+    this.permisosService.subirArchivo(this.arqModal.permiso.id, renamed).subscribe({
+      next: ruta => {
+        const p = this.arqModal.permiso!;
+        p.imagePath = p.imagePath ? p.imagePath + '|' + ruta : ruta;
+        this.arqModal.archivos = this.parsearArchivos(p);
+        const idx = this.permisos.findIndex(x => x.id === p.id);
+        if (idx >= 0) this.permisos[idx] = { ...p };
+        this.aplicarFiltros();
+        this.arqModal.subiendo = false;
+        input.value = '';
+      },
+      error: e => {
+        this.arqModal.error    = 'Error al subir: ' + (e.error?.mensaje || e.message || 'Desconocido');
+        this.arqModal.subiendo = false;
+      }
+    });
+  }
+
+  // ─── Nuevo Permiso ─────────────────────────────────────────────────
+
+  abrirNuevoPermiso(): void {
+    const hoy = new Date().toISOString().substring(0, 10);
+    const fin = new Date(Date.now() + 30 * 86_400_000).toISOString().substring(0, 10);
+    this.nuevoModal.form = {
+      title: '', area: '', responsible: '', startDate: hoy, endDate: fin,
+      empresaId: this.empresas.length === 1 ? this.empresas[0].id : null,
+      criticalTask: '', description: '', emisor: '', ejecutante: '', empresaEjecutante: '', nota: ''
+    };
+    this.nuevoModal.error   = '';
+    this.nuevoModal.visible = true;
+  }
+
+  cerrarNuevoPermiso(): void { this.nuevoModal.visible = false; }
+
+  guardarNuevoPermiso(): void {
+    const f = this.nuevoModal.form;
+    if (!f.title || !f.startDate || !f.endDate || !f.empresaId) {
+      this.nuevoModal.error = 'Complete los campos obligatorios marcados con *';
+      return;
+    }
+    this.nuevoModal.saving = true;
+    this.nuevoModal.error  = '';
+
+    const payload: any = {
+      id:               'TEMP-' + crypto.randomUUID(),
+      title:            f.title,
+      area:             f.area             || 'Sin asignar',
+      responsible:      f.responsible      || 'Sin asignar',
+      startDate:        f.startDate        + 'T08:00:00',
+      endDate:          f.endDate          + 'T17:00:00',
+      empresaId:        f.empresaId,
+      criticalTask:     f.criticalTask     || null,
+      description:      f.description      || null,
+      emisor:           f.emisor           || null,
+      ejecutante:       f.ejecutante       || null,
+      empresaEjecutante:f.empresaEjecutante|| null,
+      nota:             f.nota             || null,
+    };
+
+    this.permisosService.crear(payload).subscribe({
+      next: permiso => {
+        const conNombre = {
+          ...permiso,
+          empresaNombre: this.empresas.find(e => e.id === permiso.empresaId)?.nombre || ''
+        };
+        this.permisos.unshift(conNombre);
+        this.aplicarFiltros();
+        this.nuevoModal.visible = false;
+        this.nuevoModal.saving  = false;
+      },
+      error: e => {
+        this.nuevoModal.error  = 'Error: ' + (e.error?.mensaje || e.error?.message || e.message || 'Desconocido');
+        this.nuevoModal.saving = false;
+      }
+    });
   }
 }

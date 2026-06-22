@@ -87,4 +87,19 @@ export class PermisosTrabajoService {
   contar(empresaId: number): Observable<ContadoresResponse> {
     return this.http.get<ContadoresResponse>(`${this.apiUrl}/empresa/${empresaId}/contar`);
   }
+
+  /** Sube un archivo (PDF/imagen/doc) a un permiso existente */
+  subirArchivo(permisoId: string, archivo: File): Observable<string> {
+    const form = new FormData();
+    form.append('archivo', archivo, archivo.name);
+    return this.http.post(`${this.apiUrl}/${permisoId}/archivo`, form, { responseType: 'text' });
+  }
+
+  /** Descarga un archivo del permiso como Blob (necesita auth headers) */
+  descargarArchivo(permisoId: string, nombreArchivo: string): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/${permisoId}/archivo/${encodeURIComponent(nombreArchivo)}`,
+      { responseType: 'blob' }
+    );
+  }
 }
