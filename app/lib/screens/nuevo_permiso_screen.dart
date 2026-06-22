@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/permit_model.dart';
 import '../services/permiso_offline_service.dart';
 import '../services/auth_service.dart';
+import '../services/api_service.dart';
 import '../widgets/scan_button.dart';
 
 // ── Colores del tema (MD3 adaptado del HTML) ────────────────────────
@@ -56,6 +57,11 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
   bool _isSaving = false;
   bool _isEditing = false;
 
+  int _userEmpresaId = 0;
+  int? _selectedEmpresaId;
+  List<Map<String, dynamic>> _empresasDisponibles = [];
+  bool _cargandoEmpresas = false;
+
   @override
   void initState() {
     super.initState();
@@ -82,6 +88,35 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
     }
     // Para permisos nuevos el ID se deja vacío: si el usuario no escribe uno,
     // se generará un TEMP-{uuid} al guardar y el backend asignará el ID real.
+    _loadUserEmpresa();
+  }
+
+  Future<void> _loadUserEmpresa() async {
+    try {
+      final userData = await AuthService().getUserData();
+      final eid = (userData['empresaId'] as num?)?.toInt() ?? 0;
+      if (mounted) setState(() => _userEmpresaId = eid);
+      if (eid == 0) {
+        if (mounted) setState(() => _cargandoEmpresas = true);
+        try {
+          final response = await ApiService.get(
+            '/api/empresas',
+            params: {'size': '100', 'sort': 'nombre'},
+          );
+          final content = (response['content'] as List<dynamic>? ?? [])
+              .map((e) => e as Map<String, dynamic>)
+              .toList();
+          if (mounted) {
+            setState(() {
+              _empresasDisponibles = content;
+              _cargandoEmpresas = false;
+            });
+          }
+        } catch (_) {
+          if (mounted) setState(() => _cargandoEmpresas = false);
+        }
+      }
+    } catch (_) {}
   }
 
   @override
@@ -153,12 +188,25 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
     }
 
     try {
-      // Obtener empresaId del usuario actual
-      final userData = await AuthService().getUserData();
-      final empresaId = (userData['empresaId'] as num?)?.toInt() ?? 0;
+      // Usar el empresaId del usuario o el seleccionado en el dropdown
+      final empresaIdFinal = _userEmpresaId > 0
+          ? _userEmpresaId
+          : (_selectedEmpresaId ?? 0);
+
+      if (empresaIdFinal == 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Selecciona la empresa a la que pertenece este permiso'),
+            backgroundColor: _Pal.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        setState(() => _isSaving = false);
+        return;
+      }
 
       // Construir el permiso con el empresaId
-      final permit = _buildPermit().copyWith(empresaId: empresaId);
+      final permit = _buildPermit().copyWith(empresaId: empresaIdFinal);
 
       // 1) SIEMPRE guardar localmente primero: garantiza que los datos
       //    (incluidas las imágenes escaneadas) nunca se pierdan, incluso
@@ -394,6 +442,61 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                // Empresa (solo visible cuando el usuario no tiene empresa asignada)
+                if (_userEmpresaId == 0) ...[                  
+                  _FieldLabel(label: 'Empresa del permiso *'),
+                  const SizedBox(height: 6),
+                  if (_cargandoEmpresas)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: CircularProgressIndicator(
+                          color: _Pal.primary, strokeWidth: 2,
+                        ),
+                      ),
+                    )
+                  else if (_empresasDisponibles.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3E0),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFFF9800)),
+                      ),
+                      child: const Text(
+                        '⚠️ No se cargaron empresas. Verifica conexión a internet.',
+                        style: TextStyle(color: Color(0xFFE65100), fontSize: 13),
+                      ),
+                    )
+                  else
+                    Theme(
+                      data: Theme.of(context).copyWith(canvasColor: Colors.white),
+                      child: DropdownButtonFormField<int>(
+                        value: _selectedEmpresaId,
+                        decoration: _inputDecoration().copyWith(
+                          hintText: 'Selecciona la empresa...',
+                          suffixIcon: const Icon(Icons.expand_more, color: _Pal.outline),
+                        ),
+                        isExpanded: true,
+                        menuMaxHeight: 300,
+                        borderRadius: BorderRadius.circular(12),
+                        items: _empresasDisponibles.map((e) {
+                          return DropdownMenuItem<int>(
+                            value: (e['id'] as num).toInt(),
+                            child: Text(
+                              e['nombre'] as String? ?? 'Empresa ${e['id']}',
+                              style: const TextStyle(
+                                  fontSize: 14, color: _Pal.onSurface),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (val) => setState(() => _selectedEmpresaId = val),
+                        validator: (val) =>
+                            val == null ? 'Selecciona una empresa' : null,
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+                ],
                 // Tareas Críticas
                 _FieldLabel(label: 'Tareas Críticas'),
                 const SizedBox(height: 6),
