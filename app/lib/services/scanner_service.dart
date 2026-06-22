@@ -48,6 +48,36 @@ class ScannerService {
     }
   }
 
+  /// Abre la cámara y retorna la ruta de la foto tomada, sin ejecutar OCR.
+  /// Retorna null si el usuario cancela.
+  Future<String?> pickImagePath() async {
+    try {
+      final XFile? photo = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 2560,
+        maxHeight: 2560,
+        imageQuality: 90,
+        preferredCameraDevice: CameraDevice.rear,
+      );
+      return photo?.path;
+    } catch (e) {
+      throw Exception('Error al abrir la cámara: $e');
+    }
+  }
+
+  /// Ejecuta OCR sobre una imagen ya existente en disco.
+  /// Retorna el texto reconocido, cadena vacía si no hay texto, o null si hay error.
+  Future<String?> runOCROnPath(String imagePath) async {
+    try {
+      final inputImage = InputImage.fromFilePath(imagePath);
+      final recognized = await _recognizer.processImage(inputImage);
+      final text = recognized.text.trim();
+      return text.isEmpty ? '' : text;
+    } catch (e) {
+      throw Exception('Error al reconocer texto: $e');
+    }
+  }
+
   /// Libera los recursos del recognizer
   void dispose() {
     _recognizer.close();

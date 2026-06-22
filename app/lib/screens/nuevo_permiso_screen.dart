@@ -57,6 +57,9 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
   bool _isSaving = false;
   bool _isEditing = false;
 
+  // null = personalizado, 'diurna', 'nocturna'
+  String? _tipoJornada;
+
   int _userEmpresaId = 0;
   int? _selectedEmpresaId;
   List<Map<String, dynamic>> _empresasDisponibles = [];
@@ -647,6 +650,41 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
               icon: Icons.schedule_outlined,
               title: 'Programación',
               children: [
+                // Selector de jornada
+                _FieldLabel(label: 'Tipo de Jornada'),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _JornadaChip(
+                        icon: Icons.wb_sunny_outlined,
+                        label: 'Diurna',
+                        subtitle: '06:00 – 18:00',
+                        selected: _tipoJornada == 'diurna',
+                        onTap: () => setState(() {
+                          _tipoJornada = 'diurna';
+                          _horaInicio = const TimeOfDay(hour: 6, minute: 0);
+                          _horaFin = const TimeOfDay(hour: 18, minute: 0);
+                        }),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _JornadaChip(
+                        icon: Icons.nightlight_outlined,
+                        label: 'Nocturna',
+                        subtitle: '18:00 – 06:00',
+                        selected: _tipoJornada == 'nocturna',
+                        onTap: () => setState(() {
+                          _tipoJornada = 'nocturna';
+                          _horaInicio = const TimeOfDay(hour: 18, minute: 0);
+                          _horaFin = const TimeOfDay(hour: 6, minute: 0);
+                        }),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 // Fila: Fecha Inicio - Hora Inicio
                 Row(
                   children: [
@@ -656,7 +694,13 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
                         date: _fechaInicio,
                         onTap: () async {
                           final picked = await _pickDate(_fechaInicio);
-                          if (picked != null) setState(() => _fechaInicio = picked);
+                          if (picked != null) {
+                            setState(() {
+                              _fechaInicio = picked;
+                              // Auto-calcular fecha fin: inicio + 7 días
+                              _fechaFin = picked.add(const Duration(days: 7));
+                            });
+                          }
                         },
                         displayText: dateFmt.format(_fechaInicio),
                       ),
@@ -1096,6 +1140,64 @@ class _DateField extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Chip de selección de jornada (Diurna/Nocturna).
+class _JornadaChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _JornadaChip({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        decoration: BoxDecoration(
+          color: selected ? _Pal.primary.withValues(alpha: 0.08) : _Pal.surfaceLowest,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selected ? _Pal.primary : _Pal.outlineVariant,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: selected ? _Pal.primary : _Pal.outline, size: 22),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? _Pal.primary : _Pal.onSurface,
+              ),
+            ),
+            Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 11,
+                color: selected ? _Pal.primary.withValues(alpha: 0.7) : _Pal.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

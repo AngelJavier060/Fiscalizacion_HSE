@@ -458,6 +458,18 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
               Text("Pendiente de verificación", style: TextStyle(fontSize: 14, color: _C.outline)),
             ]),
           ),
+        const SizedBox(height: 12),
+        SizedBox(width: double.infinity, child: OutlinedButton.icon(
+          onPressed: _scan,
+          icon: const Icon(Icons.document_scanner_outlined, size: 18),
+          label: Text(hasDoc ? "Re-escanear verificación" : "Escanear verificación"),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: _C.primary,
+            side: const BorderSide(color: _C.surfaceContainerHigh),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        )),
       ]),
     );
   }

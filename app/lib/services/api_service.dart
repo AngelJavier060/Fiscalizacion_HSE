@@ -129,7 +129,11 @@ class ApiService {
   static Map<String, dynamic> _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return {};
-      return jsonDecode(response.body) as Map<String, dynamic>;
+      try {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } catch (_) {
+        return {};
+      }
     }
     if (response.statusCode == 401) {
       throw ApiException('Sesión expirada. Inicia sesión nuevamente.');
@@ -140,26 +144,39 @@ class ApiService {
         if (response.body.isNotEmpty) {
           final body = jsonDecode(response.body);
           if (body is Map && body.containsKey('mensaje')) {
-            mensaje = body['mensaje'];
+            mensaje = body['mensaje'] as String;
           }
         }
       } catch (_) {}
       throw ApiException(mensaje);
     }
-    final error = response.body.isNotEmpty
-        ? jsonDecode(response.body)
-        : {'mensaje': 'Error ${response.statusCode}'};
-    throw ApiException(error['mensaje'] ?? 'Error del servidor');
+    // Intentar extraer mensaje; si el cuerpo es HTML u otro formato, usar código
+    String mensaje = 'Error del servidor (${response.statusCode})';
+    try {
+      if (response.body.isNotEmpty) {
+        final body = jsonDecode(response.body);
+        if (body is Map) {
+          mensaje = body['mensaje'] as String?
+              ?? body['message'] as String?
+              ?? body['error'] as String?
+              ?? mensaje;
+        }
+      }
+    } catch (_) {}
+    throw ApiException(mensaje);
   }
 
   /// Manejar respuesta de lista
   static List<dynamic> _handleListResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final data = jsonDecode(response.body);
-      if (data is List) return data;
-      if (data is Map && data.containsKey('content')) {
-        return data['content'] as List<dynamic>;
-      }
+      if (response.body.isEmpty) return [];
+      try {
+        final data = jsonDecode(response.body);
+        if (data is List) return data;
+        if (data is Map && data.containsKey('content')) {
+          return data['content'] as List<dynamic>;
+        }
+      } catch (_) {}
       return [];
     }
     if (response.statusCode == 401) {

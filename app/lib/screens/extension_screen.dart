@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -64,14 +65,26 @@ class _ExtensionScreenState extends State<ExtensionScreen> {
     try {
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 80,
-        maxWidth: 1920,
-        maxHeight: 1920,
+        imageQuality: 88,
+        maxWidth: 2560,
+        maxHeight: 2560,
       );
-      if (photo != null && mounted) {
-        setState(() {
-          _borradores[index].scanPaths.add(photo.path);
-        });
+      if (photo == null || !mounted) return;
+
+      // Mostrar vista previa con opción de mejorar calidad antes de agregar
+      final confirmedPath = await Navigator.push<String?>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => _PagePreviewScreen(
+            imagePath: photo.path,
+            pageNumber: _borradores[index].scanPaths.length + 1,
+          ),
+          fullscreenDialog: true,
+        ),
+      );
+
+      if (confirmedPath != null && mounted) {
+        setState(() => _borradores[index].scanPaths.add(confirmedPath));
       }
     } catch (e) {
       if (mounted) {
@@ -606,4 +619,259 @@ class _ExtensionDraft {
     required this.scanPaths,
     this.guardada = false,
   });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// Vista previa de página con opción de mejora de calidad (CamScanner-like)
+// ═══════════════════════════════════════════════════════════════════
+
+class _PagePreviewScreen extends StatefulWidget {
+  final String imagePath;
+  final int pageNumber;
+
+  const _PagePreviewScreen({
+    required this.imagePath,
+    required this.pageNumber,
+  });
+
+  @override
+  State<_PagePreviewScreen> createState() => _PagePreviewScreenState();
+}
+
+class _PagePreviewScreenState extends State<_PagePreviewScreen> {
+  bool _enhanced = false;
+  bool _processing = false;
+  late String _currentPath;
+  String? _enhancedPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPath = widget.imagePath;
+  }
+
+  Future<void> _toggleEnhance() async {
+    // Si ya tenemos la versión mejorada, solo alternar
+    if (_enhancedPath != null) {
+      setState(() {
+        _enhanced = !_enhanced;
+        _currentPath = _enhanced ? _enhancedPath! : widget.imagePath;
+      });
+      return;
+    }
+
+    setState(() => _processing = true);
+    try {
+      final bytes = await File(widget.imagePath).readAsBytes();
+      var original = img.decodeImage(bytes);
+      if (original == null) return;
+
+      // Mejora tipo documento: contraste alto + escala de grises
+      var enhanced = img.adjustColor(original,
+          contrast: 1.45, brightness: 1.08, saturation: 0.0);
+      enhanced = img.grayscale(enhanced);
+
+      final dir = await getTemporaryDirectory();
+      final outPath =
+          '${dir.path}/enhanced_ext_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await File(outPath).writeAsBytes(img.encodeJpg(enhanced, quality: 90));
+
+      if (mounted) {
+        setState(() {
+          _enhancedPath = outPath;
+          _enhanced = true;
+          _currentPath = outPath;
+          _processing = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _processing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0A0A1A),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Página ${widget.pageNumber}',
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600)),
+            Text(
+              _enhanced
+                  ? '✓ Calidad de documento aplicada'
+                  : 'Revisa la imagen antes de agregar',
+              style: TextStyle(
+                  color: _enhanced
+                      ? Colors.greenAccent.withValues(alpha: 0.85)
+                      : Colors.white54,
+                  fontSize: 11),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pop(context, _currentPath),
+            icon: const Icon(Icons.check_circle, color: Colors.green, size: 20),
+            label: const Text('Agregar',
+                style: TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14)),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Vista previa de la imagen
+          Expanded(
+            child: _processing
+                ? const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: Color(0xFF4FC3F7)),
+                        SizedBox(height: 14),
+                        Text('Mejorando calidad...',
+                            style: TextStyle(color: Colors.white70)),
+                      ],
+                    ),
+                  )
+                : InteractiveViewer(
+                    minScale: 0.8,
+                    maxScale: 4.0,
+                    child: Image.file(File(_currentPath),
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                        height: double.infinity),
+                  ),
+          ),
+
+          // Barra de acciones inferior
+          Container(
+            color: const Color(0xFF0A0A1A),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Indicador de estado
+                if (_enhancedPath != null)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _enhanced
+                          ? Colors.green.withValues(alpha: 0.15)
+                          : Colors.orange.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: _enhanced
+                              ? Colors.green.withValues(alpha: 0.4)
+                              : Colors.orange.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _enhanced
+                              ? Icons.auto_fix_high
+                              : Icons.photo_outlined,
+                          size: 14,
+                          color: _enhanced
+                              ? Colors.greenAccent
+                              : Colors.orange[300],
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _enhanced
+                              ? 'Imagen mejorada (documento)'
+                              : 'Imagen original',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: _enhanced
+                                  ? Colors.greenAccent
+                                  : Colors.orange[300]),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Botones de acción
+                Row(
+                  children: [
+                    // Retomar foto
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => Navigator.pop(context, null),
+                        icon: const Icon(Icons.camera_alt_outlined, size: 16),
+                        label: const Text('Retomar'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white70,
+                          side: const BorderSide(color: Colors.white24),
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Mejorar / Ver original
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _processing ? null : _toggleEnhance,
+                        icon: Icon(
+                          _enhanced
+                              ? Icons.visibility_outlined
+                              : Icons.auto_fix_high,
+                          size: 16,
+                        ),
+                        label:
+                            Text(_enhanced ? 'Ver original' : 'Mejorar calidad'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF4FC3F7),
+                          side: BorderSide(
+                              color:
+                                  const Color(0xFF4FC3F7).withValues(alpha: 0.5)),
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Usar / Agregar
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.pop(context, _currentPath),
+                        icon: const Icon(Icons.add_photo_alternate, size: 16),
+                        label: const Text('Usar página'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF003398),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
