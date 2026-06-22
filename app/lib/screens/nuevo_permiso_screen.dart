@@ -184,13 +184,16 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
           ),
         );
       } else {
+        final motivo = PermisoOfflineService.ultimoErrorSync;
+        final mensaje = motivo == null
+            ? 'Permiso guardado en el dispositivo. Se sincronizará automáticamente cuando haya conexión.'
+            : 'Permiso guardado en el dispositivo. No se sincronizó: $motivo';
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Permiso guardado en el dispositivo. Se sincronizará automáticamente cuando haya conexión.'),
+          SnackBar(
+            content: Text(mensaje),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: Color(0xFFE65100),
-            duration: Duration(seconds: 4),
+            backgroundColor: const Color(0xFFE65100),
+            duration: const Duration(seconds: 7),
           ),
         );
       }

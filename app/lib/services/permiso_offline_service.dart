@@ -23,6 +23,11 @@ class PermisoOfflineService {
   static const _keyPendientes = 'permisos_pendientes_sync';
   static const _keyIndice = 'permisos_offline_index';
 
+  /// Último mensaje de error/diagnóstico de la sincronización.
+  /// Permite mostrar al usuario la causa exacta cuando un permiso no se
+  /// sincroniza con el backend.
+  static String? ultimoErrorSync;
+
   // ─── Directorio base ────────────────────────────────────────────
   static Future<Directory> _getDir() async {
     final base = await getApplicationDocumentsDirectory();
@@ -125,10 +130,14 @@ class PermisoOfflineService {
 
   // ─── Sincronizar permisos pendientes ───────────────────────────
   static Future<int> sincronizarPendientes() async {
+    ultimoErrorSync = null;
     final conn = await Connectivity().checkConnectivity();
     final isOnline = conn.any((c) => c != ConnectivityResult.none);
 
-    if (!isOnline) return 0;
+    if (!isOnline) {
+      ultimoErrorSync = 'Sin conexión a internet.';
+      return 0;
+    }
 
     final prefs = await SharedPreferences.getInstance();
     final pendientes = _leerPendientes(prefs);
@@ -157,6 +166,8 @@ class PermisoOfflineService {
           }
           // 2. Si aún no hay empresaId válido, NO se puede sincronizar
           if (empresaParaSync <= 0) {
+            ultimoErrorSync =
+                'El permiso no tiene empresa asignada (empresaId=$empresaParaSync). Inicia sesión con un usuario que pertenezca a una empresa.';
             debugPrint('⚠️ Permiso $id sin empresaId válido (empresaId=$empresaParaSync), omitiendo sincronización');
             continue;
           }
@@ -174,14 +185,16 @@ class PermisoOfflineService {
               await actualizarIdLocal(id, syncedPermit);
             }
           } catch (e) {
-            // Si falla por que ya existe, intentar actualizar
+            // Si falla porque ya existe, intentar actualizar
             try {
               debugPrint('📤 Permiso $id ya existe, actualizando...');
               await PermisoService.actualizar(permitParaBackend);
               debugPrint('✅ Permiso $id actualizado correctamente');
-            } catch (_) {
-              // Si también falla, reintentar después
-              debugPrint('⚠️ Permiso $id no se pudo sincronizar, reintentará después');
+            } catch (e2) {
+              // Si también falla, reintentar después. Capturar el error real
+              // para mostrarlo al usuario y diagnosticar la causa.
+              ultimoErrorSync = '$e';
+              debugPrint('⚠️ Permiso $id no se pudo sincronizar: crear=$e | actualizar=$e2');
               continue;
             }
           }

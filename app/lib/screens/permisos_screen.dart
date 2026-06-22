@@ -54,6 +54,12 @@ class _PermisosScreenState extends State<PermisosScreen> {
 
   Future<void> _loadUserAndPermisos() async {
     setState(() => _isLoading = true);
+    // Intentar sincronizar permisos pendientes antes de listar, para que los
+    // datos guardados localmente suban al backend cuando haya conexión.
+    final pendientesAntes = await PermisoOfflineService.pendientesCount();
+    if (pendientesAntes > 0) {
+      await PermisoOfflineService.sincronizarPendientes();
+    }
     try {
       final userData = await AuthService().getUserData();
       final empresaId = (userData['empresaId'] as num?)?.toInt() ?? 0;
@@ -70,7 +76,19 @@ class _PermisosScreenState extends State<PermisosScreen> {
         }
       }
       final combined = map.values.toList()..sort((a, b) => b.startDate.compareTo(a.startDate));
-      if (mounted) setState(() { _permisos = combined; _filteredPermisos = List.from(combined); _isLoading = false; _error = server.isEmpty && locales.isNotEmpty ? 'Sin internet. Tus datos estan respaldados en la app local.' : server.isEmpty && locales.isEmpty ? 'Sin internet. Trabajando con datos locales.' : null; });
+      final pendientesDespues = await PermisoOfflineService.pendientesCount();
+      String? banner;
+      if (server.isEmpty && locales.isNotEmpty) {
+        banner = 'Sin internet. Tus datos estan respaldados en la app local.';
+      } else if (server.isEmpty && locales.isEmpty) {
+        banner = 'Sin internet. Trabajando con datos locales.';
+      } else if (pendientesDespues > 0) {
+        final motivo = PermisoOfflineService.ultimoErrorSync;
+        banner = motivo == null
+            ? '$pendientesDespues permiso(s) pendiente(s) de sincronizar.'
+            : '$pendientesDespues pendiente(s). No se sincronizó: $motivo';
+      }
+      if (mounted) setState(() { _permisos = combined; _filteredPermisos = List.from(combined); _isLoading = false; _error = banner; });
     } catch (e) {
       if (mounted) {
         final locales = await PermisoOfflineService.listarPermisos();
