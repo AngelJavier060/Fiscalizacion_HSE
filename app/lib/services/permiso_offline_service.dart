@@ -164,37 +164,40 @@ class PermisoOfflineService {
           if (permit.empresaId != null && permit.empresaId! > 0) {
             empresaParaSync = permit.empresaId!;
           }
-          // 2. Si aún no hay empresaId válido, NO se puede sincronizar
-          if (empresaParaSync <= 0) {
-            ultimoErrorSync =
-                'El permiso no tiene empresa asignada (empresaId=$empresaParaSync). Inicia sesión con un usuario que pertenezca a una empresa.';
-            debugPrint('⚠️ Permiso $id sin empresaId válido (empresaId=$empresaParaSync), omitiendo sincronización');
-            continue;
-          }
-          
           final permitParaBackend = permit.copyWith(empresaId: empresaParaSync);
 
           try {
             // Intentar crear en el backend
-            debugPrint('📤 Sincronizando permiso $id...');
             final syncedPermit = await PermisoService.crear(permitParaBackend);
-            debugPrint('✅ Permiso $id sincronizado correctamente');
             
-            // Si el ID comenzó con TEMP-, actualizar el almacenamiento local con el ID real del backend
+            // Si el ID era TEMP-, actualizar el almacenamiento local con el ID real
             if (id.startsWith('TEMP-') && syncedPermit.id != id) {
               await actualizarIdLocal(id, syncedPermit);
             }
           } catch (e) {
-            // Si falla porque ya existe, intentar actualizar
-            try {
-              debugPrint('📤 Permiso $id ya existe, actualizando...');
-              await PermisoService.actualizar(permitParaBackend);
-              debugPrint('✅ Permiso $id actualizado correctamente');
-            } catch (e2) {
-              // Si también falla, reintentar después. Capturar el error real
-              // para mostrarlo al usuario y diagnosticar la causa.
-              ultimoErrorSync = '$e';
-              debugPrint('⚠️ Permiso $id no se pudo sincronizar: crear=$e | actualizar=$e2');
+            final errorMsg = '$e';
+            
+            // Si el token expiró, informar al usuario inmediatamente
+            if (errorMsg.contains('expirada') || errorMsg.contains('401') ||
+                errorMsg.contains('Unauthorized')) {
+              ultimoErrorSync =
+                  'Sesión expirada. Cierra sesión e inicia de nuevo para sincronizar.';
+              // No reintentar: todos los pendientes fallarán con 401
+              break;
+            }
+            
+            // Si el permiso ya existe en el backend, intentar actualizar
+            if (errorMsg.contains('Ya existe') || errorMsg.contains('409') ||
+                errorMsg.contains('conflict')) {
+              try {
+                await PermisoService.actualizar(permitParaBackend);
+              } catch (e2) {
+                ultimoErrorSync = errorMsg;
+                continue;
+              }
+            } else {
+              // Otro error (empresa no encontrada, validación, etc.)
+              ultimoErrorSync = errorMsg;
               continue;
             }
           }
