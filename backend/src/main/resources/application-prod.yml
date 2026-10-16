@@ -14,7 +14,7 @@ spring:
     web:
       pageable:
         default-page-size: 50
-        max-page-size: 200
+        max-page-size: 500
 
 logging:
   level:

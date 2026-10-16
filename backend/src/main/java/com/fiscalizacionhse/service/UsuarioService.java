@@ -28,14 +28,17 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final AuditoriaService auditoriaService;
 
+    @Transactional(readOnly = true)
     public Page<UsuarioResponse> listar(Pageable pageable) {
         return usuarioRepository.findAll(pageable).map(this::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public Page<UsuarioResponse> listarPorEmpresa(Long empresaId, Pageable pageable) {
         return usuarioRepository.findByEmpresaId(empresaId, pageable).map(this::toResponse);
     }
 
+    @Transactional(readOnly = true)
     public UsuarioResponse obtener(Long id) {
         return toResponse(buscar(id));
     }
@@ -265,7 +268,7 @@ public class UsuarioService {
                 .id(u.getId())
                 .nombre(u.getNombre())
                 .email(u.getEmail())
-                .rol(u.getRol().name())
+                .rol(u.getRol() != null ? u.getRol().name() : RolUsuario.USUARIO.name())
                 .activo(u.getActivo())
                 .empresaId(u.getEmpresa() != null ? u.getEmpresa().getId() : null)
                 .empresaNombre(u.getEmpresa() != null ? u.getEmpresa().getNombre() : null)
