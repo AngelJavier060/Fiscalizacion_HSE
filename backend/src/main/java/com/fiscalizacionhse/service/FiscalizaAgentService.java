@@ -107,7 +107,7 @@ public class FiscalizaAgentService {
 
     public String responderCapacidadesAgente(List<Documento> documentos, boolean deepseekActivo) {
         int total = documentos != null ? documentos.size() : 0;
-        String motor = deepseekActivo ? "**DeepSeek** (conectado)" : "**DeepSeek** (no configurado en el servidor)";
+        String motor = "**interno** (solo PDF de su empresa)";
 
         StringBuilder sb = new StringBuilder();
         sb.append("## Soy su agente FISCALIZA-AI\n\n");
@@ -184,12 +184,8 @@ public class FiscalizaAgentService {
                 - *«Criterios de calidad / CC del estándar de excavaciones»*
                 - *«Compara altura entre mis libros»*
                 
-                Respondo **solo** con el **Editor de Contenido** guardado en la plataforma (libro estructurado en base de datos).
+                Respondo **solo** con el **Editor de Contenido** y los PDF que usted cargó.
                 """);
-
-        if (!deepseekActivo) {
-            sb.append("\n---\n⚠️ Active **DeepSeek** (`DEEPSEEK_API_KEY`) para respuestas redactadas con el mismo formato.\n");
-        }
 
         return sb.toString().trim();
     }

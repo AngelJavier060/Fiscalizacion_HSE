@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as img;
-import 'package:image_picker/image_picker.dart';
+import 'package:edge_detection/edge_detection.dart';
+import 'package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../models/permit_model.dart';
 import '../services/permiso_offline_service.dart';
+import '../services/document_processor.dart';
+import '../widgets/image_crop_screen.dart';
 
 /// Pantalla para gestionar extensiones de un permiso de trabajo.
 /// Soporta hasta 7 extensiones (una por jornada) con escaneo múltiple.
@@ -23,7 +25,6 @@ class ExtensionScreen extends StatefulWidget {
 
 class _ExtensionScreenState extends State<ExtensionScreen> {
   static const int _maxExtensiones = 7;
-  final ImagePicker _picker = ImagePicker();
 
   // Lista de extensiones en edición (día a día)
   final List<_ExtensionDraft> _borradores = [];
@@ -50,10 +51,16 @@ class _ExtensionScreenState extends State<ExtensionScreen> {
           guardada: true,
         ));
       } else {
-        // Slot vacío
+        // Slot vacío: fecha desde endDate del permiso + días correspondientes
+        final baseDate = existentes.isNotEmpty
+            ? existentes.last.fechaExtension
+            : widget.permit.endDate;
+        final diasDesdeBase = i - existentes.length + 1;
         _borradores.add(_ExtensionDraft(
           dia: i + 1,
-          fechaExtension: DateTime.now().add(Duration(days: i + 1)),
+          fechaExtension: DateTime(
+            baseDate.year, baseDate.month, baseDate.day,
+          ).add(Duration(days: diasDesdeBase)),
           scanPaths: [],
           guardada: false,
         ));
@@ -63,20 +70,47 @@ class _ExtensionScreenState extends State<ExtensionScreen> {
 
   Future<void> _capturarScan(int index) async {
     try {
-      final XFile? photo = await _picker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 88,
-        maxWidth: 2560,
-        maxHeight: 2560,
-      );
-      if (photo == null || !mounted) return;
+      // Escáner nativo ML Kit (bordes + perspectiva) con fallback a Cunning
+      List<String>? pictures;
+      try {
+        final opts = DocumentScannerOptions(
+          documentFormats: const {DocumentFormat.jpeg},
+          pageLimit: 1,
+          mode: ScannerMode.full,
+          isGalleryImport: true,
+        );
+        final scanner = DocumentScanner(options: opts);
+        final result = await scanner.scanDocument();
+        await scanner.close();
+        pictures = result.images;
+      } catch (_) {}
+      
+      if (pictures == null || pictures.isEmpty) {
+        final tempDir = await getTemporaryDirectory();
+        final path = "${tempDir.path}/scan_ext_${DateTime.now().millisecondsSinceEpoch}.jpg";
+        bool success = await EdgeDetection.detectEdge(
+          path,
+          canUseGallery: true,
+          androidScanTitle: 'Escaneando',
+          androidCropTitle: 'Recortar',
+          androidCropBlackWhiteTitle: 'Blanco y Negro',
+          androidCropReset: 'Deshacer',
+        ) ?? false;
+        if (success) {
+          pictures = [path];
+        }
+      }
 
-      // Mostrar vista previa con opción de mejorar calidad antes de agregar
+      if (pictures == null || pictures.isEmpty || !mounted) return;
+
+      final capturedPath = pictures.first;
+
+      // Vista previa: el usuario puede aplicar mejora adicional de calidad
       final confirmedPath = await Navigator.push<String?>(
         context,
         MaterialPageRoute(
           builder: (_) => _PagePreviewScreen(
-            imagePath: photo.path,
+            imagePath: capturedPath,
             pageNumber: _borradores[index].scanPaths.length + 1,
           ),
           fullscreenDialog: true,
@@ -89,7 +123,7 @@ class _ExtensionScreenState extends State<ExtensionScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al capturar: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error al escanear: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -106,8 +140,10 @@ class _ExtensionScreenState extends State<ExtensionScreen> {
         final bytes = await file.readAsBytes();
         pdf.addPage(pw.Page(
           pageFormat: PdfPageFormat.a4,
-          build: (_) => pw.Center(
-            child: pw.Image(pw.MemoryImage(bytes), fit: pw.BoxFit.contain),
+          margin: pw.EdgeInsets.zero,
+          build: (_) => pw.FullPage(
+            ignoreMargins: true,
+            child: pw.Image(pw.MemoryImage(bytes), fit: pw.BoxFit.fitWidth),
           ),
         ));
       } catch (_) {}
@@ -641,13 +677,41 @@ class _PagePreviewScreen extends StatefulWidget {
 class _PagePreviewScreenState extends State<_PagePreviewScreen> {
   bool _enhanced = false;
   bool _processing = false;
+  bool _cropping  = false;
   late String _currentPath;
   String? _enhancedPath;
+  // Ruta base (puede cambiar si el usuario recorta)
+  String _basePath = '';
 
   @override
   void initState() {
     super.initState();
     _currentPath = widget.imagePath;
+    _basePath    = widget.imagePath;
+  }
+
+  // Abrir pantalla de recorte
+  Future<void> _recortar() async {
+    final cropped = await Navigator.push<String?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ImageCropScreen(
+          imagePath: _basePath,
+          title: 'Recortar página ${widget.pageNumber}',
+          confirmLabel: 'Recortar y procesar',
+          autoProcessDoc: true,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+    if (cropped != null && mounted) {
+      setState(() {
+        _basePath      = cropped;
+        _currentPath   = cropped;
+        _enhanced      = false;
+        _enhancedPath  = null; // Resetear mejora sobre la nueva imagen
+      });
+    }
   }
 
   Future<void> _toggleEnhance() async {
@@ -655,34 +719,27 @@ class _PagePreviewScreenState extends State<_PagePreviewScreen> {
     if (_enhancedPath != null) {
       setState(() {
         _enhanced = !_enhanced;
-        _currentPath = _enhanced ? _enhancedPath! : widget.imagePath;
+        _currentPath = _enhanced ? _enhancedPath! : _basePath;
       });
       return;
     }
 
     setState(() => _processing = true);
     try {
-      final bytes = await File(widget.imagePath).readAsBytes();
-      var original = img.decodeImage(bytes);
-      if (original == null) return;
-
-      // Mejora tipo documento: contraste alto + escala de grises
-      var enhanced = img.adjustColor(original,
-          contrast: 1.45, brightness: 1.08, saturation: 0.0);
-      enhanced = img.grayscale(enhanced);
-
-      final dir = await getTemporaryDirectory();
-      final outPath =
-          '${dir.path}/enhanced_ext_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      await File(outPath).writeAsBytes(img.encodeJpg(enhanced, quality: 90));
+      // Procesamiento profesional: normalización de fondo + umbral adaptivo
+      final outPath = await DocumentProcessor.processForDocument(_basePath);
 
       if (mounted) {
-        setState(() {
-          _enhancedPath = outPath;
-          _enhanced = true;
-          _currentPath = outPath;
-          _processing = false;
-        });
+        if (outPath != null) {
+          setState(() {
+            _enhancedPath = outPath;
+            _enhanced     = true;
+            _currentPath  = outPath;
+            _processing   = false;
+          });
+        } else {
+          setState(() => _processing = false);
+        }
       }
     } catch (_) {
       if (mounted) setState(() => _processing = false);
@@ -807,65 +864,74 @@ class _PagePreviewScreenState extends State<_PagePreviewScreen> {
                     ),
                   ),
 
-                // Botones de acción
+                // Fila 1: Retomar · Recortar · Mejorar calidad
                 Row(
                   children: [
-                    // Retomar foto
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () => Navigator.pop(context, null),
-                        icon: const Icon(Icons.camera_alt_outlined, size: 16),
-                        label: const Text('Retomar'),
+                        onPressed: _processing ? null : () => Navigator.pop(context, null),
+                        icon: const Icon(Icons.camera_alt_outlined, size: 15),
+                        label: const Text('Retomar', style: TextStyle(fontSize: 12)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white70,
                           side: const BorderSide(color: Colors.white24),
-                          padding: const EdgeInsets.symmetric(vertical: 11),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // Mejorar / Ver original
+                    // ✂️ Recortar – nueva opción
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _processing ? null : _recortar,
+                        icon: const Icon(Icons.crop, size: 15),
+                        label: const Text('Recortar', style: TextStyle(fontSize: 12)),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.orange,
+                          side: BorderSide(color: Colors.orange.withValues(alpha: 0.5)),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: _processing ? null : _toggleEnhance,
                         icon: Icon(
-                          _enhanced
-                              ? Icons.visibility_outlined
-                              : Icons.auto_fix_high,
-                          size: 16,
+                          _enhanced ? Icons.visibility_outlined : Icons.auto_fix_high,
+                          size: 15,
                         ),
-                        label:
-                            Text(_enhanced ? 'Ver original' : 'Mejorar calidad'),
+                        label: Text(
+                          _enhanced ? 'Ver original' : 'Proc. Doc.',
+                          style: const TextStyle(fontSize: 12),
+                        ),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFF4FC3F7),
-                          side: BorderSide(
-                              color:
-                                  const Color(0xFF4FC3F7).withValues(alpha: 0.5)),
-                          padding: const EdgeInsets.symmetric(vertical: 11),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    // Usar / Agregar
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => Navigator.pop(context, _currentPath),
-                        icon: const Icon(Icons.add_photo_alternate, size: 16),
-                        label: const Text('Usar página'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF003398),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 11),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                          side: BorderSide(color: const Color(0xFF4FC3F7).withValues(alpha: 0.5)),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 8),
+                // Fila 2: Agregar página (ancho completo)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pop(context, _currentPath),
+                    icon: const Icon(Icons.add_photo_alternate, size: 18),
+                    label: Text('Agregar página ${widget.pageNumber} al documento'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF003398),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
                 ),
               ],
             ),

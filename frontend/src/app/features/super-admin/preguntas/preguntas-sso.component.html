@@ -1,0 +1,247 @@
+<div class="dashboard-container sa-preg">
+  <app-super-admin-sidebar />
+
+  <div class="sa-shell">
+    <header class="sa-topbar">
+      <nav class="sa-breadcrumb">
+        <span class="current">Preguntas</span>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span class="sub">Banco del simulador SSO</span>
+      </nav>
+      <a routerLink="/super-admin/simulador" class="sa-btn-ghost">
+        <i class="fa-solid fa-play"></i> Probar simulador
+      </a>
+    </header>
+
+    <main class="sa-main">
+      <section class="sa-welcome">
+        <div>
+          <h2>Preguntas del simulador</h2>
+          <p>Crea, edita, importa y activa el banco. Las usadas en exámenes no se borran: se desactivan.</p>
+        </div>
+        <button type="button" class="sa-btn-primary" (click)="abrirNueva()">
+          <i class="fa-solid fa-plus"></i> Nueva pregunta
+        </button>
+      </section>
+
+      @if (error) {
+        <div class="sa-alert">{{ error }}</div>
+      }
+
+      <section class="sa-tiempo">
+        <div>
+          <h3><i class="fa-regular fa-clock"></i> Tiempo de simulación</h3>
+          <p>Aplica a empresa y usuario. Si se acaba el reloj, el examen se cierra y se califica solo.</p>
+        </div>
+        <div class="sa-tiempo-opts">
+          @for (m of tiempos; track m) {
+            <button
+              type="button"
+              [class.on]="tiempoExamenMin === m"
+              [disabled]="guardandoTiempo"
+              (click)="guardarTiempo(m)">
+              {{ m }} min
+            </button>
+          }
+        </div>
+        @if (okTiempo) {
+          <p class="sa-tiempo-ok">{{ okTiempo }}</p>
+        }
+      </section>
+
+      <div class="sa-tabs">
+        <button type="button" [class.active]="tab === 'preguntas'" (click)="tab = 'preguntas'">Preguntas</button>
+        <button type="button" [class.active]="tab === 'temas'" (click)="tab = 'temas'">Temas</button>
+        <button type="button" [class.active]="tab === 'importar'" (click)="tab = 'importar'">Importar Excel</button>
+      </div>
+
+      @if (tab === 'preguntas') {
+        <div class="sa-filters">
+          <input type="search" [(ngModel)]="q" (keyup.enter)="recargar()" placeholder="Buscar enunciado o fuente…" />
+          <select [(ngModel)]="filtroTema">
+            <option [ngValue]="null">Todos los temas</option>
+            @for (t of temas; track t.id) {
+              <option [ngValue]="t.id">{{ t.nombre }} ({{ t.preguntasActivas }})</option>
+            }
+          </select>
+          <select [(ngModel)]="filtroActivo">
+            <option [ngValue]="null">Todos los estados</option>
+            <option [ngValue]="true">Activas</option>
+            <option [ngValue]="false">Inactivas</option>
+          </select>
+          <button type="button" class="sa-btn-ghost" (click)="recargar()">Filtrar</button>
+        </div>
+
+        @if (cargando) {
+          <p class="muted">Cargando…</p>
+        } @else {
+          <p class="muted">{{ preguntas.length }} preguntas · {{ totalActivas }} activas</p>
+          <div class="sa-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Enunciado</th>
+                  <th>Tema</th>
+                  <th>Fuente</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of preguntas; track p.id) {
+                  <tr>
+                    <td class="enun">{{ p.enunciado }}</td>
+                    <td>{{ p.temaNombre }}</td>
+                    <td class="muted">{{ p.fuente || '—' }}</td>
+                    <td>
+                      <span class="chip" [class.on]="p.activo" [class.off]="!p.activo">
+                        {{ p.activo ? 'Activa' : 'Inactiva' }}
+                      </span>
+                    </td>
+                    <td class="actions">
+                      <button type="button" (click)="abrirEditar(p)">Editar</button>
+                      <button type="button" (click)="toggle(p)">{{ p.activo ? 'Desactivar' : 'Activar' }}</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+
+      @if (tab === 'temas') {
+        <div class="tema-add">
+          <input [(ngModel)]="nuevoTema" placeholder="Nombre del tema" (keyup.enter)="crearTema()" />
+          <button type="button" class="sa-btn-primary" (click)="crearTema()">Crear tema</button>
+        </div>
+        <div class="tema-grid">
+          @for (t of temas; track t.id) {
+            <article class="tema-card">
+              @if (editTemaId === t.id) {
+                <input [(ngModel)]="editTemaNombre" />
+                <button type="button" class="sa-btn-primary" (click)="guardarTema(t)">Guardar</button>
+              } @else {
+                <h4>{{ t.nombre }}</h4>
+                <p>{{ t.preguntasActivas }} activas · {{ t.totalPreguntas }} total</p>
+                <div class="actions">
+                  <button type="button" (click)="editTemaId = t.id; editTemaNombre = t.nombre">Renombrar</button>
+                  <button type="button" (click)="toggleTema(t)">{{ t.activo ? 'Desactivar' : 'Activar' }}</button>
+                </div>
+                <span class="chip" [class.on]="t.activo" [class.off]="!t.activo">{{ t.activo ? 'Activo' : 'Inactivo' }}</span>
+              }
+            </article>
+          }
+        </div>
+      }
+
+      @if (tab === 'importar') {
+        <div class="import-box">
+          <p>Plantilla: <code>tema,enunciado,opcion_a,opcion_b,opcion_c,opcion_d,opcion_e,correcta,explicacion,fuente</code></p>
+          <input type="file" accept=".xlsx,.xls,.csv" (change)="onFile($event)" />
+          <button type="button" class="sa-btn-ghost" [disabled]="!archivo || importando" (click)="previsualizar()">
+            Vista previa
+          </button>
+          @if (preview) {
+            <p>
+              {{ preview.validas }} válidas · {{ preview.conError }} con error ·
+              {{ preview.temasNuevos }} temas nuevos · {{ preview.posiblesDuplicados }} posibles duplicados
+            </p>
+            <div class="sa-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fila</th>
+                    <th>Estado</th>
+                    <th>Tema</th>
+                    <th>Enunciado</th>
+                    <th>Motivo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (f of preview.filas; track f.fila) {
+                    <tr>
+                      <td>{{ f.fila }}</td>
+                      <td>
+                        <span class="chip" [class.on]="f.ok" [class.off]="!f.ok">{{ f.ok ? 'OK' : 'Error' }}</span>
+                        @if (f.temaNuevo) { <span class="mini">tema nuevo</span> }
+                        @if (f.posibleDuplicado) { <span class="mini warn">duplicado</span> }
+                      </td>
+                      <td>{{ f.tema }}</td>
+                      <td class="enun">{{ f.enunciado }}</td>
+                      <td class="muted">{{ f.errores.join('; ') || '—' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <button type="button" class="sa-btn-primary" [disabled]="preview.validas === 0 || importando" (click)="confirmarCarga()">
+              Confirmar carga ({{ preview.validas }})
+            </button>
+          }
+        </div>
+      }
+    </main>
+  </div>
+</div>
+
+@if (editorAbierto) {
+  <div class="modal-backdrop" (click)="editorAbierto = false"></div>
+  <aside class="editor">
+    <h3>{{ editando ? 'Editar pregunta' : 'Nueva pregunta' }}</h3>
+    <label>Tema
+      <select [(ngModel)]="formTemaId">
+        @for (t of temas; track t.id) {
+          <option [ngValue]="t.id">{{ t.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>Pregunta
+      <textarea rows="3" [(ngModel)]="formEnunciado" placeholder="Escribe el enunciado…"></textarea>
+    </label>
+    <p class="ops-hint">Marca la respuesta correcta. En las incorrectas escribe por qué está mal.</p>
+    <div class="ops">
+      @for (o of formOpciones; track $index) {
+        <div class="op-card" [class.correct]="o.esCorrecta">
+          <div class="op-head">
+            <label class="op-radio">
+              <input type="radio" name="correcta" [checked]="o.esCorrecta" (change)="marcarCorrecta($index)" />
+              <span>Opción {{ letra($index) }}</span>
+            </label>
+            @if (o.esCorrecta) {
+              <span class="tag-ok">Correcta</span>
+            } @else {
+              <span class="tag-bad">Incorrecta</span>
+            }
+            <button type="button" class="icon" (click)="quitarOpcion($index)" [disabled]="formOpciones.length <= 2" title="Quitar">×</button>
+          </div>
+          <input type="text" [(ngModel)]="o.texto" [placeholder]="'Texto de la opción ' + letra($index)" />
+          @if (!o.esCorrecta) {
+            <label class="arg">
+              ¿Por qué está mal?
+              <textarea rows="2" [(ngModel)]="o.argumento" placeholder="Argumento que verá el trabajador al revisar el examen"></textarea>
+            </label>
+          } @else {
+            <p class="ok-note">El trabajador verá esta como la respuesta correcta al terminar el examen.</p>
+          }
+        </div>
+      }
+      <button type="button" class="sa-btn-ghost" (click)="agregarOpcion()" [disabled]="formOpciones.length >= 5">
+        + Añadir opción
+      </button>
+    </div>
+    <label>Nota general (opcional)
+      <textarea rows="2" [(ngModel)]="formExplicacion" placeholder="Comentario extra de la pregunta, si hace falta"></textarea>
+    </label>
+    <label>Fuente
+      <input type="text" [(ngModel)]="formFuente" placeholder="NFPA 20, Decreto 255…" />
+    </label>
+    <label class="check">
+      <input type="checkbox" [(ngModel)]="formActivo" /> Activa (sale en exámenes nuevos)
+    </label>
+    <div class="editor-actions">
+      <button type="button" class="sa-btn-ghost" (click)="editorAbierto = false">Cancelar</button>
+      <button type="button" class="sa-btn-primary" [disabled]="guardando" (click)="guardarPregunta()">Guardar</button>
+    </div>
+  </aside>
+}

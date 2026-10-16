@@ -1,0 +1,173 @@
+<div class="dashboard-container">
+  @if (esSuperAdmin) {
+    <app-super-admin-sidebar />
+  }
+  @if (esUsuario) {
+    <app-usuario-sidebar />
+  }
+
+  <main class="main-content" [class.no-sidebar]="!esSuperAdmin && !esUsuario">
+    <header class="top-app-bar">
+      <div class="topbar-left">
+        <span class="topbar-route">Inteligencia</span>
+        <span class="topbar-sep">/</span>
+        <span class="topbar-sub">Analizar reporte</span>
+      </div>
+      <div class="topbar-actions">
+        <a [routerLink]="rutaDocumentos" class="btn-ghost-sm">
+          <span class="mat-icon">folder_open</span>
+          Biblioteca PDF
+        </a>
+      </div>
+    </header>
+
+    <div class="dashboard-canvas">
+      <div class="welcome-row">
+        <div>
+          <h2 class="welcome-title">Analizar reporte</h2>
+          <p class="welcome-sub">
+            Pegue o suba el informe de campo (WhatsApp, PDF o foto). Se cruza
+            <strong>solo</strong> con los PDF de
+            @if (empresaNombre) {
+              <strong>{{ empresaNombre }}</strong>
+            } @else {
+              su empresa
+            }
+            y se propone un texto profesional. Nada sale de este servidor.
+          </p>
+        </div>
+        <div class="motor-chip" [class.ok]="ollamaListo" [class.warn]="!ollamaListo">
+          <span class="mat-icon">{{ ollamaListo ? 'memory' : 'info' }}</span>
+          <span>{{ ollamaListo ? 'Ollama listo' : 'Cruce interno' }}</span>
+        </div>
+      </div>
+
+      <p class="motor-msg">{{ ollamaMensaje }}</p>
+
+      @if (loadingEmpresa) {
+        <div class="state-panel">
+          <div class="spinner"></div>
+          <p>Cargando empresa…</p>
+        </div>
+      } @else if (!empresaId) {
+        <div class="state-panel">
+          <span class="mat-icon state-icon">apartment</span>
+          <h3>Falta la empresa</h3>
+          <p>Asocie una empresa para cruzar el informe con sus PDF.</p>
+        </div>
+      } @else {
+        <div class="layout">
+          <section class="card input-card">
+            <h3>Informe de campo</h3>
+            <label class="field">
+              <span>Pegar texto (chat, correo, hallazgo)</span>
+              <textarea
+                rows="10"
+                [(ngModel)]="texto"
+                placeholder="Ej.: En el frente 3 el andamio no tenía baranda… el supervisor indicó que el EPP estaba incompleto…"
+                [disabled]="analizando"></textarea>
+            </label>
+
+            <div class="file-row">
+              <label class="file-btn">
+                <span class="mat-icon">upload_file</span>
+                Subir PDF, foto o .txt
+                <input
+                  #fileInput
+                  type="file"
+                  accept=".pdf,.txt,.md,image/png,image/jpeg,image/webp,.png,.jpg,.jpeg"
+                  (change)="onArchivo($event)"
+                  [disabled]="analizando"
+                  hidden />
+              </label>
+              @if (archivoNombre) {
+                <span class="file-name">{{ archivoNombre }}</span>
+                <button type="button" class="icon-action" (click)="quitarArchivo(fileInput)" title="Quitar archivo">
+                  <span class="mat-icon">close</span>
+                </button>
+              }
+            </div>
+
+            @if (error) {
+              <p class="field-error">{{ error }}</p>
+            }
+
+            <button type="button" class="btn-primary-lg" (click)="analizar()" [disabled]="!puedeAnalizar">
+              @if (analizando) {
+                <span class="spinner sm"></span>
+                Cruzando con sus PDF…
+              } @else {
+                <span class="mat-icon">analytics</span>
+                Analizar
+              }
+            </button>
+            @if (analizando) {
+              <p class="hint">
+                Si Ollama está listo, la primera redacción puede tardar un minuto (el modelo carga en este servidor).
+              </p>
+            }
+          </section>
+
+          <section class="results">
+            @if (!resultado && !analizando) {
+              <div class="empty-card">
+                <span class="mat-icon">fact_check</span>
+                <h3>Aquí verá el cruce</h3>
+                <p>Coincidencias con sus normas, huecos y un borrador listo para copiar.</p>
+              </div>
+            }
+
+            @if (resultado) {
+              <article class="card">
+                <div class="card-head">
+                  <h3>Texto propuesto</h3>
+                  <button type="button" class="btn-ghost-sm" (click)="copiarPropuesto()">
+                    <span class="mat-icon">content_copy</span>
+                    {{ copiado ? 'Copiado' : 'Copiar' }}
+                  </button>
+                </div>
+                <div class="badge-row">
+                  <span class="chip" [class.ok]="resultado.motor === 'ollama'">
+                    Motor: {{ resultado.motor === 'ollama' ? 'Ollama (' + resultado.modelo + ')' : 'plantilla + citas' }}
+                  </span>
+                  <span class="chip">{{ resultado.documentosConsultados }} PDF consultados</span>
+                  <span class="chip">{{ resultado.caracteresInforme }} caracteres del informe</span>
+                </div>
+                <div class="propuesto" [innerHTML]="resultado.textoPropuesto | markdown"></div>
+              </article>
+
+              <article class="card">
+                <h3>Coincidencias en sus PDF</h3>
+                @if (!resultado.coincidencias.length) {
+                  <p class="muted">No hubo citas claras. Suba el procedimiento o reprocese PDFs que sean foto.</p>
+                } @else {
+                  <ul class="citas">
+                    @for (c of resultado.coincidencias; track c.documentoId + c.cita) {
+                      <li>
+                        <strong>{{ c.documentoTitulo }}</strong>
+                        <p>{{ c.cita }}</p>
+                      </li>
+                    }
+                  </ul>
+                }
+              </article>
+
+              <article class="card">
+                <h3>Huecos</h3>
+                @if (!resultado.huecos.length) {
+                  <p class="muted">No se detectaron temas del informe ausentes en los PDF.</p>
+                } @else {
+                  <ul class="huecos">
+                    @for (h of resultado.huecos; track h) {
+                      <li>{{ h }}</li>
+                    }
+                  </ul>
+                }
+              </article>
+            }
+          </section>
+        </div>
+      }
+    </div>
+  </main>
+</div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
@@ -38,8 +39,6 @@ import {
   filtrarIndiceSidebar,
   htmlTieneEstructura,
   normalizarTextoLectura,
-  normalizarRespuestaTexto,
-  respuestaTextoNecesitaEstructura,
   quitarIndiceDelHtml,
   textoPlanoDesdeHtml,
   type SeccionTexto,
@@ -127,7 +126,7 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
   // ===== PANEL DERECHO — etiqueta fija (siempre visible) =====
   readonly libroPanelTitulo = 'Libro estructurado';
   readonly libroPanelSubtitulo =
-    'Su «Word» dentro del sistema · PDF a la izquierda solo referencia · H1 títulos/apartados (Compromiso), H2 estándares';
+    'Texto para leer en voz alta · el PDF a la izquierda es solo referencia';
 
   // ===== TEXT EDITOR =====
   modoVista: 'pdf' | 'texto' = 'texto';
@@ -145,6 +144,16 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
   guardandoTexto = false;
   textoGuardadoExitoso = false;
   textoCargado = false;
+  esperaExtraccionLarga = false;
+  progresoExtraccion: {
+    fase: string;
+    mensaje: string;
+    paginaActual: number;
+    paginasTotal: number;
+    porcentaje: number;
+    caracteres?: number;
+    textoPlano?: string;
+  } | null = null;
   editorLastSaved: string | null = null;
 
   estadoVoz = { activo: false, pausado: false, fragmentoActual: 0, totalFragmentos: 0 };
@@ -174,6 +183,8 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
   private htmlEditorCache = '';
   private readonly STORAGE_MARCADOR_PREFIX = 'hse-lectura-doc-';
   private pollProcesamientoTimer?: ReturnType<typeof setInterval>;
+  private pollProgresoTimer?: ReturnType<typeof setInterval>;
+  private esperaLargaTimer?: ReturnType<typeof setTimeout>;
   reprocesandoDoc = false;
 
   @ViewChild(EditorTextoRicoComponent) editorRico?: EditorTextoRicoComponent;
@@ -301,14 +312,27 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.syncSeccionesTimer) clearTimeout(this.syncSeccionesTimer);
+    if (this.esperaLargaTimer) clearTimeout(this.esperaLargaTimer);
     this.detenerPollProcesamiento();
+    this.detenerPollProgreso();
     this.revokePdfUrl();
     this.textoVoz.detener();
     document.documentElement.removeAttribute('data-font-size');
   }
 
   get procesandoDocumento(): boolean {
-    return this.documento?.estadoProcesamiento === 'PROCESANDO';
+    return this.documento?.estadoProcesamiento === 'PROCESANDO' && !this.textoCargado;
+  }
+
+  /** Solo mientras PDFBox extrae. LISTO/IA no bloquean el libro. */
+  get extraccionEnCurso(): boolean {
+    if (this.textoCargado) return false;
+    const f = this.progresoExtraccion?.fase;
+    return f === 'EN_COLA' || f === 'ABRIENDO' || f === 'EXTRAYENDO' || f === 'OCR' || (!f && this.procesandoDocumento);
+  }
+
+  get mostrarBarraExtraccion(): boolean {
+    return this.extraccionEnCurso;
   }
 
   get errorProcesamiento(): string | null {
@@ -316,50 +340,97 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
     return this.documento?.errorProcesamiento || 'Error al procesar el PDF';
   }
 
-  private async iniciarLector(documentoId: number): Promise<void> {
-    const cacheKey = DocumentoCacheService.textoKey(documentoId);
-    let resp = this.cache.get<any>(cacheKey);
+  private loadRetryPendiente = false;
+  private pintandoLetras = false;
 
-    if (!resp) {
-      this.cargandoTexto = true;
-      try {
-        resp = await this.http.get<any>(
-          `${environment.apiUrl}/documentos/${documentoId}/texto-completo`
-        ).toPromise();
-      } catch {
-        this.cargandoTexto = false;
-        this.textoCargado = false;
+  private pintarLetras(planoOHtml: string, estructurado?: string): void {
+    const crudo = (planoOHtml || '').trim();
+    if (!crudo) return;
+    const html = estructurado?.trim()
+      ? quitarIndiceDelHtml(estructurado)
+      : (crudo.startsWith('<') ? quitarIndiceDelHtml(crudo) : this.htmlDesdePlano(crudo));
+    this.textoCompleto = crudo.startsWith('<') ? textoPlanoDesdeHtml(crudo) : crudo;
+    this.textoEstructurado = html;
+    this.textoEditado = html;
+    this.textoCargado = true;
+    this.cargandoTexto = false;
+    this.esperaExtraccionLarga = false;
+    this.avisoEstructuraLibro = !htmlTieneEstructura(html);
+    this.detenerPollProgreso();
+    this.detenerPollProcesamiento();
+    if (this.esperaLargaTimer) {
+      clearTimeout(this.esperaLargaTimer);
+      this.esperaLargaTimer = undefined;
+    }
+    try {
+      this.sincronizarSeccionesDesdeEditor(html);
+    } catch {
+      this.secciones = [];
+      this.seccionesFiltradas = [];
+    }
+    this.cdr.detectChanges();
+    this.editorRico?.setContent(html);
+    this.cdr.markForCheck();
+  }
+
+  private async iniciarLector(documentoId: number, forzar = false): Promise<void> {
+    if (this.pintandoLetras) {
+      this.loadRetryPendiente = true;
+      return;
+    }
+    if (this.textoCargado && !forzar) return;
+
+    this.pintandoLetras = true;
+    this.cargandoTexto = !this.textoCargado;
+    this.cdr.markForCheck();
+
+    const cacheKey = DocumentoCacheService.textoKey(documentoId);
+    try {
+      let resp = forzar ? null : this.cache.get<any>(cacheKey);
+      if (!resp) {
+        resp = await firstValueFrom(
+          this.http.get<any>(`${environment.apiUrl}/documentos/${documentoId}/texto-completo`)
+        );
+      }
+      const html = this.armarHtmlLectura(resp);
+      const plano = (resp?.textoCompleto || resp?.textoPlano || '').trim();
+      if (!html && !plano) {
         return;
       }
-    }
-
-    if (!resp) {
+      this.cache.set(cacheKey, resp);
+      this.pintarLetras(plano || html, html);
+    } catch {
+      /* el poll de progreso puede pintar letras sin este GET */
+    } finally {
+      this.pintandoLetras = false;
       this.cargandoTexto = false;
-      this.textoCargado = false;
-      return;
-    }
-
-    resp = normalizarRespuestaTexto(resp, this.documento?.titulo);
-    this.textoEditado = this.resolverContenidoEditor(resp);
-    const tieneContenido = !!(this.textoEditado?.trim() || (resp.textoCompleto || '').trim());
-
-    if (!tieneContenido) {
-      this.cargandoTexto = false;
-      this.textoCargado = false;
       this.cdr.markForCheck();
-      return;
+      if (this.loadRetryPendiente) {
+        this.loadRetryPendiente = false;
+        if (!this.textoCargado) {
+          void this.iniciarLector(documentoId, true);
+        }
+      }
     }
+  }
 
-    this.cache.set(cacheKey, resp);
-    this.aplicarTextoCompleto(resp);
-    this.sincronizarSeccionesDesdeEditor(this.textoEditado);
-    this.textoCargado = true;
-    this.avisoEstructuraLibro = respuestaTextoNecesitaEstructura(resp)
-      || !htmlTieneEstructura(this.textoEditado);
-    if (this.avisoEstructuraLibro && this.textoCompleto?.trim()) {
-      setTimeout(() => this.estructurarLibroAutomaticoSiVacio(), 400);
-    }
-    this.cdr.markForCheck();
+  /** Texto visible para el lector: no exige H1/H2. Estructurar es opcional. */
+  private armarHtmlLectura(resp: any): string {
+    if (!resp) return '';
+    const limpiar = (h: string) => quitarIndiceDelHtml(h || '');
+    const editor = limpiar(resp.textoEditor || resp.textoEstructurado || '');
+    if (editor.trim()) return editor;
+    const plano = (resp.textoCompleto || '').trim();
+    return plano ? this.htmlDesdePlano(plano) : '';
+  }
+
+  private htmlDesdePlano(plano: string): string {
+    return plano
+      .split(/\n\n+/)
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .map((p) => `<p>${p.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</p>`)
+      .join('\n');
   }
 
   recargarTextoDocumento(): void {
@@ -367,7 +438,7 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
     if (!id) return;
     this.cache.invalidar(id);
     this.textoCargado = false;
-    this.iniciarLector(id);
+    this.iniciarLector(id, true);
   }
 
   reprocesarDocumento(): void {
@@ -380,6 +451,8 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
         this.reprocesandoDoc = false;
         this.cache.invalidar(id);
         this.textoCargado = false;
+        this.programarAvisoEsperaLarga();
+        this.iniciarPollProgreso(id);
         this.iniciarPollProcesamiento(id);
         this.cdr.markForCheck();
       },
@@ -389,15 +462,6 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
     });
-  }
-
-  private resolverContenidoEditor(resp: any): string {
-    const limpiar = (html: string) => quitarIndiceDelHtml(html || '');
-    const editor = limpiar(resp.textoEditor || resp.textoEstructurado || '');
-    if (editor && htmlTieneEstructura(editor)) return editor;
-
-    const enriquecido = normalizarRespuestaTexto(resp, this.documento?.titulo);
-    return limpiar(enriquecido.textoEditor || enriquecido.textoEstructurado || '');
   }
 
   cambiarModoVista(modo: 'pdf' | 'texto'): void {
@@ -1004,22 +1068,33 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
     }
   }
 
+  private programarAvisoEsperaLarga(): void {
+    if (this.esperaLargaTimer) clearTimeout(this.esperaLargaTimer);
+    this.esperaExtraccionLarga = false;
+    this.esperaLargaTimer = setTimeout(() => {
+      if (!this.textoCargado) {
+        this.esperaExtraccionLarga = true;
+        this.cdr.markForCheck();
+      }
+    }, 12000);
+  }
+
   cargarDocumento(id: number): void {
     this.http.get(`${environment.apiUrl}/documentos/${id}`)
       .subscribe({
         next: (doc: any) => {
           this.documento = doc;
           this.loading = false;
+          this.programarAvisoEsperaLarga();
+          this.iniciarPollProgreso(id);
           const estado = doc.estadoProcesamiento || 'COMPLETADO';
           if (estado === 'PROCESANDO') {
             this.iniciarPollProcesamiento(id);
-            this.textoCargado = false;
-            this.cargandoTexto = false;
           } else {
             this.detenerPollProcesamiento();
-            if (estado !== 'ERROR') {
-              this.iniciarLector(id);
-            }
+          }
+          if (estado !== 'ERROR') {
+            this.iniciarLector(id, true);
           }
           this.cargarMarcadorDesdeStorage(id);
           this.cdr.markForCheck();
@@ -1031,9 +1106,72 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
       });
   }
 
+  private iniciarPollProgreso(id: number): void {
+    this.detenerPollProgreso();
+    this.consultarProgresoExtraccion(id);
+    this.pollProgresoTimer = setInterval(() => this.consultarProgresoExtraccion(id), 800);
+  }
+
+  private detenerPollProgreso(): void {
+    if (this.pollProgresoTimer) {
+      clearInterval(this.pollProgresoTimer);
+      this.pollProgresoTimer = undefined;
+    }
+  }
+
+  private consultarProgresoExtraccion(id: number): void {
+    this.http.get<any>(`${environment.apiUrl}/documentos/${id}/progreso-extraccion`).subscribe({
+      next: (p) => {
+        this.progresoExtraccion = {
+          fase: p.fase || 'EN_COLA',
+          mensaje: p.mensaje || 'Extrayendo letras…',
+          paginaActual: p.paginaActual || 0,
+          paginasTotal: p.paginasTotal || 0,
+          porcentaje: p.porcentaje ?? 0,
+          caracteres: p.caracteres || 0,
+          textoPlano: p.textoPlano || '',
+        };
+        if (p.fase === 'LISTO') {
+          const plano = (p.textoPlano || '').trim();
+          if (plano && !this.textoCargado) {
+            this.pintarLetras(plano);
+          } else if (!this.textoCargado) {
+            this.iniciarLector(id, true);
+          }
+          if (this.textoCargado) {
+            this.detenerPollProgreso();
+            this.http.get(`${environment.apiUrl}/documentos/${id}`).subscribe({
+              next: (doc: any) => {
+                this.documento = doc;
+                this.cdr.markForCheck();
+              },
+            });
+          }
+        } else if (p.fase === 'SIN_TEXTO' || p.fase === 'ERROR') {
+          this.detenerPollProgreso();
+          this.http.get(`${environment.apiUrl}/documentos/${id}`).subscribe({
+            next: (doc: any) => {
+              this.documento = doc;
+              this.cdr.markForCheck();
+            },
+          });
+        }
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  get etiquetaProgresoExtraccion(): string {
+    return this.progresoExtraccion?.mensaje || 'Preparando extracción de letras…';
+  }
+
+  get porcentajeExtraccion(): number {
+    return this.progresoExtraccion?.porcentaje ?? 0;
+  }
+
   private iniciarPollProcesamiento(id: number): void {
     this.detenerPollProcesamiento();
-    this.pollProcesamientoTimer = setInterval(() => this.verificarEstadoProcesamiento(id), 3000);
+    this.pollProcesamientoTimer = setInterval(() => this.verificarEstadoProcesamiento(id), 2000);
   }
 
   private detenerPollProcesamiento(): void {
@@ -1046,14 +1184,12 @@ export class DocumentoDetalleComponent implements OnInit, OnDestroy {
   private verificarEstadoProcesamiento(id: number): void {
     this.http.get(`${environment.apiUrl}/documentos/${id}`).subscribe({
       next: (doc: any) => {
-        const previo = this.documento?.estadoProcesamiento;
         this.documento = doc;
-        if (doc.estadoProcesamiento === 'COMPLETADO' &&
-            (previo === 'PROCESANDO' || !this.textoCargado)) {
+        if (doc.estadoProcesamiento === 'COMPLETADO' && !this.textoCargado) {
           this.detenerPollProcesamiento();
           this.cache.invalidar(id);
           this.cargarPuntos(id);
-          this.iniciarLector(id);
+          this.iniciarLector(id, true);
         } else if (doc.estadoProcesamiento === 'ERROR') {
           this.detenerPollProcesamiento();
         }

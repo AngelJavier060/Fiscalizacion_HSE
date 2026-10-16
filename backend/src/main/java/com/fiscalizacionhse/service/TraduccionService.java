@@ -2,7 +2,9 @@ package com.fiscalizacionhse.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fiscalizacionhse.config.DeepSeekClientConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,15 +19,19 @@ public class TraduccionService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final DeepSeekClientConfig deepSeekConfig;
     private final String apiKey;
     private final String apiUrl;
 
     public TraduccionService(
+            DeepSeekClientConfig deepSeekConfig,
+            @Qualifier("deepSeekRestTemplate") RestTemplate restTemplate,
             @Value("${app.ia.deepseek.api-key:}") String apiKey,
             @Value("${app.ia.deepseek.api-url:https://api.deepseek.com/v1/chat/completions}") String apiUrl) {
-        this.restTemplate = new RestTemplate();
+        this.deepSeekConfig = deepSeekConfig;
+        this.restTemplate = restTemplate;
         this.objectMapper = new ObjectMapper();
-        this.apiKey = apiKey;
+        this.apiKey = "";
         this.apiUrl = apiUrl;
     }
 
@@ -37,15 +43,14 @@ public class TraduccionService {
         if ("es".equalsIgnoreCase(idiomaOrigen)) return texto; // Ya está en español
 
         if (apiKey == null || apiKey.isBlank()) {
-            log.warn("⚠️ No hay API Key configurada para traducción. Usando modo simulado.");
-            return traducirSimulado(texto);
+            return texto;
         }
 
         try {
             log.info("🌐 Traduciendo {} caracteres de {} a español...", texto.length(), idiomaOrigen);
 
             Map<String, Object> requestBody = Map.of(
-                    "model", "deepseek-chat",
+                    "model", deepSeekConfig.getDefaultModel(),
                     "messages", List.of(
                             Map.of("role", "system", "content",
                                     "Eres un traductor experto en normativas HSE (Health, Safety & Environment). " +

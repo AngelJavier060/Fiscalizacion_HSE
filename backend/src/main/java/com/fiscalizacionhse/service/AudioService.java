@@ -1,6 +1,7 @@
 package com.fiscalizacionhse.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,13 @@ public class AudioService {
     private final String deepseekApiUrl;
 
     public AudioService(
+            @Qualifier("deepSeekRestTemplate") RestTemplate restTemplate,
             @Value("${app.tts.google-api-key:}") String googleApiKey,
             @Value("${app.tts.deepseek-api-key:}") String deepseekApiKey,
             @Value("${app.tts.deepseek-api-url:https://api.deepseek.com/v1/audio/speech}") String deepseekApiUrl) {
-        this.restTemplate = new RestTemplate();
-        this.googleApiKey = googleApiKey;
-        this.deepseekApiKey = deepseekApiKey;
+        this.restTemplate = restTemplate;
+        this.googleApiKey = "";
+        this.deepseekApiKey = "";
         this.deepseekApiUrl = deepseekApiUrl;
         this.audioDir = Path.of("uploads/audios");
         try {

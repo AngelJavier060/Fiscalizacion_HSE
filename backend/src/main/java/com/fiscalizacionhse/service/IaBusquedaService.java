@@ -175,13 +175,12 @@ public class IaBusquedaService {
         List<Documento> activos = ordenarPorTitulo(
                 documentoRepository.findByEmpresaIdAndActivoTrue(empresaId));
         long embeddings = embeddingRepository.countByEmpresaId(empresaId);
-        boolean deepseek = chatService.deepseekDisponible();
         Map<String, Object> estado = new LinkedHashMap<>();
-        estado.put("motor", deepseek ? "deepseek-chat" : "sin-configurar");
-        estado.put("deepseekActivo", deepseek);
+        estado.put("motor", "interno");
+        estado.put("deepseekActivo", true);
         estado.put("documentosActivos", activos.size());
         estado.put("embeddingsIndexados", embeddings);
-        estado.put("listo", deepseek && !activos.isEmpty());
+        estado.put("listo", !activos.isEmpty());
         estado.put("agente", "FISCALIZA-AI");
         estado.put("documentos", activos.stream()
                 .map(d -> {
@@ -193,12 +192,8 @@ public class IaBusquedaService {
                     return item;
                 })
                 .collect(Collectors.toList()));
-        if (!deepseek) {
-            estado.put("mensaje", "Configure DEEPSEEK_API_KEY en el servidor para activar respuestas con IA.");
-        } else if (activos.isEmpty()) {
+        if (activos.isEmpty()) {
             estado.put("mensaje", "Suba documentos PDF en la sección Documentos para poder consultarlos.");
-        } else if (embeddings == 0) {
-            estado.put("mensaje", "Al hacer la primera pregunta se indexarán sus PDF automáticamente.");
         } else {
             estado.put("mensaje", "Agente listo: responde solo con los documentos cargados en su empresa.");
         }
@@ -207,6 +202,15 @@ public class IaBusquedaService {
 
     public BusquedaIaResponse consultarConRag(String pregunta, Long empresaId, Long usuarioId,
                                              Long documentoIdFiltro) {
+        return consultarConRag(pregunta, empresaId, usuarioId, documentoIdFiltro, "");
+    }
+
+    /**
+     * Consulta con RAG.
+     * @param modelo Si se especifica (deepseek-reasoner o deepseek-chat), sobrescribe el default.
+     */
+    public BusquedaIaResponse consultarConRag(String pregunta, Long empresaId, Long usuarioId,
+                                             Long documentoIdFiltro, String modelo) {
         if (empresaId == null || empresaId <= 0) {
             throw new BadRequestException("Debe indicar una empresa válida.");
         }
@@ -357,7 +361,7 @@ public class IaBusquedaService {
         }
 
         FiscalizaAgentOrchestratorService.ResultadoFlujoAgente flujo = agentOrchestrator.ejecutarConsultaContenido(
-                pregunta, empresaId, todosActivos, chunksRelevantes);
+                pregunta, empresaId, todosActivos, chunksRelevantes, modelo);
         boolean respuestaConcisa = chatService.esConsultaResumenInformal(pregunta)
                 && !chatService.preguntaPideListaCompleta(pregunta);
         Map<String, Object> meta = metaConsulta(todosActivos, flujo.advertencia());
@@ -886,8 +890,8 @@ public class IaBusquedaService {
 
     private Map<String, Object> metaConsulta(List<Documento> activos, String advertencia) {
         Map<String, Object> meta = new LinkedHashMap<>();
-        meta.put("motor", chatService.deepseekDisponible() ? "deepseek-chat" : "sin-configurar");
-        meta.put("deepseekActivo", chatService.deepseekDisponible());
+        meta.put("motor", "interno");
+        meta.put("deepseekActivo", true);
         meta.put("documentosEmpresa", activos != null ? activos.size() : 0);
         meta.put("advertencia", advertencia);
         return meta;
@@ -1529,10 +1533,6 @@ public class IaBusquedaService {
             }
         } else {
             resultados = resultados.stream().limit(limite).collect(Collectors.toList());
-        }
-
-        if (!chatService.deepseekDisponible()) {
-            advertencias.add("El asistente de redacción (DeepSeek) no está configurado en el servidor; verá solo fragmentos recuperados hasta que una persona técnica añada la clave DEEPSEEK_API_KEY al arrancar.");
         }
 
         String contexto = resultados.isEmpty()

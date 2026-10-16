@@ -16,20 +16,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Reencola documentos atascados en PROCESANDO (p. ej. reinicio del servidor durante extracción/IA).
+ * Cierra documentos que ya tienen letras y reencola solo los que no.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DocumentoProcesamientoRecoveryJob {
 
-    private static final int MINUTOS_ATASCADO = 20;
+    private static final int MINUTOS_ATASCADO = 2;
     private static final int LOTE_RECUPERACION = 20;
 
     private final DocumentoRepository documentoRepository;
+    private final DocumentoProcesamientoPersistence procesamientoPersistence;
     private final ApplicationEventPublisher eventPublisher;
 
-    @Scheduled(fixedDelay = 600_000, initialDelay = 120_000)
+    @Scheduled(fixedDelay = 60_000, initialDelay = 30_000)
     public void recuperarAtascados() {
         LocalDateTime limite = LocalDateTime.now().minusMinutes(MINUTOS_ATASCADO);
         Pageable lote = PageRequest.of(0, LOTE_RECUPERACION);
@@ -39,8 +40,14 @@ public class DocumentoProcesamientoRecoveryJob {
         if (atascados.isEmpty()) {
             return;
         }
-        log.warn("♻️ Reencolando {} documento(s) atascados en PROCESANDO", atascados.size());
+        log.warn("♻️ Revisando {} documento(s) en PROCESANDO", atascados.size());
         for (Documento doc : atascados) {
+            if (doc.getTextoExtraido() != null && !doc.getTextoExtraido().isBlank()) {
+                procesamientoPersistence.marcarCompletado(
+                        doc.getId(), Boolean.TRUE.equals(doc.getPuntosGeneradosIa()));
+                log.info("Documento {} ya tenía letras: se marca COMPLETADO", doc.getId());
+                continue;
+            }
             Long usuarioId = doc.getSubidoPor() != null ? doc.getSubidoPor().getId() : null;
             if (usuarioId == null) {
                 continue;

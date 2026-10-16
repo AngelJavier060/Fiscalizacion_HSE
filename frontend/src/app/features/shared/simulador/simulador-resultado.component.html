@@ -1,0 +1,277 @@
+<div class="dashboard-container sim-res">
+  @if (esSuper) { <app-super-admin-sidebar /> }
+  @if (esUsuario) { <app-usuario-sidebar /> }
+
+  <div class="sr-shell">
+    <header class="sr-topbar">
+      <nav class="sr-breadcrumb" aria-label="Migas de pan">
+        <a [routerLink]="base">
+          <i class="fa-solid fa-arrow-left"></i>
+          Simulador
+        </a>
+        <span class="sr-sep">/</span>
+        <span>Resultado de evaluación</span>
+        @if (res) {
+          <span class="sr-sep">/</span>
+          <span class="sr-chip">Evaluación #{{ res.id }}</span>
+        }
+      </nav>
+      <div class="sr-topbar-tools">
+        @if (fechaEval) {
+          <span class="sr-date">
+            <i class="fa-regular fa-calendar"></i>
+            {{ fechaEval }}
+          </span>
+        }
+      </div>
+    </header>
+
+    <main class="sr-main">
+      @if (error) {
+        <div class="sr-alert">{{ error }}</div>
+      }
+
+      @if (cargando) {
+        <div class="sr-loading">Cargando resultado…</div>
+      }
+
+      @if (res) {
+        <section class="sr-hero" [class.ok]="res.aprobado" [class.bad]="!res.aprobado">
+          <div class="sr-hero-strip"></div>
+          <div class="sr-hero-body">
+            <div class="sr-hero-head">
+              <div>
+                <div class="sr-badges">
+                  <span class="sr-verdict" [class.ok]="res.aprobado" [class.bad]="!res.aprobado">
+                    <i class="fa-solid" [class.fa-circle-check]="res.aprobado" [class.fa-circle-xmark]="!res.aprobado"></i>
+                    {{ res.aprobado ? 'Aprobado' : 'Reprobado' }}
+                  </span>
+                  <span class="sr-hint">
+                    <i class="fa-solid" [class.fa-shield-halved]="res.aprobado" [class.fa-triangle-exclamation]="!res.aprobado"></i>
+                    {{ res.aprobado ? 'Habilitación operativa alcanzada' : 'Requiere reentrenamiento técnico' }}
+                  </span>
+                </div>
+                <h2>Simulación de Fiscalización HSE — {{ res.totalPreguntas }} reactivos</h2>
+                <p>
+                  Modalidad: <strong>{{ res.temaNombre }} • {{ modoLabel }}</strong>
+                  | Umbral de habilitación operativa:
+                  <strong>{{ notaMinima }}% ({{ aciertosNecesarios }}/{{ res.totalPreguntas }} aciertos)</strong>
+                </p>
+              </div>
+              <div class="sr-hero-actions">
+                <button type="button" class="sr-btn-primary" (click)="toggleRevision()">
+                  <i class="fa-solid fa-rotate-left"></i>
+                  {{ verRevision ? 'Ocultar revisión' : 'Revisar respuestas' }}
+                </button>
+                <button type="button" class="sr-btn-ghost" (click)="volver()">
+                  <i class="fa-solid fa-arrow-turn-up"></i>
+                  Volver al simulador
+                </button>
+              </div>
+            </div>
+
+            <div class="sr-metrics">
+              <div class="sr-metric sr-score">
+                <div class="sr-ring">
+                  <svg viewBox="0 0 36 36" aria-hidden="true">
+                    <path class="track" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="fill" [attr.stroke-dasharray]="dasharray" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  </svg>
+                  <div class="sr-ring-label">
+                    <strong>{{ nota | number:'1.0-0' }}</strong>
+                    <span>/100</span>
+                  </div>
+                </div>
+                <div>
+                  <span class="sr-metric-kicker">Puntuación final</span>
+                  <p>{{ res.correctas }} de {{ res.totalPreguntas }} aciertos</p>
+                  @if (brecha < 0) {
+                    <em>Brecha: {{ brecha | number:'1.0-0' }}% del estándar</em>
+                  } @else {
+                    <em class="ok">+{{ brecha | number:'1.0-0' }}% sobre el umbral</em>
+                  }
+                </div>
+              </div>
+
+              <div class="sr-metric">
+                <div class="sr-metric-kicker">
+                  <i class="fa-solid fa-stopwatch"></i>
+                  Tiempo empleado
+                </div>
+                <p>{{ tiempoEmpleado }}</p>
+                <span class="sr-metric-sub">Promedio de {{ promedioReactivo }}</span>
+              </div>
+
+              <div class="sr-metric">
+                <div class="sr-metric-kicker">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  Tasa de error
+                </div>
+                <p [class.bad]="!res.aprobado">{{ tasaError | number:'1.0-1' }}%</p>
+                <span class="sr-metric-sub">{{ incorrectas }} respuestas incorrectas</span>
+              </div>
+
+              <div class="sr-metric sr-ai">
+                <div class="sr-metric-kicker">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  Diagnóstico Fiscaliza-AI
+                </div>
+                <p class="sr-ai-copy">{{ diagnostico }}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="sr-grid">
+          <section class="sr-topics">
+            <div class="sr-section-head">
+              <div>
+                <h3><i class="fa-solid fa-chart-column"></i> Aciertos por tema evaluado</h3>
+                <p>Desglose técnico de cumplimiento normativo y criticidad</p>
+              </div>
+              <div class="sr-filters">
+                <button type="button" [class.active]="filtro === 'todos'" (click)="filtro = 'todos'">Todos ({{ filas.length }})</button>
+                <button type="button" [class.active]="filtro === 'criticos'" (click)="filtro = 'criticos'">Críticos ({{ totalCriticos }})</button>
+                <button type="button" [class.active]="filtro === 'aprobados'" (click)="filtro = 'aprobados'">Aprobados ({{ totalAprobados }})</button>
+              </div>
+            </div>
+
+            <div class="sr-table-card">
+              <div class="sr-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Tema / marco normativo</th>
+                      <th class="center">Reactivos</th>
+                      <th>Cumplimiento</th>
+                      <th class="center">Criticidad</th>
+                      <th class="right">Estatus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (t of filasVisibles; track t.tema) {
+                      <tr [class.row-bad]="!t.aprobado && !t.parcial" [class.row-ok]="t.aprobado || t.parcial">
+                        <td>
+                          <div class="sr-tema">
+                            {{ t.tema }}
+                            @if (t.criticidad === 'Crítico') {
+                              <i class="fa-solid fa-triangle-exclamation crit" title="Riesgo operativo mayor"></i>
+                            }
+                            @if (t.aprobado) {
+                              <i class="fa-solid fa-circle-check ok"></i>
+                            }
+                          </div>
+                        </td>
+                        <td class="center" [class.ok-num]="t.aprobado || t.parcial">{{ t.correctas }}/{{ t.total }}</td>
+                        <td>
+                          <div class="sr-bar">
+                            <div class="track"><span [class.ok]="t.aprobado || t.parcial" [style.width.%]="t.pct"></span></div>
+                            <strong [class.ok]="t.aprobado || t.parcial" [class.bad]="!t.aprobado && !t.parcial">{{ t.pct | number:'1.0-0' }}%</strong>
+                          </div>
+                        </td>
+                        <td class="center">
+                          <span class="sr-crit" [attr.data-kind]="t.criticidad">{{ t.criticidad }}</span>
+                        </td>
+                        <td class="right">
+                          @if (t.aprobado) {
+                            <span class="sr-status ok"><i class="fa-solid fa-check"></i> Aprobado</span>
+                          } @else if (t.parcial) {
+                            <span class="sr-status ok"><i class="fa-solid fa-check"></i> Aprobado parcial</span>
+                          } @else {
+                            <span class="sr-status bad"><i class="fa-solid fa-circle-xmark"></i> Reprobado</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="sr-table-foot">
+                <span>Total de reactivos: <strong>{{ res.totalPreguntas }} preguntas</strong></span>
+                <span>{{ temasSobre50 }} de {{ filas.length }} temas {{ temasSobre50 === 1 ? 'superó' : 'superaron' }} el 50% de efectividad</span>
+              </div>
+            </div>
+          </section>
+
+          <aside class="sr-side">
+            <div class="sr-plan">
+              <div class="sr-plan-head">
+                <div class="sr-plan-icon"><i class="fa-solid fa-book-open"></i></div>
+                <div>
+                  <h4>Plan de refuerzo obligatorio</h4>
+                  <p>Módulos prioritarios para reintento</p>
+                </div>
+              </div>
+
+              @if (planRefuerzo.length === 0) {
+                <p class="sr-plan-empty">No hay módulos pendientes. Puede reforzar la biblioteca normativa cuando lo necesite.</p>
+              } @else {
+                <div class="sr-plan-list">
+                  @for (item of planRefuerzo; track item.tema; let i = $index) {
+                    <article>
+                      <div class="sr-plan-row">
+                        <span>{{ i + 1 }}. {{ item.tema }}</span>
+                        <em [class.p1]="prioridad(item, i) === 'Prioridad 1'">{{ prioridad(item, i) }}</em>
+                      </div>
+                      <p>{{ item.correctas }}/{{ item.total }} aciertos ({{ item.pct | number:'1.0-0' }}%)</p>
+                      <a [routerLink]="documentosBase">
+                        <i class="fa-regular fa-file-lines"></i>
+                        Abrir módulo de lectura
+                      </a>
+                    </article>
+                  }
+                </div>
+              }
+
+              <button type="button" class="sr-plan-cta" (click)="volver()">
+                <i class="fa-solid fa-user-graduate"></i>
+                Generar simulacro focalizado de refuerzo
+              </button>
+            </div>
+
+            <div class="sr-lib">
+              <span>Biblioteca técnica HSE</span>
+              <h4>¿Necesita repasar las normas completas?</h4>
+              <p>Consulte los procedimientos y protocolos vigentes de su empresa para nivelar los temas reprobados.</p>
+              <a [routerLink]="documentosBase">
+                Explorar biblioteca digital
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </aside>
+        </div>
+
+        @if (verRevision) {
+          <section class="sr-rev">
+            <h3>Revisión de respuestas</h3>
+            @for (p of res.revision; track p.preguntaId) {
+              <article [class.ok]="p.esCorrecta" [class.bad]="!p.esCorrecta">
+                <header>
+                  <span>{{ p.orden }}. {{ p.temaNombre }}</span>
+                  <strong>{{ p.esCorrecta ? 'Correcta' : 'Incorrecta' }}</strong>
+                </header>
+                <p class="enun">{{ p.enunciado }}</p>
+                <ul>
+                  @for (o of p.opciones; track o.id) {
+                    <li [class.correcta]="o.correcta" [class.elegida]="o.elegida">
+                      <div>
+                        {{ o.texto }}
+                        @if (o.correcta) { <em>correcta</em> }
+                        @if (o.elegida && !o.correcta) { <em>tu respuesta</em> }
+                      </div>
+                      @if (!o.correcta && o.argumento) {
+                        <p class="arg">{{ o.argumento }}</p>
+                      }
+                    </li>
+                  }
+                </ul>
+                @if (p.explicacion) { <p class="exp">{{ p.explicacion }}</p> }
+                @if (p.fuente) { <p class="fuente">Fuente: {{ p.fuente }}</p> }
+              </article>
+            }
+          </section>
+        }
+      }
+    </main>
+  </div>
+</div>

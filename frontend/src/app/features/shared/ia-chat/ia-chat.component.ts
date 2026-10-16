@@ -108,6 +108,9 @@ export class IaChatComponent implements OnInit, OnChanges, OnDestroy {
   estadoMotor: {
     motor?: string;
     deepseekActivo?: boolean;
+    ollamaListo?: boolean;
+    ollamaModelo?: string;
+    ollamaMensaje?: string;
     documentosActivos?: number;
     embeddingsIndexados?: number;
     listo?: boolean;
@@ -131,6 +134,15 @@ export class IaChatComponent implements OnInit, OnChanges, OnDestroy {
     '¿Qué obligaciones del trabajador aparecen aquí?',
     '¿Qué dice sobre EPP o equipos de protección?',
     'Extrae los requisitos de seguridad principales',
+  ];
+
+  /** Modelo seleccionado: 'deepseek-reasoner' (R2) o 'deepseek-chat' */
+  modeloSeleccionado = 'deepseek-reasoner';
+
+  /** Opciones de modelo disponibles */
+  readonly modelosDisponibles = [
+    { id: 'deepseek-reasoner', nombre: 'DeepSeek Reasoner (R2)', desc: 'Razonamiento profundo — recomendado ✅' },
+    { id: 'deepseek-chat', nombre: 'DeepSeek Chat', desc: 'Rápido, modelo general' },
   ];
 
   /** Lista estable para @for (evita NG0956 al alternar documentoId). */
@@ -318,14 +330,13 @@ Espere el mensaje **«Tomcat started on port 8080»** y recargue esta página. S
       (sobreDoc ? 'este documento' : '');
 
     if (sobreDoc) {
-      return `Hola. Soy **FISCALIZA-AI**. Respondo **solo** con el **Libro estructurado** guardado de **${nombreDoc}** (Editor de Contenido en la base de datos). Motor: **DeepSeek**.`;
+      return `Hola. Soy **FISCALIZA-AI**. Respondo **solo** con el libro y el texto extraído de **${nombreDoc}**.`;
     }
 
     const docs = this.estadoMotor?.documentosActivos;
-    const motorOk = this.estadoMotor?.deepseekActivo !== false;
     const base = `Hola. Soy **FISCALIZA-AI** para **${nombreEmpresa}**.
 
-Respondo **únicamente** con el **Editor de Contenido** guardado (agente cerrado: lee títulos H1/H2 y el texto debajo). **Seleccione el libro** en el panel lateral. Apartados como el Compromiso no usan DeepSeek.`;
+Respondo **únicamente** con los PDF que usted cargó. El texto no sale de este servidor.`;
 
     if (docs != null && docs === 0) {
       return `${base}
@@ -333,15 +344,13 @@ Respondo **únicamente** con el **Editor de Contenido** guardado (agente cerrado
 ⚠️ Aún **no hay documentos** cargados. Suba PDF en **Documentos** y vuelva a consultar.`;
     }
 
-    if (!motorOk) {
-      return `${base}
-
-⚠️ El motor **DeepSeek** no está configurado en el servidor. Contacte al administrador para activar \`DEEPSEEK_API_KEY\`.`;
-    }
+    const ollama = this.estadoMotor?.ollamaListo
+      ? `**Motor:** Ollama (${this.estadoMotor?.ollamaModelo || 'local'}) · ${docs ?? 0} PDF.`
+      : `**Motor:** citas internas · ${docs ?? 0} PDF. Si Ollama está en marcha, las respuestas se redactan en este servidor.`;
 
     return `${base}
 
-**Motor:** DeepSeek · **Modo:** agente documental · ${docs ?? 0} PDF en su biblioteca.
+${ollama}
 
 Pregunte: *«¿Qué documentos tengo?»* o sobre el contenido de algún PDF.`;
   }
@@ -418,12 +427,12 @@ Pregunte: *«¿Qué documentos tengo?»* o sobre el contenido de algún PDF.`;
     this.http
       .post(`${environment.apiUrl}/ia/consultar`, body, { responseType: 'json' })
       .pipe(
-        timeout(45_000),
+        timeout(180_000),
         catchError((err) => {
           if (err?.name === 'TimeoutError') {
             return throwError(() => ({
               status: 0,
-              message: 'La consulta tardó más de 45 s. Reinicie el backend y verifique el Libro estructurado guardado.',
+              message: 'La consulta tardó más de 3 minutos. Si es la primera con Ollama, reintente: el modelo está cargando en este servidor.',
             }));
           }
           return throwError(() => err);

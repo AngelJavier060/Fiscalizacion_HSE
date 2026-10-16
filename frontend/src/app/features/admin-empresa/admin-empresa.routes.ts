@@ -6,6 +6,10 @@ import { DocumentoDetalleComponent } from './documentos/documento-detalle/docume
 import { RecordatorioListComponent } from './recordatorios/recordatorio-list/recordatorio-list.component';
 import { RecordatorioFormComponent } from './recordatorios/recordatorio-form/recordatorio-form.component';
 import { IaPageComponent } from './ia/ia-page.component';
+import { AnalizarReporteComponent } from '../shared/analizar-reporte/analizar-reporte.component';
+import { SimuladorInicioComponent } from '../shared/simulador/simulador-inicio.component';
+import { SimuladorExamenComponent } from '../shared/simulador/simulador-examen.component';
+import { SimuladorResultadoComponent } from '../shared/simulador/simulador-resultado.component';
 
 import { AdminUsuariosListComponent } from './usuarios/admin-usuarios-list.component';
 import { AdminRolesPanelComponent } from './roles/admin-roles-panel.component';
@@ -20,5 +24,9 @@ export const adminEmpresaRoutes: Routes = [
   { path: 'recordatorios', component: RecordatorioListComponent },
   { path: 'recordatorios/nuevo', component: RecordatorioFormComponent },
   { path: 'ia', component: IaPageComponent },
+  { path: 'analizar-reporte', component: AnalizarReporteComponent },
+  { path: 'simulador', component: SimuladorInicioComponent },
+  { path: 'simulador/examen/:id', component: SimuladorExamenComponent },
+  { path: 'simulador/resultado/:id', component: SimuladorResultadoComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 ];

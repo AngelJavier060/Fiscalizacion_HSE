@@ -26,6 +26,7 @@ export interface DocumentoLinks {
   detalle: (id: number) => (string | number)[];
   /** FISCALIZA-AI: modo empresa (admin) o por empresa en super admin */
   ia: (string | number)[];
+  analizarReporte: (string | number)[];
 }
 
 export function documentNavigationLinks(ctx: DocumentoContext): DocumentoLinks {
@@ -33,11 +34,12 @@ export function documentNavigationLinks(ctx: DocumentoContext): DocumentoLinks {
   if (ctx.esRutaSuperAdmin && e != null) {
     const base = ['/super-admin', 'empresas', e] as const;
     return {
-      sidebarInicio: ['/super-admin', 'empresas'],
-      documentos: [...base, 'documentos'],
+      sidebarInicio: ['/super-admin', 'dashboard'],
+      documentos: ['/super-admin', 'documentos'],
       subir: [...base, 'documentos', 'subir'],
       detalle: (id: number) => [...base, 'documentos', id],
       ia: [...base, 'ia'],
+      analizarReporte: ['/super-admin', 'analizar-reporte'],
     };
   }
   return {
@@ -46,5 +48,6 @@ export function documentNavigationLinks(ctx: DocumentoContext): DocumentoLinks {
     subir: ['/admin-empresa', 'documentos', 'subir'],
     detalle: (id: number) => ['/admin-empresa', 'documentos', id],
     ia: ['/admin-empresa', 'ia'],
+    analizarReporte: ['/admin-empresa', 'analizar-reporte'],
   };
 }

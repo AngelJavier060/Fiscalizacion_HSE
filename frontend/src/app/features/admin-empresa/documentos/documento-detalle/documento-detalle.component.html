@@ -32,12 +32,22 @@
     </div>
   </header>
 
-  @if (procesandoDocumento) {
+  @if (mostrarBarraExtraccion) {
     <div class="procesamiento-banner">
       <span class="mat-icon spin">sync</span>
-      <div>
-        <strong>Procesando documento…</strong>
-        <p>Extrayendo texto del PDF y generando puntos clave con IA. Puede tardar 1–2 minutos.</p>
+      <div class="banner-progreso">
+        <strong>{{ etiquetaProgresoExtraccion }}</strong>
+        <div class="extract-track" role="progressbar"
+             [attr.aria-valuenow]="porcentajeExtraccion"
+             aria-valuemin="0" aria-valuemax="100">
+          <div class="extract-fill" [style.width.%]="porcentajeExtraccion"></div>
+        </div>
+        <p>
+          {{ porcentajeExtraccion }}%
+          @if (progresoExtraccion?.paginasTotal) {
+            · página {{ progresoExtraccion!.paginaActual }} de {{ progresoExtraccion!.paginasTotal }}
+          }
+        </p>
       </div>
     </div>
   }
@@ -56,7 +66,7 @@
 
   @if (pestanaPrincipal !== 'normativa') {
   <!-- ===== MAIN LAYOUT ===== -->
-  <div class="main-layout" [class.con-banner-proceso]="procesandoDocumento || errorProcesamiento">
+  <div class="main-layout" [class.con-banner-proceso]="mostrarBarraExtraccion || errorProcesamiento">
 
     <!-- ===== LEFT SIDEBAR: Section Tree ===== -->
     <aside class="section-tree-panel">
@@ -318,12 +328,7 @@
               </div>
             </div>
           }
-          @if (cargandoTexto) {
-            <div class="editor-loading">
-              <div class="spinner-md"></div>
-              <p>Cargando texto extraído...</p>
-            </div>
-          } @else if (textoCargado) {
+          @if (textoCargado) {
             <app-editor-texto-rico
               #editorRico
               [(ngModel)]="textoEditado"
@@ -334,22 +339,31 @@
               placeholder="Edita el contenido del documento..."
               (onSave)="guardarTextoEditado($event)"
             ></app-editor-texto-rico>
+          } @else if (extraccionEnCurso) {
+            <div class="editor-loading">
+              <div class="extract-panel">
+                <div class="spinner-md"></div>
+                <p>{{ etiquetaProgresoExtraccion }}</p>
+                <div class="extract-track wide" role="progressbar" [attr.aria-valuenow]="porcentajeExtraccion">
+                  <div class="extract-fill" [style.width.%]="porcentajeExtraccion"></div>
+                </div>
+                <span class="extract-pct">{{ porcentajeExtraccion }}%</span>
+              </div>
+            </div>
+          } @else if (cargandoTexto) {
+            <div class="editor-loading">
+              <div class="spinner-md"></div>
+              <p>Cargando texto extraído...</p>
+            </div>
           } @else {
             <div class="editor-loading">
-              @if (procesandoDocumento) {
-                <div class="spinner-md"></div>
-                <p>Extrayendo texto del PDF…</p>
-              } @else {
-                <p>No hay contenido disponible todavía.</p>
-                <button type="button" class="btn-primary small" (click)="recargarTextoDocumento()">
-                  Recargar texto
-                </button>
-                @if (documento?.estadoProcesamiento === 'ERROR') {
-                  <button type="button" class="btn-outline small" (click)="reprocesarDocumento()" [disabled]="reprocesandoDoc">
-                    Reprocesar PDF
-                  </button>
-                }
-              }
+              <p>Este PDF es una infografía o foto: no trae letras digitales. Pulse <strong>Reprocesar PDF</strong> para pasar la imagen a texto y poder leerlo en voz alta.</p>
+              <button type="button" class="btn-primary small" (click)="recargarTextoDocumento()">
+                Recargar texto
+              </button>
+              <button type="button" class="btn-outline small" (click)="reprocesarDocumento()" [disabled]="reprocesandoDoc">
+                Reprocesar PDF
+              </button>
             </div>
           }
         </div>

@@ -6,6 +6,13 @@ enum CriticalTask {
   confined,
   electrical,
   excavation,
+  aperturaLineas,
+  atmosferasToxicas,
+  buceo,
+  electricosProvisionales,
+  lavadoAltaTension,
+  lazosControl,
+  operacionesElevacion,
 }
 
 extension CriticalTaskX on CriticalTask {
@@ -21,6 +28,20 @@ extension CriticalTaskX on CriticalTask {
         return 'Eléctrico';
       case CriticalTask.excavation:
         return 'Excavación';
+      case CriticalTask.aperturaLineas:
+        return 'Apertura de líneas';
+      case CriticalTask.atmosferasToxicas:
+        return 'Atmósferas tóxicas';
+      case CriticalTask.buceo:
+        return 'Buceo';
+      case CriticalTask.electricosProvisionales:
+        return 'Eléctricos provisionales';
+      case CriticalTask.lavadoAltaTension:
+        return 'Lavado de alta tensión';
+      case CriticalTask.lazosControl:
+        return 'Lazos y control (Instrumentales)';
+      case CriticalTask.operacionesElevacion:
+        return 'Operaciones de elevación';
     }
   }
 }

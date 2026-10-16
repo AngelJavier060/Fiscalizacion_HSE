@@ -30,6 +30,7 @@ import { environment } from '../../../../environments/environment';
           <a class="nav-item"><span class="nav-icon">👥</span> Usuarios</a>
           <div class="nav-label">Inteligencia</div>
           <a routerLink="/admin-empresa/ia" class="nav-item active"><span class="nav-icon">🤖</span> FISCALIZA-AI</a>
+          <a routerLink="/admin-empresa/analizar-reporte" class="nav-item"><span class="nav-icon">📋</span> Analizar reporte</a>
           <a routerLink="/admin-empresa/recordatorios" class="nav-item"><span class="nav-icon">🔔</span> Recordatorios</a>
           <a class="nav-item"><span class="nav-icon">⚙️</span> Ajustes</a>
         </nav>

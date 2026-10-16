@@ -92,6 +92,7 @@ export class PermisosService {
         { id: 'controles', label: 'Controles críticos', icon: 'security', descripcion: 'Controles críticos (próximamente)' },
         { id: 'permisos_hse', label: 'Permisos de trabajo', icon: 'lock_person', descripcion: 'Permisos HSE (próximamente)' },
         { id: 'conocimientos', label: 'Conocimientos', icon: 'menu_book', descripcion: 'Base de conocimiento (próximamente)' },
+        { id: 'simulador', label: 'Simulador SSO', icon: 'quiz', descripcion: 'Exámenes de práctica HSE' },
       ],
     },
     {
@@ -115,6 +116,7 @@ export class PermisosService {
     controles: [true, false, false],
     permisos_hse: [true, false, false],
     conocimientos: [true, false, false],
+    simulador: [true, true, true],
     notificaciones: [true, true, true],
     ia: [true, true, true],
   };

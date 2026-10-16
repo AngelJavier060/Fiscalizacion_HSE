@@ -38,6 +38,16 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- FileProvider: requerido por edge_detection para pasar rutas de imagen -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         <!-- Deshabilitar Impeller: usa Skia en lugar del nuevo motor de rendering,
              evita la pantalla negra en emuladores Android en Windows. -->
         <meta-data

@@ -1,4 +1,5 @@
-﻿import 'dart:io';
+﻿import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/permit_model.dart';
@@ -40,59 +41,117 @@ class _PermisosScreenState extends State<PermisosScreen> {
   List<PermitModel> _permisos = [];
   List<PermitModel> _filteredPermisos = [];
   bool _isLoading = true;
+  bool _isSyncing = false;
   String? _error;
   final _searchController = TextEditingController();
   bool _showSearch = false;
+  Timer? _autoRefreshTimer;
 
-  @override void initState() { super.initState(); _searchController.addListener(_filtrar); _loadUserAndPermisos(); }
-  @override void dispose() { _searchController.dispose(); super.dispose(); }
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_filtrar);
+    _loadUserAndPermisos();
+    // Auto-refresh cada 30 segundos (en segundo plano)
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted && !_isLoading && !_isSyncing) {
+        _loadUserAndPermisos(background: true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoRefreshTimer?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   void _filtrar() {
     final q = _searchController.text.trim().toLowerCase();
     setState(() => _filteredPermisos = q.isEmpty ? List.from(_permisos) : _permisos.where((p) => p.id.toLowerCase().contains(q) || p.title.toLowerCase().contains(q) || p.area.toLowerCase().contains(q)).toList());
   }
 
-  Future<void> _loadUserAndPermisos() async {
-    setState(() => _isLoading = true);
-    // Intentar sincronizar permisos pendientes antes de listar, para que los
-    // datos guardados localmente suban al backend cuando haya conexión.
-    final pendientesAntes = await PermisoOfflineService.pendientesCount();
-    if (pendientesAntes > 0) {
-      await PermisoOfflineService.sincronizarPendientes();
-    }
+  Future<void> _loadUserAndPermisos({bool background = false}) async {
+    if (!background) setState(() { _isLoading = true; });
+    setState(() { _isSyncing = true; });
+    
     try {
+      // 1. Mostrar datos locales inmediatamente
+      final locales = await PermisoOfflineService.listarPermisos();
+      if (!background && mounted) {
+        setState(() {
+          _permisos = locales;
+          _filteredPermisos = List.from(locales);
+          _isLoading = false;
+        });
+      }
+
+      // 2. Intentar sincronizar en segundo plano
+      final pendientesAntes = await PermisoOfflineService.pendientesCount();
+      if (pendientesAntes > 0) {
+        await PermisoOfflineService.sincronizarPendientes().timeout(const Duration(seconds: 15), onTimeout: () => 0);
+      }
+
+      // 3. Obtener del servidor
       final userData = await AuthService().getUserData();
       final empresaId = (userData['empresaId'] as num?)?.toInt() ?? 0;
       List<PermitModel> server = [];
-      try { server = await PermisoService.listar(empresaId); } catch (_) {}
-      final locales = await PermisoOfflineService.listarPermisos();
-      final map = <String, PermitModel>{};
-      // Primero cargar los permisos del servidor (tienen prioridad)
-      for (final p in server) map[p.id] = p;
-      // Luego agregar solo los locales que NO están en el servidor (evitar sobrescritura)
-      for (final p in locales) {
-        if (!map.containsKey(p.id)) {
-          map[p.id] = p;
+      try { 
+        server = await PermisoService.listar(empresaId).timeout(const Duration(seconds: 10));
+        // Cachear datos del servidor para uso offline
+        if (server.isNotEmpty) {
+          await PermisoOfflineService.cachearDeServidor(server);
         }
+      } catch (_) {}
+
+      // 4. Combinar servidor + local actualizados
+      final localesActualizados = await PermisoOfflineService.listarPermisos();
+      final map = <String, PermitModel>{};
+      
+      for (final p in server) map[p.id] = p;
+      for (final p in localesActualizados) {
+        if (!map.containsKey(p.id)) map[p.id] = p;
       }
-      final combined = map.values.toList()..sort((a, b) => b.startDate.compareTo(a.startDate));
+      
+      final combined = map.values.toList()
+        ..sort((a, b) {
+          final aExp = a.status == PermitStatus.expired;
+          final bExp = b.status == PermitStatus.expired;
+          if (aExp != bExp) return aExp ? 1 : -1;
+          return b.startDate.compareTo(a.startDate);
+        });
+
       final pendientesDespues = await PermisoOfflineService.pendientesCount();
       String? banner;
-      if (server.isEmpty && locales.isNotEmpty) {
-        banner = 'Sin internet. Tus datos estan respaldados en la app local.';
-      } else if (server.isEmpty && locales.isEmpty) {
-        banner = 'Sin internet. Trabajando con datos locales.';
+      if (server.isEmpty && localesActualizados.isNotEmpty) {
+        banner = 'Modo offline. Trabajando con datos locales.';
       } else if (pendientesDespues > 0) {
         final motivo = PermisoOfflineService.ultimoErrorSync;
         banner = motivo == null
             ? '$pendientesDespues permiso(s) pendiente(s) de sincronizar.'
             : '$pendientesDespues pendiente(s). No se sincronizó: $motivo';
       }
-      if (mounted) setState(() { _permisos = combined; _filteredPermisos = List.from(combined); _isLoading = false; _error = banner; });
+
+      if (mounted) {
+        setState(() { 
+          _permisos = combined; 
+          _filteredPermisos = List.from(combined); 
+          _isLoading = false; 
+          _isSyncing = false; 
+          _error = banner; 
+        });
+      }
     } catch (e) {
       if (mounted) {
         final locales = await PermisoOfflineService.listarPermisos();
-        setState(() { _permisos = locales.isNotEmpty ? locales : PermitModel.demoPermits(); _filteredPermisos = List.from(_permisos); _isLoading = false; _error = locales.isNotEmpty ? 'Sin internet. Tus datos estan respaldados en la app local.' : 'Sin internet. Mostrando datos de demostracion local.'; });
+        setState(() { 
+          _permisos = locales.isNotEmpty ? locales : PermitModel.demoPermits(); 
+          _filteredPermisos = List.from(_permisos); 
+          _isLoading = false; 
+          _isSyncing = false; 
+          _error = locales.isNotEmpty ? 'Modo offline. Trabajando con datos locales.' : 'Mostrando datos de demostracion local.'; 
+        });
       }
     }
   }
@@ -156,7 +215,7 @@ class _PermisosScreenState extends State<PermisosScreen> {
                           child: Row(mainAxisSize: MainAxisSize.min, children: [
                             const Icon(Icons.picture_as_pdf, size: 14, color: _Pal.blueText),
                             const SizedBox(width: 4),
-                            Text('()', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _Pal.blueText)),
+                            Text('${_contarPdfs()}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _Pal.blueText)),
                           ]),
                         ),
                       GestureDetector(
@@ -174,7 +233,11 @@ class _PermisosScreenState extends State<PermisosScreen> {
           ),
         ),
       ),
-      body: _isLoading
+      body: Column(
+        children: [
+          if (_isSyncing)
+            const LinearProgressIndicator(minHeight: 3),
+          Expanded(child: _isLoading
           ? const Center(child: CircularProgressIndicator(color: _Pal.brand))
           : RefreshIndicator(
               onRefresh: _loadUserAndPermisos,
@@ -210,7 +273,7 @@ class _PermisosScreenState extends State<PermisosScreen> {
                   if (_searchController.text.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text('\ resultado(s) para "\"', style: const TextStyle(fontSize: 12, color: _Pal.textSecondary)),
+                      child: Text('${_filteredPermisos.length} resultado(s) para "${_searchController.text}"', style: const TextStyle(fontSize: 12, color: _Pal.textSecondary)),
                     ),
                   if (!_showSearch && _filteredPermisos.isNotEmpty)
                     Padding(
@@ -250,6 +313,9 @@ class _PermisosScreenState extends State<PermisosScreen> {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(color: _Pal.card, border: Border(top: BorderSide(color: Color(0xFFF1F5F9)))),
         child: SafeArea(top: false, child: SizedBox(
@@ -304,10 +370,10 @@ class _PermisoCard extends StatelessWidget {
 
   String get _diasRestantes {
     final d = permit.remainingDaysEfectivo;
-    if (d <= 0) return 'Vencido';
+    if (d < 0) return 'Vencido hace ${d.abs()} días';
     if (d == 0) return 'Vence hoy';
-    if (d == 1) return '1 día';
-    return '\ días';
+    if (d == 1) return 'Queda 1 día';
+    return 'Quedan $d días';
   }
 
   IconData get _statusIconData => switch (permit.status) { PermitStatus.active => Icons.check_circle, PermitStatus.warning => Icons.access_time, PermitStatus.expired => Icons.cancel };

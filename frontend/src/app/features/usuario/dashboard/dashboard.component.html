@@ -1,104 +1,299 @@
-<div class="dashboard-container">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-small">
-        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-          <rect width="48" height="48" rx="12" fill="#0284c7"/>
-          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <span class="brand">Fiscalización HSE</span>
-    </div>
+<div class="dashboard-container ud-dash">
+  <app-usuario-sidebar />
 
-    <nav class="sidebar-nav">
-      <div class="nav-label">Mi Panel</div>
-      <a class="nav-item active">
-        <span class="nav-icon">📊</span> Dashboard
-      </a>
-      <a class="nav-item" *ngIf="tieneModulo('documentos')">
-        <span class="nav-icon">📄</span> Documentos
-      </a>
-      <a class="nav-item" *ngIf="tieneModulo('recordatorios')">
-        <span class="nav-icon">🔔</span> Mis Recordatorios
-      </a>
-      <a class="nav-item" *ngIf="tieneModulo('ia')">
-        <span class="nav-icon">🔍</span> Buscar
-      </a>
-      <a class="nav-item" *ngIf="tieneModulo('ia')">
-        <span class="nav-icon">🤖</span> Preguntar a la IA
-      </a>
-    </nav>
+  <div class="ud-shell">
+    <header class="ud-topbar">
+      <nav class="ud-breadcrumb" aria-label="Ruta de navegación">
+        <span class="ud-crumb-brand">Dashboard</span>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span class="ud-crumb-current">Mi panel</span>
+      </nav>
 
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar user">{{ user?.nombre?.charAt(0) || 'U' }}</div>
-        <div>
-          <p class="user-name">{{ user?.nombre || 'Usuario' }}</p>
-          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+      <div class="ud-topbar-tools">
+        <div class="ud-date-chip">
+          <i class="fa-regular fa-calendar"></i>
+          <span>{{ fechaHoy }}</span>
         </div>
-      </div>
-      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <header class="topbar">
-      <h2>Dashboard</h2>
-      <div class="topbar-actions">
-        <span class="badge-user">USUARIO</span>
+        <div class="ud-topbar-sep"></div>
+        <a routerLink="/usuario/notificaciones" class="ud-icon-btn" title="Notificaciones" aria-label="Notificaciones">
+          <i class="fa-regular fa-bell"></i>
+          @if (totalNotificaciones > 0) {
+            <span class="ud-notif-dot"></span>
+          }
+        </a>
+        <a class="ud-icon-btn" href="mailto:soporte@improvementsolutions.com" title="Centro de ayuda" aria-label="Centro de ayuda">
+          <i class="fa-regular fa-circle-question"></i>
+        </a>
+        <div class="ud-topbar-user">
+          <div class="ud-user-copy">
+            <span>Usuario {{ empresaNombre }}</span>
+            <p>{{ nombreUsuario }}</p>
+          </div>
+          <div class="ud-user-avatar">{{ iniciales }}</div>
+        </div>
       </div>
     </header>
 
-    <div class="content">
-      <!-- Tarjetas -->
-      <div class="cards-grid">
-        <div class="card">
-          <div class="card-icon pendientes">📋</div>
-          <div class="card-info">
-            <h3>Mis Pendientes Hoy</h3>
-            <p class="card-value">0</p>
-            <p class="card-sub">Revisa lo que tienes pendiente</p>
+    <main class="ud-main">
+      <section class="ud-hero">
+        <div class="ud-hero-glow"></div>
+        <div class="ud-hero-glow ud-hero-glow-2"></div>
+        <div class="ud-hero-inner">
+          <div class="ud-hero-copy">
+            <span class="ud-hero-pill">
+              <span class="ud-live-dot"></span>
+              Sistema Operativo y Vigilancia Activa
+            </span>
+            <h2>Bienvenido, {{ nombreUsuario }}</h2>
+            <p>
+              Biblioteca y consulta HSE de <strong>{{ empresaNombre }}</strong>.
+              Revise normas, consulte a la IA y analice sus reportes de campo en tiempo real con respaldo técnico.
+            </p>
+          </div>
+          <div class="ud-hero-actions">
+            @if (tieneModulo('ia')) {
+              <a routerLink="/usuario/ia" class="ud-btn-ai">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Consultar a FISCALIZA-AI
+              </a>
+              <a routerLink="/usuario/analizar-reporte" class="ud-btn-ghost">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                Subir Reporte
+              </a>
+            }
           </div>
         </div>
-        <div class="card">
-          <div class="card-icon docs">📄</div>
-          <div class="card-info">
-            <h3>Documentos</h3>
-            <p class="card-value">0</p>
-            <p class="card-sub">Disponibles para consulta</p>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-icon notificaciones">🔔</div>
-          <div class="card-info">
-            <h3>Notificaciones</h3>
-            <p class="card-value">0</p>
-            <p class="card-sub">Sin leer</p>
-          </div>
-        </div>
-      </div>
+      </section>
 
-      <!-- Bienvenida -->
-      <div class="welcome-section">
-        <div class="welcome-card">
-          <h3>👋 ¡Bienvenido a Fiscalización HSE!</h3>
-          <p>Este es tu centro de control. Aquí podrás:</p>
-          <ul>
-            <li>📄 Consultar documentos y normativas HSE</li>
-            <li>🔔 Recibir recordatorios automáticos</li>
-            <li>🔍 Buscar información en todos los documentos</li>
-            <li>🤖 Hacer preguntas a la IA sobre las normativas</li>
-          </ul>
-          <div class="badges">
-            <span class="feature-badge">Fase 1: Core ✓</span>
-            <span class="feature-badge pending">Fase 2: Documentos</span>
-            <span class="feature-badge pending">Fase 3: Recordatorios</span>
-            <span class="feature-badge pending">Fase 4: IA</span>
+      <section class="ud-kpi-grid">
+        <article class="ud-kpi">
+          <div class="ud-kpi-head">
+            <div class="ud-kpi-icon blue"><i class="fa-regular fa-file-lines"></i></div>
+            <span class="ud-kpi-chip">Documentos</span>
+          </div>
+          <p class="ud-kpi-value">{{ loading ? '…' : totalDocumentos }}</p>
+          <p class="ud-kpi-desc">PDFs de su empresa listos para consultar</p>
+          <div class="ud-kpi-foot">
+            <span class="ud-kpi-status">
+              <span class="dot ok"></span>
+              Actualizado hoy
+            </span>
+            @if (tieneModulo('documentos')) {
+              <a routerLink="/usuario/documentos">Ver todos <i class="fa-solid fa-chevron-right"></i></a>
+            }
+          </div>
+        </article>
+
+        <article class="ud-kpi">
+          <div class="ud-kpi-head">
+            <div class="ud-kpi-icon emerald"><i class="fa-regular fa-bell"></i></div>
+            <span class="ud-kpi-chip" [class.ok]="totalNotificaciones === 0" [class.warn]="totalNotificaciones > 0">
+              {{ totalNotificaciones === 0 ? 'Al día' : 'Pendiente' }}
+            </span>
+          </div>
+          <p class="ud-kpi-value">{{ loading ? '…' : totalNotificaciones }}</p>
+          <p class="ud-kpi-desc">Avisos urgentes en su bandeja</p>
+          <div class="ud-kpi-foot">
+            @if (totalNotificaciones === 0) {
+              <span class="ud-kpi-ok"><i class="fa-solid fa-check"></i> Cumplimiento al 100%</span>
+              <span class="muted">Sin demoras</span>
+            } @else {
+              <span class="ud-kpi-warn">Revisar avisos</span>
+              <a routerLink="/usuario/notificaciones">Abrir bandeja <i class="fa-solid fa-chevron-right"></i></a>
+            }
+          </div>
+        </article>
+
+        <article class="ud-kpi">
+          <div class="ud-kpi-head">
+            <div class="ud-kpi-icon purple"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <span class="ud-kpi-chip purple">FISCALIZA-AI</span>
+          </div>
+          <p class="ud-kpi-value ud-kpi-value-sm">{{ tieneModulo('ia') ? 'Activa' : '—' }}</p>
+          <p class="ud-kpi-desc">Consultas normativas sobre sus PDF</p>
+          <div class="ud-kpi-foot">
+            <span class="muted">Respuesta inmediata</span>
+            @if (tieneModulo('ia')) {
+              <a routerLink="/usuario/ia">Consultar <i class="fa-solid fa-chevron-right"></i></a>
+            }
+          </div>
+        </article>
+
+        <article class="ud-kpi">
+          <div class="ud-kpi-head">
+            <div class="ud-kpi-icon amber"><i class="fa-solid fa-chart-simple"></i></div>
+            <span class="ud-kpi-chip amber">Auditoría</span>
+          </div>
+          <p class="ud-kpi-value ud-kpi-value-sm">{{ tieneModulo('ia') ? 'Listo' : '—' }}</p>
+          <p class="ud-kpi-desc">Reportes de campo para cruzar con la normativa</p>
+          <div class="ud-kpi-foot">
+            <span class="muted">{{ empresaNombre }}</span>
+            @if (tieneModulo('ia')) {
+              <a routerLink="/usuario/analizar-reporte">Analizar <i class="fa-solid fa-chevron-right"></i></a>
+            }
+          </div>
+        </article>
+      </section>
+
+      <section class="ud-shortcuts">
+        <div class="ud-section-head">
+          <div>
+            <h3>Accesos directos</h3>
+            <p>Módulos principales para gestionar normativas, auditorías y consultas de seguridad</p>
+          </div>
+          <span class="ud-tools-chip">{{ herramientasActivas }} herramientas activas</span>
+        </div>
+
+        <div class="ud-shortcut-grid">
+          @if (tieneModulo('documentos')) {
+            <a routerLink="/usuario/documentos" class="ud-shortcut">
+              <div class="ud-shortcut-body">
+                <div class="ud-shortcut-icon blue"><i class="fa-regular fa-folder-open"></i></div>
+                <div>
+                  <h4>Documentos HSE</h4>
+                  <p>Leer normas, procedimientos y protocolos de prevención.</p>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right ud-shortcut-arrow"></i>
+            </a>
+          }
+
+          @if (tieneModulo('ia')) {
+            <a routerLink="/usuario/ia" class="ud-shortcut purple">
+              <div class="ud-shortcut-body">
+                <div class="ud-shortcut-icon purple"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <div>
+                  <h4>Consultar FISCALIZA-AI <span class="ud-dot-purple"></span></h4>
+                  <p>Preguntas inteligentes sobre sus PDF y reglamentación interna.</p>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right ud-shortcut-arrow"></i>
+            </a>
+
+            <a routerLink="/usuario/analizar-reporte" class="ud-shortcut sky">
+              <div class="ud-shortcut-body">
+                <div class="ud-shortcut-icon sky"><i class="fa-solid fa-chart-simple"></i></div>
+                <div>
+                  <h4>Analizar reporte</h4>
+                  <p>Cruzar informe técnico de campo con la matriz normativa vigente.</p>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right ud-shortcut-arrow"></i>
+            </a>
+          }
+
+          <a routerLink="/usuario/notificaciones" class="ud-shortcut emerald">
+            <div class="ud-shortcut-body">
+              <div class="ud-shortcut-icon emerald"><i class="fa-regular fa-bell"></i></div>
+              <div>
+                <h4>Bandeja de Recordatorios</h4>
+                <p>Supervisar vencimientos de inspecciones y capacitaciones obligatorias.</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right ud-shortcut-arrow"></i>
+          </a>
+
+          @if (tieneModulo('simulador')) {
+            <a routerLink="/usuario/simulador" class="ud-shortcut amber ud-shortcut-wide">
+              <div class="ud-shortcut-body">
+                <div class="ud-shortcut-icon amber"><i class="fa-solid fa-clipboard-list"></i></div>
+                <div>
+                  <h4>
+                    Simulador de Auditoría HSE
+                    <span class="ud-live-badge">Pruebas en vivo</span>
+                  </h4>
+                  <p>Ejecute ensayos controlados de fiscalización técnica y verifique la matriz de cumplimiento.</p>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right ud-shortcut-arrow"></i>
+            </a>
+          }
+        </div>
+      </section>
+
+      <section class="ud-docs">
+        <div class="ud-docs-head">
+          <div>
+            <h3>Documentación de {{ empresaNombre }}</h3>
+            <p>Normas técnicas, protocolos y directivas vigentes disponibles en su biblioteca</p>
+          </div>
+          <div class="ud-docs-tools">
+            <div class="ud-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input
+                type="text"
+                [(ngModel)]="filtroDocumento"
+                placeholder="Filtrar por nombre o código..." />
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </main>
+
+        @if (loading) {
+          <div class="ud-empty">Cargando documentos…</div>
+        } @else if (documentosFiltrados.length === 0) {
+          <div class="ud-empty">
+            {{ documentos.length === 0 ? 'Aún no hay documentos en la biblioteca de su empresa.' : 'Ningún documento coincide con el filtro.' }}
+          </div>
+        } @else {
+          <div class="ud-table-wrap">
+            <table class="ud-table">
+              <thead>
+                <tr>
+                  <th>Documento y código</th>
+                  <th>Categoría</th>
+                  <th>Estado</th>
+                  <th>Última revisión</th>
+                  <th class="right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (doc of documentosFiltrados; track doc.id) {
+                  <tr>
+                    <td>
+                      <div class="ud-doc-cell">
+                        <span class="ud-pdf">PDF</span>
+                        <div>
+                          <p class="ud-doc-title">{{ doc.titulo || doc.archivoNombre || 'Documento' }}</p>
+                          <p class="ud-doc-code">{{ codigoDocumento(doc) }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="ud-cat">{{ categoriaDocumento(doc) }}</td>
+                    <td>
+                      <span class="ud-status" [class.ok]="estadoDocumento(doc).kind === 'ok'" [class.warn]="estadoDocumento(doc).kind === 'warn'" [class.err]="estadoDocumento(doc).kind === 'err'">
+                        <span class="dot"></span>
+                        {{ estadoDocumento(doc).label }}
+                      </span>
+                    </td>
+                    <td class="ud-date">{{ (doc.updatedAt || doc.createdAt) | date:'d MMM y' }}</td>
+                    <td>
+                      <div class="ud-row-actions">
+                        @if (tieneModulo('ia')) {
+                          <a [routerLink]="consultarIa(doc)" class="ud-row-btn ai" title="Consultar con IA">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                          </a>
+                        }
+                        @if (tieneModulo('documentos')) {
+                          <a [routerLink]="irADocumento(doc)" class="ud-row-btn" title="Ver documento">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                          </a>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <div class="ud-docs-foot">
+          <span>Mostrando {{ documentosFiltrados.length }} de {{ totalDocumentos }} documentos registrados</span>
+          @if (tieneModulo('documentos')) {
+            <a routerLink="/usuario/documentos">Administrar repositorio →</a>
+          }
+        </div>
+      </section>
+    </main>
+  </div>
 </div>

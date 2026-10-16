@@ -56,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
     '/ia-chat',
     '/perfil',
     '/permisos',
+    '/simulador',
     '/usuarios',
     '/empresas',
     '/actividades',
@@ -207,6 +208,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ruta: '/permisos',
         ),
         _Acceso(
+          icon: Icons.quiz_outlined,
+          label: 'Simulador SSO',
+          iconBg: Color(0xFFEEF2FF),
+          iconColor: Color(0xFF4F46E5),
+          ruta: '/simulador',
+        ),
+        _Acceso(
           icon: Icons.menu_book_outlined,
           label: 'Conocimientos',
           iconBg: Color(0xFFECFEFF),
@@ -221,6 +229,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ruta: '/puntos-clave',
         ),
       ];
+
+  List<_Acceso> get _accesosVisibles {
+    final user = _user;
+    return _accesos.where((a) {
+      if (a.ruta == '/simulador') {
+        return user == null || user.tieneModulo('simulador');
+      }
+      return true;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _accesos.length,
+                itemCount: _accesosVisibles.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 14,
@@ -288,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   childAspectRatio: 1.15,
                 ),
                 itemBuilder: (context, i) {
-                  final a = _accesos[i];
+                  final a = _accesosVisibles[i];
                   return _AccesoCard(
                     acceso: a,
                     badge: a.conBadge && _notificacionesNoLeidas > 0

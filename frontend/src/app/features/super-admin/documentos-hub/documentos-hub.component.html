@@ -2,66 +2,208 @@
   <app-super-admin-sidebar />
 
   <main class="main-content">
-    <header class="topbar">
-      <h2>Documentos PDF por empresa</h2>
+    <header class="top-app-bar">
+      <div class="topbar-left">
+        <span class="topbar-route">Documentos</span>
+        <span class="topbar-sep">/</span>
+        <span class="topbar-sub">Biblioteca normativa</span>
+      </div>
       <div class="topbar-actions">
-        <a routerLink="/super-admin/empresas/nueva" class="btn-primary-sm">+ Nueva empresa</a>
+        @if (empresa) {
+          <a [routerLink]="rutaAnalizar" class="btn-ghost-sm">
+            <span class="mat-icon">analytics</span>
+            Analizar reporte
+          </a>
+          <a [routerLink]="rutaIa" class="btn-ghost-sm">
+            <span class="mat-icon">psychology</span>
+            Consultar IA
+          </a>
+          <a [routerLink]="rutaSubir" class="btn-primary-sm">
+            <span class="mat-icon">upload_file</span>
+            Subir PDF
+          </a>
+        }
       </div>
     </header>
 
-    <div class="content">
-      <div class="info-banner">
-        <div class="info-icon">📌</div>
+    <div class="dashboard-canvas">
+      <div class="welcome-row">
         <div>
-          <strong>Roles rápido</strong>
-          <p>
-            <strong>Super Admin</strong> y <strong>Admin de empresa</strong> pueden <strong>subir y gestionar PDFs</strong>
-            (el alcance global vs solo su empresa es la diferencia principal).
-            El <strong>usuario estándar</strong> solo <strong>consulta</strong> documentos, recordatorios e IA según su empresa.
+          <h2 class="welcome-title">Normativas de fiscalización</h2>
+          <p class="welcome-sub">
+            @if (loading) {
+              Cargando la biblioteca normativa de la empresa de fiscalización.
+            } @else if (empresa) {
+              Biblioteca HSE de <strong>{{ empresa.nombre }}</strong>. Sube PDFs, revísalos y úsalos en la consulta con IA.
+            } @else {
+              Aquí vivirán los PDFs de la empresa de fiscalización.
+            }
           </p>
         </div>
+        @if (empresa) {
+          <div class="empresa-chip" title="Modo una sola empresa">
+            <span class="mat-icon">apartment</span>
+            <span>{{ empresa.nombre }}</span>
+          </div>
+        }
       </div>
 
-      <div *ngIf="loading" class="loading-state">
-        <div class="spinner-lg"></div>
-        <p>Cargando empresas…</p>
-      </div>
+      @if (loading) {
+        <div class="state-panel">
+          <div class="spinner"></div>
+          <p>Cargando biblioteca…</p>
+        </div>
+      } @else if (errorCarga && !empresa) {
+        <div class="state-panel">
+          <span class="mat-icon state-icon">error</span>
+          <h3>No se pudo abrir la biblioteca</h3>
+          <p>{{ errorCarga }}</p>
+          <button type="button" class="btn-primary-sm" (click)="cargar()">Reintentar</button>
+        </div>
+      } @else if (!empresa) {
+        <div class="state-panel">
+          <span class="mat-icon state-icon">apartment</span>
+          <h3>Falta la empresa de fiscalización</h3>
+          <p>Crea la empresa con la que vas a trabajar. Luego volveremos a esta pantalla para cargar sus PDFs.</p>
+          <a routerLink="/super-admin/empresas/nueva" class="btn-primary-sm">Crear empresa</a>
+        </div>
+      } @else {
+        <div class="stats-row">
+          <article class="mini-stat">
+            <span class="mat-icon">description</span>
+            <div>
+              <strong>{{ totalPdfs }}</strong>
+              <span>Documentos</span>
+            </div>
+          </article>
+          <article class="mini-stat">
+            <span class="mat-icon">psychology</span>
+            <div>
+              <strong>{{ conIa }}</strong>
+              <span>Con puntos IA</span>
+            </div>
+          </article>
+          <article class="mini-stat">
+            <span class="mat-icon">sync</span>
+            <div>
+              <strong>{{ procesando }}</strong>
+              <span>En proceso</span>
+            </div>
+          </article>
+        </div>
 
-      <div *ngIf="!loading && empresas.length === 0" class="empty-state">
-        <span class="empty-icon">📄</span>
-        <h3>No hay empresas todavía</h3>
-        <p>Crea una empresa y vuelve aquí para subir sus normativas PDF.</p>
-        <a routerLink="/super-admin/empresas/nueva" class="btn-primary">Crear empresa</a>
-      </div>
+        <div class="toolbar">
+          <label class="search-wrap">
+            <span class="mat-icon">search</span>
+            <input
+              type="search"
+              [(ngModel)]="filtro"
+              placeholder="Buscar por nombre o descripción…"
+              aria-label="Filtrar documentos" />
+          </label>
+          <span class="toolbar-count">
+            {{ documentosFiltrados.length }} de {{ totalPdfs }}
+          </span>
+        </div>
 
-      <div *ngIf="!loading && empresas.length > 0" class="table-container">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Empresa</th>
-              <th>RUC</th>
-              <th>Estado</th>
-              <th>Acciones PDF</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let e of empresas">
-              <td class="cell-name">{{ e.nombre }}</td>
-              <td>{{ e.ruc || '—' }}</td>
-              <td>
-                <span class="status-badge" [class.activo]="e.activa" [class.inactivo]="!e.activa">
-                  {{ e.activa ? 'Activa' : 'Suspendida' }}
-                </span>
-              </td>
-              <td class="cell-actions">
-                <a [routerLink]="['/super-admin', 'empresas', e.id, 'documentos']" class="link-action">📂 Listar</a>
-                <a [routerLink]="['/super-admin', 'empresas', e.id, 'ia']" class="link-action">🤖 IA</a>
-                <a [routerLink]="['/super-admin', 'empresas', e.id, 'documentos', 'subir']" class="link-action primary">⬆ Subir PDF</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        @if (loadingDocs && documentos.length === 0) {
+          <div class="state-panel compact">
+            <div class="spinner"></div>
+            <p>Cargando documentos…</p>
+          </div>
+        } @else if (documentos.length === 0) {
+          <div class="empty-card">
+            <div class="empty-visual">
+              <span class="mat-icon">folder_open</span>
+            </div>
+            <h3>Aún no hay PDFs</h3>
+            <p>Sube el primer documento normativo (reglamento, estándar, procedimiento). Quedará listo para fiscalizar y consultar con IA.</p>
+            <a [routerLink]="rutaSubir" class="btn-primary-sm">
+              <span class="mat-icon">upload_file</span>
+              Subir primer PDF
+            </a>
+          </div>
+        } @else if (documentosFiltrados.length === 0) {
+          <div class="state-panel compact">
+            <span class="mat-icon state-icon">search_off</span>
+            <h3>Sin coincidencias</h3>
+            <p>Ningún documento coincide con «{{ filtro }}».</p>
+          </div>
+        } @else {
+          <div class="docs-grid">
+            @for (doc of documentosFiltrados; track doc.id) {
+              <article class="doc-card">
+                <div class="doc-card-head">
+                  <span class="badge-pdf">PDF</span>
+                  <span class="badge-lang">{{ idiomaCorto(doc.idiomaDetectado) }}</span>
+                  @if (estaExtrayendo(doc)) {
+                    <span class="chip processing">Procesando</span>
+                  }
+                  @if (estado(doc) === 'ERROR') {
+                    <span class="chip error">Error</span>
+                  }
+                  @if (doc.puntosGeneradosIa) {
+                    <span class="chip ia">IA</span>
+                  }
+                </div>
+
+                <h3 class="doc-title">
+                  <a [routerLink]="rutaDetalle(doc.id)">{{ doc.titulo }}</a>
+                </h3>
+                <p class="doc-desc">{{ doc.descripcion || 'Sin descripción' }}</p>
+
+                <div class="doc-meta">
+                  <span>{{ formatearTamano(doc.archivoTamano) }}</span>
+                  <span>·</span>
+                  <span>{{ doc.cantidadPuntos || 0 }} puntos clave</span>
+                </div>
+
+                <div class="doc-actions">
+                  <a [routerLink]="rutaDetalle(doc.id)" class="btn-outline-sm">Abrir</a>
+                  <button type="button" class="icon-action" title="Renombrar" (click)="abrirEdicion(doc)">
+                    <span class="mat-icon">edit</span>
+                  </button>
+                  <button type="button" class="icon-action danger" title="Eliminar" (click)="eliminar(doc)">
+                    <span class="mat-icon">delete</span>
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      }
     </div>
   </main>
 </div>
+
+@if (docEditando) {
+  <div class="modal-overlay" (click)="cerrarEdicion()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Editar documento</h3>
+        <button type="button" class="icon-action" (click)="cerrarEdicion()" title="Cerrar">
+          <span class="mat-icon">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="field">
+          <span>Nombre</span>
+          <input type="text" [(ngModel)]="tituloEditado" maxlength="255" (keyup.enter)="guardarEdicion()" />
+        </label>
+        <label class="field">
+          <span>Descripción <em>(opcional)</em></span>
+          <textarea rows="3" [(ngModel)]="descripcionEditada"></textarea>
+        </label>
+        @if (errorEdicion) {
+          <p class="field-error">{{ errorEdicion }}</p>
+        }
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost-sm" (click)="cerrarEdicion()" [disabled]="guardandoEdicion">Cancelar</button>
+        <button type="button" class="btn-primary-sm" (click)="guardarEdicion()" [disabled]="guardandoEdicion || !tituloEditado.trim()">
+          {{ guardandoEdicion ? 'Guardando…' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -6,43 +6,15 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { IaChatComponent } from '../../shared/ia-chat/ia-chat.component';
 import { environment } from '../../../../environments/environment';
+import { UsuarioSidebarComponent } from '../shared/usuario-sidebar/usuario-sidebar.component';
 
 @Component({
   selector: 'app-ia-usuario',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, IaChatComponent],
+  imports: [CommonModule, RouterModule, FormsModule, IaChatComponent, UsuarioSidebarComponent],
   template: `
     <div class="dashboard-container ia-page-shell">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo-small">
-            <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-              <rect width="48" height="48" rx="12" fill="#0284c7"/>
-              <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <span class="brand">Fiscalización HSE</span>
-        </div>
-        <nav class="sidebar-nav">
-          <div class="nav-label">Mi Panel</div>
-          <a routerLink="/usuario/dashboard" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
-          <a routerLink="/usuario/documentos" class="nav-item"><span class="nav-icon">📄</span> Documentos</a>
-          <a routerLink="/usuario/notificaciones" class="nav-item"><span class="nav-icon">🔔</span> Mis Recordatorios</a>
-          <a class="nav-item"><span class="nav-icon">🔍</span> Buscar</a>
-          <a routerLink="/usuario/ia" class="nav-item active"><span class="nav-icon">🤖</span> FISCALIZA-AI</a>
-        </nav>
-        <div class="sidebar-footer">
-          <div class="user-info">
-            <div class="user-avatar user">{{ user?.nombre?.charAt(0) || 'U' }}</div>
-            <div>
-              <p class="user-name">{{ user?.nombre || 'Usuario' }}</p>
-              <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
-            </div>
-          </div>
-          <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
-        </div>
-      </aside>
-
+      <app-usuario-sidebar />
       <main class="ia-full-main">
         <app-ia-chat
           [workspaceLayout]="true"
@@ -76,7 +48,6 @@ import { environment } from '../../../../environments/environment';
       overflow: hidden;
       display: flex;
       padding: 0;
-      margin-left: 260px;
     }
 
     .ia-full-main app-ia-chat {
@@ -136,9 +107,5 @@ export class IaUsuarioComponent implements OnInit {
           this.loadingDocs = false;
         },
       });
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 }

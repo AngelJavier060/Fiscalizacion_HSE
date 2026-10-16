@@ -292,6 +292,35 @@ class PermisoOfflineService {
     }
   }
 
+  // ─── Cachear permisos del servidor (sin agregar a cola pendiente) ─
+  /// Guarda los permisos traídos del servidor en almacenamiento local.
+  /// NO agrega a la cola de sincronización pendiente porque ya están en el backend.
+  static Future<void> cachearDeServidor(List<PermitModel> permisos) async {
+    try {
+      final dir = await _getDir();
+      final prefs = await SharedPreferences.getInstance();
+      final pendientes = _leerPendientes(prefs);
+      final idx = _leerIndice(prefs);
+
+      for (final permit in permisos) {
+        // No sobreescribir permisos que están pendientes de sincronizar
+        if (pendientes.contains(permit.id)) continue;
+
+        final file = File('${dir.path}/${permit.id}.json');
+        await file.writeAsString(jsonEncode(_permitToJson(permit)));
+        idx[permit.id] = {
+          'titulo': permit.title,
+          'fecha': DateTime.now().toIso8601String(),
+        };
+      }
+
+      // Actualizar el índice en una sola escritura
+      await prefs.setString(_keyIndice, jsonEncode(idx));
+    } catch (e) {
+      debugPrint('PermisoOfflineService.cachearDeServidor error: $e');
+    }
+  }
+
   // ─── Eliminar permiso local ────────────────────────────────────
   static Future<void> eliminarPermiso(String id) async {
     try {

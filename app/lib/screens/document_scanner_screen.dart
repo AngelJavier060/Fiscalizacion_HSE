@@ -3,13 +3,16 @@ import "dart:io";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:image/image.dart" as img;
-import "package:image_picker/image_picker.dart";
+import "package:edge_detection/edge_detection.dart";
+import "package:google_mlkit_document_scanner/google_mlkit_document_scanner.dart";
 import "package:intl/intl.dart";
 import "package:path_provider/path_provider.dart";
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pw;
 import "../models/permit_model.dart";
 import "../services/permiso_offline_service.dart";
+import "../services/document_processor.dart";
+import "../widgets/image_crop_screen.dart";
 
 class _ScanPal {
   static const bg = Color(0xFF0D0D0D);
@@ -33,7 +36,7 @@ class DocumentScannerScreen extends StatefulWidget {
 
 class _DocumentScannerScreenState extends State<DocumentScannerScreen>
     with WidgetsBindingObserver {
-  final ImagePicker _picker = ImagePicker();
+  bool _lote = true;
   final List<_ScannedPage> _pages = [];
   final Set<int> _selectedPages = {};
   int _currentPageIndex = -1;
@@ -42,59 +45,166 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
   String _statusMessage = "Listo para escanear";
 
   @override
-  void initState() { super.initState(); WidgetsBinding.instance.addObserver(this); SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge); }
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    // Abrir el escáner automáticamente al ingresar si no hay páginas
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _pages.isEmpty) {
+        _capturePage();
+      }
+    });
+  }
   @override
   void dispose() { WidgetsBinding.instance.removeObserver(this); SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge); super.dispose(); }
+
+  Future<List<String>?> _openNativeDocumentScanner() async {
+    try {
+      final options = DocumentScannerOptions(
+        documentFormats: const {DocumentFormat.jpeg},
+        pageLimit: _lote ? 10 : 1,
+        mode: ScannerMode.full,
+        isGalleryImport: true,
+      );
+      final scanner = DocumentScanner(options: options);
+      final result = await scanner.scanDocument();
+      await scanner.close();
+      final images = result.images ?? const <String>[];
+      if (images.isEmpty) return null;
+      return images;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // Recorta automáticamente bordes de fondo (casi blancos) y devuelve una nueva ruta.
+  Future<String> _autoCropAndSave(String srcPath) async {
+    try {
+      final file = File(srcPath);
+      if (!await file.exists()) return srcPath;
+      final bytes = await file.readAsBytes();
+      final im = img.decodeImage(bytes);
+      if (im == null) return srcPath;
+
+      final w = im.width, h = im.height;
+      int minX = w, minY = h, maxX = -1, maxY = -1;
+      // Umbral de luminancia para considerar "fondo" (casi blanco)
+      const int threshold = 245;
+      for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+          final p = im.getPixel(x, y);
+          final l = img.getLuminance(p).toInt();
+          if (l < threshold) {
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+      // Si no se detecta nada o el recorte no mejora, devolver original
+      if (maxX <= 0 || maxY <= 0 || minX >= maxX || minY >= maxY) return srcPath;
+
+      // Padding leve para no cortar demasiado
+      const pad = 8;
+      final nx = (minX - pad).clamp(0, w - 1);
+      final ny = (minY - pad).clamp(0, h - 1);
+      final nmaxX = (maxX + pad).clamp(0, w - 1);
+      final nmaxY = (maxY + pad).clamp(0, h - 1);
+      final nw = (nmaxX - nx + 1).clamp(1, w);
+      final nh = (nmaxY - ny + 1).clamp(1, h);
+
+      if (nw <= 0 || nh <= 0 || (nw == w && nh == h)) return srcPath;
+
+      final cropped = img.copyCrop(im, x: nx, y: ny, width: nw, height: nh);
+      // Nueva ruta con sufijo _crop.jpg
+      var dstPath = srcPath.replaceFirst(RegExp(r'\.(jpg|jpeg|png)$', caseSensitive: false), '_crop.jpg');
+      if (dstPath == srcPath) { dstPath = srcPath + '_crop.jpg'; }
+      await File(dstPath).writeAsBytes(img.encodeJpg(cropped, quality: 95));
+      return dstPath;
+    } catch (_) {
+      return srcPath;
+    }
+  }
 
   Future<void> _capturePage() async {
     if (_isCapturing) return;
     setState(() => _isCapturing = true);
     try {
-      final XFile? photo = await _picker.pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear, imageQuality: 80, maxWidth: 1920, maxHeight: 1920);
-      if (photo != null && mounted) await _processCapturedPage(photo.path);
-    } catch (e) { if (mounted) _showStatus("Error al capturar: $e", isError: true); }
+      // Intento 1: Escáner nativo de Google ML Kit (UI similar a CamScanner)
+      List<String>? pics = await _openNativeDocumentScanner();
+      
+      // Fallback: Si ML Kit falla (ej. en emulador o sin Google Play Services), usar edge_detection
+      if (pics == null || pics.isEmpty) {
+        final tempDir = await getTemporaryDirectory();
+        final path = "${tempDir.path}/scan_${DateTime.now().millisecondsSinceEpoch}.jpg";
+        
+        bool success = await EdgeDetection.detectEdge(
+          path,
+          canUseGallery: true,
+          androidScanTitle: 'Escaneando',
+          androidCropTitle: 'Recortar',
+          androidCropBlackWhiteTitle: 'Blanco y Negro',
+          androidCropReset: 'Deshacer',
+        ) ?? false;
+        
+        if (success) {
+          pics = [path];
+        }
+      }
+
+      if (pics != null && pics.isNotEmpty && mounted) {
+        for (final p in pics) {
+          await _processCapturedPage(p);
+        }
+      }
+    } catch (e) { 
+      if (mounted) _showStatus("Error al capturar: $e", isError: true); 
+    }
     finally { if (mounted) setState(() => _isCapturing = false); }
   }
 
   Future<void> _processCapturedPage(String originalPath) async {
-    setState(() { _isProcessing = true; _statusMessage = "Procesando imagen..."; });
-        try {
-      final bytes = await File(originalPath).readAsBytes();
-      img.Image? image = img.decodeImage(bytes);
-      if (image == null) throw Exception("No se pudo decodificar");
-      image = img.bakeOrientation(image);
-      // Escalar a resolución máxima para agilizar
-      final maxDim = 1200;
-      if (image.width > maxDim || image.height > maxDim) {
-        image = img.copyResize(image, width: image.width > image.height ? maxDim : null, height: image.height >= image.width ? maxDim : null);
-      }
+    setState(() { _isProcessing = true; _statusMessage = "Guardando imagen..."; });
+    try {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final outputDir = await getApplicationDocumentsDirectory();
       final scansDir = Directory("${outputDir.path}/scans");
-            if (!await scansDir.exists()) await scansDir.create(recursive: true);
-            final idBase = (widget.permit?.id ?? 'temp').replaceAll(RegExp(r'[\s/\-]'), '_');
-            final processedPath = "${scansDir.path}/${idBase}_pag${_pages.length + 1}.jpg";
-      final img2 = image!;
-      await File(processedPath).writeAsBytes(img.encodeJpg(img2, quality: 80));
+      if (!await scansDir.exists()) await scansDir.create(recursive: true);
+      final idBase = (widget.permit?.id ?? 'temp').replaceAll(RegExp(r'[\s/\-]'), '_');
+      final finalPath = "${scansDir.path}/${idBase}_pag${_pages.length + 1}_$timestamp.jpg";
+      
+      await File(originalPath).copy(finalPath);
+      
       if (!mounted) return;
-      final page = _ScannedPage(id: timestamp, path: processedPath, originalPath: originalPath, capturedAt: DateTime.now(), width: img2.width, height: img2.height);
-      setState(() { _pages.add(page); _selectedPages.add(page.id); _currentPageIndex = _pages.length - 1; _isProcessing = false; _statusMessage = "Pag ${_pages.length} - ${img2.width}x${img2.height} - OK"; });
+      
+      final page = _ScannedPage(
+        id: timestamp,
+        path: finalPath,
+        originalPath: finalPath,
+        grayPath: null,
+        bwPath: null,
+        filter: ScanFilter.color,
+        capturedAt: DateTime.now(),
+        width: 0,
+        height: 0,
+      );
+      
+      setState(() { 
+        _pages.add(page); 
+        _selectedPages.add(page.id); 
+        _currentPageIndex = _pages.length - 1; 
+        _isProcessing = false; 
+        _statusMessage = "Pag ${_pages.length} - OK"; 
+      });
+      
       HapticFeedback.mediumImpact();
+      // Si estamos en modo lote y usamos EdgeDetection (que solo captura 1 a la vez), capturar la siguiente
+      // Nota: ML Kit retorna de una vez toda la lista, así que este delay reabriría ML Kit innecesariamente. 
+      // Lo mejor es no reabrir si ML Kit ya procesó el lote completo.
     } catch (e) {
-      debugPrint("Error: $e");
-      try {
-        final ts = DateTime.now().millisecondsSinceEpoch;
-        final outDir = await getApplicationDocumentsDirectory();
-        final sDir = Directory("${outDir.path}/scans");
-                if (!await sDir.exists()) await sDir.create(recursive: true);
-                final idBase = (widget.permit?.id ?? 'temp').replaceAll(RegExp(r'[\s/\-]'), '_');
-                final fb = "${sDir.path}/${idBase}_pag${_pages.length + 1}.jpg";
-        await File(originalPath).copy(fb);
-        if (mounted) {
-          final p = _ScannedPage(id: ts, path: fb, originalPath: originalPath, capturedAt: DateTime.now());
-          setState(() { _pages.add(p); _selectedPages.add(p.id); _currentPageIndex = _pages.length - 1; _isProcessing = false; _statusMessage = "Pag ${_pages.length} (original)"; });
-        }
-      } catch (_) { if (mounted) { setState(() => _isProcessing = false); _showStatus("Error al procesar", isError: true); } }
+      if (mounted) { setState(() => _isProcessing = false); _showStatus("Error al procesar", isError: true); }
     }
   }
 
@@ -126,7 +236,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
     if (index < 0 || index >= _pages.length) return;
     final page = _pages[index];
     setState(() { _selectedPages.remove(page.id); _pages.removeAt(index); if (_pages.isEmpty) _currentPageIndex = -1; else if (_currentPageIndex >= _pages.length) _currentPageIndex = _pages.length - 1; _statusMessage = _pages.isEmpty ? "Listo para escanear" : "${_pages.length} pag(s)"; });
-    try { File(page.path).deleteSync(); File(page.originalPath).deleteSync(); } catch (_) {}
+    try { if (page.path != page.originalPath) File(page.path).deleteSync(); if (page.grayPath != null) File(page.grayPath!).deleteSync(); if (page.bwPath != null) File(page.bwPath!).deleteSync(); File(page.originalPath).deleteSync(); } catch (_) {}
   }
 
   void _toggleSelection(int pid) { setState(() { if (_selectedPages.contains(pid)) _selectedPages.remove(pid); else _selectedPages.add(pid); }); }
@@ -144,8 +254,10 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
         final bytes = await f.readAsBytes();
         pdf.addPage(pw.Page(
           pageFormat: PdfPageFormat.a4,
-          build: (_) => pw.Center(
-            child: pw.Image(pw.MemoryImage(bytes), fit: pw.BoxFit.contain),
+          margin: pw.EdgeInsets.zero,
+          build: (_) => pw.FullPage(
+            ignoreMargins: true,
+            child: pw.Image(pw.MemoryImage(bytes), fit: pw.BoxFit.fitWidth),
           ),
         ));
         cnt++;
@@ -239,7 +351,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
       Expanded(child: Padding(padding: const EdgeInsets.all(8), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Stack(fit: StackFit.expand, children: [
         _buildPageImage(page.path),
         Positioned(top: 12, right: 12, child: GestureDetector(onTap: () => _toggleSelection(page.id), child: Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: sel ? _ScanPal.green : _ScanPal.onSurfaceDim, shape: BoxShape.circle), child: Icon(sel ? Icons.check : Icons.close, color: Colors.white, size: 18)))),
-        Positioned(bottom: 12, left: 12, child: Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(8)), child: Text("${page.width}x${page.height} px", style: const TextStyle(color: Colors.white, fontSize: 10)))),
+        Positioned(bottom: 12, left: 12, right: 12, child: _buildToolbar(page)),
       ])))),
       Container(height: 110, color: _ScanPal.surface, child: ListView.builder(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8), itemCount: _pages.length, itemBuilder: (_, i) => _buildThumbnail(i))),
     ]);
@@ -257,10 +369,115 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
     ])));
   }
 
-  Widget _buildPageImage(String path, {BoxFit fit = BoxFit.contain}) {
+  Widget _buildPageImage(String path, {BoxFit fit = BoxFit.fitWidth}) {
     final f = File(path);
     if (!f.existsSync()) return Container(color: _ScanPal.surfaceLight, child: const Center(child: Icon(Icons.broken_image_outlined, color: _ScanPal.onSurfaceDim, size: 40)));
     return Image.file(f, fit: fit, errorBuilder: (_, __, ___) => Container(color: _ScanPal.surfaceLight, child: const Center(child: Icon(Icons.broken_image_outlined, color: _ScanPal.onSurfaceDim, size: 40))));
+  }
+
+  // Filtros y herramientas rápidas tipo CamScanner
+  Widget _buildToolbar(_ScannedPage page) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.55), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white12)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.center, children: [
+          ChoiceChip(label: const Text('Color'), selected: page.filter == ScanFilter.color, onSelected: (v) { if (!v) return; _applyFilter(page, ScanFilter.color); }),
+          ChoiceChip(label: const Text('Gris'),  selected: page.filter == ScanFilter.gray,  onSelected: (v) { if (!v) return; _applyFilter(page, ScanFilter.gray);  }),
+          ChoiceChip(label: const Text('B/N'),   selected: page.filter == ScanFilter.bw,    onSelected: (v) { if (!v) return; _applyFilter(page, ScanFilter.bw);    }),
+        ]),
+        const SizedBox(height: 8),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          IconButton(onPressed: () => _rotateCurrent(-90), icon: const Icon(Icons.rotate_left, color: Colors.white)),
+          IconButton(onPressed: () => _rotateCurrent(90),  icon: const Icon(Icons.rotate_right, color: Colors.white)),
+          TextButton.icon(onPressed: _recropCurrent, icon: const Icon(Icons.grid_on, size: 16), label: const Text('Ajustar', style: TextStyle(color: Colors.white))),
+          TextButton.icon(onPressed: _cleanAggressive, icon: const Icon(Icons.auto_fix_high, size: 16), label: const Text('Limpieza+', style: TextStyle(color: Colors.white))),
+        ]),
+      ]),
+    );
+  }
+
+  Future<void> _applyFilter(_ScannedPage page, ScanFilter f) async {
+    try {
+      switch (f) {
+        case ScanFilter.color:
+          setState(() { page.filter = f; page.path = page.originalPath; });
+          break;
+        case ScanFilter.gray:
+          if (page.grayPath == null || !File(page.grayPath!).existsSync()) {
+            final bytes = await File(page.originalPath).readAsBytes();
+            final im = img.decodeImage(bytes);
+            if (im != null) {
+              final g = img.grayscale(im);
+              final dir = await getTemporaryDirectory();
+              final gp = '${dir.path}/gray_${DateTime.now().millisecondsSinceEpoch}.jpg';
+              await File(gp).writeAsBytes(img.encodeJpg(g, quality: 94));
+              page.grayPath = gp;
+            }
+          }
+          setState(() { page.filter = f; page.path = page.grayPath ?? page.originalPath; });
+          break;
+        case ScanFilter.bw:
+          if (page.bwPath == null || !File(page.bwPath!).existsSync()) {
+            page.bwPath = await DocumentProcessor.processForDocument(page.originalPath);
+          }
+          setState(() { page.filter = f; page.path = page.bwPath ?? page.originalPath; });
+          break;
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _rotateCurrent(int degrees) async {
+    if (_currentPageIndex < 0 || _currentPageIndex >= _pages.length) return;
+    final p = _pages[_currentPageIndex];
+    Future<void> rot(String path) async {
+      try {
+        final b = await File(path).readAsBytes();
+        final im = img.decodeImage(b);
+        if (im == null) return;
+        final r = img.copyRotate(im, angle: degrees);
+        await File(path).writeAsBytes(img.encodeJpg(r, quality: 95));
+      } catch (_) {}
+    }
+    await rot(p.originalPath);
+    if (p.grayPath != null) await rot(p.grayPath!);
+    if (p.bwPath   != null) await rot(p.bwPath!);
+    setState(() {});
+  }
+
+  Future<void> _recropCurrent() async {
+    if (_currentPageIndex < 0 || _currentPageIndex >= _pages.length) return;
+    final p = _pages[_currentPageIndex];
+    final rec = await Navigator.push<String?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ImageCropScreen(
+          imagePath: p.originalPath,
+          title: 'Ajustar documento',
+          confirmLabel: 'Aplicar',
+          autoProcessDoc: false,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+    if (rec == null) return;
+    p.originalPath = rec;
+    p.grayPath = null; p.bwPath = null;
+    await _applyFilter(p, p.filter);
+  }
+
+  Future<void> _cleanAggressive() async {
+    if (_currentPageIndex < 0 || _currentPageIndex >= _pages.length) return;
+    final p = _pages[_currentPageIndex];
+    try {
+      final out = await DocumentProcessor.processForDocument(p.originalPath);
+      if (out != null) {
+        p.bwPath = out;
+        if (p.filter == ScanFilter.bw) {
+          setState(() { p.path = out; });
+        }
+      }
+    } catch (_) {}
   }
 
   Widget _buildStatusBar() {
@@ -268,9 +485,10 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen>
   }
 
   Widget _buildBottomBar() {
-    return Container(color: _ScanPal.surface, padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 8, top: 8, left: 16, right: 16), child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+    return Container(color: _ScanPal.surface, padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 8, top: 8, left: 16, right: 16), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      FilterChip(label: Text(_lote ? 'Lote' : 'Individual'), selected: _lote, onSelected: (v) => setState(() => _lote = v)),
       _ScanButton(icon: Icons.add_a_photo_rounded, label: "Capturar", onTap: _isCapturing || _isProcessing ? null : _capturePage, isLoading: _isCapturing, primary: true),
-      if (_pages.isNotEmpty) ...[const SizedBox(width: 12), _ScanButton(icon: Icons.check_circle_outline, label: "Guardar (${_selectedPages.length}/${_pages.length})", onTap: _isProcessing ? null : _finalizar, primary: false)],
+      if (_pages.isNotEmpty) _ScanButton(icon: Icons.check_circle_outline, label: "Guardar (${_selectedPages.length}/${_pages.length})", onTap: _isProcessing ? null : _finalizar, primary: false),
     ]));
   }
 }
@@ -289,8 +507,18 @@ class _ScanButton extends StatelessWidget {
   }
 }
 
+enum ScanFilter { color, gray, bw }
+
 class _ScannedPage {
-  final int id; final String path; final String originalPath; final DateTime capturedAt; final int width; final int height;
-  const _ScannedPage({required this.id, required this.path, required this.originalPath, required this.capturedAt, this.width = 0, this.height = 0});
+  final int id;
+  String path;            // ruta mostrada según filtro
+  String originalPath;    // imagen color base
+  String? grayPath;       // variante en gris
+  String? bwPath;         // variante B/N procesada
+  ScanFilter filter;      // filtro activo
+  final DateTime capturedAt;
+  final int width;
+  final int height;
+  _ScannedPage({required this.id, required this.path, required this.originalPath, this.grayPath, this.bwPath, this.filter = ScanFilter.bw, required this.capturedAt, this.width = 0, this.height = 0});
 }
 

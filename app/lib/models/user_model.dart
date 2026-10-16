@@ -1,3 +1,10 @@
+int _toInt(dynamic v, [int d = 0]) {
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v) ?? d;
+  return d;
+}
+
 class UserModel {
   final int id;
   final String nombre;
@@ -6,6 +13,7 @@ class UserModel {
   final int empresaId;
   final String empresaNombre;
   final bool activo;
+  final List<String> modulos;
 
   UserModel({
     required this.id,
@@ -15,17 +23,24 @@ class UserModel {
     required this.empresaId,
     required this.empresaNombre,
     required this.activo,
+    this.modulos = const [],
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    final src = json['usuario'] is Map
+        ? Map<String, dynamic>.from(json['usuario'] as Map)
+        : json;
+    final mods = json['modulos'] ?? src['modulos'];
     return UserModel(
-      id: json['id'] as int,
-      nombre: json['nombre'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      rol: json['rol'] as String? ?? 'USUARIO',
-      empresaId: json['empresaId'] as int? ?? 0,
-      empresaNombre: json['empresaNombre'] as String? ?? '',
-      activo: json['activo'] as bool? ?? true,
+      id: _toInt(src['id'] ?? json['id']),
+      nombre: src['nombre'] as String? ?? json['nombre'] as String? ?? '',
+      email: src['email'] as String? ?? json['email'] as String? ?? '',
+      rol: src['rol'] as String? ?? json['rol'] as String? ?? 'USUARIO',
+      empresaId: _toInt(src['empresaId'] ?? json['empresaId']),
+      empresaNombre:
+          src['empresaNombre'] as String? ?? json['empresaNombre'] as String? ?? '',
+      activo: src['activo'] as bool? ?? json['activo'] as bool? ?? true,
+      modulos: mods is List ? mods.map((e) => e.toString()).toList() : const [],
     );
   }
 
@@ -37,6 +52,7 @@ class UserModel {
     'empresaId': empresaId,
     'empresaNombre': empresaNombre,
     'activo': activo,
+    'modulos': modulos,
   };
 
   String get iniciales {
@@ -49,6 +65,11 @@ class UserModel {
 
   bool get isAdmin => rol == 'ADMIN_EMPRESA' || rol == 'SUPER_ADMIN';
   bool get isUsuario => rol == 'USUARIO';
+
+  bool tieneModulo(String codigo) {
+    if (modulos.isEmpty) return true;
+    return modulos.contains(codigo);
+  }
 }
 
 class LoginResponse {
@@ -65,10 +86,13 @@ class LoginResponse {
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
+    final usuarioJson = json['usuario'] is Map
+        ? Map<String, dynamic>.from(json['usuario'] as Map)
+        : json;
     return LoginResponse(
       token: json['token'] as String,
-      usuario: UserModel.fromJson(json['usuario'] as Map<String, dynamic>),
-      tipo: json['tipo'] as String? ?? 'Bearer',
+      usuario: UserModel.fromJson(usuarioJson),
+      tipo: json['tipoToken'] as String? ?? json['tipo'] as String? ?? 'Bearer',
       mensaje: json['mensaje'] as String?,
     );
   }

@@ -25,6 +25,8 @@ public class DocumentoResponse {
     private Boolean puntosGeneradosIa;
     private String estadoProcesamiento;
     private String errorProcesamiento;
+    /** Hay letras guardadas (el chip Procesando no debe bloquear la tarjeta). */
+    private Boolean textoListo;
     private Long cantidadPuntos;
     private Long cantidadPuntosRevisados;
     private Boolean activo;

@@ -17,6 +17,9 @@ import 'screens/notificaciones_screen.dart';
 import 'screens/ia_chat_screen.dart';
 import 'screens/perfil_screen.dart';
 import 'screens/permisos_screen.dart';
+import 'screens/simulador/simulador_inicio_screen.dart';
+import 'screens/simulador/simulador_examen_screen.dart';
+import 'screens/simulador/simulador_resultado_screen.dart';
 import 'services/auth_service.dart';
 import 'services/permiso_offline_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -142,7 +145,8 @@ class FiscalizacionHSEApp extends StatelessWidget {
         '/notificaciones': (context) => const NotificacionesScreen(),
         '/ia-chat': (context) => const IaChatScreen(),
         '/perfil': (context) => const PerfilScreen(),
-    '/permisos': (context) => const PermisosScreen(),
+        '/permisos': (context) => const PermisosScreen(),
+        '/simulador': (context) => const SimuladorInicioScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/documento-detalle') {
@@ -179,6 +183,22 @@ class FiscalizacionHSEApp extends StatelessWidget {
             builder: (context) => DocumentoEditorScreen(
               documentoId: args['id'] as int,
               titulo: args['titulo'] as String,
+            ),
+          );
+        }
+        if (settings.name == '/simulador-examen') {
+          final args = settings.arguments as Map<String, dynamic>? ?? {};
+          return MaterialPageRoute(
+            builder: (context) => SimuladorExamenScreen(
+              examenId: args['id'] as int,
+            ),
+          );
+        }
+        if (settings.name == '/simulador-resultado') {
+          final args = settings.arguments as Map<String, dynamic>? ?? {};
+          return MaterialPageRoute(
+            builder: (context) => SimuladorResultadoScreen(
+              intentoId: args['id'] as int,
             ),
           );
         }

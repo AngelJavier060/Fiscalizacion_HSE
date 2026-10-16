@@ -36,11 +36,23 @@ public class FiscalizaAgentOrchestratorService {
             String advertencia
     ) {}
 
-    public ResultadoFlujoAgente ejecutarConsultaContenido(
+        public ResultadoFlujoAgente ejecutarConsultaContenido(
             String pregunta,
             Long empresaId,
             List<Documento> todosActivos,
             List<BusquedaIaResponse.ResultadoBusqueda> fragmentos) {
+        return ejecutarConsultaContenido(pregunta, empresaId, todosActivos, fragmentos, "");
+    }
+
+    /**
+     * @param modelo 'deepseek-reasoner' o 'deepseek-chat'. Vacío = usa config default.
+     */
+    public ResultadoFlujoAgente ejecutarConsultaContenido(
+            String pregunta,
+            Long empresaId,
+            List<Documento> todosActivos,
+            List<BusquedaIaResponse.ResultadoBusqueda> fragmentos,
+            String modelo) {
 
         List<PasoAgente> pasos = new ArrayList<>();
         int orden = 1;
@@ -151,18 +163,13 @@ public class FiscalizaAgentOrchestratorService {
         pasos.add(PasoAgente.builder()
                 .orden(orden)
                 .herramienta("redactar_respuesta")
-                .titulo(apartadoLiteral.isPresent() ? "Texto literal del apartado"
-                        : resumenBreve && tieneFocalEstandar ? "Resumen del estándar" : "Redacción DeepSeek")
-                .detalle(chatService.deepseekDisponible()
-                        ? "Respuesta generada solo con la sección del estándar pedido."
-                        : "DeepSeek no configurado; respuesta limitada.")
-                .estado(chatService.deepseekDisponible() ? "ok" : "error")
+                .titulo("Respuesta desde sus PDF")
+                .detalle("Texto tomado de los documentos cargados en la empresa.")
+                .estado("ok")
                 .build());
 
         String advertencia = null;
-        if (!chatService.deepseekDisponible()) {
-            advertencia = "Motor DeepSeek no configurado: configure DEEPSEEK_API_KEY en el servidor.";
-        } else if (frags.isEmpty()) {
+        if (frags.isEmpty()) {
             advertencia = "No se encontraron fragmentos relacionados. Reformule la pregunta o elija un documento concreto.";
         }
 
@@ -195,7 +202,7 @@ public class FiscalizaAgentOrchestratorService {
                         .orden(2)
                         .herramienta("explicar_capacidades")
                         .titulo("Capacidades del agente")
-                        .detalle(deepseek ? "DeepSeek conectado." : "DeepSeek no configurado.")
+                        .detalle("Consulta sobre los PDF cargados.")
                         .estado("ok")
                         .build()
         );

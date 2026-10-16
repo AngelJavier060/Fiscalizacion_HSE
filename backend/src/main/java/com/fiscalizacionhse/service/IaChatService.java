@@ -2,7 +2,9 @@ package com.fiscalizacionhse.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fiscalizacionhse.config.DeepSeekClientConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,9 @@ import java.util.regex.Pattern;
  * Servicio de Chat con IA usando DeepSeek.
  * Implementa RAG (Retrieval-Augmented Generation) para responder
  * preguntas sobre los documentos de la empresa.
+ * 
+ * MODELOS: usa deepseek-chat (rápido) por defecto y deepseek-reasoner
+ * para consultas complejas. Configurable via application.yml.
  */
 @Service
 @Slf4j
@@ -81,217 +86,86 @@ public class IaChatService {
     private final CriteriosCalidadExtraccionService criteriosCalidadService;
     private final TranscripcionLibroConsultaService transcripcionLibroService;
     private final ConsultaLibroPrecisaService consultaLibroPrecisaService;
+    private final DeepSeekClientConfig deepSeekConfig;
+    private final OllamaClient ollamaClient;
     private final String apiKey;
     private final String apiUrl;
+
+    private static final String MODELO_RAPIDO = "deepseek-chat";
+    private static final String MODELO_RAZONAMIENTO = "deepseek-reasoner";
+
+    /** Override temporal del modelo para el hilo actual (lo setea el controller). */
+    private static final ThreadLocal<String> MODELO_OVERRIDE = new ThreadLocal<>();
+
+    public static void setModeloOverride(String modelo) {
+        if (modelo != null && (MODELO_RAPIDO.equals(modelo) || MODELO_RAZONAMIENTO.equals(modelo))) {
+            MODELO_OVERRIDE.set(modelo);
+        } else {
+            MODELO_OVERRIDE.remove();
+        }
+    }
+
+    public static void clearModeloOverride() {
+        MODELO_OVERRIDE.remove();
+    }
+
+    private String modeloEfectivo() {
+        String override = MODELO_OVERRIDE.get();
+        return override != null ? override : deepSeekConfig.getDefaultModel();
+    }
 
     public IaChatService(
             CatalogoControlesCriticosService catalogoCcService,
             CriteriosCalidadExtraccionService criteriosCalidadService,
             TranscripcionLibroConsultaService transcripcionLibroService,
             ConsultaLibroPrecisaService consultaLibroPrecisaService,
+            DeepSeekClientConfig deepSeekConfig,
+            OllamaClient ollamaClient,
+            @Qualifier("deepSeekRestTemplate") RestTemplate restTemplate,
             @Value("${app.ia.deepseek.api-key:}") String apiKey,
             @Value("${app.ia.deepseek.api-url:https://api.deepseek.com/v1/chat/completions}") String apiUrl) {
         this.catalogoCcService = catalogoCcService;
         this.criteriosCalidadService = criteriosCalidadService;
         this.transcripcionLibroService = transcripcionLibroService;
         this.consultaLibroPrecisaService = consultaLibroPrecisaService;
-        this.restTemplate = new RestTemplate();
+        this.deepSeekConfig = deepSeekConfig;
+        this.ollamaClient = ollamaClient;
+        this.restTemplate = restTemplate;
         this.objectMapper = new ObjectMapper();
-        this.apiKey = apiKey;
+        this.apiKey = "";
         this.apiUrl = apiUrl;
+
+        log.info("IaChatService: PDF de la empresa + Ollama local si está listo");
     }
 
     /**
-     * Genera respuesta usando RAG (contexto + pregunta)
+     * Responde con los PDF de la empresa. Si Ollama está en este servidor, redacta;
+     * si no, devuelve las citas extraídas.
      */
     public String generarRespuestaRag(String pregunta, String contexto, String documentosRef) {
-        if (apiKey == null || apiKey.isBlank()) {
-            log.warn("⚠️ No hay API Key. Usando modo simulado para RAG.");
-            return generarRespuestaSimulada(pregunta, contexto);
+        String extractivo = generarRespuestaDesdeDocumentos(pregunta, contexto);
+        if (contexto == null || contexto.replaceAll("\\s+", "").length() < 40) {
+            return extractivo;
         }
-
-        boolean sinChunksEnServidor = (contexto == null || contexto.isBlank())
-                || esReferenciasDocumentosVacias(documentosRef);
-
-        boolean catalogoEmpresaEnContexto = contexto != null && contexto.contains("CATÁLOGO DE PDF DISPONIBLE EN LA EMPRESA");
-        boolean seccionesCompletasEnContexto = contexto != null && contexto.contains("SECCIONES TEMÁTICAS COMPLETAS");
-
-        String sistema = construirSystemPrompt(documentosRef);
-
-        boolean consultaPorCapacidades = esConsultaSobreCapacidadesDelAsistente(pregunta);
-        boolean modoConciso = esConsultaResumenInformal(pregunta) && !preguntaPideListaCompleta(pregunta);
-        StringBuilder sufijoInterpretacion = new StringBuilder();
-
-        if (consultaPorCapacidades) {
-            sufijoInterpretacion.append("""
-
-
-                    ⚙️ Lectura especial: el usuario preguntó de manera **informal abierta sobre ti** (¿qué haces?, ¿qué más sabes hacer?, etc.).
-                    Responde con **lista clara breve**, tono humano cercano para personal de obra, explicando **qué ofreces con FISCALIZA-AI** dentro de seguridad HSE de la empresa
-                    (texto PDF cargados multi-documento, documento puntual íntegro cuando lo eligen, vistas visuales de portada página 1, etc.).
-                    **No rechaces la consulta como “fuera de HSE”;** es válida porque consulta tus funciones.""")
-                    ;
-
-        } else if (seccionesCompletasEnContexto && !modoConciso) {
-            sufijoInterpretacion.append("""
-
-
-                    📑 SECCIONES_TEMÁTICAS_COMPLETAS: En el contexto hay bloques **íntegros** de estándares/apartados
-                    extraídos del PDF completo (no solo fragmentos RAG sueltos).
-                    - **Prioriza** esos bloques sobre los fragmentos numerados [F 1], [F 2], etc.
-                    - Si el usuario pide factores de calidad, CC1, CC2… **enumera TODOS** los ítems que aparezcan
-                      en la sección temática o bloque de controles críticos, **sin omitir ninguno del medio**.
-                    - Cita el **título exacto del documento** de donde sale cada listado.
-                    - Responde con listas numeradas o viñetas completas, no resúmenes parciales.""");
-
-        } else if (modoConciso) {
-            sufijoInterpretacion.append("""
-
-
-                    🎯 MODO CONCISO: El usuario hizo una pregunta **general/informal** sobre un tema HSE.
-                    - Responde **solo lo esencial** del tema preguntado (máximo **12 viñetas** o **400 palabras**).
-                    - Estructura obligatoria con Markdown:
-                      ## [Nombre del estándar o tema]
-                      Breve intro en **negrita** (1–2 frases).
-                      ### Alcance
-                      ### Requisitos clave
-                      (viñetas con términos importantes en **negrita**)
-                    - **No copies** párrafos literales del PDF ni bloques HTML.
-                    - **No incluyas** otros estándares ajenos al tema (ej. si preguntan altura, no hables de caliente/conducción).
-                    - Si hay controles críticos (CC), menciona **solo códigos y título breve**, no el texto completo.
-                    - **No listes** PDF, libros, fragmentos ni inventario de archivos cargados (eso lo muestra la UI aparte).
-                    - **No repitas** nombres de documentos salvo **uno** al final: *Fuente: «título exacto»*.
-                    - Si el bloque «SECCIÓN FOCAL DEL ESTÁNDAR» está en el contexto, **priorízalo** sobre fragmentos sueltos [F n].""");
-
-        } else if (catalogoEmpresaEnContexto) {
-            boolean contextoCombinaFrag = contexto != null && contexto.contains("Fragmentos recuperados relacionados");
-            sufijoInterpretacion.append(contextoCombinaFrag
-                    ? """
-
-                    📋 INVENTARIO_Y_FRAGMENTOS: En el mensaje aparece catálogo de PDF **y** fragmentos recuperados.
-                    - Lista el inventario si el usuario lo pide explícitamente.
-                    - La parte **normativa** debe partir **solo** de los fragmentos; no hagas tabla negativa («sin fragmentos sobre…», «📄 archivo… no halló texto…») recorriendo **cada** PDF del catálogo salvo donde el contenido recuperado así lo indique."""
-                    : """
-
-                    📋 INVENTARIO_EN_CONTEXTO: El bloque «CATÁLOGO DE PDF DISPONIBLE EN LA EMPRESA» son **títulos reales** de archivos subidos.
-                    - Si el usuario pregunta qué documentos, libros o PDF tiene, abre con una sección **«Documentos cargados en la plataforma»** y enumera **todos** los ítems con el **título exacto** (entre comillas tipográficas «») y el **ID** si ayuda.
-                    - No confundas «tener el archivo» con «haber hallado texto coincidente con la pregunta»: si solo hay catálogo y no hay fragmentos útiles, dilo con educación (posible falta de indexación, PDF escaneado, o conveniencia de reformular).
-                    - No inventes títulos que no aparezcan en ese catálogo.""");
-
-        } else if (sinChunksEnServidor) {
-            sufijoInterpretacion.append("""
-
-
-                    ⚠️ CONTEXT_STATUS: Esta petición llegó sin fragmentos de PDF recuperados.
-                    Para preguntas **abiertas** sobre seguridad HSE de los archivos cargados por la empresa, responde con **cordialidad profesional**, enfatizando límites técnicos
-                    posibles (PDF escaneados sin OCR, falta indexar en FISCALIZA-AI, oportuno reformular usando **sinónimos** o el nombre oficial del programa en los archivos si lo conoces).
-                    **No** abras con un párrafo abrupto tipo “fuera del ámbito”. Si la intención es legítimo HSE pero no hay texto, cerrá con consejos prácticos de reformulación y verificación.
-
-                    📌 MUY IMPORTANTE cuando no llega texto de ningún PDF en el contexto de esta llamada:
-                    - **No** hagas inventario archivo por archivo (evita líneas repetidas tipo «📄 …» donde afirmás que ese PDF no tiene contenido sobre el tema).
-                    - **No cites nombres concretos de documentos cargados**, porque ese listado **no figura aquí**: inventarlos equivaldría a alucinar.
-                    - **No especules** con frases tipo «el título sugiere», «podría contener», «verifique índice de…», «ESV seguramente incluye».
-                    - Responde de forma **breve** en bloques muy cortos (resumen honesto en 3–8 líneas y 3–6 viñetas de acciones: indexar, OCR, reformular sinónimos, elegir documento puntual desde el selector, etc.).
-                    """);
-
-        }
-
-        double temperatura = consultaPorCapacidades ? 0.45 : modoConciso ? 0.18 : sinChunksEnServidor ? 0.35 : 0.22;
-        int maxTokens = modoConciso ? 1400
-                : (seccionesCompletasEnContexto || preguntaPideListaCompleta(pregunta) ? 8192 : 4096);
-
-        try {
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "deepseek-chat");
-            requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content", sistema + sufijoInterpretacion),
-                    Map.of("role", "user", "content",
-                            "Consulta del usuario (respóndela con la interpretación especial si aplica; usa SOLO texto de contexto si hay contexto útil):\n"
-                                    + pregunta
-                                    + "\n\n═══════════════════════════════════════════════════════\n"
-                                    + "CONTEXTO (fragmentos PDF o vacío; ignora información irrelevante al tema):\n"
-                                    + (contexto == null || contexto.isBlank()
-                                    ? "(No se recuperaron fragmentos en esta ronda desde la biblioteca)."
-                                    : contexto))
-            ));
-            requestBody.put("temperature", temperatura);
-            requestBody.put("max_tokens", maxTokens);
-            requestBody.put("stream", false);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
-
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                    apiUrl, HttpMethod.POST,
-                    new HttpEntity<>(requestBody, headers),
-                    JsonNode.class
-            );
-
-            String respuesta = response.getBody()
-                    .get("choices").get(0)
-                    .get("message").get("content")
-                    .asText();
-
-            log.info("✅ Respuesta RAG generada ({} caracteres, maxTokens={})", respuesta.length(), maxTokens);
-            return sanitizarHtmlRespuesta(respuesta);
-
-        } catch (Exception e) {
-            log.error("❌ Error en RAG: {}", e.getMessage());
-            return generarRespuestaSimulada(pregunta, contexto);
-        }
+        String user = "PREGUNTA:\n" + pregunta + "\n\nCONTEXTO (únicos PDF de la empresa):\n"
+                + truncarParaPrompt(contexto, 10000);
+        return ollamaClient.chatSiListo(construirSystemPrompt(
+                        documentosRef != null ? documentosRef : "[]"), user)
+                .map(IaChatService::sanitizarHtmlRespuesta)
+                .orElse(extractivo);
     }
 
     /**
      * Crea resumen automático de un documento
      */
     public String generarResumen(String titulo, String texto) {
-        if (apiKey == null || apiKey.isBlank()) {
-            return generarResumenSimulado(titulo, texto);
-        }
-
-        String textoLimitado = texto.length() > 6000 ? texto.substring(0, 6000) + "..." : texto;
-
-        try {
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "deepseek-chat");
-            requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content",
-                            "Eres un experto en normativas HSE. Genera un resumen ejecutivo " +
-                            "del siguiente documento. Incluye: propósito, puntos principales, " +
-                            "requisitos clave, y conclusiones. Máximo 3 párrafos."),
-                    Map.of("role", "user", "content",
-                            "Documento: " + titulo + "\n\n" + textoLimitado)
-            ));
-            requestBody.put("temperature", 0.3);
-            requestBody.put("max_tokens", 1024);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
-
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                    apiUrl, HttpMethod.POST,
-                    new HttpEntity<>(requestBody, headers),
-                    JsonNode.class
-            );
-
-            return response.getBody()
-                    .get("choices").get(0)
-                    .get("message").get("content")
-                    .asText();
-
-        } catch (Exception e) {
-            log.error("❌ Error generando resumen: {}", e.getMessage());
-            return generarResumenSimulado(titulo, texto);
-        }
+        return generarResumenSimulado(titulo, texto);
     }
 
-    /** Indica si hay API DeepSeek configurada (respuestas completas vs. modo demostración). */
+    /** Motor interno: responde con los PDF de la empresa. */
     public boolean deepseekDisponible() {
-        return apiKey != null && !apiKey.isBlank();
+        return true;
     }
-
     /** Contexto temático extraído de un PDF para consultas RAG o sobre documento. */
     public record ContextoTematicoDocumento(String seccionCompleta, String bloqueControlesCriticos) {}
 
@@ -341,63 +215,17 @@ public class IaChatService {
      * Análisis en lenguaje natural de una búsqueda: solo usa los fragmentos y referencias internas (sin fuentes externas).
      */
     public String generarBusquedaAsistida(String consulta, String contextoFragmentos, String documentosRefJson) {
-        if (apiKey == null || apiKey.isBlank()) {
-            return generarBusquedaAsistidaSimulada(consulta, contextoFragmentos);
+        String extractivo = generarBusquedaAsistidaSimulada(consulta, contextoFragmentos);
+        if (contextoFragmentos == null || contextoFragmentos.isBlank()) {
+            return extractivo;
         }
-
         String sistema = """
-                Eres FISCALIZA-AI. El usuario busca información en documentos PDF que ya cargó en el sistema.
-
-                REGLAS OBLIGATORIAS:
-                - Usa ÚNICAMENTE el texto de los fragmentos numerados y los metadatos JSON de documentos que se te proporcionan.
-                - Si aparece el bloque «SECCIONES TEMÁTICAS COMPLETAS», **priorízalo** sobre fragmentos sueltos.
-                - Para listados (CC1, CC2, factores de calidad): enumera **todos** los ítems sin omitir ninguno del medio.
-                - No inventes requisitos legales ni normativa que no aparezca literalmente o claramente en esos fragmentos.
-                - No uses conocimiento general de internet ni fuentes externas: el entorno es cerrado.
-                - Si algo no está en los fragmentos, dilo explícitamente.
-                - Responde en español, en Markdown, con esta estructura:
-                  ## Hallazgos relacionados con la consulta
-                  ## Resumen por documento (uno o dos frases por PDF, según los fragmentos)
-                  ## Términos clave (lista: término — explicación breve en lenguaje sencillo — en qué documento aparece)
-                - Si la consulta sugiere «certificado», «cargo», «declaro», etc., relaciona lo que digan los fragmentos sin suposiciones.
+                Eres FISCALIZA-AI. Analiza SOLO los fragmentos de PDF de esta empresa.
+                No inventes normas externas. Español, Markdown, breve.
+                Si no hay base en los fragmentos, dilo.
                 """;
-
-        boolean seccionesCompletas = contextoFragmentos != null
-                && contextoFragmentos.contains("SECCIONES TEMÁTICAS COMPLETAS");
-        int maxTokens = seccionesCompletas || preguntaPideListaCompleta(consulta) ? 8192 : 3072;
-
-        try {
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "deepseek-chat");
-            requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content", sistema),
-                    Map.of("role", "user", "content",
-                            "Consulta: " + consulta + "\n\n"
-                                    + "Documentos (JSON): " + documentosRefJson + "\n\n"
-                                    + "--- Fragmentos ---\n" + contextoFragmentos)
-            ));
-            requestBody.put("temperature", 0.25);
-            requestBody.put("max_tokens", maxTokens);
-            requestBody.put("stream", false);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
-
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                    apiUrl, HttpMethod.POST,
-                    new HttpEntity<>(requestBody, headers),
-                    JsonNode.class
-            );
-
-            return response.getBody()
-                    .get("choices").get(0)
-                    .get("message").get("content")
-                    .asText();
-        } catch (Exception e) {
-            log.error("❌ Error búsqueda asistida: {}", e.getMessage());
-            return generarBusquedaAsistidaSimulada(consulta, contextoFragmentos);
-        }
+        String user = "Consulta: " + consulta + "\n\nFragmentos:\n" + truncarParaPrompt(contextoFragmentos, 8000);
+        return ollamaClient.chatSiListo(sistema, user).map(IaChatService::sanitizarHtmlRespuesta).orElse(extractivo);
     }
 
     private String generarBusquedaAsistidaSimulada(String consulta, String contextoFragmentos) {
@@ -407,19 +235,10 @@ public class IaChatService {
                     + "\n\n … *(vista truncada aquí solo por tamaño en pantalla; no indica problema con tus documentos).*";
         }
         return String.format("""
-                ### 🔎 Resultado de tu búsqueda: «%s»
-
-                Por ahora ves **solo el texto recuperado** de tus PDF indexados —como cuando abres varios expedientes y resaltamos las páginas donde aparece algo parecido a lo que buscas.
-
-                **Con el asistente activado** (clave DeepSeek en el servidor), la misma consulta vendría acompañada de un texto que **ordenara los hallazgos**, explicara términos en lenguaje sencillo y dijera **de qué documento** sale cada parte.
-
-                **Ejemplo típico** (solo ilustrativo): si preguntaras *«qué dicen tus normas sobre trabajo en altura»*, responderíamos algo como una mini-ficha por documento («Procedimiento X — EPP obligatorios», «Manual Y — altura desde 1,8 m…»).
-
-                ---
-                #### Fragmentos de tus documentos (datos brutos)
+                ### Resultado en sus PDF: «%s»
 
                 %s
-                """, consulta, ctx.isBlank() ? "*Todavía no hay fragmentos recuperados para esta búsqueda; puede que convenga indexar de nuevo los PDF desde FISCALIZA-AI.*" : ctx);
+                """, consulta, ctx.isBlank() ? "*No hay coincidencias en el texto extraído.*" : ctx);
     }
 
     private String construirSystemPrompt(String documentosRef) {
@@ -449,45 +268,48 @@ public class IaChatService {
             """ + documentosRef;
     }
 
-    private String generarRespuestaSimulada(String pregunta, String contexto) {
-        if (contexto != null && !contexto.isBlank() && contexto.length() > 80) {
+    private String generarRespuestaDesdeDocumentos(String pregunta, String contexto) {
+        if (contexto != null && !contexto.isBlank() && contexto.replaceAll("\\s+", "").length() > 40) {
+            String ctx = contexto.trim();
+            if (ctx.length() > 14000) {
+                ctx = ctx.substring(0, 14000) + "\n\n… *(recorte de pantalla; el texto completo está en sus PDF)*";
+            }
             return String.format("""
-                ## Respuesta parcial (DeepSeek no disponible)
+                ## Lo que dicen sus documentos
 
-                **Su pregunta:** «%s»
+                **Pregunta:** «%s»
 
-                Se recuperaron fragmentos de sus documentos (%d caracteres), pero el motor **DeepSeek** no está conectado en el servidor.
+                %s
 
-                **Qué hacer:** configure `DEEPSEEK_API_KEY` y reinicie el backend. Entonces podrá obtener respuestas redactadas solo con sus PDF.
-
-                *Los fragmentos relacionados aparecen abajo en el panel de referencias.*
-                """, pregunta, contexto.length());
+                *Fuente: PDF cargados en su empresa. Sin servicios externos.*
+                """, pregunta, ctx);
         }
         return String.format("""
-            ## FISCALIZA-AI — motor no conectado
+            ## No está en los documentos cargados
 
-            **Su pregunta:** «%s»
+            **Pregunta:** «%s»
 
-            FISCALIZA-AI responde **solo** con documentos PDF cargados en su empresa. Para redactar la respuesta hace falta **DeepSeek** (`DEEPSEEK_API_KEY` en el servidor).
-
-            Si ya subió documentos, indexe desde aquí o haga una pregunta (se indexa automáticamente en la primera consulta).
+            En la biblioteca HSE de su empresa no aparece un apartado claro para esto.
+            Suba el PDF, use **Reprocesar PDF** si es infografía, o pregunte con el nombre del estándar (altura, EPP, CC1, permiso de trabajo).
             """, pregunta);
     }
 
+    private String generarRespuestaSimulada(String pregunta, String contexto) {
+        return generarRespuestaDesdeDocumentos(pregunta, contexto);
+    }
+
     private String generarResumenSimulado(String titulo, String texto) {
+        String muestra = texto == null ? "" : texto.trim();
+        if (muestra.length() > 1800) {
+            muestra = muestra.substring(0, 1800) + "\n\n…";
+        }
         return String.format("""
-            ## 📋 Tu documento «%s» — resumen disponible después de activar la IA
-            
-            **Tamaño útil ya extraído:** %d caracteres de texto (listos para que un modelo los lea como un libro digital).
-            
-            ### Qué vas a obtener al conectar DeepSeek
-            Un **resumen ejecutivo de 3–5 párrafos**: de qué trata el archivo, para quién sirve en obra/planta y qué exigencias o estándares aparecen más a menudo —**sin inventar nada fuera del PDF**.
-            
-            ### Ejemplo de tono esperado *(ilustrativo)*
-            *«Este folleto agrupa estándares de ENAP/anexos: trabajo en caliente en el cap.…, aislamiento de energías más adelante, y anexos con checklists revisables antes de iniciar cada turno…»*
-            
-            **Siguiente paso:** configurar **DEEPSEEK_API_KEY** en el proceso que ejecuta este backend para generar ese resumen de verdad desde **%s**.
-            """, titulo, texto.length(), titulo);
+            ## Resumen de «%s»
+
+            Texto extraído de su PDF:
+
+            %s
+            """, titulo, muestra.isBlank() ? "*Este archivo no tiene letras extraídas.*" : muestra);
     }
 
     /**
@@ -501,10 +323,10 @@ public class IaChatService {
             String pregunta, String tituloDocumento, String textoFocal) {
 
         Optional<String> estandarOpt = EstandarConsultaHelper.detectarEstandarEnPregunta(pregunta);
-        String nombreEstandar = estandarOpt.orElse("estándar").toUpperCase(Locale.ROOT);
-        if (!nombreEstandar.startsWith("ESTÁNDAR") && !nombreEstandar.startsWith("ESTANDAR")) {
-            nombreEstandar = "ESTÁNDAR DE " + nombreEstandar;
-        }
+        String nombreDetectado = estandarOpt.orElse("estándar").toUpperCase(Locale.ROOT);
+        final String nombreEstandar = (!nombreDetectado.startsWith("ESTÁNDAR") && !nombreDetectado.startsWith("ESTANDAR"))
+                ? "ESTÁNDAR DE " + nombreDetectado
+                : nombreDetectado;
 
         if (textoFocal == null || textoFocal.replaceAll("\\s+", "").length() < 80) {
             return "## " + nombreEstandar + "\n\n"
@@ -513,49 +335,22 @@ public class IaChatService {
                     + "*(por ejemplo: «3. ESTÁNDAR DE TRABAJO EN CALIENTE»)* con el texto debajo.\n";
         }
 
-        if (apiKey == null || apiKey.isBlank()) {
-            return formatearResumenLocalEstandar(pregunta, tituloDocumento, nombreEstandar, textoFocal);
-        }
-
         String sistema = """
                 Eres FISCALIZA-AI, asistente HSE. El usuario preguntó por UN estándar en UN documento.
                 Redacta en español con Markdown claro (## título, ### subtítulos, **negritas** en roles y CC).
                 Máximo 400 palabras. No copies párrafos literales largos del PDF.
                 Estructura: 1–2 frases intro → ### Objetivo → ### Alcance → ### Requisitos clave (5–8 viñetas).
-                Solo este estándar; no menciones otros capítulos.
+                Solo este estándar; no menciones otros capítulos. No uses normas que no estén en el texto.
                 Cierra con: *Fuente: «título del documento»*
                 """;
-
-        try {
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "deepseek-chat");
-            requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content", sistema),
-                    Map.of("role", "user", "content",
-                            "Documento: " + tituloDocumento + "\n\n"
-                                    + "--- SECCIÓN DEL ESTÁNDAR (única fuente) ---\n"
-                                    + truncarParaPrompt(textoFocal, 6500)
-                                    + "\n--- FIN ---\n\n"
-                                    + "Pregunta: " + pregunta)
-            ));
-            requestBody.put("temperature", 0.25);
-            requestBody.put("max_tokens", 2048);
-            requestBody.put("stream", false);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
-
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                    apiUrl, HttpMethod.POST, new HttpEntity<>(requestBody, headers), JsonNode.class);
-
-            String raw = response.getBody()
-                    .get("choices").get(0).get("message").get("content").asText();
-            return sanitizarHtmlRespuesta(raw);
-        } catch (Exception e) {
-            log.error("Error respuesta concisa estándar: {}", e.getMessage());
-            return formatearResumenLocalEstandar(pregunta, tituloDocumento, nombreEstandar, textoFocal);
-        }
+        String user = "Documento: " + tituloDocumento + "\n\n"
+                + "--- SECCIÓN DEL ESTÁNDAR (única fuente) ---\n"
+                + truncarParaPrompt(textoFocal, 6500)
+                + "\n--- FIN ---\n\n"
+                + "Pregunta: " + pregunta;
+        return ollamaClient.chatSiListo(sistema, user)
+                .map(IaChatService::sanitizarHtmlRespuesta)
+                .orElseGet(() -> formatearResumenLocalEstandar(pregunta, tituloDocumento, nombreEstandar, textoFocal));
     }
 
     /**
@@ -569,10 +364,6 @@ public class IaChatService {
                     + "Revise el **Libro estructurado** (editor guardado).\n";
         }
 
-        if (apiKey == null || apiKey.isBlank()) {
-            return formatearResumenLocalApartado(pregunta, tituloDocumento, tituloApartado, cuerpoApartado);
-        }
-
         String sistema = """
                 Eres FISCALIZA-AI, asistente HSE. El usuario pidió un RESUMEN BREVE de UN apartado de un libro.
                 Redacta en español con Markdown (## título, viñetas si aplica).
@@ -581,37 +372,14 @@ public class IaChatService {
                 Solo este apartado; no menciones Introducción, Alcance ni estándares posteriores.
                 Cierra con: *Fuente: «título del documento»*
                 """;
-
-        try {
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "deepseek-chat");
-            requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content", sistema),
-                    Map.of("role", "user", "content",
-                            "Documento: " + tituloDocumento + "\nApartado: " + tituloApartado + "\n\n"
-                                    + "--- TEXTO DEL APARTADO ---\n"
-                                    + truncarParaPrompt(cuerpoApartado, 5000)
-                                    + "\n--- FIN ---\n\n"
-                                    + "Pregunta: " + pregunta)
-            ));
-            requestBody.put("temperature", 0.25);
-            requestBody.put("max_tokens", 900);
-            requestBody.put("stream", false);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
-
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                    apiUrl, HttpMethod.POST, new HttpEntity<>(requestBody, headers), JsonNode.class);
-
-            String raw = response.getBody()
-                    .get("choices").get(0).get("message").get("content").asText();
-            return sanitizarHtmlRespuesta(raw);
-        } catch (Exception e) {
-            log.error("Error resumen breve apartado: {}", e.getMessage());
-            return formatearResumenLocalApartado(pregunta, tituloDocumento, tituloApartado, cuerpoApartado);
-        }
+        String user = "Documento: " + tituloDocumento + "\nApartado: " + tituloApartado + "\n\n"
+                + "--- TEXTO DEL APARTADO ---\n"
+                + truncarParaPrompt(cuerpoApartado, 5000)
+                + "\n--- FIN ---\n\n"
+                + "Pregunta: " + pregunta;
+        return ollamaClient.chatSiListo(sistema, user)
+                .map(IaChatService::sanitizarHtmlRespuesta)
+                .orElseGet(() -> formatearResumenLocalApartado(pregunta, tituloDocumento, tituloApartado, cuerpoApartado));
     }
 
     private String formatearResumenLocalApartado(
@@ -653,7 +421,7 @@ public class IaChatService {
             cuerpo = cuerpo.substring(idx);
         }
         if (cuerpo.length() > 3200) {
-            cuerpo = cuerpo.substring(0, 3200).trim() + "\n\n… *(Activa DeepSeek para un resumen redactado.)*";
+            cuerpo = cuerpo.substring(0, 3200).trim() + "\n\n…";
         }
 
         return """
@@ -686,31 +454,11 @@ public class IaChatService {
             return consultaPrecisa.get();
         }
 
-        if (apiKey == null || apiKey.isBlank()) {
-            if (catalogoCcService.esPreguntaSobreInventarioControlesCriticos(pregunta)) {
-                CatalogoControlesCriticosService.CatalogoCc cat =
-                        catalogoCcService.extraerCatalogo(tituloDocumento, textoDocumento);
-                return catalogoCcService.formatearRespuestaInventario(cat, pregunta);
-            }
-            if (criteriosCalidadService.esPreguntaSobreCriteriosCalidad(pregunta)) {
-                Optional<String> especifico = criteriosCalidadService.responderCriteriosDeEstandar(
-                        tituloDocumento, textoDocumento, pregunta);
-                if (especifico.isPresent()) {
-                    return especifico.get();
-                }
-                CriteriosCalidadExtraccionService.CatalogoCriterios cat =
-                        criteriosCalidadService.extraerCatalogo(tituloDocumento, textoDocumento);
-                return criteriosCalidadService.formatearRespuesta(
-                        criteriosCalidadService.filtrarPorConsulta(cat, pregunta), pregunta);
-            }
-            Optional<String> trans = transcripcionLibroService.responderConTranscripcion(
-                    tituloDocumento, textoDocumento, pregunta);
-            if (trans.isPresent()) {
-                return trans.get();
-            }
-            return generarRespuestaSimuladaSobreDocumento(pregunta, tituloDocumento, textoDocumento);
+        if (catalogoCcService.esPreguntaSobreInventarioControlesCriticos(pregunta)) {
+            CatalogoControlesCriticosService.CatalogoCc cat =
+                    catalogoCcService.extraerCatalogo(tituloDocumento, textoDocumento);
+            return catalogoCcService.formatearRespuestaInventario(cat, pregunta);
         }
-
         if (criteriosCalidadService.esPreguntaSobreCriteriosCalidad(pregunta)) {
             Optional<String> especifico = criteriosCalidadService.responderCriteriosDeEstandar(
                     tituloDocumento, textoDocumento, pregunta);
@@ -719,137 +467,37 @@ public class IaChatService {
             }
             CriteriosCalidadExtraccionService.CatalogoCriterios cat =
                     criteriosCalidadService.extraerCatalogo(tituloDocumento, textoDocumento);
-            CriteriosCalidadExtraccionService.CatalogoCriterios filtrado =
-                    criteriosCalidadService.filtrarPorConsulta(cat, pregunta);
-            if (filtrado.total() > 0) {
-                return criteriosCalidadService.formatearRespuesta(filtrado, pregunta);
-            }
+            return criteriosCalidadService.formatearRespuesta(
+                    criteriosCalidadService.filtrarPorConsulta(cat, pregunta), pregunta);
         }
-
         if (!esConsultaResumenInformal(pregunta)) {
-            Optional<String> transcripcion = transcripcionLibroService.responderConTranscripcion(
+            Optional<String> trans = transcripcionLibroService.responderConTranscripcion(
                     tituloDocumento, textoDocumento, pregunta);
-            if (transcripcion.isPresent()) {
-                return transcripcion.get();
+            if (trans.isPresent()) {
+                return trans.get();
             }
         }
 
-        String bloqueCatalogoCc = "";
-        if (catalogoCcService.esPreguntaSobreInventarioControlesCriticos(pregunta)
-                || esPreguntaQuePideListaCompleta(pregunta)) {
-            CatalogoControlesCriticosService.CatalogoCc cat =
-                    catalogoCcService.extraerCatalogo(tituloDocumento, textoDocumento);
-            if (cat.total() > 0) {
-                bloqueCatalogoCc = "\n--- CATÁLOGO COMPLETO CC (escaneo automático de todo el PDF) ---\n\n"
-                        + catalogoCcService.formatearRespuestaInventario(cat, pregunta)
-                        + "\n--- FIN CATÁLOGO CC ---\n";
-            }
+        IaChatService.ContextoTematicoDocumento tematico = analizarTextoParaConsulta(textoDocumento, pregunta);
+        String contextoOllama = (tematico.seccionCompleta() + "\n\n" + tematico.bloqueControlesCriticos()).trim();
+        if (contextoOllama.length() < 80) {
+            contextoOllama = truncarParaPrompt(textoDocumento, 8000);
         }
-
-        String bloqueCriteriosCalidad = "";
-        CriteriosCalidadExtraccionService.CatalogoCriterios catCriterios =
-                criteriosCalidadService.extraerCatalogo(tituloDocumento, textoDocumento);
-        if (catCriterios.total() > 0 && (criteriosCalidadService.esPreguntaSobreCriteriosCalidad(pregunta)
-                || esPreguntaQuePideListaCompleta(pregunta))) {
-            bloqueCriteriosCalidad = "\n--- CRITERIOS DE CALIDAD COMPLETOS (cada ítem a., b., c., d.…) ---\n\n"
-                    + criteriosCalidadService.formatearRespuesta(catCriterios, pregunta)
-                    + "\n--- FIN CRITERIOS DE CALIDAD ---\n";
-        }
-
-        String esquema = extraerEsquemaHeuristico(textoDocumento);
-        String muestras = construirCuerpoMuestraParaPrompt(textoDocumento);
-        LinkedHashSet<String> terminosPregunta = terminosConsultaParaBusquedaLocal(pregunta);
-        List<String> pasajesTematicos = extraerSnippetsSegunConsulta(textoDocumento, terminosPregunta);
-        String bloquePasajesTematicos = construirAnexoPasajesTematicos(pasajesTematicos);
-        String seccionTematicaCompleta = extraerSeccionTematicaCompleta(textoDocumento, terminosPregunta, pregunta);
-        String bloqueControlesCriticos = extraerBloqueControlesCriticos(textoDocumento, terminosPregunta, pregunta);
-        boolean pideListaCompleta = esPreguntaQuePideListaCompleta(pregunta);
-
-        String sistema = """
-            Eres FISCALIZA-AI, asistente experto en normativas HSE y documentos de fiscalización.
-            El usuario pregunta sobre UN SOLO documento.
-
-            RECIBIRÁS (según corresponda):
-            1) **ÍNDICE / ESTRUCTURA** escaneando todo el PDF.
-            2) **SECCIÓN TEMÁTICA COMPLETA** del estándar o apartado que coincide con la pregunta (texto íntegro de ese bloque, no recortes).
-            3) **CONTROLES CRÍTICOS / FACTORES DE CALIDAD** detectados (CC1, CC2, Fc1, etc.) con su texto asociado.
-            4) Muestras de inicio/final y pasajes temáticos como respaldo.
-
-            REGLAS:
-            - Si la pregunta menciona un **tema concreto** (ej. trabajo en altura, factores de calidad), responde **primero y principalmente** con la SECCIÓN TEMÁTICA COMPLETA y los CONTROLES CRÍTICOS.
-            - Cuando el usuario pide **todos los factores**, **listado completo**, **CC1 al CC10** o similar: enumera **CADA ítem por separado** con su numeración original (CC1, CC2, … CC10, CC11, etc.) y su descripción. **No resumas ni omitas ítems del medio.**
-            - Si hay 10, 15 o más controles/factores en el texto recibido, inclúyelos **todos** en la respuesta, en orden.
-            - Responde en español, con tono profesional, usando Markdown con listas numeradas o viñetas.
-            - Básate solo en el material proporcionado. No uses conocimiento externo.
-            - El modelo no recibe fotos del PDF (solo texto).
-            - Si preguntan «¿qué contiene el documento?» o «resume»: usa la estructura + muestras.
-            - Si falta información en lo recibido, dilo sin inventar.
-            """;
-
-        String bloqueEsquema = esquema.isBlank()
-                ? "(No se detectaron encabezados tipo «ESTÁNDAR DE …» ni similares al escanear el PDF. Use las muestras de texto.)\n"
-                : esquema + "\n";
-
-        String bloqueSeccion = seccionTematicaCompleta.isBlank()
-                ? ""
-                : "\n--- SECCIÓN TEMÁTICA COMPLETA (texto íntegro del apartado relacionado con la pregunta) ---\n"
-                  + seccionTematicaCompleta + "\n--- FIN SECCIÓN TEMÁTICA ---\n";
-
-        String bloqueCc = bloqueControlesCriticos.isBlank()
-                ? ""
-                : "\n--- CONTROLES CRÍTICOS / FACTORES DE CALIDAD (extracción completa del documento) ---\n"
-                  + bloqueControlesCriticos + "\n--- FIN CONTROLES CRÍTICOS ---\n";
-
-        String instruccionLista = pideListaCompleta
-                ? "\n\n⚠️ El usuario pidió un **listado completo**. Enumera **todos** los factores/controles que aparezcan en la sección temática o bloque CC, sin omitir ninguno.\n"
-                : "";
-
-        try {
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "deepseek-chat");
-            requestBody.put("messages", List.of(
-                    Map.of("role", "system", "content", sistema),
-                    Map.of("role", "user", "content",
-                            "Título del documento: " + tituloDocumento + "\n\n"
-                                    + "--- ESTRUCTURA E ÍNDICE (todo el archivo, detección automática) ---\n"
-                                    + bloqueEsquema + "\n"
-                                    + bloqueCatalogoCc
-                                    + bloqueCriteriosCalidad
-                                    + bloqueSeccion
-                                    + bloqueCc
-                                    + "--- MUESTRAS DE TEXTO (inicio ± final; documentos grandes) ---\n"
-                                    + muestras + "\n--- FIN MUESTRAS ---"
-                                    + bloquePasajesTematicos + "\n"
-                                    + "Pregunta del usuario: " + pregunta
-                                    + instruccionLista
-                                    + "\n(Prioriza SECCIÓN TEMÁTICA COMPLETA y CONTROLES CRÍTICOS sobre muestras parciales.)")
-            ));
-            requestBody.put("temperature", 0.2);
-            requestBody.put("max_tokens", 8192);
-            requestBody.put("stream", false);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(apiKey);
-
-            ResponseEntity<JsonNode> response = restTemplate.exchange(
-                    apiUrl, HttpMethod.POST,
-                    new HttpEntity<>(requestBody, headers),
-                    JsonNode.class
-            );
-
-            return response.getBody()
-                    .get("choices").get(0)
-                    .get("message").get("content")
-                    .asText();
-        } catch (Exception e) {
-            log.error("❌ Error respuesta sobre documento: {}", e.getMessage());
-            return generarRespuestaSimuladaSobreDocumento(pregunta, tituloDocumento, textoDocumento);
-        }
+        String sistemaDoc = """
+                Eres FISCALIZA-AI. El usuario pregunta sobre UN documento de la empresa.
+                Responde solo con el texto recibido. No inventes normativa externa.
+                Español, Markdown claro, tono profesional HSE.
+                Cierra con: *Fuente: «título del documento»*
+                """;
+        String userDoc = "Documento: " + tituloDocumento + "\nPregunta: " + pregunta
+                + "\n\n--- TEXTO ---\n" + truncarParaPrompt(contextoOllama, 9000);
+        return ollamaClient.chatSiListo(sistemaDoc, userDoc)
+                .map(IaChatService::sanitizarHtmlRespuesta)
+                .orElseGet(() -> generarRespuestaSimuladaSobreDocumento(pregunta, tituloDocumento, textoDocumento));
     }
 
     /**
-     * Modo sin DeepSeek: responde enfocado en lo que preguntaste (extracción local desde el texto del PDF).
+     * Modo sin modelo: responde enfocado en lo que preguntaste (extracción local desde el texto del PDF).
      */
     private String generarRespuestaSimuladaSobreDocumento(String pregunta, String titulo, String texto) {
         String esquema = extraerEsquemaHeuristico(texto);
@@ -880,7 +528,7 @@ public class IaChatService {
             if (!seccionCompleta.isBlank()) {
                 sb.append("**Sección temática completa** (apartado íntegro detectado en el documento):\n\n");
                 String sec = seccionCompleta.length() > 12000
-                        ? seccionCompleta.substring(0, 12000) + "\n\n… *(sección truncada en pantalla; con DeepSeek activo se envía completa al modelo)*"
+                        ? seccionCompleta.substring(0, 12000) + "\n\n…"
                         : seccionCompleta;
                 sb.append(sec).append("\n\n");
             }
@@ -937,16 +585,14 @@ public class IaChatService {
             // Sin término útil: breve aclaración
             sb.append("""
                     ---
-                    _Modo rápido **sin modelo de lenguaje** conectado: solo listas y búsqueda de texto._
+                    _Respuesta desde el texto de este PDF._
 
                     """);
 
         }
 
         sb.append("""
-                #### ¿Quieres párrafos ordenados tipo informe?
-
-                Configure **`DEEPSEEK_API_KEY`** al arrancar Spring Boot *(o use `application-local.yml` en su PC)* para que una IA lean solo este archivo y redacten la respuesta.
+                *Fuente: texto de este PDF.*
 
                 """);
 

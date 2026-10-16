@@ -1,0 +1,3242 @@
+[
+  {
+    "codigo": "1a",
+    "tema": "Ergonomía",
+    "enunciado": "Según el Decreto 255, ¿cuál es el peso máximo de levantamiento de cargas para un hombre adulto (entre 20 y 45 años)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "20 kg",
+        "esCorrecta": false,
+        "argumento": "20 kg corresponde a mujeres adultas o a hombres menores de 20 o mayores de 45 años, no al hombre adulto en general.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "25 kg",
+        "esCorrecta": false,
+        "argumento": "25 kg es el valor de referencia de otras guías (por ejemplo, la guía técnica española), no el del Decreto 255.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "23 kg",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es el límite fijado para hombres en el rango general de edad. Tabla completa: hombres 23 kg; mujeres 20 kg; hombres menores de 20 o mayores de 45 años 20 kg; mujeres menores de 20 o mayores de 45 años 15 kg."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Es el límite fijado para hombres en el rango general de edad. Tabla completa: hombres 23 kg; mujeres 20 kg; hombres menores de 20 o mayores de 45 años 20 kg; mujeres menores de 20 o mayores de 45 años 15 kg."
+  },
+  {
+    "codigo": "1b",
+    "tema": "Ergonomía",
+    "enunciado": "Según el Decreto 255, ¿cuál es el peso máximo de levantamiento para mujeres menores de 20 o mayores de 45 años?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "15 kg",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Para los grupos de edad más vulnerables el límite baja: mujeres de 20 kg a 15 kg y hombres de 23 kg a 20 kg."
+      },
+      {
+        "letra": "B",
+        "texto": "20 kg",
+        "esCorrecta": false,
+        "argumento": "20 kg es el límite para mujeres de 20 a 45 años o para hombres menores de 20 o mayores de 45.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "23 kg",
+        "esCorrecta": false,
+        "argumento": "23 kg es el límite del hombre adulto; aplicarlo a este grupo duplicaría el riesgo de lesión lumbar.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Para los grupos de edad más vulnerables el límite baja: mujeres de 20 kg a 15 kg y hombres de 23 kg a 20 kg."
+  },
+  {
+    "codigo": "2",
+    "tema": "Incendios y extintores",
+    "enunciado": "Según el Reglamento de Prevención de Incendios (PICBQ), ¿a qué altura deben instalarse los extintores?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "2 m del piso a la base del extintor, sin importar el peso",
+        "esCorrecta": false,
+        "argumento": "A 2 m el extintor queda fuera del alcance de muchas personas y no considera el peso del equipo.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "1,5 m para todos los extintores, sin importar el peso",
+        "esCorrecta": false,
+        "argumento": "Omite la condición del peso: un extintor de más de 18 kg debe quedar a no más de 1 m.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Hasta 1,5 m del piso a la parte superior si pesan menos de 18 kg; si pesan más de 18 kg, no más de 1 m",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El límite depende del peso para que cualquier persona pueda descolgarlo rápido y sin lesionarse. Los extintores pesados se colocan más bajos."
+      }
+    ],
+    "nota": null,
+    "explicacion": "El límite depende del peso para que cualquier persona pueda descolgarlo rápido y sin lesionarse. Los extintores pesados se colocan más bajos."
+  },
+  {
+    "codigo": "3",
+    "tema": "Detección y alarmas",
+    "enunciado": "¿A qué altura deben instalarse los pulsadores manuales de emergencia según la NFPA 72 y el Reglamento PICBQ?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "1,2 m del piso hasta el centro del pulsador",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es una altura accesible para cualquier persona, incluso en silla de ruedas. La NFPA 72 da un rango de 1,07 a 1,22 m."
+      },
+      {
+        "letra": "B",
+        "texto": "1,8 m del piso hasta la parte superior",
+        "esCorrecta": false,
+        "argumento": "Queda demasiado alto: dificulta el acceso rápido y no cumple el rango de la NFPA 72.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "0,5 m del piso",
+        "esCorrecta": false,
+        "argumento": "A esa altura el pulsador puede quedar tapado por objetos y obliga a agacharse en plena emergencia.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Es una altura accesible para cualquier persona, incluso en silla de ruedas. La NFPA 72 da un rango de 1,07 a 1,22 m."
+  },
+  {
+    "codigo": "4",
+    "tema": "Incendios y extintores",
+    "enunciado": "¿De qué está compuesto el agente del extintor tipo K?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Acetato de potasio, carbonato de potasio y citrato de potasio",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Son sales de potasio en solución acuosa que reaccionan con el aceite caliente (saponificación), forman una capa jabonosa que sofoca el fuego y enfrían el aceite."
+      },
+      {
+        "letra": "B",
+        "texto": "Polvo químico seco a base de fosfato monoamónico",
+        "esCorrecta": false,
+        "argumento": "Es el agente de los extintores ABC; no es el adecuado para aceites de cocina.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Dióxido de carbono (CO2)",
+        "esCorrecta": false,
+        "argumento": "El CO2 se usa en fuegos B y C; en aceites de cocina el fuego puede reavivarse porque no enfría lo suficiente.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Son sales de potasio en solución acuosa que reaccionan con el aceite caliente (saponificación), forman una capa jabonosa que sofoca el fuego y enfrían el aceite."
+  },
+  {
+    "codigo": "5",
+    "tema": "Incendios y extintores",
+    "enunciado": "¿Qué indica la clasificación 2A-10B:C en un extintor?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Solo sirve para fuegos clase A, B y C de 2 a 10 kg",
+        "esCorrecta": false,
+        "argumento": "Los números no son kilos: miden capacidad de extinción para cada clase de fuego.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "2A: dura 2 minutos; 10B: alcanza 10 metros; C: contiene CO2",
+        "esCorrecta": false,
+        "argumento": "Los números no son tiempo ni alcance: indican capacidad de extinción. La letra C no indica el agente, solo que no conduce electricidad.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "2A: equivale a 2,5 galones de agua en fuego clase A; 10B: cubre un fuego de líquidos inflamables de 10 pies²; C: apto para fuego eléctrico",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Cada unidad A equivale a 1,25 galones de agua (2A = 2,5 gal). El número de la B indica pies cuadrados de fuego de líquido inflamable. La C no lleva número: solo indica que el agente no conduce electricidad."
+      }
+    ],
+    "nota": "Nota: Pregunta marcada en tu documento como «ojo con esta pregunta».",
+    "explicacion": "Cada unidad A equivale a 1,25 galones de agua (2A = 2,5 gal). El número de la B indica pies cuadrados de fuego de líquido inflamable. La C no lleva número: solo indica que el agente no conduce electricidad."
+  },
+  {
+    "codigo": "6",
+    "tema": "Detección y alarmas",
+    "enunciado": "Según la NFPA 72 y el Reglamento PICBQ, ¿a qué distancia deben instalarse los detectores de humo?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "9,1 m (30 pies) entre detectores; cada uno cubre unos 84 m²",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es el espaciamiento nominal en techos lisos, que asegura que el humo llegue a un detector a tiempo."
+      },
+      {
+        "letra": "B",
+        "texto": "3 m entre detectores; cada uno cubre 9 m²",
+        "esCorrecta": false,
+        "argumento": "Es demasiado cercano: sobredimensiona el sistema sin necesidad técnica.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "15 m entre detectores; cada uno cubre 200 m²",
+        "esCorrecta": false,
+        "argumento": "Duplica el área real de cobertura: quedarían zonas sin detección temprana.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Es el espaciamiento nominal en techos lisos, que asegura que el humo llegue a un detector a tiempo."
+  },
+  {
+    "codigo": "7",
+    "tema": "Incendios y extintores",
+    "enunciado": "¿En qué se enfoca el método MESERI?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "En la evaluación de todos los riesgos laborales de un puesto de trabajo",
+        "esCorrecta": false,
+        "argumento": "Esa es la función de métodos generales como INSHT o GTC 45. MESERI solo evalúa incendios.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "En la evaluación ergonómica de posturas",
+        "esCorrecta": false,
+        "argumento": "Eso lo hacen métodos como RULA, REBA u OWAS, no MESERI.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Exclusivamente en el riesgo de incendio de instalaciones industriales, con una evaluación cuantitativa",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "MESERI pondera factores propios de la instalación (construcción, procesos, materiales, fuentes de ignición, concentración de valores) frente a los medios de protección contra incendios, y da un valor numérico de riesgo."
+      }
+    ],
+    "nota": "Nota: En tu documento la fórmula aparece como R = X/Y·B. La forma usual de MESERI suma los factores propios (X), los de protección (Y) y la brigada (B), cada uno ponderado. Verifica la fórmula exacta con tu material.",
+    "explicacion": "MESERI pondera factores propios de la instalación (construcción, procesos, materiales, fuentes de ignición, concentración de valores) frente a los medios de protección contra incendios, y da un valor numérico de riesgo."
+  },
+  {
+    "codigo": "8a",
+    "tema": "Incendios y extintores",
+    "enunciado": "¿Cuál es la cobertura de un extintor en un área de riesgo LEVE?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "200 m² por extintor de 4,5 kg (10 lb)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Con poca carga combustible, un extintor cubre más área. Tabla completa: riesgo leve 200 m² (4,5 kg/10 lb); moderado 100 m² (6 kg/13-15 lb); alto 75 m² (9 kg/20 lb)."
+      },
+      {
+        "letra": "B",
+        "texto": "75 m² por extintor de 9 kg",
+        "esCorrecta": false,
+        "argumento": "Corresponde a riesgo ALTO, donde la cobertura es menor y el extintor más grande.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "100 m² por extintor de 6 kg",
+        "esCorrecta": false,
+        "argumento": "Corresponde a riesgo MODERADO.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Con poca carga combustible, un extintor cubre más área. Tabla completa: riesgo leve 200 m² (4,5 kg/10 lb); moderado 100 m² (6 kg/13-15 lb); alto 75 m² (9 kg/20 lb)."
+  },
+  {
+    "codigo": "8b",
+    "tema": "Incendios y extintores",
+    "enunciado": "¿Cuál es la cobertura de un extintor en un área de riesgo ALTO?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "200 m² por extintor de 4,5 kg",
+        "esCorrecta": false,
+        "argumento": "Corresponde a riesgo LEVE; en riesgo alto dejaría zonas sin cobertura suficiente.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "100 m² por extintor de 6 kg",
+        "esCorrecta": false,
+        "argumento": "Corresponde a riesgo MODERADO.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "75 m² por extintor de 9 kg (20 lb)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Con mayor carga combustible se necesitan más extintores (menos área por equipo) y de mayor capacidad."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Con mayor carga combustible se necesitan más extintores (menos área por equipo) y de mayor capacidad."
+  },
+  {
+    "codigo": "9",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Cuál es la norma de referencia para las señales de mano del rigger en grúas móviles?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ANSI Z359.1",
+        "esCorrecta": false,
+        "argumento": "La Z359 es la familia de normas de protección contra caídas, no de izaje.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "ASME B30.5",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La ASME B30.5 (grúas móviles y de oruga) incluye el código estándar de señales de mano entre el rigger y el operador."
+      },
+      {
+        "letra": "C",
+        "texto": "ASME B30.9",
+        "esCorrecta": false,
+        "argumento": "La B30.9 trata de eslingas, no de señales para el operador.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La ASME B30.5 (grúas móviles y de oruga) incluye el código estándar de señales de mano entre el rigger y el operador."
+  },
+  {
+    "codigo": "10a",
+    "tema": "Áreas clasificadas",
+    "enunciado": "Según la NFPA 499 (agroindustria, molinos, minería), ¿qué tipo de material corresponde a la Clase II?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Fibras y pelusas inflamables",
+        "esCorrecta": false,
+        "argumento": "Eso es la Clase III.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Polvos combustibles",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Clase II = polvos combustibles; Clase III = fibras y pelusas inflamables. División 1: presencia continua o frecuente; División 2: solo ocasional o accidental."
+      },
+      {
+        "letra": "C",
+        "texto": "Gases y vapores inflamables",
+        "esCorrecta": false,
+        "argumento": "Eso es la Clase I, que trata la NFPA 497.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Clase II = polvos combustibles; Clase III = fibras y pelusas inflamables. División 1: presencia continua o frecuente; División 2: solo ocasional o accidental."
+  },
+  {
+    "codigo": "10b",
+    "tema": "Áreas clasificadas",
+    "enunciado": "En la clasificación de áreas, ¿qué significa División 2?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "El material está presente de forma continua en operación normal",
+        "esCorrecta": false,
+        "argumento": "Eso describe la División 1.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "El área no tiene ningún riesgo de atmósfera explosiva",
+        "esCorrecta": false,
+        "argumento": "Un área sin riesgo se llama no clasificada; la División 2 sí tiene riesgo, aunque ocasional.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "El material peligroso está presente solo de forma ocasional o accidental",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La División 2 representa condiciones anormales (fugas, fallas); la División 1, presencia continua o frecuente en operación normal."
+      }
+    ],
+    "nota": null,
+    "explicacion": "La División 2 representa condiciones anormales (fugas, fallas); la División 1, presencia continua o frecuente en operación normal."
+  },
+  {
+    "codigo": "11",
+    "tema": "Áreas clasificadas",
+    "enunciado": "Según la NFPA 497 (oil & gas, química, petroquímica), ¿qué es Clase I, División 1?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Un área donde la atmósfera inflamable (gases o vapores) está presente normalmente durante las operaciones",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La NFPA 497 clasifica áreas con gases o vapores. Clase I, División 1: presencia normal; Clase I, División 2: presencia solo accidental."
+      },
+      {
+        "letra": "B",
+        "texto": "Un área donde la atmósfera inflamable aparece solo por accidente",
+        "esCorrecta": false,
+        "argumento": "Eso es la Clase I, División 2.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Un área con polvos combustibles en suspensión",
+        "esCorrecta": false,
+        "argumento": "Los polvos son Clase II y los regula la NFPA 499.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La NFPA 497 clasifica áreas con gases o vapores. Clase I, División 1: presencia normal; Clase I, División 2: presencia solo accidental."
+  },
+  {
+    "codigo": "12",
+    "tema": "Riesgo eléctrico",
+    "enunciado": "¿Cuál es la diferencia principal entre corriente continua (CC/DC) y corriente alterna (CA/AC)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "La continua cambia de sentido y la alterna fluye en un solo sentido",
+        "esCorrecta": false,
+        "argumento": "Invierte los conceptos.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "La alterna es siempre de alta tensión y la continua de baja tensión",
+        "esCorrecta": false,
+        "argumento": "El tipo de corriente no depende del voltaje: existen AC y DC tanto de baja como de alta tensión.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "La continua fluye siempre en un solo sentido; la alterna cambia de sentido periódicamente (50 o 60 veces por segundo)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "En DC la polaridad es fija (baterías, paneles solares). En AC la dirección se invierte según la frecuencia de la red; en Ecuador es de 60 Hz."
+      }
+    ],
+    "nota": null,
+    "explicacion": "En DC la polaridad es fija (baterías, paneles solares). En AC la dirección se invierte según la frecuencia de la red; en Ecuador es de 60 Hz."
+  },
+  {
+    "codigo": "13",
+    "tema": "Higiene industrial (ruido, químicos)",
+    "enunciado": "Dos máquinas emiten 90 dB cada una. ¿Cuál es el nivel de ruido combinado?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "180 dB",
+        "esCorrecta": false,
+        "argumento": "Es una suma aritmética, que no aplica a una escala logarítmica.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "93 dB",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Los decibeles no se suman aritméticamente porque son una escala logarítmica. Cuando se suman las POTENCIAS de dos fuentes iguales, el nivel sube 3 dB sobre el valor de una de ellas."
+      },
+      {
+        "letra": "C",
+        "texto": "90 dB",
+        "esCorrecta": false,
+        "argumento": "Dos fuentes iguales sí aumentan el nivel: duplicar la potencia agrega 3 dB.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Tu documento indica: «ojo, identificar la palabra potencia».",
+    "explicacion": "Los decibeles no se suman aritméticamente porque son una escala logarítmica. Cuando se suman las POTENCIAS de dos fuentes iguales, el nivel sube 3 dB sobre el valor de una de ellas."
+  },
+  {
+    "codigo": "14",
+    "tema": "Higiene industrial (ruido, químicos)",
+    "enunciado": "¿Qué organización establece los valores TLV-TWA, TLV-STEL y TLV-C?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "NIOSH",
+        "esCorrecta": false,
+        "argumento": "NIOSH publica los REL (límites recomendados), no los TLV.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "ACGIH (Conferencia Americana de Higienistas Industriales Gubernamentales)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Los TLV (Threshold Limit Values) son publicados cada año por la ACGIH. TWA: promedio de 8 h; STEL: exposición corta de 15 min; C: techo que nunca debe superarse."
+      },
+      {
+        "letra": "C",
+        "texto": "OSHA",
+        "esCorrecta": false,
+        "argumento": "OSHA establece los PEL (límites legales en EE. UU.), no los TLV.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Los TLV (Threshold Limit Values) son publicados cada año por la ACGIH. TWA: promedio de 8 h; STEL: exposición corta de 15 min; C: techo que nunca debe superarse."
+  },
+  {
+    "codigo": "15",
+    "tema": "Riesgo eléctrico",
+    "enunciado": "¿Qué efecto se produce cuando una persona toca un equipo energizado y sus músculos se contraen sin poder soltarlo?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Tetanización",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La corriente provoca una contracción muscular sostenida e involuntaria que impide soltar el conductor y prolonga la exposición."
+      },
+      {
+        "letra": "B",
+        "texto": "Fibrilación auricular",
+        "esCorrecta": false,
+        "argumento": "La fibrilación que causa la corriente es ventricular y afecta al corazón, no a los músculos de la mano.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Hipotermia",
+        "esCorrecta": false,
+        "argumento": "La corriente produce calor (quemaduras), no un descenso de la temperatura corporal.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La corriente provoca una contracción muscular sostenida e involuntaria que impide soltar el conductor y prolonga la exposición."
+  },
+  {
+    "codigo": "16a",
+    "tema": "Higiene industrial (ruido, químicos)",
+    "enunciado": "Según el Decreto 255, ¿cuál es el tiempo máximo de exposición a 85 dB?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "4 horas",
+        "esCorrecta": false,
+        "argumento": "4 h corresponde a 88 dB.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "8 horas",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "85 dB es el nivel de referencia para una jornada de 8 h. Tabla completa: 85 dB – 8 h; 88 dB – 4 h; 91 dB – 2 h; 94 dB – 1 h; 97 dB – 30 min; 100 dB – 15 min. Cada 3 dB más, el tiempo permitido se reduce a la mitad."
+      },
+      {
+        "letra": "C",
+        "texto": "12 horas",
+        "esCorrecta": false,
+        "argumento": "Ninguna exposición a 85 dB está permitida por más de una jornada de 8 h.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "85 dB es el nivel de referencia para una jornada de 8 h. Tabla completa: 85 dB – 8 h; 88 dB – 4 h; 91 dB – 2 h; 94 dB – 1 h; 97 dB – 30 min; 100 dB – 15 min. Cada 3 dB más, el tiempo permitido se reduce a la mitad."
+  },
+  {
+    "codigo": "16b",
+    "tema": "Higiene industrial (ruido, químicos)",
+    "enunciado": "Según el Decreto 255, ¿cuál es el tiempo máximo de exposición a 97 dB?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "30 minutos",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Con una tasa de intercambio de 3 dB: 94 dB – 1 h, entonces 97 dB – 30 min y 100 dB – 15 min."
+      },
+      {
+        "letra": "B",
+        "texto": "2 horas",
+        "esCorrecta": false,
+        "argumento": "2 h corresponde a 91 dB.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "15 minutos",
+        "esCorrecta": false,
+        "argumento": "15 min corresponde a 100 dB.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento aparecía «0.30 minutos»; lo correcto es 30 minutos (0,5 h).",
+    "explicacion": "Con una tasa de intercambio de 3 dB: 94 dB – 1 h, entonces 97 dB – 30 min y 100 dB – 15 min."
+  },
+  {
+    "codigo": "17",
+    "tema": "Materiales peligrosos",
+    "enunciado": "¿Cuántas secciones tiene una Hoja de Datos de Seguridad (SDS)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "16 secciones",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El formato SGA/GHS de la SDS tiene 16 secciones fijas, desde la identificación del producto hasta otra información."
+      },
+      {
+        "letra": "B",
+        "texto": "12 secciones",
+        "esCorrecta": false,
+        "argumento": "No corresponde a ningún formato oficial de la SDS.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "9 secciones",
+        "esCorrecta": false,
+        "argumento": "9 es el número de clases de peligro de la ONU, no las secciones de la SDS.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El formato SGA/GHS de la SDS tiene 16 secciones fijas, desde la identificación del producto hasta otra información."
+  },
+  {
+    "codigo": "18",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "¿Cuántos días de plazo tiene el empleador para reportar un accidente de trabajo?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "30 días calendario",
+        "esCorrecta": false,
+        "argumento": "Es un plazo demasiado largo; no es el que fija la normativa.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "24 horas",
+        "esCorrecta": false,
+        "argumento": "24 h puede aplicar a notificaciones inmediatas internas o de accidentes graves, pero no es el plazo del aviso formal.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "10 días laborables",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El aviso de accidente de trabajo debe presentarse dentro de los 10 días laborables siguientes al accidente."
+      }
+    ],
+    "nota": null,
+    "explicacion": "El aviso de accidente de trabajo debe presentarse dentro de los 10 días laborables siguientes al accidente."
+  },
+  {
+    "codigo": "19",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "¿Qué se considera una enfermedad ocupacional?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Toda lesión súbita y violenta que ocurre durante la jornada",
+        "esCorrecta": false,
+        "argumento": "Eso es un accidente de trabajo: súbito y violento, no crónico.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Afecciones crónicas causadas directamente por el ejercicio de la profesión u ocupación, como resultado de la exposición a factores de riesgo, que producen o no incapacidad laboral",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Tres elementos la definen: es crónica, tiene relación causal con el trabajo y se debe a la exposición a factores de riesgo. Puede o no generar incapacidad."
+      },
+      {
+        "letra": "C",
+        "texto": "Solo las enfermedades que producen incapacidad permanente",
+        "esCorrecta": false,
+        "argumento": "La definición incluye las afecciones que producen o NO incapacidad.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Tres elementos la definen: es crónica, tiene relación causal con el trabajo y se debe a la exposición a factores de riesgo. Puede o no generar incapacidad."
+  },
+  {
+    "codigo": "20",
+    "tema": "Materiales peligrosos",
+    "enunciado": "¿Cuántas clases de peligro tiene la clasificación de la ONU para el transporte de mercancías peligrosas?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "4 clases",
+        "esCorrecta": false,
+        "argumento": "4 es el número de categorías del rombo NFPA 704 o del HMIS, no las clases de la ONU.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "16 clases",
+        "esCorrecta": false,
+        "argumento": "16 son las secciones de la SDS.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "9 clases",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Clase 1 explosivos; 2 gases; 3 líquidos inflamables; 4 sólidos inflamables; 5 sustancias comburentes (oxidantes) y peróxidos orgánicos; 6 sustancias tóxicas e infecciosas; 7 materiales radiactivos; 8 sustancias corrosivas; 9 sustancias y objetos peligrosos varios."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Clase 1 explosivos; 2 gases; 3 líquidos inflamables; 4 sólidos inflamables; 5 sustancias comburentes (oxidantes) y peróxidos orgánicos; 6 sustancias tóxicas e infecciosas; 7 materiales radiactivos; 8 sustancias corrosivas; 9 sustancias y objetos peligrosos varios."
+  },
+  {
+    "codigo": "28a",
+    "tema": "Materiales peligrosos",
+    "enunciado": "Según la clasificación de la ONU, ¿qué clase corresponde a las sustancias comburentes (oxidantes) y los peróxidos orgánicos?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Clase 3",
+        "esCorrecta": false,
+        "argumento": "La Clase 3 es de líquidos inflamables.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Clase 5",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La Clase 5 agrupa sustancias que aportan oxígeno y avivan la combustión (5.1 comburentes) y los peróxidos orgánicos (5.2)."
+      },
+      {
+        "letra": "C",
+        "texto": "Clase 8",
+        "esCorrecta": false,
+        "argumento": "La Clase 8 es de sustancias corrosivas.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La Clase 5 agrupa sustancias que aportan oxígeno y avivan la combustión (5.1 comburentes) y los peróxidos orgánicos (5.2)."
+  },
+  {
+    "codigo": "28b",
+    "tema": "Materiales peligrosos",
+    "enunciado": "Según la clasificación de la ONU, ¿qué clase corresponde a las sustancias corrosivas?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Clase 9",
+        "esCorrecta": false,
+        "argumento": "La Clase 9 es de sustancias y objetos peligrosos varios, como baterías de litio.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Clase 6",
+        "esCorrecta": false,
+        "argumento": "La Clase 6 es de sustancias tóxicas e infecciosas.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Clase 8",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La Clase 8 incluye ácidos y bases que destruyen tejidos o metales, por ejemplo el ácido sulfúrico o la soda cáustica."
+      }
+    ],
+    "nota": null,
+    "explicacion": "La Clase 8 incluye ácidos y bases que destruyen tejidos o metales, por ejemplo el ácido sulfúrico o la soda cáustica."
+  },
+  {
+    "codigo": "28c",
+    "tema": "Materiales peligrosos",
+    "enunciado": "Según la clasificación de la ONU, ¿qué contiene la Clase 7?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Materiales radiactivos",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La Clase 7 cubre materiales que emiten radiación ionizante, como fuentes de densímetros nucleares o equipos de radiografía industrial."
+      },
+      {
+        "letra": "B",
+        "texto": "Explosivos",
+        "esCorrecta": false,
+        "argumento": "Los explosivos son Clase 1.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Sustancias tóxicas",
+        "esCorrecta": false,
+        "argumento": "Las tóxicas son Clase 6.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La Clase 7 cubre materiales que emiten radiación ionizante, como fuentes de densímetros nucleares o equipos de radiografía industrial."
+  },
+  {
+    "codigo": "21a",
+    "tema": "EPP",
+    "enunciado": "Según la ANSI/ISEA Z89.1, ¿qué casco protege contra impactos verticales y laterales?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Clase C",
+        "esCorrecta": false,
+        "argumento": "La «clase» indica protección eléctrica, no dirección del impacto; además, la Clase C no protege contra electricidad.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Tipo I",
+        "esCorrecta": false,
+        "argumento": "El Tipo I solo protege la parte superior contra impactos verticales.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Tipo II",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Tipo I: solo impactos verticales (golpes desde arriba). Tipo II: impactos verticales y laterales (frontal, posterior y lateral)."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Tipo I: solo impactos verticales (golpes desde arriba). Tipo II: impactos verticales y laterales (frontal, posterior y lateral)."
+  },
+  {
+    "codigo": "21b",
+    "tema": "EPP",
+    "enunciado": "Según la ANSI/ISEA Z89.1 vigente, ¿qué clase de casco protege hasta 20.000 V?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Clase C",
+        "esCorrecta": false,
+        "argumento": "La Clase C no ofrece protección eléctrica; prioriza la ventilación.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Clase E (eléctrico)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Clase G (general): hasta 2.200 V. Clase E (eléctrico): hasta 20.000 V. Clase C (conductivo): sin protección eléctrica."
+      },
+      {
+        "letra": "C",
+        "texto": "Clase G",
+        "esCorrecta": false,
+        "argumento": "La Clase G solo protege hasta 2.200 V.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento las clases antiguas A/B tenían voltajes cruzados. En la nomenclatura anterior, Clase A = 2.200 V (hoy G), Clase B = 20.000 V (hoy E) y Clase C = sin protección.",
+    "explicacion": "Clase G (general): hasta 2.200 V. Clase E (eléctrico): hasta 20.000 V. Clase C (conductivo): sin protección eléctrica."
+  },
+  {
+    "codigo": "22",
+    "tema": "Ergonomía",
+    "enunciado": "En función del tiempo y la frecuencia de exposición, ¿qué se denomina movimiento repetitivo?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Todo movimiento que se repite al menos una vez por hora",
+        "esCorrecta": false,
+        "argumento": "Es una frecuencia muy baja; no genera la sobrecarga que define al movimiento repetitivo.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Solo los movimientos que producen dolor inmediato",
+        "esCorrecta": false,
+        "argumento": "La definición se basa en la frecuencia y la duración, no en el dolor.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Todo movimiento que se repite de forma similar en ciclos de menos de 30 segundos, o más de 2 veces por minuto, durante más del 50% del ciclo o de la jornada",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Son movimientos reiterados en ciclos cortos que involucran músculos, huesos, articulaciones, tendones, ligamentos y nervios, especialmente de las extremidades superiores."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Son movimientos reiterados en ciclos cortos que involucran músculos, huesos, articulaciones, tendones, ligamentos y nervios, especialmente de las extremidades superiores."
+  },
+  {
+    "codigo": "23",
+    "tema": "Riesgo eléctrico",
+    "enunciado": "¿Cuál de las siguientes NO es una energía peligrosa que deba controlarse con bloqueo y etiquetado (LOTO)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Energía potencial (cargas suspendidas, resortes)",
+        "esCorrecta": false,
+        "argumento": "SÍ es peligrosa: puede liberarse al retirar un soporte o un seguro.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "La energía de la luz natural en el área de trabajo",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Las energías peligrosas a controlar son: eléctrica, fluidos a presión (hidráulica), aire a presión (neumática), cinética (partes en movimiento), potencial (gravedad, resortes), y líquidos y gases presurizados."
+      },
+      {
+        "letra": "C",
+        "texto": "Fluido o aire a presión",
+        "esCorrecta": false,
+        "argumento": "SÍ es peligrosa: la presión residual puede proyectar partes o fluidos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Las energías peligrosas a controlar son: eléctrica, fluidos a presión (hidráulica), aire a presión (neumática), cinética (partes en movimiento), potencial (gravedad, resortes), y líquidos y gases presurizados."
+  },
+  {
+    "codigo": "24",
+    "tema": "Higiene industrial (ruido, químicos)",
+    "enunciado": "En un muestreo de exposición a químicos, ¿dónde debe tomarse la muestra?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "En el centro del área, a 2 m del suelo",
+        "esCorrecta": false,
+        "argumento": "Es un muestreo ambiental de área, que no representa la exposición personal.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "En la zona respiratoria del trabajador, a unos 30 cm del rostro",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La muestra debe representar lo que el trabajador realmente inhala, por eso el captador se coloca en la solapa, dentro de un radio de unos 30 cm de nariz y boca."
+      },
+      {
+        "letra": "C",
+        "texto": "Junto a la fuente de emisión",
+        "esCorrecta": false,
+        "argumento": "Sobrestima la exposición: mide la concentración en la fuente, no en la respiración del trabajador.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La muestra debe representar lo que el trabajador realmente inhala, por eso el captador se coloca en la solapa, dentro de un radio de unos 30 cm de nariz y boca."
+  },
+  {
+    "codigo": "25a",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Qué norma ASME trata de las eslingas (slings)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ASME B30.9",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La B30.9 cubre eslingas de cable, cadena, malla metálica y sintéticas: fabricación, inspección y retiro de servicio."
+      },
+      {
+        "letra": "B",
+        "texto": "ASME B30.10",
+        "esCorrecta": false,
+        "argumento": "La B30.10 trata de ganchos.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "ASME B30.26",
+        "esCorrecta": false,
+        "argumento": "La B30.26 trata de accesorios (grilletes, tensores, eslabones).",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La B30.9 cubre eslingas de cable, cadena, malla metálica y sintéticas: fabricación, inspección y retiro de servicio."
+  },
+  {
+    "codigo": "25b",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Qué norma ASME trata de los ganchos (hooks)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ASME B30.9",
+        "esCorrecta": false,
+        "argumento": "La B30.9 trata de eslingas.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "ASME B30.2",
+        "esCorrecta": false,
+        "argumento": "La B30.2 trata de grúas puente y grúas pórtico.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "ASME B30.10",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La B30.10 establece la inspección y los criterios de descarte de ganchos (deformación, apertura de garganta, desgaste)."
+      }
+    ],
+    "nota": null,
+    "explicacion": "La B30.10 establece la inspección y los criterios de descarte de ganchos (deformación, apertura de garganta, desgaste)."
+  },
+  {
+    "codigo": "25c",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Qué norma ASME trata de las grúas puente y grúas pórtico?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ASME B30.2",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Lista de referencia: B30.2 grúas puente y pórtico; B30.5 grúas móviles y de oruga; B30.9 eslingas; B30.10 ganchos; B30.12 carga suspendida desde helicópteros; B30.13 equipos de almacenamiento y recuperación (AS/RS); B30.14 tractores con pluma lateral (side boom); B30.16 polipastos; B30.20 dispositivos debajo del gancho; B30.26 accesorios de izaje."
+      },
+      {
+        "letra": "B",
+        "texto": "ASME B30.14",
+        "esCorrecta": false,
+        "argumento": "La B30.14 trata de tractores con pluma lateral (side boom).",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "ASME B30.5",
+        "esCorrecta": false,
+        "argumento": "La B30.5 trata de grúas móviles y de oruga.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Lista de referencia: B30.2 grúas puente y pórtico; B30.5 grúas móviles y de oruga; B30.9 eslingas; B30.10 ganchos; B30.12 carga suspendida desde helicópteros; B30.13 equipos de almacenamiento y recuperación (AS/RS); B30.14 tractores con pluma lateral (side boom); B30.16 polipastos; B30.20 dispositivos debajo del gancho; B30.26 accesorios de izaje."
+  },
+  {
+    "codigo": "25d",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Qué norma ASME trata de los dispositivos de levantamiento debajo del gancho (below-the-hook)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ASME B30.20",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La B30.20 cubre balancines, separadores, pinzas, ventosas de vacío, imanes y otros dispositivos que se colocan bajo el gancho."
+      },
+      {
+        "letra": "B",
+        "texto": "ASME B30.12",
+        "esCorrecta": false,
+        "argumento": "La B30.12 trata de cargas suspendidas desde helicópteros.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "ASME B30.16",
+        "esCorrecta": false,
+        "argumento": "La B30.16 trata de polipastos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La B30.20 cubre balancines, separadores, pinzas, ventosas de vacío, imanes y otros dispositivos que se colocan bajo el gancho."
+  },
+  {
+    "codigo": "25e",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Qué norma ASME trata de los accesorios de izaje (grilletes, tensores, eslabones)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ASME B30.9",
+        "esCorrecta": false,
+        "argumento": "La B30.9 trata de eslingas, no de accesorios metálicos.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "ASME B30.26",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La B30.26 (rigging hardware) cubre grilletes, tensores, eslabones, cáncamos y otros accesorios."
+      },
+      {
+        "letra": "C",
+        "texto": "ASME B30.1",
+        "esCorrecta": false,
+        "argumento": "La B30.1 trata de gatos (jacks), rodillos y pórticos hidráulicos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento la B30.1 figura como «cabrestantes (winches)». La B30.1 trata de gatos (jacks), rodillos y colchones de aire; los winches están en la B30.7. Verifica con tu material.",
+    "explicacion": "La B30.26 (rigging hardware) cubre grilletes, tensores, eslabones, cáncamos y otros accesorios."
+  },
+  {
+    "codigo": "26",
+    "tema": "Incendios y extintores",
+    "enunciado": "¿Cuál es el agente de los extintores marcados como tipo AB?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "CO2",
+        "esCorrecta": false,
+        "argumento": "El CO2 se clasifica como BC: no es eficaz en fuego A porque no penetra ni enfría las brasas.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Acetato de potasio",
+        "esCorrecta": false,
+        "argumento": "Es el agente del extintor tipo K, para aceites de cocina.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Espuma AFFF (espuma formadora de película acuosa)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La espuma enfría (fuego A) y forma una película sobre el líquido que lo sofoca y evita la reignición (fuego B). No es apta para equipos energizados."
+      }
+    ],
+    "nota": null,
+    "explicacion": "La espuma enfría (fuego A) y forma una película sobre el líquido que lo sofoca y evita la reignición (fuego B). No es apta para equipos energizados."
+  },
+  {
+    "codigo": "27a",
+    "tema": "Trabajos en altura (ANSI Z359)",
+    "enunciado": "¿Qué norma ANSI Z359 establece los requisitos de los arneses de cuerpo completo?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ANSI Z359.4",
+        "esCorrecta": false,
+        "argumento": "La Z359.4 trata de sistemas de rescate y evacuación.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "ANSI Z359.13",
+        "esCorrecta": false,
+        "argumento": "La Z359.13 trata de eslingas (lanyards) y absorbedores de energía.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "ANSI Z359.11",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Familia Z359: .0 terminología; .1 requisitos generales del sistema anticaídas; .2 gestión del programa; .3 restricción y posicionamiento; .4 rescate y evacuación; .6 diseño de sistemas activos y anclajes; .11 arneses; .13 eslingas y absorbedores; .14 líneas de vida autorretráctiles (SRL)."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Familia Z359: .0 terminología; .1 requisitos generales del sistema anticaídas; .2 gestión del programa; .3 restricción y posicionamiento; .4 rescate y evacuación; .6 diseño de sistemas activos y anclajes; .11 arneses; .13 eslingas y absorbedores; .14 líneas de vida autorretráctiles (SRL)."
+  },
+  {
+    "codigo": "27b",
+    "tema": "Trabajos en altura (ANSI Z359)",
+    "enunciado": "¿Qué norma ANSI Z359 cubre los dispositivos autorretráctiles (SRL)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ANSI Z359.14",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La Z359.14 clasifica los SRL (Clase 1 y Clase 2 para anclaje a nivel de pie o borde) y sus ensayos."
+      },
+      {
+        "letra": "B",
+        "texto": "ANSI Z359.11",
+        "esCorrecta": false,
+        "argumento": "La Z359.11 trata de arneses.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "ANSI Z359.2",
+        "esCorrecta": false,
+        "argumento": "La Z359.2 trata de la gestión del programa de protección contra caídas.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La Z359.14 clasifica los SRL (Clase 1 y Clase 2 para anclaje a nivel de pie o borde) y sus ensayos."
+  },
+  {
+    "codigo": "27c",
+    "tema": "Trabajos en altura (ANSI Z359)",
+    "enunciado": "¿Qué norma ANSI Z359 trata de la gestión del programa de protección contra caídas?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ANSI Z359.2",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Establece cómo la empresa administra su programa: roles, capacitación, procedimientos, inspección y rescate."
+      },
+      {
+        "letra": "B",
+        "texto": "ANSI Z359.6",
+        "esCorrecta": false,
+        "argumento": "La Z359.6 trata del diseño de sistemas activos y anclajes estructurales.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "ANSI Z359.0",
+        "esCorrecta": false,
+        "argumento": "La Z359.0 contiene solo definiciones y terminología.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Establece cómo la empresa administra su programa: roles, capacitación, procedimientos, inspección y rescate."
+  },
+  {
+    "codigo": "27d",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Qué norma ASME trata de las grúas de pluma articulada (knuckle boom)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ASME B30.22",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Otras normas listadas en tu documento: B30.17 grúas y monorrieles con trolley suspendido; B30.18 grúas apiladoras; B30.19 teleféricos (cableways); B30.21 polipastos de palanca; B30.24 grúas para contenedores."
+      },
+      {
+        "letra": "B",
+        "texto": "ASME B30.18",
+        "esCorrecta": false,
+        "argumento": "La B30.18 trata de grúas apiladoras (stacker cranes).",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "ASME B30.24",
+        "esCorrecta": false,
+        "argumento": "La B30.24 trata de grúas para contenedores.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento estas normas ASME aparecían dentro de la ANSI Z359 y algunas descripciones no coinciden con la norma (B30.17, .18, .19, .21 y .23). Las de esta pregunta son las de la ASME vigente; verifica con tu material.",
+    "explicacion": "Otras normas listadas en tu documento: B30.17 grúas y monorrieles con trolley suspendido; B30.18 grúas apiladoras; B30.19 teleféricos (cableways); B30.21 polipastos de palanca; B30.24 grúas para contenedores."
+  },
+  {
+    "codigo": "27e",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Qué norma ASME trata de las grúas para operaciones de transferencia de contenedores?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "ASME B30.22",
+        "esCorrecta": false,
+        "argumento": "La B30.22 trata de grúas de pluma articulada.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "ASME B30.24",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La B30.24 cubre grúas de muelle y pórtico para contenedores en terminales portuarias."
+      },
+      {
+        "letra": "C",
+        "texto": "ASME B30.5",
+        "esCorrecta": false,
+        "argumento": "La B30.5 trata de grúas móviles y de oruga.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La B30.24 cubre grúas de muelle y pórtico para contenedores en terminales portuarias."
+  },
+  {
+    "codigo": "29",
+    "tema": "Izaje (ASME B30)",
+    "enunciado": "¿Cuál es el factor de seguridad de los elementos de izaje (por ejemplo, eslingas de cable de acero)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "1 a 1",
+        "esCorrecta": false,
+        "argumento": "No deja ningún margen de seguridad: el elemento trabajaría en su límite de rotura.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "2 a 1",
+        "esCorrecta": false,
+        "argumento": "Es un margen muy bajo: una carga dinámica o un desgaste normal podrían romper el elemento.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "5 a 1",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La carga de rotura del elemento debe ser al menos 5 veces su carga de trabajo (WLL). Cubre desgaste, cargas dinámicas e imprecisiones."
+      }
+    ],
+    "nota": null,
+    "explicacion": "La carga de rotura del elemento debe ser al menos 5 veces su carga de trabajo (WLL). Cubre desgaste, cargas dinámicas e imprecisiones."
+  },
+  {
+    "codigo": "30",
+    "tema": "Riesgo eléctrico",
+    "enunciado": "¿Desde qué voltaje se considera media tensión?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Desde 69.000 V",
+        "esCorrecta": false,
+        "argumento": "69 kV ya corresponde a alta tensión (subtransmisión).",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Desde 110 V",
+        "esCorrecta": false,
+        "argumento": "110-220 V es baja tensión de uso doméstico.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "De 1.000 a 23.000 voltios",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Por debajo de 1.000 V es baja tensión; en el rango indicado, media tensión; por encima, alta tensión."
+      }
+    ],
+    "nota": "Nota: El rango exacto de media tensión varía según la normativa del país o de la empresa eléctrica; se mantiene el valor de tu material.",
+    "explicacion": "Por debajo de 1.000 V es baja tensión; en el rango indicado, media tensión; por encima, alta tensión."
+  },
+  {
+    "codigo": "31",
+    "tema": "Señalización",
+    "enunciado": "¿Cuál es la norma local que regula la señalización de seguridad en Ecuador?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "NFPA 704",
+        "esCorrecta": false,
+        "argumento": "Es una norma estadounidense para el rombo de identificación de peligros, no la norma local de señalización.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "INEN ISO 3864",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Ecuador adoptó la ISO 3864 como norma INEN; define colores, formas y diseño de las señales de seguridad."
+      },
+      {
+        "letra": "C",
+        "texto": "INEN 2266",
+        "esCorrecta": false,
+        "argumento": "La INEN 2266 trata del transporte, almacenamiento y manejo de productos químicos peligrosos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Ecuador adoptó la ISO 3864 como norma INEN; define colores, formas y diseño de las señales de seguridad."
+  },
+  {
+    "codigo": "32",
+    "tema": "Indicadores de accidentabilidad",
+    "enunciado": "¿Cuál es la fórmula para calcular la Tasa de Riesgo (TR)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "TR = número de días perdidos / número de lesiones (o TR = IG / IF)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Indica el promedio de días perdidos por cada lesión. Como IG e IF usan la misma base de horas, su cociente da el mismo resultado."
+      },
+      {
+        "letra": "B",
+        "texto": "TR = IF × IG",
+        "esCorrecta": false,
+        "argumento": "Multiplicar los índices no da días perdidos por lesión; no tiene sentido físico.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "TR = número de lesiones × 200.000 / horas trabajadas",
+        "esCorrecta": false,
+        "argumento": "Esa es la fórmula del Índice de Frecuencia (IF).",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Indica el promedio de días perdidos por cada lesión. Como IG e IF usan la misma base de horas, su cociente da el mismo resultado."
+  },
+  {
+    "codigo": "33",
+    "tema": "Ergonomía",
+    "enunciado": "Según la ISO 11228-1, ¿qué factor tiene mayor impacto en el riesgo ergonómico al levantar una carga?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "La temperatura del ambiente",
+        "esCorrecta": false,
+        "argumento": "Influye en el confort, pero no es un factor de la ecuación de levantamiento de la ISO 11228-1.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "El color de la carga",
+        "esCorrecta": false,
+        "argumento": "No tiene ningún efecto biomecánico.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "La distancia horizontal entre la carga y el cuerpo del trabajador",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Mientras más lejos está la carga del cuerpo, mayor es el momento de fuerza sobre la columna lumbar. Es el multiplicador que más reduce el peso recomendado."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Mientras más lejos está la carga del cuerpo, mayor es el momento de fuerza sobre la columna lumbar. Es el multiplicador que más reduce el peso recomendado."
+  },
+  {
+    "codigo": "34",
+    "tema": "Gestión de riesgos",
+    "enunciado": "¿Cuál es la diferencia entre causa y amenaza?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "La amenaza es el daño ocurrido y la causa es la probabilidad",
+        "esCorrecta": false,
+        "argumento": "Confunde los conceptos: el daño es la consecuencia, y la probabilidad forma parte del riesgo.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Son sinónimos",
+        "esCorrecta": false,
+        "argumento": "No lo son: la causa ya produjo el evento; la amenaza es un potencial.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "La causa es el factor que origina directamente un incidente; la amenaza es una situación o agente que puede generar un evento peligroso",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Ejemplo de causa: un cable suelto provoca una caída. Ejemplo de amenaza: la actividad sísmica es una amenaza natural, aunque aún no haya causado daño."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Ejemplo de causa: un cable suelto provoca una caída. Ejemplo de amenaza: la actividad sísmica es una amenaza natural, aunque aún no haya causado daño."
+  },
+  {
+    "codigo": "35",
+    "tema": "Riesgo eléctrico",
+    "enunciado": "¿Cuál es la distancia mínima entre los conductores de una línea aérea de 1 kV a 69 kV y una masa fija (estructura, equipo)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "3 m",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Tabla completa: hasta 1 kV: 1 m; de 1 a 69 kV: 3 m; más de 69 kV: 5 m. A mayor voltaje, mayor riesgo de arco y más distancia."
+      },
+      {
+        "letra": "B",
+        "texto": "1 m",
+        "esCorrecta": false,
+        "argumento": "1 m solo aplica a tensiones de hasta 1 kV.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "5 m",
+        "esCorrecta": false,
+        "argumento": "5 m aplica a tensiones de más de 69 kV.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Tabla completa: hasta 1 kV: 1 m; de 1 a 69 kV: 3 m; más de 69 kV: 5 m. A mayor voltaje, mayor riesgo de arco y más distancia."
+  },
+  {
+    "codigo": "36",
+    "tema": "Indicadores de accidentabilidad",
+    "enunciado": "¿Qué organismos adoptaron ampliamente las fórmulas del Índice de Frecuencia y del Índice de Gravedad?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "NFPA",
+        "esCorrecta": false,
+        "argumento": "La NFPA publica normas de protección contra incendios.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "NSC, OSHA y OIT",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Las fórmulas se establecieron para comparar de forma objetiva la frecuencia y la gravedad de los accidentes, normalizando los datos para empresas de distinto tamaño."
+      },
+      {
+        "letra": "C",
+        "texto": "ACGIH",
+        "esCorrecta": false,
+        "argumento": "La ACGIH publica límites de exposición (TLV), no indicadores de accidentabilidad.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Las fórmulas se establecieron para comparar de forma objetiva la frecuencia y la gravedad de los accidentes, normalizando los datos para empresas de distinto tamaño."
+  },
+  {
+    "codigo": "37a",
+    "tema": "Materiales peligrosos",
+    "enunciado": "¿Cuál es el principal componente del gas natural?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Sulfuro de hidrógeno (H2S)",
+        "esCorrecta": false,
+        "argumento": "El H2S es un contaminante tóxico que puede acompañar al gas, no su componente principal.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Metano (CH4)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El gas natural es mayormente metano. También contiene etano (C2H6), propano (C3H8), butano (C4H10) y pentano (C5H12)."
+      },
+      {
+        "letra": "C",
+        "texto": "Butano (C4H10)",
+        "esCorrecta": false,
+        "argumento": "El butano es un componente menor; se usa en el GLP y en plásticos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El gas natural es mayormente metano. También contiene etano (C2H6), propano (C3H8), butano (C4H10) y pentano (C5H12)."
+  },
+  {
+    "codigo": "37b",
+    "tema": "Materiales peligrosos",
+    "enunciado": "¿Qué hidrocarburo del gas natural se usa principalmente en la producción de gasolina y como disolvente?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Pentano (C5H12)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El pentano es el más pesado de la lista; es líquido a temperatura ambiente y por eso se usa en gasolinas y como solvente."
+      },
+      {
+        "letra": "B",
+        "texto": "Etano (C2H6)",
+        "esCorrecta": false,
+        "argumento": "El etano se usa como materia prima petroquímica (etileno).",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Metano (CH4)",
+        "esCorrecta": false,
+        "argumento": "El metano se usa como combustible gaseoso.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El pentano es el más pesado de la lista; es líquido a temperatura ambiente y por eso se usa en gasolinas y como solvente."
+  },
+  {
+    "codigo": "38",
+    "tema": "Ergonomía",
+    "enunciado": "Para movimientos repetitivos de miembros superiores, ¿qué tiempo se considera pausa de recuperación?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "1 minuto por cada 4 horas",
+        "esCorrecta": false,
+        "argumento": "Es insuficiente para recuperar los tejidos.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "10 minutos por cada 50-60 minutos de trabajo repetitivo",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El método OCRA considera adecuada una relación de 5:1 entre trabajo y recuperación (50 min de trabajo y 10 min de pausa)."
+      },
+      {
+        "letra": "C",
+        "texto": "30 minutos al final de la jornada",
+        "esCorrecta": false,
+        "argumento": "La recuperación debe estar distribuida durante la jornada, no acumulada al final.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El método OCRA considera adecuada una relación de 5:1 entre trabajo y recuperación (50 min de trabajo y 10 min de pausa)."
+  },
+  {
+    "codigo": "39",
+    "tema": "Riesgo eléctrico",
+    "enunciado": "¿Cuál es el objetivo principal de la NFPA 70E?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Establecer prácticas de trabajo seguro para proteger a los trabajadores contra choques eléctricos y arco eléctrico",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La NFPA 70E trata de la seguridad eléctrica en el lugar de trabajo: análisis de riesgo, límites de aproximación, EPP para arco y trabajo en condición eléctricamente segura."
+      },
+      {
+        "letra": "B",
+        "texto": "Definir las normas de instalación de sistemas eléctricos en edificios",
+        "esCorrecta": false,
+        "argumento": "Eso lo hace la NFPA 70 (Código Eléctrico Nacional), no la 70E.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Establecer requisitos de protección de equipos eléctricos contra incendios",
+        "esCorrecta": false,
+        "argumento": "La 70E protege a las PERSONAS, no a los equipos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La NFPA 70E trata de la seguridad eléctrica en el lugar de trabajo: análisis de riesgo, límites de aproximación, EPP para arco y trabajo en condición eléctricamente segura."
+  },
+  {
+    "codigo": "40",
+    "tema": "Maquinaria pesada",
+    "enunciado": "¿Cómo se llaman las estructuras que protegen al operador de maquinaria pesada en caso de vuelco?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "LOTO",
+        "esCorrecta": false,
+        "argumento": "Es el bloqueo y etiquetado de energías, no una estructura de protección.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "ROPS (Rollover Protective Structures)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La ROPS es una cabina o marco reforzado que mantiene el espacio de supervivencia si la máquina se vuelca. Siempre se usa con cinturón de seguridad."
+      },
+      {
+        "letra": "C",
+        "texto": "FOPS",
+        "esCorrecta": false,
+        "argumento": "La FOPS (Falling Object Protective Structure) protege contra caída de objetos, no contra vuelco.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La ROPS es una cabina o marco reforzado que mantiene el espacio de supervivencia si la máquina se vuelca. Siempre se usa con cinturón de seguridad."
+  },
+  {
+    "codigo": "41",
+    "tema": "Excavaciones",
+    "enunciado": "¿A qué distancia del borde de una excavación debe ubicarse la maquinaria si existen vibraciones?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Igual a la profundidad de la excavación",
+        "esCorrecta": false,
+        "argumento": "No compensa el efecto adicional de las vibraciones.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "0,5 m del borde, sin importar la profundidad",
+        "esCorrecta": false,
+        "argumento": "Es insuficiente: es la distancia mínima para materiales, no para maquinaria que vibra.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "1,5 veces la profundidad de la excavación",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Las vibraciones y el peso de la maquinaria aumentan la presión sobre las paredes; alejarla reduce el riesgo de derrumbe."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Las vibraciones y el peso de la maquinaria aumentan la presión sobre las paredes; alejarla reduce el riesgo de derrumbe."
+  },
+  {
+    "codigo": "42",
+    "tema": "Ergonomía",
+    "enunciado": "¿Qué caracteriza una «tarea repetitiva» en la evaluación de movimientos repetitivos de las extremidades superiores?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Una tarea que exige levantar más de 25 kg",
+        "esCorrecta": false,
+        "argumento": "Eso es manipulación de cargas, otro factor de riesgo.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Una tarea en la que se repiten los mismos gestos durante más del 50% del tiempo de trabajo",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es uno de los criterios del método OCRA: el ciclo es de menos de 30 s o se repiten los mismos gestos en más de la mitad del tiempo."
+      },
+      {
+        "letra": "C",
+        "texto": "Cualquier tarea de más de 8 horas",
+        "esCorrecta": false,
+        "argumento": "La duración total no define la repetitividad, sino la repetición de los gestos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Es uno de los criterios del método OCRA: el ciclo es de menos de 30 s o se repiten los mismos gestos en más de la mitad del tiempo."
+  },
+  {
+    "codigo": "43",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "Según la estructura del Reglamento de Higiene y Seguridad (RHS, versión 8), ¿qué tema aborda el Capítulo V?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Registro, investigación y notificación de accidentes",
+        "esCorrecta": false,
+        "argumento": "Corresponde al Capítulo IV.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Incumplimientos y sanciones",
+        "esCorrecta": false,
+        "argumento": "Corresponde al Capítulo VI.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Información, capacitación, certificación de competencias y entrenamiento en prevención de riesgos",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Estructura: Cap. I disposiciones reglamentarias; Cap. II gestión de prevención de riesgos; Cap. III programas de prevención; Cap. IV registro, investigación y notificación de accidentes y enfermedades; Cap. V información, capacitación y entrenamiento; Cap. VI incumplimientos y sanciones."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Estructura: Cap. I disposiciones reglamentarias; Cap. II gestión de prevención de riesgos; Cap. III programas de prevención; Cap. IV registro, investigación y notificación de accidentes y enfermedades; Cap. V información, capacitación y entrenamiento; Cap. VI incumplimientos y sanciones."
+  },
+  {
+    "codigo": "44",
+    "tema": "Incendios y extintores",
+    "enunciado": "Según el Acuerdo Ministerial 196, ¿cuál es la altura máxima de instalación de los extintores portátiles que NO están dentro de un gabinete?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "2,00 metros",
+        "esCorrecta": false,
+        "argumento": "Supera la altura máxima y dificulta el acceso.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "1,20 metros",
+        "esCorrecta": false,
+        "argumento": "Es la altura de los pulsadores de emergencia, no de los extintores.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "1,50 metros",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El AM 196 fija 1,50 m como altura máxima, medida desde la base del extintor."
+      }
+    ],
+    "nota": null,
+    "explicacion": "El AM 196 fija 1,50 m como altura máxima, medida desde la base del extintor."
+  },
+  {
+    "codigo": "49",
+    "tema": "Incendios y extintores",
+    "enunciado": "Según el Acuerdo Ministerial 196, ¿desde qué punto se mide la altura de 1,50 m de un extintor portátil fuera de gabinete?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Desde el centro del extintor",
+        "esCorrecta": false,
+        "argumento": "El centro se usa como referencia para los pulsadores (1,2 m al centro), no para los extintores en el AM 196.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Desde la parte superior de la manija",
+        "esCorrecta": false,
+        "argumento": "La referencia a la parte superior es del Reglamento PICBQ (pregunta 2); el AM 196 mide desde la base.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Desde la base del extintor",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El AM 196 indica «1,50 metros, contados desde la base del extintor»."
+      }
+    ],
+    "nota": "Nota: En tu documento las preguntas 44 y 49 eran iguales; se dividieron en dos aspectos (altura y punto de medición) para no repetirlas.",
+    "explicacion": "El AM 196 indica «1,50 metros, contados desde la base del extintor»."
+  },
+  {
+    "codigo": "45",
+    "tema": "Incendios y extintores",
+    "enunciado": "Según la legislación contra incendios de Ecuador, en una planta de envasado o trasvase de GLP, ¿cuál es la distancia máxima entre extintores?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "500 metros",
+        "esCorrecta": false,
+        "argumento": "Es una distancia excesiva: no permitiría una respuesta rápida.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "10 metros",
+        "esCorrecta": false,
+        "argumento": "Es demasiado corta; no corresponde al valor normativo.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "100 metros",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es la distancia máxima que fija la normativa para estas plantas, según tu material de estudio."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Es la distancia máxima que fija la normativa para estas plantas, según tu material de estudio."
+  },
+  {
+    "codigo": "46",
+    "tema": "Señalización",
+    "enunciado": "¿Cuál es la norma más relevante para las señales y símbolos de emergencia?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "NFPA 10",
+        "esCorrecta": false,
+        "argumento": "La NFPA 10 trata de los extintores portátiles.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "NFPA 170",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La NFPA 170 (Standard for Fire Safety and Emergency Symbols) define los símbolos para planos de emergencia, equipos contra incendio y evacuación."
+      },
+      {
+        "letra": "C",
+        "texto": "NFPA 72",
+        "esCorrecta": false,
+        "argumento": "La NFPA 72 trata de los sistemas de detección y alarma.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La NFPA 170 (Standard for Fire Safety and Emergency Symbols) define los símbolos para planos de emergencia, equipos contra incendio y evacuación."
+  },
+  {
+    "codigo": "47",
+    "tema": "Trabajos en caliente",
+    "enunciado": "Según la NFPA 51, ¿cuál es la distancia mínima de separación entre cilindros de oxígeno y acetileno almacenados?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "1 metro",
+        "esCorrecta": false,
+        "argumento": "Es insuficiente para evitar que una fuga o un incendio afecte al otro cilindro.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "6 metros (20 pies)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Se separan para que una fuga de acetileno no se combine con el oxígeno. Otra opción es una barrera no combustible de al menos 1,5 m de alto con resistencia al fuego de 30 min."
+      },
+      {
+        "letra": "C",
+        "texto": "Pueden almacenarse juntos si tienen el capuchón puesto",
+        "esCorrecta": false,
+        "argumento": "El capuchón protege la válvula, pero no sustituye la separación entre oxidante y combustible.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Se separan para que una fuga de acetileno no se combine con el oxígeno. Otra opción es una barrera no combustible de al menos 1,5 m de alto con resistencia al fuego de 30 min."
+  },
+  {
+    "codigo": "48",
+    "tema": "Psicosocial",
+    "enunciado": "¿Qué país tiene la batería de riesgo psicosocial con 19 dimensiones intralaborales agrupadas en 4 dominios?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Ecuador",
+        "esCorrecta": false,
+        "argumento": "El cuestionario ecuatoriano tiene otra estructura e incluye dimensiones como el acoso laboral, discriminatorio y sexual.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Colombia",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La batería del Ministerio de Trabajo de Colombia agrupa las 19 dimensiones en 4 dominios: liderazgo y relaciones sociales, control sobre el trabajo, demandas del trabajo y recompensas."
+      },
+      {
+        "letra": "C",
+        "texto": "España (FPSICO)",
+        "esCorrecta": false,
+        "argumento": "El FPSICO del INSST español usa 9 factores, no 19 dimensiones.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La batería del Ministerio de Trabajo de Colombia agrupa las 19 dimensiones en 4 dominios: liderazgo y relaciones sociales, control sobre el trabajo, demandas del trabajo y recompensas."
+  },
+  {
+    "codigo": "50",
+    "tema": "Psicosocial",
+    "enunciado": "Según la legislación ecuatoriana, ¿cuál es el objetivo principal de la intervención psicosocial de tipo «secundaria»?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Dar tratamiento médico o psicológico a trabajadores ya afectados",
+        "esCorrecta": false,
+        "argumento": "Eso es la intervención terciaria.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Informar y capacitar a los trabajadores para darles herramientas con las que afrontar los factores de riesgo",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La primaria actúa sobre la organización (eliminar la causa); la secundaria fortalece a la persona (información y capacitación); la terciaria atiende a quien ya tiene daño."
+      },
+      {
+        "letra": "C",
+        "texto": "Rediseñar la organización del trabajo para eliminar el factor de riesgo",
+        "esCorrecta": false,
+        "argumento": "Eso es la intervención primaria.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La primaria actúa sobre la organización (eliminar la causa); la secundaria fortalece a la persona (información y capacitación); la terciaria atiende a quien ya tiene daño."
+  },
+  {
+    "codigo": "51",
+    "tema": "Ergonomía",
+    "enunciado": "¿Cuál es el método más usado para cuantificar la fuerza que requiere el trabajador en la evaluación de movimientos repetitivos?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "El índice WBGT",
+        "esCorrecta": false,
+        "argumento": "El WBGT evalúa el estrés térmico.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "El método LIPT",
+        "esCorrecta": false,
+        "argumento": "El LIPT evalúa el acoso psicológico, no la fuerza.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "La escala CR-10 de Borg (esfuerzo percibido)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El método OCRA usa la escala de Borg (0 a 10) para que el trabajador califique el esfuerzo que percibe en cada acción técnica."
+      }
+    ],
+    "nota": null,
+    "explicacion": "El método OCRA usa la escala de Borg (0 a 10) para que el trabajador califique el esfuerzo que percibe en cada acción técnica."
+  },
+  {
+    "codigo": "52",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "¿Qué plazo inicial tiene un empleador para presentar los requerimientos de una inspección especializada in situ que no presentó en el momento?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "30 días",
+        "esCorrecta": false,
+        "argumento": "Es un plazo mayor al que fija la normativa para la presentación inicial.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "48 horas",
+        "esCorrecta": false,
+        "argumento": "Es un plazo menor al que establece la normativa.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "10 días",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es el plazo inicial que otorga el inspector para que el empleador entregue la documentación faltante."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Es el plazo inicial que otorga el inspector para que el empleador entregue la documentación faltante."
+  },
+  {
+    "codigo": "53",
+    "tema": "Salud ocupacional",
+    "enunciado": "¿Cuál de estas es una responsabilidad específica del médico a cargo de la gestión de salud en el trabajo o del SISAT?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Sancionar a los trabajadores que no usan EPP",
+        "esCorrecta": false,
+        "argumento": "La potestad disciplinaria es del empleador, no del servicio médico.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Aprobar el presupuesto anual de la empresa",
+        "esCorrecta": false,
+        "argumento": "Es una función administrativa de la gerencia.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Asesorar al empleador sobre la distribución del personal según su aptitud",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El médico ocupacional evalúa la aptitud y recomienda ubicar a cada trabajador en un puesto compatible con su estado de salud."
+      }
+    ],
+    "nota": null,
+    "explicacion": "El médico ocupacional evalúa la aptitud y recomienda ubicar a cada trabajador en un puesto compatible con su estado de salud."
+  },
+  {
+    "codigo": "54",
+    "tema": "Señalización",
+    "enunciado": "¿Cuál de estas normas NO se relaciona con señalización: ISO 3864-1, ISO 3864-4, ISO 7010, ANSI Z535, NFPA 170, OSHA 1910.145?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Todas se relacionan con señalización",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "ISO 3864-1/-4: diseño y colorimetría de señales; ISO 7010: símbolos gráficos; ANSI Z535: señales y etiquetas de seguridad; NFPA 170: símbolos de emergencia; OSHA 1910.145: señales y etiquetas de prevención de accidentes."
+      },
+      {
+        "letra": "B",
+        "texto": "OSHA 1910.145",
+        "esCorrecta": false,
+        "argumento": "SÍ se relaciona: especifica las señales y etiquetas de prevención de accidentes.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "NFPA 170",
+        "esCorrecta": false,
+        "argumento": "SÍ se relaciona: define los símbolos de seguridad contra incendios y emergencias.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "ISO 3864-1/-4: diseño y colorimetría de señales; ISO 7010: símbolos gráficos; ANSI Z535: señales y etiquetas de seguridad; NFPA 170: símbolos de emergencia; OSHA 1910.145: señales y etiquetas de prevención de accidentes."
+  },
+  {
+    "codigo": "55",
+    "tema": "Ergonomía",
+    "enunciado": "La columna vertebral tiene curvas naturales. ¿Cómo es la curvatura cervical?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Convexa hacia adelante (lordosis)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Columna: cervical lordosis, dorsal cifosis, lumbar lordosis y sacra cifosis. Estas curvas distribuyen el peso y absorben impactos."
+      },
+      {
+        "letra": "B",
+        "texto": "Convexa hacia atrás (cifosis)",
+        "esCorrecta": false,
+        "argumento": "La cifosis es la curvatura de la zona dorsal (torácica).",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Recta, sin curvatura",
+        "esCorrecta": false,
+        "argumento": "Una columna cervical recta (rectificación) es una alteración, no la condición normal.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Columna: cervical lordosis, dorsal cifosis, lumbar lordosis y sacra cifosis. Estas curvas distribuyen el peso y absorben impactos."
+  },
+  {
+    "codigo": "56",
+    "tema": "Trabajos en altura (ANSI Z359)",
+    "enunciado": "Una escalera de fibra de vidrio de uso extra pesado se clasifica como:",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Tipo IAA – 375 libras",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Clasificación ANSI de escaleras portátiles: IAA 375 lb (servicio especial extra pesado); IA 300 lb; I 250 lb; II 225 lb; III 200 lb."
+      },
+      {
+        "letra": "B",
+        "texto": "Tipo I – 250 libras",
+        "esCorrecta": false,
+        "argumento": "El Tipo I es de servicio pesado (industrial), no extra pesado.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Tipo III – 200 libras",
+        "esCorrecta": false,
+        "argumento": "El Tipo III es de servicio liviano (doméstico).",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Tu documento cita la ANSI A14.3. Esa norma trata de escaleras fijas; las escaleras portátiles de fibra se rigen por la ANSI A14.5.",
+    "explicacion": "Clasificación ANSI de escaleras portátiles: IAA 375 lb (servicio especial extra pesado); IA 300 lb; I 250 lb; II 225 lb; III 200 lb."
+  },
+  {
+    "codigo": "57",
+    "tema": "Psicosocial",
+    "enunciado": "¿A qué metodología corresponde considerar como dimensiones psicosociales el acoso laboral, el acoso discriminatorio y el acoso sexual?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Al cuestionario ecuatoriano de evaluación de riesgo psicosocial",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El cuestionario del Ministerio del Trabajo de Ecuador incluye estas dimensiones de «cuestionada interpretación» en sus resultados."
+      },
+      {
+        "letra": "B",
+        "texto": "A la batería colombiana",
+        "esCorrecta": false,
+        "argumento": "La batería colombiana tiene 19 dimensiones en 4 dominios y no incluye estas dimensiones de la misma forma.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Al método LIPT",
+        "esCorrecta": false,
+        "argumento": "El LIPT solo mide el acoso psicológico (mobbing), no el conjunto de dimensiones psicosociales.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El cuestionario del Ministerio del Trabajo de Ecuador incluye estas dimensiones de «cuestionada interpretación» en sus resultados."
+  },
+  {
+    "codigo": "58",
+    "tema": "Detección y alarmas",
+    "enunciado": "Según la NFPA 72, ¿a qué distancia mínima deben ubicarse los detectores de humo de paredes o esquinas y de rejillas de aire?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "3 m de paredes y 5 m de rejillas",
+        "esCorrecta": false,
+        "argumento": "Son distancias excesivas que reducen la cobertura sin necesidad.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "10 cm de paredes o esquinas y 0,9 m de rejillas de aire",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "En las esquinas se forman «bolsas de aire muerto» donde el humo no llega, y las rejillas desvían el humo lejos del detector."
+      },
+      {
+        "letra": "C",
+        "texto": "1 cm de las paredes y pegado a la rejilla",
+        "esCorrecta": false,
+        "argumento": "El detector quedaría en la zona de aire muerto y el flujo de la rejilla alejaría el humo.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "En las esquinas se forman «bolsas de aire muerto» donde el humo no llega, y las rejillas desvían el humo lejos del detector."
+  },
+  {
+    "codigo": "59",
+    "tema": "Excavaciones",
+    "enunciado": "Si una zanja tiene más de 1,22 m de profundidad, se deben tomar medidas para evitar colapsos y asegurar la salida. ¿A qué norma corresponde?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "OSHA 29 CFR 1926.651 (Subparte P – Excavaciones)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La Subparte P de OSHA trata de las excavaciones. A partir de 4 pies (1,22 m) se exige un medio de salida (escalera) cada 7,6 m y la evaluación de atmósferas y sistemas de protección."
+      },
+      {
+        "letra": "B",
+        "texto": "NFPA 51",
+        "esCorrecta": false,
+        "argumento": "La NFPA 51 trata de los sistemas de gas para soldadura y corte.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "OSHA 1910.145",
+        "esCorrecta": false,
+        "argumento": "La 1910.145 trata de señales y etiquetas.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Los sistemas de protección contra derrumbe (taludes, entibado) están en la 1926.652. Tu material cita la 1926.651; se mantiene.",
+    "explicacion": "La Subparte P de OSHA trata de las excavaciones. A partir de 4 pies (1,22 m) se exige un medio de salida (escalera) cada 7,6 m y la evaluación de atmósferas y sistemas de protección."
+  },
+  {
+    "codigo": "60",
+    "tema": "Incendios y extintores",
+    "enunciado": "¿Cuál es la norma de instalación de bombas estacionarias para protección contra incendios?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "NFPA 25",
+        "esCorrecta": false,
+        "argumento": "La NFPA 25 trata de la inspección, prueba y mantenimiento de sistemas a base de agua.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "NFPA 20",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La NFPA 20 establece los requisitos de instalación, motores, controladores y pruebas de las bombas contra incendios."
+      },
+      {
+        "letra": "C",
+        "texto": "NFPA 13",
+        "esCorrecta": false,
+        "argumento": "La NFPA 13 trata de la instalación de rociadores automáticos (sprinklers).",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La NFPA 20 establece los requisitos de instalación, motores, controladores y pruebas de las bombas contra incendios."
+  },
+  {
+    "codigo": "61",
+    "tema": "Ergonomía",
+    "enunciado": "¿Cuál es la metodología actual para evaluar posturas forzadas dinámicas?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "UNE-EN 1005-2",
+        "esCorrecta": false,
+        "argumento": "La 1005-2 trata de la manipulación manual de objetos (cargas).",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "ISO 11228-1",
+        "esCorrecta": false,
+        "argumento": "La ISO 11228-1 trata del levantamiento y transporte de cargas.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "UNE-EN 1005-4",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La UNE-EN 1005-4 evalúa posturas y movimientos durante el trabajo con máquinas, considerando ángulos y frecuencia."
+      }
+    ],
+    "nota": null,
+    "explicacion": "La UNE-EN 1005-4 evalúa posturas y movimientos durante el trabajo con máquinas, considerando ángulos y frecuencia."
+  },
+  {
+    "codigo": "62",
+    "tema": "Señalización",
+    "enunciado": "¿Cuál es la norma de símbolos de emergencia?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "NFPA 170",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Repaso de la pregunta 46: la NFPA 170 es la norma de símbolos de seguridad contra incendios y emergencias."
+      },
+      {
+        "letra": "B",
+        "texto": "NFPA 101",
+        "esCorrecta": false,
+        "argumento": "La NFPA 101 es el Código de Seguridad Humana (medios de egreso).",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "NFPA 704",
+        "esCorrecta": false,
+        "argumento": "La NFPA 704 define el rombo de peligros de materiales, no los símbolos de emergencia en general.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Repaso de la pregunta 46: la NFPA 170 es la norma de símbolos de seguridad contra incendios y emergencias."
+  },
+  {
+    "codigo": "62b",
+    "tema": "Salud ocupacional",
+    "enunciado": "¿Cómo se llama la intoxicación por plomo causada por la exposición laboral?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Silicosis",
+        "esCorrecta": false,
+        "argumento": "La silicosis es causada por el polvo de sílice.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Saturnismo profesional",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El plomo se acumula en el organismo y daña la sangre, los riñones y el sistema nervioso. Es frecuente en fundiciones, baterías y pinturas."
+      },
+      {
+        "letra": "C",
+        "texto": "Asbestosis",
+        "esCorrecta": false,
+        "argumento": "La asbestosis es causada por las fibras de asbesto.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El plomo se acumula en el organismo y daña la sangre, los riñones y el sistema nervioso. Es frecuente en fundiciones, baterías y pinturas."
+  },
+  {
+    "codigo": "63",
+    "tema": "Gestión de riesgos",
+    "enunciado": "¿Cuál es el orden correcto de la jerarquía de controles?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Eliminación, sustitución, controles de ingeniería, controles administrativos, EPP",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Se va de lo más eficaz (quitar el peligro) a lo menos eficaz (proteger a la persona). El EPP es la última barrera."
+      },
+      {
+        "letra": "B",
+        "texto": "Sustitución, eliminación, EPP, ingeniería, administrativos",
+        "esCorrecta": false,
+        "argumento": "El orden está alterado: la eliminación va primero y el EPP al final.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "EPP, controles administrativos, ingeniería, sustitución, eliminación",
+        "esCorrecta": false,
+        "argumento": "Es el orden invertido: empezar por el EPP deja el peligro intacto.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Se va de lo más eficaz (quitar el peligro) a lo menos eficaz (proteger a la persona). El EPP es la última barrera."
+  },
+  {
+    "codigo": "64",
+    "tema": "Emergencias",
+    "enunciado": "En una actividad económica de riesgo medio, ¿qué medida de preparación ante emergencias se exige al empleador?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Solo comprar extintores",
+        "esCorrecta": false,
+        "argumento": "Los extintores son un recurso, pero no reemplazan el plan ni los simulacros.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Hacer simulacros cada 5 años",
+        "esCorrecta": false,
+        "argumento": "La frecuencia mínima es anual.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Elaborar planes de emergencia y contingencia y hacer simulacros al menos una vez al año",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La normativa exige planificar y practicar: el plan sin simulacro no comprueba la respuesta real."
+      }
+    ],
+    "nota": null,
+    "explicacion": "La normativa exige planificar y practicar: el plan sin simulacro no comprueba la respuesta real."
+  },
+  {
+    "codigo": "65",
+    "tema": "Salud ocupacional",
+    "enunciado": "¿Qué describe mejor la función principal del servicio médico de empresa?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Enfocarse en la prevención de riesgos, la promoción de la salud y la adaptación del trabajador al puesto",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El servicio médico es esencialmente preventivo: vigilancia de la salud, aptitud y promoción."
+      },
+      {
+        "letra": "B",
+        "texto": "Emitir certificados de reposo a pedido del trabajador",
+        "esCorrecta": false,
+        "argumento": "Es una actividad administrativa, no su función principal.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Atender solo emergencias y enfermedades comunes",
+        "esCorrecta": false,
+        "argumento": "Reduce el servicio a lo asistencial y deja de lado su enfoque preventivo.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El servicio médico es esencialmente preventivo: vigilancia de la salud, aptitud y promoción."
+  },
+  {
+    "codigo": "66",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "En Ecuador, ¿cómo está clasificada la norma INEN 2266?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Obligatoria en todos los casos",
+        "esCorrecta": false,
+        "argumento": "Su carácter es voluntario; se vuelve obligatoria solo si un reglamento la incorpora.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Voluntaria",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Según tu material, la NTE INEN 2266 (transporte, almacenamiento y manejo de productos químicos peligrosos) tiene carácter voluntario, aunque puede volverse exigible cuando otra regulación la cita."
+      },
+      {
+        "letra": "C",
+        "texto": "Derogada",
+        "esCorrecta": false,
+        "argumento": "La norma está vigente.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Según tu material, la NTE INEN 2266 (transporte, almacenamiento y manejo de productos químicos peligrosos) tiene carácter voluntario, aunque puede volverse exigible cuando otra regulación la cita."
+  },
+  {
+    "codigo": "67",
+    "tema": "Psicosocial",
+    "enunciado": "¿Qué método permite analizar el acoso psicológico (mobbing)?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "MESERI",
+        "esCorrecta": false,
+        "argumento": "El MESERI evalúa el riesgo de incendio.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "LIPT (Leymann Inventory of Psychological Terror)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Lo creó Heinz Leymann y evalúa 45 conductas de acoso con su frecuencia y duración."
+      },
+      {
+        "letra": "C",
+        "texto": "OCRA",
+        "esCorrecta": false,
+        "argumento": "El OCRA evalúa movimientos repetitivos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento la sigla LIPT aparecía como «lugar, intensidad, frecuencia, tiempo». En realidad significa Leymann Inventory of Psychological Terror(ization).",
+    "explicacion": "Lo creó Heinz Leymann y evalúa 45 conductas de acoso con su frecuencia y duración."
+  },
+  {
+    "codigo": "81",
+    "tema": "Psicosocial",
+    "enunciado": "¿Quién es el autor del método LIPT para analizar el acoso psicológico?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Gunnar Borg",
+        "esCorrecta": false,
+        "argumento": "Borg creó la escala de esfuerzo percibido (CR-10).",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Heinz Leymann",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La L de LIPT viene de su apellido. Leymann describió el mobbing en el trabajo en los años 80."
+      },
+      {
+        "letra": "C",
+        "texto": "William Fine",
+        "esCorrecta": false,
+        "argumento": "Fine creó el método de grado de peligrosidad y repercusión.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento las preguntas 67 y 81 eran iguales; se dividieron para no repetirlas.",
+    "explicacion": "La L de LIPT viene de su apellido. Leymann describió el mobbing en el trabajo en los años 80."
+  },
+  {
+    "codigo": "68",
+    "tema": "Señalización",
+    "enunciado": "Las normas INEN ISO 9095 e INEN ISO 14726 reemplazan a:",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "La INEN 2266 (productos químicos peligrosos)",
+        "esCorrecta": false,
+        "argumento": "La INEN 2266 sigue vigente y trata otro tema.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "La INEN 440 (colores de identificación de tuberías)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La INEN 440 definía los colores de tuberías; hoy se usan las normas ISO adoptadas por el INEN."
+      },
+      {
+        "letra": "C",
+        "texto": "La INEN 439 (colores y señales de seguridad)",
+        "esCorrecta": false,
+        "argumento": "La INEN 439 fue reemplazada por la INEN ISO 3864.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La INEN 440 definía los colores de tuberías; hoy se usan las normas ISO adoptadas por el INEN."
+  },
+  {
+    "codigo": "80",
+    "tema": "Señalización",
+    "enunciado": "¿Qué tema regulaba la norma INEN 440, hoy reemplazada por la INEN ISO 9095 y la INEN ISO 14726?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Los colores de identificación de tuberías",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Las nuevas normas definen los colores y marcas para identificar el contenido de tuberías (por ejemplo, en buques e instalaciones)."
+      },
+      {
+        "letra": "B",
+        "texto": "La clasificación de extintores",
+        "esCorrecta": false,
+        "argumento": "Los extintores se rigen por la NFPA 10 y los reglamentos de incendio.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Las señales de evacuación",
+        "esCorrecta": false,
+        "argumento": "Las señales de evacuación se rigen por la INEN ISO 3864 y la ISO 7010.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento las preguntas 68 y 80 eran iguales; se dividieron para no repetirlas.",
+    "explicacion": "Las nuevas normas definen los colores y marcas para identificar el contenido de tuberías (por ejemplo, en buques e instalaciones)."
+  },
+  {
+    "codigo": "69",
+    "tema": "Indicadores de accidentabilidad",
+    "enunciado": "Si en un año se reportan 100 casos nuevos de trastornos musculoesqueléticos en una población de 10.000 personas (10 casos por cada 1.000 personas al año), esto es:",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Tasa de riesgo",
+        "esCorrecta": false,
+        "argumento": "La tasa de riesgo mide días perdidos por lesión.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Incidencia",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La incidencia mide los casos NUEVOS en un período, en relación con la población expuesta."
+      },
+      {
+        "letra": "C",
+        "texto": "Prevalencia",
+        "esCorrecta": false,
+        "argumento": "La prevalencia cuenta TODOS los casos existentes (nuevos y antiguos) en un momento dado.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "La incidencia mide los casos NUEVOS en un período, en relación con la población expuesta."
+  },
+  {
+    "codigo": "79",
+    "tema": "Indicadores de accidentabilidad",
+    "enunciado": "¿Qué diferencia a la incidencia de la prevalencia?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "La prevalencia solo cuenta los casos nuevos",
+        "esCorrecta": false,
+        "argumento": "Invierte los conceptos.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "La incidencia cuenta solo los casos nuevos en un período; la prevalencia cuenta todos los casos existentes",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Ejemplo: 100 casos nuevos en 10.000 personas en un año = incidencia de 10 por 1.000. Si además había 300 casos antiguos, la prevalencia incluye los 400."
+      },
+      {
+        "letra": "C",
+        "texto": "Son sinónimos",
+        "esCorrecta": false,
+        "argumento": "No lo son: miden cosas distintas.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento las preguntas 69 y 79 eran iguales; se dividieron para no repetirlas.",
+    "explicacion": "Ejemplo: 100 casos nuevos en 10.000 personas en un año = incidencia de 10 por 1.000. Si además había 300 casos antiguos, la prevalencia incluye los 400."
+  },
+  {
+    "codigo": "70",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "Elaborar, socializar y entregar a cada trabajador un ejemplar del Reglamento de Higiene y Seguridad o del Plan de Prevención de Riesgos aprobado por el Ministerio del Trabajo, dejando constancia de la entrega, está establecido en:",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "La NFPA 101",
+        "esCorrecta": false,
+        "argumento": "Es una norma estadounidense de seguridad humana, no legislación laboral ecuatoriana.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "El Acuerdo Ministerial 1404-1978",
+        "esCorrecta": false,
+        "argumento": "El AM 1404 trata de los servicios médicos de empresa.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "El Acuerdo Ministerial 196-2024",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es una obligación del empleador establecida en el AM 196-2024."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Es una obligación del empleador establecida en el AM 196-2024."
+  },
+  {
+    "codigo": "78",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "Según el AM 196-2024, ¿qué debe hacer el empleador con el Reglamento de Higiene y Seguridad aprobado?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Publicarlo solo en la cartelera",
+        "esCorrecta": false,
+        "argumento": "La cartelera no deja constancia individual de entrega.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Elaborarlo, socializarlo y entregar un ejemplar a cada trabajador, dejando constancia de la entrega",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "No basta con tenerlo aprobado: cada trabajador debe recibirlo y debe quedar evidencia de la entrega."
+      },
+      {
+        "letra": "C",
+        "texto": "Archivarlo en la oficina de RR. HH.",
+        "esCorrecta": false,
+        "argumento": "Archivarlo no cumple la obligación de socializarlo y entregarlo.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento las preguntas 70 y 78 eran iguales; se dividieron para no repetirlas.",
+    "explicacion": "No basta con tenerlo aprobado: cada trabajador debe recibirlo y debe quedar evidencia de la entrega."
+  },
+  {
+    "codigo": "71",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "¿Qué acuerdo ministerial del Ministerio del Trabajo todavía no ha sido derogado?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "AM 1404-1978",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El AM 1404 (Reglamento para el funcionamiento de los servicios médicos de empresa) sigue vigente."
+      },
+      {
+        "letra": "B",
+        "texto": "AM 196-2024",
+        "esCorrecta": false,
+        "argumento": "El AM 196-2024 es reciente y vigente, pero la pregunta apunta al acuerdo antiguo que se mantiene: el 1404.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Decreto Ejecutivo 2393",
+        "esCorrecta": false,
+        "argumento": "El Decreto 2393 fue reemplazado por el nuevo reglamento (Decreto 255), según tu material.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El AM 1404 (Reglamento para el funcionamiento de los servicios médicos de empresa) sigue vigente."
+  },
+  {
+    "codigo": "77",
+    "tema": "Salud ocupacional",
+    "enunciado": "¿Qué regula el Acuerdo Ministerial 1404-1978, que sigue vigente?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "El transporte de materiales peligrosos",
+        "esCorrecta": false,
+        "argumento": "El transporte se rige por la INEN 2266.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "El funcionamiento de los servicios médicos de empresa",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Define las funciones del médico de empresa: prevención, vigilancia de la salud, primeros auxilios y educación sanitaria."
+      },
+      {
+        "letra": "C",
+        "texto": "La señalización de seguridad",
+        "esCorrecta": false,
+        "argumento": "La señalización se rige por la INEN ISO 3864.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento las preguntas 71 y 77 eran iguales; se dividieron para no repetirlas.",
+    "explicacion": "Define las funciones del médico de empresa: prevención, vigilancia de la salud, primeros auxilios y educación sanitaria."
+  },
+  {
+    "codigo": "72",
+    "tema": "Emergencias",
+    "enunciado": "¿Cuál de las siguientes afirmaciones sobre requisitos de seguridad en los lugares de trabajo es INCORRECTA, según tu material?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Las escaleras de caracol, de madera, ascensores y escaleras de mano no son vías de evacuación",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Se mantiene la respuesta indicada en tu material."
+      },
+      {
+        "letra": "B",
+        "texto": "Las vías de evacuación deben estar señalizadas e iluminadas",
+        "esCorrecta": false,
+        "argumento": "Es una afirmación CORRECTA: es un requisito básico de las rutas de evacuación.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Las salidas de emergencia deben abrir en el sentido de la evacuación",
+        "esCorrecta": false,
+        "argumento": "Es una afirmación CORRECTA: evita bloqueos por aglomeración.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Revisa esta pregunta con tu fuente: la afirmación marcada como incorrecta coincide con criterios usuales de las normas de evacuación.",
+    "explicacion": "Se mantiene la respuesta indicada en tu material."
+  },
+  {
+    "codigo": "74",
+    "tema": "Ergonomía",
+    "enunciado": "En Ecuador, sobre los riesgos ergonómicos biomecánicos en la manipulación de cargas, ¿qué elemento queda explícitamente excluido como medida de protección?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Los soportes o fajas lumbares",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Las fajas no reducen la carga sobre la columna y pueden dar una falsa sensación de seguridad. Por eso no se aceptan como medida de protección."
+      },
+      {
+        "letra": "B",
+        "texto": "La capacitación en técnicas de levantamiento",
+        "esCorrecta": false,
+        "argumento": "SÍ es una medida válida: es un control administrativo.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Las ayudas mecánicas (carretillas, polipastos)",
+        "esCorrecta": false,
+        "argumento": "SÍ son medidas válidas: son controles de ingeniería.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Las fajas no reducen la carga sobre la columna y pueden dar una falsa sensación de seguridad. Por eso no se aceptan como medida de protección."
+  },
+  {
+    "codigo": "75",
+    "tema": "Señalización",
+    "enunciado": "¿A qué es aplicable el criterio S ≥ L²/2000?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Al cálculo de la carga de viento de un poste",
+        "esCorrecta": false,
+        "argumento": "La fórmula relaciona el área visible de la señal con la distancia de lectura, no con esfuerzos estructurales.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Al tamaño mínimo de una señal de seguridad según su distancia de observación",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "S es la superficie de la señal en m² y L la distancia máxima desde la que debe verse en metros (válido hasta unos 50 m). Ejemplo: a 20 m, S ≥ 400/2000 = 0,2 m²."
+      },
+      {
+        "letra": "C",
+        "texto": "Al nivel de iluminación de una ruta de evacuación",
+        "esCorrecta": false,
+        "argumento": "La iluminación se mide en lux; esta fórmula da superficie en m².",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: En tu documento aparece L²/200 y se explica como diseño estructural de postes. El criterio conocido es S ≥ L²/2000 para el tamaño de la señal. Si en el examen aparece la opción «señalización vertical», es la que se refiere a este criterio.",
+    "explicacion": "S es la superficie de la señal en m² y L la distancia máxima desde la que debe verse en metros (válido hasta unos 50 m). Ejemplo: a 20 m, S ≥ 400/2000 = 0,2 m²."
+  },
+  {
+    "codigo": "76",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "¿Cómo se conforman los organismos paritarios de seguridad y salud?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Comité paritario en todo centro desde 1 trabajador",
+        "esCorrecta": false,
+        "argumento": "Las empresas pequeñas no están obligadas a conformar un comité.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Comité paritario en centros con 50 o más trabajadores; delegado en centros de 10 a 49 trabajadores",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El organismo depende del tamaño del centro de trabajo, según tu material."
+      },
+      {
+        "letra": "C",
+        "texto": "Solo un delegado, sin importar el número de trabajadores",
+        "esCorrecta": false,
+        "argumento": "Desde 50 trabajadores se exige un comité paritario.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "El organismo depende del tamaño del centro de trabajo, según tu material."
+  },
+  {
+    "codigo": "82",
+    "tema": "Gestión de riesgos",
+    "enunciado": "Grado de repercusión, grado de peligrosidad y factor de ponderación (% de expuestos), ¿a qué metodología corresponden?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "William Fine",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "El método William Fine calcula el Grado de Peligrosidad (consecuencia × exposición × probabilidad) y luego el Grado de Repercusión con un factor de ponderación según el % de trabajadores expuestos."
+      },
+      {
+        "letra": "B",
+        "texto": "GTC 45",
+        "esCorrecta": false,
+        "argumento": "La guía colombiana GTC 45 usa nivel de deficiencia, exposición, probabilidad y consecuencia, no el grado de repercusión.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "HAZOP",
+        "esCorrecta": false,
+        "argumento": "El HAZOP analiza desviaciones de proceso con palabras guía (más, menos, no).",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Tu documento traía opciones sin marcar la correcta; se respondió con la metodología a la que pertenecen esos términos.",
+    "explicacion": "El método William Fine calcula el Grado de Peligrosidad (consecuencia × exposición × probabilidad) y luego el Grado de Repercusión con un factor de ponderación según el % de trabajadores expuestos."
+  },
+  {
+    "codigo": "83",
+    "tema": "Señalización",
+    "enunciado": "Según la INEN ISO 3864-1, ¿cómo es la señal de información complementaria?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "No existe información complementaria",
+        "esCorrecta": false,
+        "argumento": "Sí existe: la ISO 3864-1 la define.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "Un rectángulo blanco o del color de la señal de seguridad",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "La señal complementaria va debajo o al lado de la principal, con texto o símbolo; su fondo es blanco o del mismo color de la señal que acompaña."
+      },
+      {
+        "letra": "C",
+        "texto": "Un rectángulo azul sin información",
+        "esCorrecta": false,
+        "argumento": "Una señal complementaria sin información no tiene función; el azul es el color de obligación.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Tu documento traía opciones sin marcar la correcta; se marcó la que define la norma.",
+    "explicacion": "La señal complementaria va debajo o al lado de la principal, con texto o símbolo; su fondo es blanco o del mismo color de la señal que acompaña."
+  },
+  {
+    "codigo": "84",
+    "tema": "Detección y alarmas",
+    "enunciado": "¿Cuál de estos es un tipo de detector de HUMO?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Fotoeléctrico",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Los detectores de humo pueden ser fotoeléctricos (óptico), iónicos o de doble tecnología. Los UV/infrarrojos detectan llama y los térmicos detectan calor."
+      },
+      {
+        "letra": "B",
+        "texto": "Térmico",
+        "esCorrecta": false,
+        "argumento": "El térmico detecta temperatura, no humo.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "UV/infrarrojo",
+        "esCorrecta": false,
+        "argumento": "Detecta la radiación de la llama, no el humo.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Los detectores de humo pueden ser fotoeléctricos (óptico), iónicos o de doble tecnología. Los UV/infrarrojos detectan llama y los térmicos detectan calor."
+  },
+  {
+    "codigo": "85",
+    "tema": "Incendios y extintores",
+    "enunciado": "¿Cómo actúa el método de extinción por inhibición química?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Interrumpe la reacción en cadena de la combustión, impidiendo que los radicales libres sigan formando nuevas moléculas",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Actúa sobre el cuarto lado del tetraedro del fuego (reacción en cadena). Apaga sin necesidad de enfriar ni sofocar; así actúan, por ejemplo, el polvo químico seco y los agentes limpios."
+      },
+      {
+        "letra": "B",
+        "texto": "Baja la temperatura del combustible",
+        "esCorrecta": false,
+        "argumento": "Eso es el enfriamiento.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Retira el oxígeno del fuego",
+        "esCorrecta": false,
+        "argumento": "Eso es la sofocación.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Actúa sobre el cuarto lado del tetraedro del fuego (reacción en cadena). Apaga sin necesidad de enfriar ni sofocar; así actúan, por ejemplo, el polvo químico seco y los agentes limpios."
+  },
+  {
+    "codigo": "86",
+    "tema": "Legislación ecuatoriana",
+    "enunciado": "¿Qué ente regula las políticas de seguridad y salud en el trabajo en Ecuador?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "El Ministerio del Trabajo",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es el ente rector de las políticas de SST: aprueba reglamentos, registra organismos paritarios e inspecciona."
+      },
+      {
+        "letra": "B",
+        "texto": "El Ministerio de Salud",
+        "esCorrecta": false,
+        "argumento": "Rige la salud pública en general, no las políticas laborales de SST.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Solo el IESS",
+        "esCorrecta": false,
+        "argumento": "El IESS administra el Seguro General de Riesgos del Trabajo, pero no es el ente rector de las políticas.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Tu documento traía opciones sin marcar la correcta. Una de ellas era «MT, IESS y Ministerio de Salud»: los tres intervienen, pero el rector es el Ministerio del Trabajo. Verifica cómo lo pide tu examen.",
+    "explicacion": "Es el ente rector de las políticas de SST: aprueba reglamentos, registra organismos paritarios e inspecciona."
+  },
+  {
+    "codigo": "87",
+    "tema": "Riesgo eléctrico",
+    "enunciado": "¿Qué es un contacto eléctrico indirecto?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "El contacto con una parte energizada (cable desnudo, borne)",
+        "esCorrecta": false,
+        "argumento": "Eso es un contacto DIRECTO.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "El contacto con una masa (carcasa, estructura) que quedó energizada por una falla",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "En el contacto directo se toca una parte activa que normalmente tiene tensión. En el indirecto, la parte que normalmente no tiene tensión se energiza por una falla de aislamiento."
+      },
+      {
+        "letra": "C",
+        "texto": "El contacto con 0,3 V a 5 V",
+        "esCorrecta": false,
+        "argumento": "Un contacto no se clasifica por voltaje sino por cómo ocurre.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Tu documento traía opciones sin marcar la correcta; se marcó la definición técnica.",
+    "explicacion": "En el contacto directo se toca una parte activa que normalmente tiene tensión. En el indirecto, la parte que normalmente no tiene tensión se energiza por una falla de aislamiento."
+  },
+  {
+    "codigo": "88",
+    "tema": "Indicadores de accidentabilidad",
+    "enunciado": "¿Cuál es el estándar de horas-hombre para el reporte de accidentabilidad (IF, IG) según la normativa usada en Ecuador?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "10.000 horas-hombre",
+        "esCorrecta": false,
+        "argumento": "No corresponde a ningún estándar de reporte.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "200.000 horas-hombre",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "200.000 = 100 trabajadores × 40 horas semanales × 50 semanas. Es la base que usan OSHA y el IESS en las fórmulas de IF e IG."
+      },
+      {
+        "letra": "C",
+        "texto": "1.000.000 horas-hombre",
+        "esCorrecta": false,
+        "argumento": "Es la base que usan otros países y la OIT en algunas estadísticas, no la del reporte que se pide aquí.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Tu documento traía 200.000 y 1.000.000 sin marcar la correcta.",
+    "explicacion": "200.000 = 100 trabajadores × 40 horas semanales × 50 semanas. Es la base que usan OSHA y el IESS en las fórmulas de IF e IG."
+  },
+  {
+    "codigo": "89a",
+    "tema": "Ergonomía",
+    "enunciado": "¿Qué método ergonómico evalúa los movimientos repetitivos?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "OWAS",
+        "esCorrecta": false,
+        "argumento": "OWAS evalúa posturas generales y carga.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "REBA",
+        "esCorrecta": false,
+        "argumento": "REBA evalúa posturas de todo el cuerpo.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "OCRA",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Métodos: OCRA – movimientos repetitivos; RULA – posturas de miembros superiores; REBA – carga postural estática y dinámica de todo el cuerpo; OWAS – carga postural (con manipulación de carga); LUBA – confort postural de cuello, espalda y hombros."
+      }
+    ],
+    "nota": null,
+    "explicacion": "Métodos: OCRA – movimientos repetitivos; RULA – posturas de miembros superiores; REBA – carga postural estática y dinámica de todo el cuerpo; OWAS – carga postural (con manipulación de carga); LUBA – confort postural de cuello, espalda y hombros."
+  },
+  {
+    "codigo": "89b",
+    "tema": "Ergonomía",
+    "enunciado": "¿Qué método evalúa principalmente las posturas de los miembros superiores?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "RULA (Rapid Upper Limb Assessment)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Su nombre lo dice: «upper limb» significa miembros superiores (brazo, antebrazo, muñeca, cuello y tronco)."
+      },
+      {
+        "letra": "B",
+        "texto": "LUBA",
+        "esCorrecta": false,
+        "argumento": "LUBA evalúa el confort postural de cuello, espalda y hombros.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "OCRA",
+        "esCorrecta": false,
+        "argumento": "OCRA evalúa la repetitividad, no la postura en sí.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "Su nombre lo dice: «upper limb» significa miembros superiores (brazo, antebrazo, muñeca, cuello y tronco)."
+  },
+  {
+    "codigo": "89c",
+    "tema": "Ergonomía",
+    "enunciado": "¿Qué método evalúa la carga postural estática y dinámica de todo el cuerpo?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "RULA",
+        "esCorrecta": false,
+        "argumento": "RULA se enfoca en los miembros superiores.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "B",
+        "texto": "REBA (Rapid Entire Body Assessment)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "«Entire body» significa cuerpo entero; incluye las piernas y el tipo de agarre."
+      },
+      {
+        "letra": "C",
+        "texto": "OCRA",
+        "esCorrecta": false,
+        "argumento": "OCRA evalúa movimientos repetitivos.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": null,
+    "explicacion": "«Entire body» significa cuerpo entero; incluye las piernas y el tipo de agarre."
+  },
+  {
+    "codigo": "90",
+    "tema": "Higiene industrial (ruido, químicos)",
+    "enunciado": "¿A qué factor corresponde el valor 2 × 10-5 Pa?",
+    "opciones": [
+      {
+        "letra": "A",
+        "texto": "Ruido: es la presión acústica de referencia (umbral de audición, 0 dB)",
+        "esCorrecta": true,
+        "argumento": null,
+        "explicacionCorrecta": "Es la presión sonora más baja que percibe el oído humano. Todos los niveles en dB se calculan en relación con ese valor."
+      },
+      {
+        "letra": "B",
+        "texto": "Presión atmosférica normal",
+        "esCorrecta": false,
+        "argumento": "La presión atmosférica es de unos 101.325 Pa, mucho mayor.",
+        "explicacionCorrecta": null
+      },
+      {
+        "letra": "C",
+        "texto": "Iluminación",
+        "esCorrecta": false,
+        "argumento": "La iluminación se mide en lux, no en pascales.",
+        "explicacionCorrecta": null
+      }
+    ],
+    "nota": "Nota: Tu documento traía las opciones Iluminación / Ruido / Presión acústica sin marcar la correcta. Ruido y presión acústica se refieren a lo mismo.",
+    "explicacion": "Es la presión sonora más baja que percibe el oído humano. Todos los niveles en dB se calculan en relación con ese valor."
+  }
+]

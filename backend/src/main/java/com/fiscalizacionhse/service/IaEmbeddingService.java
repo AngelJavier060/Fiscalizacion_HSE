@@ -3,6 +3,7 @@ package com.fiscalizacionhse.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -32,13 +33,14 @@ public class IaEmbeddingService {
     private static final int CHUNK_OVERLAP = 200;
 
     public IaEmbeddingService(
+            @Qualifier("deepSeekRestTemplate") RestTemplate restTemplate,
             @Value("${app.ia.deepseek.api-key:}") String apiKey,
             @Value("${app.ia.deepseek.api-url:https://api.deepseek.com/v1/chat/completions}") String chatUrl) {
-        this.restTemplate = new RestTemplate();
+        this.restTemplate = restTemplate;
         this.objectMapper = new ObjectMapper();
-        this.apiKey = apiKey;
+        this.apiKey = "";
         this.chatUrl = chatUrl;
-        this.embeddingUrl = "https://api.deepseek.com/v1/embeddings";
+        this.embeddingUrl = "";
     }
 
     /**

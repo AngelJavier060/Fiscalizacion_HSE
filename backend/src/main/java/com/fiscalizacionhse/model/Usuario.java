@@ -55,6 +55,11 @@ public class Usuario {
     @Builder.Default
     private Boolean accesosPersonalizados = false;
 
+    /** Vuelta actual del banco de preguntas del simulador SSO. */
+    @Column(name = "vuelta_actual", nullable = false)
+    @Builder.Default
+    private Integer vueltaActual = 1;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

@@ -43,7 +43,7 @@ export class DocumentoListComponent implements OnInit, OnDestroy {
   });
   esRutaSuperAdmin = false;
 
-  /** Búsqueda asistida (solo documentos de la empresa; backend usa DeepSeek con contexto cerrado). */
+  /** Búsqueda asistida: solo documentos de la empresa. */
   consultaBusqueda = '';
   buscandoIa = false;
   busquedaAsistida: BusquedaAsistidaUi | null = null;
@@ -132,7 +132,7 @@ export class DocumentoListComponent implements OnInit, OnDestroy {
 
   private actualizarPollLista(): void {
     const hayProcesando = this.documentos.some(
-      (d) => (d.estadoProcesamiento || 'COMPLETADO') === 'PROCESANDO'
+      (d) => (d.estadoProcesamiento || 'COMPLETADO') === 'PROCESANDO' && !d.textoListo
     );
     if (hayProcesando && !this.pollListaTimer) {
       this.pollListaTimer = setInterval(() => this.refrescarSilencioso(), 5000);

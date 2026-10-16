@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Configuración de la API para la app móvil
 class ApiConfig {
   // Cambiar según entorno: desarrollo, staging, producción
@@ -50,8 +52,18 @@ class ApiConfig {
 
   static const String permisosTrabajo = '/api/permisos-trabajo';
 
-  /// URL base según el entorno configurado
-  static String get baseUrl => _baseUrls[_env]!;
+  static const String simuladorInicio = '/api/simulador/inicio';
+  static const String simuladorExamenes = '/api/simulador/examenes';
+  static const String simuladorHistorial = '/api/simulador/historial';
+
+  /// URL base según el entorno configurado.
+  /// En Flutter web de debug, Chrome bloquea CORS hacia producción: se usa el backend local.
+  static String get baseUrl {
+    if (kIsWeb && kDebugMode) {
+      return 'http://localhost:8080/api/v1';
+    }
+    return _baseUrls[_env]!;
+  }
 
   /// Construye URL completa para un endpoint
   static Uri uri(String endpoint, {Map<String, String>? params}) {

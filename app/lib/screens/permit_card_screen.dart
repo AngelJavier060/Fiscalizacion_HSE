@@ -82,6 +82,24 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
     await PermisoOfflineService.sincronizarPendientes();
   }
 
+  Future<void> _eliminarScan() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Eliminar documento'),
+        content: const Text('¿Eliminar el documento escaneado adjunto a este permiso?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), style: TextButton.styleFrom(foregroundColor: _C.red), child: const Text('Eliminar')),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+    setState(() => _permit = _permit.copyWith(imagePath: ''));
+    await _guardarOffline();
+    Navigator.pop(context, _permit);
+  }
+
   Future<void> _abrirPdf(String pdfPath) async {
     try {
       await OpenFilex.open(pdfPath);
@@ -366,11 +384,22 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
         else
           _buildEmptyDocument(),
         const SizedBox(height: 12),
-        SizedBox(width: double.infinity, child: OutlinedButton.icon(
-          onPressed: _scan, icon: Icon(hasDoc ? Icons.sync : Icons.camera_alt_outlined, size: 18),
-          label: Text(hasDoc ? "Re-escanear permiso" : "Escanear permiso de trabajo"),
-          style: OutlinedButton.styleFrom(foregroundColor: _C.primary, side: const BorderSide(color: _C.surfaceContainerHigh), padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-        )),
+        Row(children: [
+          Expanded(child: OutlinedButton.icon(
+            onPressed: _scan,
+            icon: Icon(hasDoc ? Icons.sync : Icons.camera_alt_outlined, size: 18),
+            label: Text(hasDoc ? 'Re-escanear' : 'Escanear permiso'),
+            style: OutlinedButton.styleFrom(foregroundColor: _C.primary, side: const BorderSide(color: _C.surfaceContainerHigh), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+          )),
+          if (hasDoc) ...[const SizedBox(width: 8),
+            OutlinedButton.icon(
+              onPressed: _eliminarScan,
+              icon: const Icon(Icons.delete_outline, size: 18),
+              label: const Text('Eliminar'),
+              style: OutlinedButton.styleFrom(foregroundColor: _C.red, side: BorderSide(color: _C.red.withValues(alpha: 0.4)), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+            ),
+          ],
+        ]),
       ]),
     );
   }
@@ -459,17 +488,22 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
             ]),
           ),
         const SizedBox(height: 12),
-        SizedBox(width: double.infinity, child: OutlinedButton.icon(
-          onPressed: _scan,
-          icon: const Icon(Icons.document_scanner_outlined, size: 18),
-          label: Text(hasDoc ? "Re-escanear verificación" : "Escanear verificación"),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: _C.primary,
-            side: const BorderSide(color: _C.surfaceContainerHigh),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        )),
+        Row(children: [
+          Expanded(child: OutlinedButton.icon(
+            onPressed: _scan,
+            icon: const Icon(Icons.document_scanner_outlined, size: 18),
+            label: Text(hasDoc ? 'Re-escanear' : 'Escanear verificación'),
+            style: OutlinedButton.styleFrom(foregroundColor: _C.primary, side: const BorderSide(color: _C.surfaceContainerHigh), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+          )),
+          if (hasDoc) ...[const SizedBox(width: 8),
+            OutlinedButton.icon(
+              onPressed: _eliminarScan,
+              icon: const Icon(Icons.delete_outline, size: 18),
+              label: const Text('Eliminar'),
+              style: OutlinedButton.styleFrom(foregroundColor: _C.red, side: BorderSide(color: _C.red.withValues(alpha: 0.4)), padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+            ),
+          ],
+        ]),
       ]),
     );
   }
@@ -507,24 +541,30 @@ class _PermitCardScreenState extends State<PermitCardScreen> {
                 subtitle: Text("Vence: ${df.format(ext.fechaExtension)}", style: const TextStyle(fontSize: 11, color: _C.onSurfaceVariant)),
                 children: [
                   if (hasFile)
-                    Padding(padding: const EdgeInsets.fromLTRB(12, 0, 12, 12), child: SizedBox(
-                      width: double.infinity, height: 140,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: ext.scanPath.endsWith(".pdf")
-                            ? Container(color: _C.errorContainer.withValues(alpha: 0.3), child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                Icon(Icons.picture_as_pdf, size: 32, color: _C.red),
-                                Text("PDF ext. ${i + 1}", style: TextStyle(color: _C.red, fontSize: 12, fontWeight: FontWeight.w600)),
-                                const SizedBox(height: 6),
-                                OutlinedButton.icon(
-                                  icon: const Icon(Icons.open_in_new, size: 14), label: const Text("Abrir PDF", style: TextStyle(fontSize: 12)),
-                                  onPressed: () => _abrirPdf(ext.scanPath),
-                                  style: OutlinedButton.styleFrom(foregroundColor: _C.red, side: BorderSide(color: _C.red.withValues(alpha: 0.3)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                                ),
-                              ])))
-                            : Image.file(File(ext.scanPath), fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: _C.surfaceContainerLow, child: const Center(child: Icon(Icons.broken_image, color: _C.outline)))),
-                      ),
-                    ))
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                      child: ext.scanPath.endsWith(".pdf")
+                        ? Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            decoration: BoxDecoration(color: _C.errorContainer.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8), border: Border.all(color: _C.red.withValues(alpha: 0.2))),
+                            child: Column(children: [
+                              Icon(Icons.picture_as_pdf, size: 48, color: _C.red),
+                              const SizedBox(height: 6),
+                              Text("PDF — Extensión ${i + 1}", style: TextStyle(color: _C.red, fontSize: 13, fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 10),
+                              OutlinedButton.icon(
+                                icon: const Icon(Icons.open_in_new, size: 16), label: const Text("Abrir PDF"),
+                                onPressed: () => _abrirPdf(ext.scanPath),
+                                style: OutlinedButton.styleFrom(foregroundColor: _C.red, side: BorderSide(color: _C.red.withValues(alpha: 0.4)), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                              ),
+                            ]),
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(File(ext.scanPath), fit: BoxFit.fitWidth, width: double.infinity, errorBuilder: (_, __, ___) => Container(height: 80, color: _C.surfaceContainerLow, child: const Center(child: Icon(Icons.broken_image, color: _C.outline)))),
+                          ),
+                    )
                   else
                     const Padding(padding: EdgeInsets.fromLTRB(12, 0, 12, 12), child: Text("Documento no disponible", style: TextStyle(fontSize: 12, color: _C.onSurfaceVariant))),
                 ],

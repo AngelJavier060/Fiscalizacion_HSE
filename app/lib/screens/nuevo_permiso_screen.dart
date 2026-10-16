@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/permit_model.dart';
 import '../services/permiso_offline_service.dart';
 import '../services/auth_service.dart';
@@ -101,22 +103,50 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
       if (mounted) setState(() => _userEmpresaId = eid);
       if (eid == 0) {
         if (mounted) setState(() => _cargandoEmpresas = true);
+        
+        // 1. Cargar desde caché local INMEDIATAMENTE (no esperar la red)
+        bool cargadoDesdeCache = false;
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          final cached = prefs.getString('cached_empresas');
+          if (cached != null) {
+            final list = jsonDecode(cached) as List<dynamic>;
+            if (mounted && list.isNotEmpty) {
+              setState(() {
+                _empresasDisponibles = list.map((e) => e as Map<String, dynamic>).toList();
+                _cargandoEmpresas = false; // Ya tenemos datos, mostrar ahora
+              });
+              cargadoDesdeCache = true;
+            }
+          }
+        } catch (_) {}
+
+        // 2. Intentar actualizar desde API en segundo plano (timeout corto)
         try {
           final response = await ApiService.get(
             '/api/empresas',
             params: {'size': '100', 'sort': 'nombre'},
+            receiveTimeout: const Duration(seconds: 8),
           );
           final content = (response['content'] as List<dynamic>? ?? [])
               .map((e) => e as Map<String, dynamic>)
               .toList();
-          if (mounted) {
-            setState(() {
-              _empresasDisponibles = content;
-              _cargandoEmpresas = false;
-            });
+          
+          if (content.isNotEmpty) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString('cached_empresas', jsonEncode(content));
+            if (mounted) {
+              setState(() {
+                _empresasDisponibles = content;
+                _cargandoEmpresas = false;
+              });
+            }
           }
         } catch (_) {
-          if (mounted) setState(() => _cargandoEmpresas = false);
+          // Si no hay internet pero cargamos del caché, ya está OK
+          if (!cargadoDesdeCache && mounted) {
+            setState(() => _cargandoEmpresas = false);
+          }
         }
       }
     } catch (_) {}
@@ -188,6 +218,21 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
         ),
       );
       return;
+    }
+
+    // Verificar ID duplicado (solo si el usuario escribió un ID manual)
+    final idManual = _idController.text.trim();
+    if (idManual.isNotEmpty && !_isEditing) {
+      final existentes = await PermisoOfflineService.listarPermisos();
+      if (existentes.any((p) => p.id == idManual)) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Ya existe un permiso con el ID "$idManual". Usa otro ID o déjalo vacío para generarlo automáticamente.'),
+          backgroundColor: _Pal.error, behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+        ));
+        return;
+      }
     }
 
     try {
@@ -466,10 +511,18 @@ class _NuevoPermisoScreenState extends State<NuevoPermisoScreen> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFFFF9800)),
                       ),
-                      child: const Text(
-                        '⚠️ No se cargaron empresas. Verifica conexión a internet.',
-                        style: TextStyle(color: Color(0xFFE65100), fontSize: 13),
-                      ),
+                      child: Row(children: [
+                        const Expanded(child: Text(
+                          '⚠️ No se cargaron empresas. Verifica conexión.',
+                          style: TextStyle(color: Color(0xFFE65100), fontSize: 13),
+                        )),
+                        TextButton.icon(
+                          onPressed: _loadUserEmpresa,
+                          icon: const Icon(Icons.refresh, size: 16),
+                          label: const Text('Reintentar'),
+                          style: TextButton.styleFrom(foregroundColor: const Color(0xFFE65100)),
+                        ),
+                      ]),
                     )
                   else
                     Theme(

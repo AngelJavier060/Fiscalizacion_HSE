@@ -59,6 +59,8 @@ public class DocumentoService {
     private final ApplicationEventPublisher eventPublisher;
     private final org.springframework.cache.CacheManager cacheManager;
     private final DocumentoProcesamientoPersistence procesamientoPersistence;
+    private final DocumentoIaBackgroundService documentoIaBackgroundService;
+    private final DocumentoExtraccionProgresoStore extraccionProgreso;
 
     private static final int MINUTOS_PROCESAMIENTO_ACTIVO = 3;
 
@@ -174,6 +176,7 @@ public class DocumentoService {
                 .build();
 
         documento = documentoRepository.save(documento);
+        extraccionProgreso.enCola(documento.getId());
 
         auditoriaService.registrar(
                 usuario, empresa, "SUBIR_DOCUMENTO", "Documento",
@@ -194,11 +197,16 @@ public class DocumentoService {
         Documento documento = buscar(documentoId);
         if ("PROCESANDO".equals(documento.getEstadoProcesamiento())
                 && documento.getUpdatedAt().isAfter(LocalDateTime.now().minusMinutes(MINUTOS_PROCESAMIENTO_ACTIVO))) {
-            throw new BadRequestException("El documento se está procesando. Espere unos minutos e intente de nuevo.");
+            var prog = extraccionProgreso.consultar(documentoId);
+            boolean extrayendoDeVerdad = prog != null && "EXTRAYENDO".equals(prog.getFase()) && prog.getPaginaActual() > 0;
+            if (extrayendoDeVerdad) {
+                throw new BadRequestException("El documento se está extrayendo ahora. Espere un momento.");
+            }
         }
         documento.setEstadoProcesamiento("PROCESANDO");
         documento.setErrorProcesamiento(null);
         documentoRepository.save(documento);
+        extraccionProgreso.enCola(documentoId);
         evictTextoCompletoCache(documentoId);
         eventPublisher.publishEvent(new DocumentoSubidoEvent(documentoId, usuarioId));
         return toResponse(documento);
@@ -212,17 +220,21 @@ public class DocumentoService {
     }
 
     private boolean debeOmitirProcesamientoDuplicado(Documento documento) {
-        if ("COMPLETADO".equals(documento.getEstadoProcesamiento())
-                && documento.getTextoExtraido() != null
-                && !documento.getTextoExtraido().isBlank()) {
-            log.info("Documento {} ya procesado, omitiendo", documento.getId());
+        if (documento.getTextoExtraido() != null && !documento.getTextoExtraido().isBlank()) {
+            if (!"COMPLETADO".equals(documento.getEstadoProcesamiento())) {
+                procesamientoPersistence.marcarCompletado(documento.getId(),
+                        Boolean.TRUE.equals(documento.getPuntosGeneradosIa()));
+            }
+            log.info("Documento {} ya tiene texto, omitiendo extracción", documento.getId());
             return true;
         }
-        if ("PROCESANDO".equals(documento.getEstadoProcesamiento())
-                && (documento.getTextoExtraido() == null || documento.getTextoExtraido().isBlank())
-                && documento.getUpdatedAt().isAfter(LocalDateTime.now().minusMinutes(MINUTOS_PROCESAMIENTO_ACTIVO))) {
-            log.info("Documento {} en procesamiento activo ({}), omitiendo duplicado",
-                    documento.getId(), documento.getUpdatedAt());
+        var prog = extraccionProgreso.consultar(documento.getId());
+        if (prog != null && ("EXTRAYENDO".equals(prog.getFase())
+                || "OCR".equals(prog.getFase())
+                || "ABRIENDO".equals(prog.getFase()))
+                && prog.getPaginaActual() > 0) {
+            log.info("Documento {} ya se está extrayendo (fase {}, página {}), omitiendo duplicado",
+                    documento.getId(), prog.getFase(), prog.getPaginaActual());
             return true;
         }
         return false;
@@ -246,6 +258,7 @@ public class DocumentoService {
         if (debeOmitirProcesamientoDuplicado(documento)) {
             return;
         }
+        extraccionProgreso.enCola(documentoId);
         procesamientoPersistence.marcarProcesando(documentoId);
 
         Usuario usuario = usuarioRepository.findById(usuarioId)
@@ -255,75 +268,34 @@ public class DocumentoService {
         String rutaArchivo = documento.getRutaArchivo();
 
         try {
-            log.info("📝 Paso 2/5 - Extrayendo texto de documento {}", documentoId);
-            String textoPlano = prepararTextoConSaltos(pdfService.extraerTexto(rutaArchivo));
+            log.info("📝 Extrayendo texto de documento {}", documentoId);
+            String textoPlano = prepararTextoConSaltos(pdfService.extraerTexto(rutaArchivo, documentoId));
             textoPlano = quitarArtefactosPagina(textoPlano);
-            String textoExtraido = autoEstructurarDesdeTextoExtraido(textoPlano);
-            log.info("📝 Texto extraído: {} chars → HTML: {} chars", textoPlano.length(), textoExtraido.length());
+            log.info("📝 Texto extraído: {} chars (doc {})", textoPlano.length(), documentoId);
 
-            String idiomaDetectado = idiomaService.detectar(textoExtraido);
-            boolean requiereTraduccion = !"es".equals(idiomaDetectado) && !"desconocido".equals(idiomaDetectado);
-            log.info("🌐 Paso 3/5 - Idioma: {} (traducción: {})", idiomaDetectado, requiereTraduccion);
+            String idiomaDetectado = idiomaService.detectar(textoPlano);
+            boolean requiereTraduccion = !"es".equals(idiomaDetectado)
+                    && !"und".equals(idiomaDetectado)
+                    && !"desconocido".equals(idiomaDetectado);
 
             procesamientoPersistence.guardarTextoExtraido(
-                    documentoId, textoExtraido, idiomaDetectado, requiereTraduccion);
-
-            String textoTraducido = null;
-            if (requiereTraduccion) {
-                log.info("🌍 Paso 4/5 - Traducción...");
-                try {
-                    textoTraducido = traduccionService.traducirAIngles(textoExtraido, idiomaDetectado);
-                    procesamientoPersistence.guardarTraduccion(documentoId, textoTraducido);
-                    log.info("✅ Traducción completada");
-                } catch (Exception e) {
-                    log.error("❌ Error en traducción: {}", e.getMessage());
-                }
+                    documentoId, textoPlano, idiomaDetectado, requiereTraduccion);
+            procesamientoPersistence.marcarCompletado(documentoId, false);
+            if (textoPlano.isBlank()) {
+                extraccionProgreso.sinTexto(documentoId);
+            } else {
+                extraccionProgreso.listo(documentoId, textoPlano);
             }
+            log.info("✅ Texto listo para lectura (doc {}). La IA no ocupa este hilo.", documentoId);
 
-            log.info("🤖 Paso 5/5 - Extrayendo puntos clave con IA...");
-            boolean puntosGenerados = false;
-            try {
-                String textoParaAnalisis = (textoTraducido != null && !textoTraducido.isBlank())
-                        ? textoTraducido
-                        : textoExtraido;
-
-                List<IaService.PuntoClaveIa> puntosIa = iaService.extraerPuntosClaveSubidaRapida(
-                        titulo, textoParaAnalisis);
-
-                if (!puntosIa.isEmpty()) {
-                    List<PuntoClave> puntosGuardados = new ArrayList<>();
-                    for (IaService.PuntoClaveIa puntoIa : puntosIa) {
-                        puntosGuardados.add(PuntoClave.builder()
-                                .contenido(puntoIa.getContenido())
-                                .titulo(puntoIa.getTitulo())
-                                .tema(puntoIa.getTema())
-                                .codigo(puntoIa.getCodigo())
-                                .tipo(puntoIa.getTipo() != null ? puntoIa.getTipo() : "GENERAL")
-                                .orden(puntoIa.getOrden())
-                                .esIa(true)
-                                .confianzaIa(puntoIa.getConfianza() != null
-                                        ? puntoIa.getConfianza()
-                                        : BigDecimal.valueOf(0.85))
-                                .revisado(false)
-                                .build());
-                    }
-                    procesamientoPersistence.guardarPuntosIa(documentoId, puntosGuardados);
-                    puntosGenerados = true;
-                    log.info("✅ {} puntos clave extraídos", puntosGuardados.size());
-                } else {
-                    log.warn("⚠️ No se extrajeron puntos clave");
-                }
-            } catch (Exception e) {
-                log.error("❌ Error al extraer puntos clave con IA: {}", e.getMessage());
-            }
-
-            procesamientoPersistence.marcarCompletado(documentoId, puntosGenerados);
+            documentoIaBackgroundService.generarPuntosTrasTexto(
+                    documentoId, titulo, textoPlano, idiomaDetectado);
 
             auditoriaService.registrar(
                     usuario, empresa, "PROCESAR_DOCUMENTO", "Documento",
                     documentoId,
-                    "Procesamiento completado: " + titulo +
-                            " (" + idiomaDetectado + ", " + textoExtraido.length() + " caracteres)",
+                    "Texto listo para lectura: " + titulo +
+                            " (" + idiomaDetectado + ", " + textoPlano.length() + " caracteres)",
                     null);
 
         } catch (Exception e) {
@@ -331,7 +303,50 @@ public class DocumentoService {
             procesamientoPersistence.marcarError(
                     documentoId,
                     e.getMessage() != null ? e.getMessage() : "Error desconocido al procesar el PDF");
+            extraccionProgreso.error(documentoId, e.getMessage());
         }
+    }
+
+    public com.fiscalizacionhse.dto.response.ExtraccionProgresoResponse obtenerProgresoExtraccion(Long documentoId) {
+        var enMemoria = extraccionProgreso.consultar(documentoId);
+        if (enMemoria != null) {
+            if ("LISTO".equals(enMemoria.getFase())
+                    && (enMemoria.getTextoPlano() == null || enMemoria.getTextoPlano().isBlank())) {
+                Documento d = buscar(documentoId);
+                if (d.getTextoExtraido() != null && !d.getTextoExtraido().isBlank()) {
+                    enMemoria.setTextoPlano(recortarTextoProgreso(d.getTextoExtraido()));
+                    enMemoria.setCaracteres(d.getTextoExtraido().length());
+                }
+            }
+            return enMemoria;
+        }
+        Documento d = buscar(documentoId);
+        boolean hayTexto = d.getTextoExtraido() != null && !d.getTextoExtraido().isBlank();
+        if (hayTexto || "COMPLETADO".equals(d.getEstadoProcesamiento())) {
+            String plano = hayTexto ? d.getTextoExtraido() : "";
+            return com.fiscalizacionhse.dto.response.ExtraccionProgresoResponse.builder()
+                    .documentoId(documentoId)
+                    .fase(hayTexto ? "LISTO" : "SIN_TEXTO")
+                    .mensaje(hayTexto ? "Letras listas · " + plano.length() + " caracteres" : "Sin capa de texto")
+                    .porcentaje(100)
+                    .caracteres(plano.length())
+                    .textoPlano(hayTexto ? recortarTextoProgreso(plano) : null)
+                    .build();
+        }
+        if ("ERROR".equals(d.getEstadoProcesamiento())) {
+            return com.fiscalizacionhse.dto.response.ExtraccionProgresoResponse.builder()
+                    .documentoId(documentoId)
+                    .fase("ERROR")
+                    .mensaje(d.getErrorProcesamiento())
+                    .porcentaje(0)
+                    .build();
+        }
+        return com.fiscalizacionhse.dto.response.ExtraccionProgresoResponse.builder()
+                .documentoId(documentoId)
+                .fase("EN_COLA")
+                .mensaje("En cola: esperando para extraer letras…")
+                .porcentaje(4)
+                .build();
     }
 
     /**
@@ -472,46 +487,76 @@ public class DocumentoService {
         }
 
         // HTML ya guardado en BD: devolver tal cual (sin re-extraer ni re-estructurar)
+        String textoPlano = esContenidoHtml(texto) ? htmlATextoPlano(texto) : texto;
+        String textoConSaltos = quitarArtefactosPagina(prepararTextoConSaltos(textoPlano));
+        if (textoConSaltos == null || textoConSaltos.isBlank()) {
+            textoConSaltos = textoPlano == null ? "" : textoPlano.trim();
+        }
+
         if (esContenidoHtml(texto) && htmlTieneEstructura(texto)) {
-            String textoPlano = htmlATextoPlano(texto);
-            List<com.fiscalizacionhse.dto.response.TextoCompletoResponse.SeccionDetectada> indice =
-                    detectarEncabezados(prepararTextoConSaltos(textoPlano));
-            String htmlLimpio = quitarIndiceEmbebido(texto);
+            try {
+                List<com.fiscalizacionhse.dto.response.TextoCompletoResponse.SeccionDetectada> indice =
+                        detectarEncabezados(textoConSaltos);
+                String htmlLimpio = quitarIndiceEmbebido(texto);
+                return com.fiscalizacionhse.dto.response.TextoCompletoResponse.builder()
+                        .id(d.getId())
+                        .titulo(d.getTitulo())
+                        .textoCompleto(textoConSaltos)
+                        .textoEstructurado(htmlLimpio)
+                        .textoEditor(htmlLimpio)
+                        .indice(indice)
+                        .secciones(filtrarSeccionesNavegacion(indice))
+                        .idioma(d.getIdiomaDetectado())
+                        .build();
+            } catch (Exception e) {
+                log.warn("Estructura HTML del doc {} omitida: {}", documentoId, e.getMessage());
+                return respuestaTextoPlano(d, textoConSaltos);
+            }
+        }
+
+        try {
+            String textoEstructurado = autoEstructurarDesdeTextoExtraido(texto);
+            if (textoEstructurado == null || textoEstructurado.isBlank()) {
+                textoEstructurado = parrafosHtml(textoConSaltos);
+            }
+            List<com.fiscalizacionhse.dto.response.TextoCompletoResponse.SeccionDetectada> indiceCompleto =
+                    detectarEncabezados(textoConSaltos);
             return com.fiscalizacionhse.dto.response.TextoCompletoResponse.builder()
                     .id(d.getId())
                     .titulo(d.getTitulo())
-                    .textoCompleto(textoPlano)
-                    .textoEstructurado(htmlLimpio)
-                    .textoEditor(htmlLimpio)
-                    .indice(indice)
-                    .secciones(filtrarSeccionesNavegacion(indice))
+                    .textoCompleto(textoConSaltos)
+                    .textoEstructurado(textoEstructurado)
+                    .textoEditor(textoEstructurado)
+                    .indice(indiceCompleto)
+                    .secciones(filtrarSeccionesNavegacion(indiceCompleto))
                     .idioma(d.getIdiomaDetectado())
                     .build();
+        } catch (Exception e) {
+            log.warn("Auto-estructura del doc {} falló, se devuelve texto plano: {}", documentoId, e.getMessage());
+            return respuestaTextoPlano(d, textoConSaltos);
         }
+    }
 
-        String textoEstructurado = autoEstructurarDesdeTextoExtraido(texto);
-        String textoPlano = esContenidoHtml(texto) ? htmlATextoPlano(texto) : texto;
-        String textoConSaltos = prepararTextoConSaltos(textoPlano);
-        textoConSaltos = quitarArtefactosPagina(textoConSaltos);
-
-        List<com.fiscalizacionhse.dto.response.TextoCompletoResponse.SeccionDetectada> indiceCompleto =
-                detectarEncabezados(textoConSaltos);
-        List<com.fiscalizacionhse.dto.response.TextoCompletoResponse.SeccionDetectada> seccionesNav =
-                filtrarSeccionesNavegacion(indiceCompleto);
-
-        String textoLimpio = textoConSaltos;
-        String textoEditor = textoEstructurado;
-
+    private com.fiscalizacionhse.dto.response.TextoCompletoResponse respuestaTextoPlano(Documento d, String plano) {
+        String html = parrafosHtml(plano);
         return com.fiscalizacionhse.dto.response.TextoCompletoResponse.builder()
                 .id(d.getId())
                 .titulo(d.getTitulo())
-                .textoCompleto(textoLimpio)
-                .textoEstructurado(textoEstructurado)
-                .textoEditor(textoEditor)
-                .indice(indiceCompleto)
-                .secciones(seccionesNav)
+                .textoCompleto(plano == null ? "" : plano)
+                .textoEstructurado(html)
+                .textoEditor(html)
+                .indice(List.of())
+                .secciones(List.of())
                 .idioma(d.getIdiomaDetectado())
                 .build();
+    }
+
+    private static String recortarTextoProgreso(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        int max = DocumentoExtraccionProgresoStore.MAX_TEXTO_EN_PROGRESO;
+        return texto.length() > max ? texto.substring(0, max) : texto;
     }
 
     /**
@@ -1105,6 +1150,7 @@ public class DocumentoService {
                 .puntosGeneradosIa(d.getPuntosGeneradosIa())
                 .estadoProcesamiento(d.getEstadoProcesamiento())
                 .errorProcesamiento(d.getErrorProcesamiento())
+                .textoListo(d.getTextoExtraido() != null && !d.getTextoExtraido().isBlank())
                 .cantidadPuntos(cantPuntos)
                 .cantidadPuntosRevisados(cantPuntosRevisados)
                 .empresaId(d.getEmpresa().getId())

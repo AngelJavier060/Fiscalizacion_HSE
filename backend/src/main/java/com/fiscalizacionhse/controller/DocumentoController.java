@@ -133,6 +133,12 @@ public class DocumentoController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{id}/progreso-extraccion")
+    public ResponseEntity<com.fiscalizacionhse.dto.response.ExtraccionProgresoResponse> progresoExtraccion(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(documentoService.obtenerProgresoExtraccion(id));
+    }
+
     /**
      * Obtener el texto completo extraído del PDF con secciones detectadas.
      * Útil para el modo de lectura del documento.

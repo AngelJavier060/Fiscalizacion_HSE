@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,9 +32,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults())
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Auth endpoints - públicos
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
@@ -71,6 +74,8 @@ public class SecurityConfig {
 
                 // IA - todos los autenticados pueden consultar
                 .requestMatchers("/api/ia/consultar").authenticated()
+                .requestMatchers("/api/ia/analizar-reporte").authenticated()
+                .requestMatchers("/api/ia/ollama").authenticated()
                 .requestMatchers("/api/ia/buscar").authenticated()
                 .requestMatchers("/api/ia/buscar-asistido").authenticated()
                 .requestMatchers("/api/ia/historial").authenticated()
@@ -79,6 +84,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/ia/resumir/**").authenticated()
                 .requestMatchers("/api/ia/indexar/**")
                     .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA")
+
+                .requestMatchers("/api/simulador/admin/**").hasRole("SUPER_ADMIN")
+                .requestMatchers("/api/simulador/**")
+                    .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "USUARIO")
 
                 // Cualquier autenticado
                 .requestMatchers("/api/me/**").authenticated()

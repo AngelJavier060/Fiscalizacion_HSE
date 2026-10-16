@@ -18,6 +18,10 @@
         <span class="mat-icon">description</span>
         <span>Documentos</span>
       </a>
+      <a [routerLink]="nav.analizarReporte" routerLinkActive="active" class="nav-link">
+        <span class="mat-icon">analytics</span>
+        <span>Analizar reporte</span>
+      </a>
       @if (esRutaSuperAdmin) {
         <a [routerLink]="nav.ia" routerLinkActive="active" class="nav-link">
           <span class="mat-icon">psychology</span>
@@ -68,10 +72,16 @@
         <span class="mat-icon heading-icon">description</span>
         <h2>Documentos Normativos</h2>
       </div>
-      <a [routerLink]="nav.subir" class="btn-primary">
-        <span class="mat-icon">add</span>
-        Subir Documento
-      </a>
+      <div class="header-actions">
+        <a [routerLink]="nav.analizarReporte" class="btn-secondary">
+          <span class="mat-icon">analytics</span>
+          Analizar reporte
+        </a>
+        <a [routerLink]="nav.subir" class="btn-primary">
+          <span class="mat-icon">add</span>
+          Subir Documento
+        </a>
+      </div>
     </div>
 
     @if (empresaId) {
@@ -80,7 +90,6 @@
           <h3>Buscar en mis PDF</h3>
           <p>
             Resultados y explicaciones se basan <strong>solo</strong> en el texto de tus documentos subidos.
-            Con API DeepSeek configurada obtienes hallazgos redactados y términos clave explicados.
           </p>
         </div>
         <div class="search-row">
@@ -172,7 +181,7 @@
               @if (doc.traducido) {
                 <span class="chip chip-ok">Traducido</span>
               }
-              @if (estadoProcesamiento(doc) === 'PROCESANDO') {
+              @if (estadoProcesamiento(doc) === 'PROCESANDO' && !doc.textoListo) {
                 <span class="chip chip-processing">
                   <span class="mat-icon">sync</span>
                   Procesando PDF…

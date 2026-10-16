@@ -186,7 +186,12 @@
           <h2>FISCALIZA-AI Assistant</h2>
           @if (workspaceLayout) {
             <p class="status-line">
-              DeepSeek · Solo documentos cargados
+              Circuito cerrado
+              @if (estadoMotor?.ollamaListo) {
+                · Ollama {{ estadoMotor?.ollamaModelo }}
+              } @else {
+                · Solo documentos cargados
+              }
               @if (estadoMotor?.documentosActivos != null) {
                 · {{ estadoMotor?.documentosActivos }} PDF
               }
@@ -195,7 +200,13 @@
             @if (documentoTitulo.trim()) {
               <p class="doc-chip">{{ documentoTitulo }}</p>
             }
-            <p class="status-line">DeepSeek · Solo documentos de la empresa</p>
+            <p class="status-line">
+              Circuito cerrado
+              @if (estadoMotor?.ollamaListo) {
+                · Ollama
+              }
+              · Solo documentos de la empresa
+            </p>
           }
         </div>
       </div>
@@ -370,7 +381,7 @@
           </button>
         </div>
       </div>
-      <p class="composer-disclaimer">FISCALIZA-AI responde solo con PDF cargados en su empresa (DeepSeek). Verifique información crítica.</p>
+      <p class="composer-disclaimer">FISCALIZA-AI responde solo con PDF cargados en su empresa. Verifique información crítica.</p>
     </div>
   </div>
 

@@ -93,6 +93,8 @@ public class ModuloAccessFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/notificaciones")) return "notificaciones";
         if (path.startsWith("/api/ia/salud")) return null; // health check público
         if (path.startsWith("/api/ia")) return "ia";
+        if (path.startsWith("/api/simulador/admin")) return null;
+        if (path.startsWith("/api/simulador")) return "simulador";
         // /api/me, /api/permisos y otros: sin restricción de módulo
         return null;
     }

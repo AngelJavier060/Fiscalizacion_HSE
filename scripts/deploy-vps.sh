@@ -23,17 +23,6 @@ else
   exit 1
 fi
 
-# --- Verificar puertos libres (no chocar con otros programas) ---
-echo "🔍 Verificando puertos 8005 y 8090..."
-for PORT in 8005 8090; do
-  if ss -tlnp 2>/dev/null | grep -q ":${PORT} " || netstat -tlnp 2>/dev/null | grep -q ":${PORT} "; then
-    echo "❌ Puerto ${PORT} ya está en uso. Revise DEPLOY.md (mapa de puertos)."
-    ss -tlnp | grep ":${PORT} " || true
-    exit 1
-  fi
-done
-echo "✅ Puertos 8005 y 8090 libres"
-
 # --- Clonar o actualizar ---
 if [ ! -d "$APP_DIR" ]; then
   echo "📁 Creando $APP_DIR..."

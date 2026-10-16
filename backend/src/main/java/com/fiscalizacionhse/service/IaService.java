@@ -2,7 +2,9 @@ package com.fiscalizacionhse.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fiscalizacionhse.config.DeepSeekClientConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ public class IaService {
     private final ObjectMapper objectMapper;
     private final PuntoClaveExtraccionService extraccionService;
     private final CriteriosCalidadExtraccionService criteriosCalidadService;
+    private final DeepSeekClientConfig deepSeekConfig;
     private final String apiKey;
     private final String apiUrl;
 
@@ -41,13 +44,16 @@ public class IaService {
     public IaService(
             PuntoClaveExtraccionService extraccionService,
             CriteriosCalidadExtraccionService criteriosCalidadService,
+            DeepSeekClientConfig deepSeekConfig,
+            @Qualifier("deepSeekRestTemplate") RestTemplate restTemplate,
             @Value("${app.ia.deepseek.api-key:}") String apiKey,
             @Value("${app.ia.deepseek.api-url:https://api.deepseek.com/v1/chat/completions}") String apiUrl) {
         this.extraccionService = extraccionService;
         this.criteriosCalidadService = criteriosCalidadService;
-        this.restTemplate = new RestTemplate();
+        this.deepSeekConfig = deepSeekConfig;
+        this.restTemplate = restTemplate;
         this.objectMapper = new ObjectMapper();
-        this.apiKey = apiKey;
+        this.apiKey = "";
         this.apiUrl = apiUrl;
     }
 
@@ -211,7 +217,7 @@ public class IaService {
                     chunk.length() > 28000 ? chunk.substring(0, 28000) + "\n... [texto truncado para este request]" : chunk);
 
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "deepseek-chat");
+            requestBody.put("model", deepSeekConfig.getDefaultModel());
             requestBody.put("messages", List.of(
                     Map.of("role", "system", "content",
                             "Eres un asistente que extrae puntos clave de documentos HSE. "
@@ -316,7 +322,7 @@ public class IaService {
         List<PuntoClaveIa> puntos = new ArrayList<>();
         String[] parrafos = texto.split("\\n\\n+");
 
-        log.info("📝 Modo simulado: analizando {} párrafos", parrafos.length);
+        log.info("📝 Puntos clave desde el texto del PDF ({} párrafos)", parrafos.length);
 
         int maxPuntos = Math.min(parrafos.length, 20);
         for (int i = 0; i < maxPuntos; i++) {
@@ -328,15 +334,6 @@ public class IaService {
                 punto.setOrden(i);
                 puntos.add(punto);
             }
-        }
-
-        // Agregar nota si no hay API Key
-        if (maxPuntos > 0) {
-            PuntoClaveIa nota = new PuntoClaveIa();
-            nota.setContenido("ℹ️ Listado rápido automático — con DeepSeek configurado estos puntos se redactarán mejor a partir del documento.");
-            nota.setConfianza(BigDecimal.valueOf(0.0));
-            nota.setOrden(maxPuntos);
-            puntos.add(nota);
         }
 
         return puntos;

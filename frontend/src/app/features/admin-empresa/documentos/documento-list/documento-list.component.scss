@@ -272,6 +272,13 @@ $topbar-height: 64px;
   flex-wrap: wrap;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .page-heading {
   display: flex;
   align-items: center;
@@ -323,7 +330,10 @@ $topbar-height: 64px;
 }
 
 .btn-secondary {
-  padding: 8px 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
   border: none;
   border-radius: 4px;
   background: $secondary;
@@ -333,8 +343,11 @@ $topbar-height: 64px;
   letter-spacing: 0.05em;
   cursor: pointer;
   font-family: inherit;
+  text-decoration: none;
   transition: background 0.2s, color 0.2s;
   white-space: nowrap;
+
+  .mat-icon { font-size: 18px; }
 
   &:hover:not(:disabled) {
     background: $secondary-container;

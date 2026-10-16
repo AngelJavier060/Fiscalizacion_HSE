@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
+import { UsuarioSidebarComponent } from '../../shared/usuario-sidebar/usuario-sidebar.component';
 
 @Component({
   selector: 'app-documento-view',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, UsuarioSidebarComponent],
   templateUrl: './documento-view.component.html',
   styleUrls: ['./documento-view.component.scss'],
 })

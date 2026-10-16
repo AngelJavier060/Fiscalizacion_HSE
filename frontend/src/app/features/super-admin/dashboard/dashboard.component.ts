@@ -1,5 +1,5 @@
 ﻿import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -14,7 +14,9 @@ import { environment } from '../../../../environments/environment';
 interface SystemMetric {
   label: string;
   icon: string;
+  faIcon: string;
   value: number;
+  bar: 'teal' | 'teal-dark' | 'blue' | 'rose' | 'teal-light';
 }
 
 interface ActividadItem {
@@ -22,14 +24,15 @@ interface ActividadItem {
   tipo: 'login' | 'upload' | 'empresa' | 'auditoria' | 'error';
   mensaje: string;
   tiempo: string;
+  detalle?: string;
 }
 
 @Component({
   selector: 'app-super-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, SuperAdminSidebarComponent, DatePipe],
+  imports: [CommonModule, RouterModule, SuperAdminSidebarComponent],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss'],
+  styleUrls: ['./dashboard.component.scss', './sa-dashboard.scss'],
 })
 export class DashboardComponent implements OnInit {
   private empresaService = inject(EmpresaService);
@@ -60,13 +63,16 @@ export class DashboardComponent implements OnInit {
     return this.totalEmpresas ? Math.round((this.empresasSuspendidas / this.totalEmpresas) * 100) : 0;
   }
 
-  // â”€â”€ Salud del sistema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  get pctAuditoriaMeta(): number {
+    return Math.min(100, Math.round((this.registrosAuditoria / 120) * 100));
+  }
+
   readonly systemMetrics: SystemMetric[] = [
-    { label: 'Disponibilidad API',   icon: 'cloud_done',      value: 98 },
-    { label: 'Documentos indexados', icon: 'description',     value: 84 },
-    { label: 'Sesiones activas',     icon: 'people',          value: 61 },
-    { label: 'Almacenamiento',       icon: 'storage',         value: 43 },
-    { label: 'Fiscaliza AI',         icon: 'smart_toy',       value: 95 },
+    { label: 'Disponibilidad API', icon: 'cloud_done', faIcon: 'fa-solid fa-cloud', value: 98, bar: 'teal' },
+    { label: 'Documentos indexados', icon: 'description', faIcon: 'fa-solid fa-file-lines', value: 84, bar: 'teal-dark' },
+    { label: 'Sesiones activas', icon: 'people', faIcon: 'fa-solid fa-users-rectangle', value: 61, bar: 'blue' },
+    { label: 'Almacenamiento', icon: 'storage', faIcon: 'fa-solid fa-server', value: 43, bar: 'rose' },
+    { label: 'Fiscaliza AI', icon: 'smart_toy', faIcon: 'fa-solid fa-microchip', value: 95, bar: 'teal-light' },
   ];
 
   // â”€â”€ Actividad reciente (se llena dinÃ¡micamente) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -81,8 +87,22 @@ export class DashboardComponent implements OnInit {
     return this.authService.getUserData()?.nombre || 'Super Administrador';
   }
 
-  // â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  get emailUsuario(): string {
+    return this.authService.getUserData()?.email || 'admin@fiscalizacionhse.com';
+  }
+
+  recargar(): void {
+    this.cargarStats();
+  }
+
   ngOnInit(): void {
+    this.cargarStats();
+  }
+
+  private cargarStats(): void {
+    this.cargandoStats = true;
+    this.totalPermisos = 0;
+    this.permisosVigentes = 0;
     forkJoin({
       empresas: this.empresaService.listar(0, 500),
       usuarios: this.usuarioService.listar(0, 500),
@@ -142,6 +162,9 @@ export class DashboardComponent implements OnInit {
           ? `Empresa "${e.nombre}" activa en el sistema`
           : `Empresa "${e.nombre}" suspendida`,
         tiempo: 'Hoy',
+        detalle: e.activa
+          ? 'Certificado de prevención ambiental y seguridad verificado.'
+          : 'Revisar vigencia de acceso y licencias.',
       });
     });
 
@@ -152,6 +175,9 @@ export class DashboardComponent implements OnInit {
         tipo: 'login',
         mensaje: `Usuario "${u.nombre}" ${u.activo ? 'activo' : 'inactivo'}`,
         tiempo: 'Reciente',
+        detalle: u.activo
+          ? 'Inicio de sesión o actividad reciente en el sistema.'
+          : 'Cuenta inactiva en el directorio.',
       });
     });
 
@@ -159,19 +185,38 @@ export class DashboardComponent implements OnInit {
       items.unshift({
         id: 999,
         tipo: 'auditoria',
-        mensaje: `${this.registrosAuditoria} registros de auditorÃ­a este mes`,
+        mensaje: `${this.registrosAuditoria} registros de auditoría este mes`,
         tiempo: 'Este mes',
+        detalle: 'Consolidación automática ejecutada por el sistema central.',
       });
     }
 
-    this.actividadReciente = items.slice(0, 6);
+    this.actividadReciente = items.slice(0, 4);
   }
 
   private _buildActividadFallback(): void {
     this.actividadReciente = [
-      { id: 1, tipo: 'login',    mensaje: 'Inicio de sesiÃ³n â€” Super Admin',   tiempo: 'Ahora' },
-      { id: 2, tipo: 'upload',   mensaje: 'Sistema iniciado correctamente',    tiempo: 'Hoy' },
-      { id: 3, tipo: 'auditoria',mensaje: 'Backend pendiente de conexiÃ³n',     tiempo: 'â€”' },
+      {
+        id: 1,
+        tipo: 'login',
+        mensaje: 'Inicio de sesión — Super Admin',
+        tiempo: 'Ahora',
+        detalle: 'Inicio de sesión exitoso desde estación de control autorizada.',
+      },
+      {
+        id: 2,
+        tipo: 'upload',
+        mensaje: 'Sistema iniciado correctamente',
+        tiempo: 'Hoy',
+        detalle: 'Servicios de fiscalización disponibles para operación.',
+      },
+      {
+        id: 3,
+        tipo: 'auditoria',
+        mensaje: 'Backend pendiente de conexión',
+        tiempo: '—',
+        detalle: 'No se pudieron cargar los eventos más recientes.',
+      },
     ];
   }
 }

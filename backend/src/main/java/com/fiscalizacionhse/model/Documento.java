@@ -42,11 +42,11 @@ public class Documento {
     @Column(name = "texto_traducido", columnDefinition = "TEXT")
     private String textoTraducido;
 
-    @Column(name = "idioma_original", length = 10)
+    @Column(name = "idioma_original", length = 32)
     @Builder.Default
     private String idiomaOriginal = "es";
 
-    @Column(name = "idioma_detectado", length = 10)
+    @Column(name = "idioma_detectado", length = 32)
     private String idiomaDetectado;
 
     @Column(name = "requiere_traduccion", nullable = false)

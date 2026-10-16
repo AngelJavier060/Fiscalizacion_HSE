@@ -1,0 +1,163 @@
+<div class="dashboard-container sim-exam">
+  @if (esSuper) { <app-super-admin-sidebar /> }
+  @if (esUsuario) { <app-usuario-sidebar /> }
+
+  <div class="sx-shell">
+    <header class="sx-topbar">
+      <nav class="sx-crumb">
+        <a [routerLink]="base">Simulador</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span>Examen en curso</span>
+        @if (examen) {
+          <i class="fa-solid fa-chevron-right"></i>
+          <strong>Evaluación #{{ examen.id }}</strong>
+        }
+        <span class="sx-live">
+          <span class="dot"></span>
+          Modo examen activo
+        </span>
+      </nav>
+      @if (examen) {
+        <div class="sx-timer" [class.low]="restanteSeg < 60" [class.out]="restanteSeg <= 0">
+          <i class="fa-regular fa-clock"></i>
+          <div>
+            <span>Tiempo restante</span>
+            <strong>{{ reloj }}</strong>
+          </div>
+        </div>
+      }
+    </header>
+
+    @if (error) {
+      <div class="sx-alert">{{ error }}</div>
+    }
+
+    @if (examen && actual) {
+      <div class="sx-workspace">
+        <section class="sx-main">
+          <div class="sx-progress-card">
+            <div class="sx-progress-head">
+              <div>
+                <h1>Pregunta {{ actual.orden }} <span>de {{ examen.totalPreguntas }}</span></h1>
+                <p>{{ examen.temaNombre }} • {{ modoLabel }}</p>
+              </div>
+              <div class="sx-progress-pct">
+                <span>Progreso general</span>
+                <strong>{{ progreso }}% completado</strong>
+              </div>
+            </div>
+            <div class="sx-bar"><span [style.width.%]="progreso"></span></div>
+          </div>
+
+          @if (examen.aviso) {
+            <p class="sx-aviso">{{ examen.aviso }}</p>
+          }
+
+          <article class="sx-question">
+            <div class="sx-meta">
+              <div class="sx-tags">
+                @if (actual.temaNombre) {
+                  <span class="tag tema"><i class="fa-solid fa-book"></i> {{ actual.temaNombre }}</span>
+                }
+                <span class="tag crit" [class.alta]="criticidad(actual.temaNombre) === 'Alta'">
+                  <i class="fa-solid fa-triangle-exclamation"></i>
+                  Criticidad: {{ criticidad(actual.temaNombre) }}
+                </span>
+              </div>
+              <span class="sx-id">ID #{{ actual.id }}</span>
+            </div>
+
+            <h2>{{ actual.enunciado }}</h2>
+            <p class="sx-hint">Seleccione la opción correcta de acuerdo con los estándares vigentes.</p>
+
+            <fieldset class="sx-ops">
+              <legend class="sr-only">Opciones de respuesta</legend>
+              @for (o of actual.opciones; track o.id; let i = $index) {
+                <button
+                  type="button"
+                  class="sx-op"
+                  [class.sel]="actual.opcionElegidaId === o.id"
+                  (click)="elegir(o.id)">
+                  <span class="letra">{{ letra(i) }}</span>
+                  <span class="txt">{{ o.texto }}</span>
+                  <span class="radio"><span></span></span>
+                </button>
+              }
+            </fieldset>
+
+            <div class="sx-qfoot">
+              <span><i class="fa-regular fa-lightbulb"></i> Puntaje asignado: 1.0 punto</span>
+              <button type="button" class="sx-flag" [class.on]="marcada(actual.id)" (click)="toggleMarca()">
+                <i class="fa-regular fa-bookmark"></i>
+                {{ marcada(actual.id) ? 'Marcada para revisión' : 'Marcar para revisión posterior' }}
+              </button>
+            </div>
+          </article>
+
+          <footer class="sx-nav">
+            <button type="button" class="ghost" [disabled]="indice === 0" (click)="anterior()">
+              <i class="fa-solid fa-arrow-left"></i> Anterior
+            </button>
+            <div class="sx-nav-right">
+              @if (!esUltima) {
+                <button type="button" class="primary" (click)="siguiente()">
+                  Siguiente pregunta <i class="fa-solid fa-arrow-right"></i>
+                </button>
+              }
+              <button type="button" class="danger" [disabled]="finalizando" (click)="pedirFinalizar()">
+                Finalizar
+              </button>
+            </div>
+          </footer>
+        </section>
+
+        <aside class="sx-side">
+          <div class="sx-side-head">
+            <div>
+              <h3>Navegador del examen</h3>
+              <p>Reactivos del simulador</p>
+            </div>
+            <span>{{ actual.orden }} / {{ examen.totalPreguntas }}</span>
+          </div>
+
+          <div class="sx-legend">
+            <span><i class="now"></i> Actual</span>
+            <span><i class="ok"></i> Respondida</span>
+            <span><i class="mark"></i> Marcada</span>
+            <span><i class="pend"></i> Sin responder</span>
+          </div>
+
+          <div class="sx-grid" role="navigation" aria-label="Navegador de preguntas">
+            @for (p of examen.preguntas; track p.id; let i = $index) {
+              <button type="button" [class]="estadoNav(i)" (click)="irA(i)">{{ p.orden }}</button>
+            }
+          </div>
+
+          <div class="sx-keys">
+            <strong><i class="fa-solid fa-keyboard"></i> Atajos de teclado</strong>
+            <p><span>Seleccionar opción</span> <kbd>1-4</kbd></p>
+            <p><span>Siguiente pregunta</span> <kbd>Enter</kbd></p>
+            <p><span>Marcar para revisión</span> <kbd>M</kbd></p>
+          </div>
+
+          <button type="button" class="sx-submit" [disabled]="finalizando" (click)="pedirFinalizar()">
+            <i class="fa-solid fa-check-double"></i>
+            Entregar y calificar
+          </button>
+          <p class="sx-submit-note">Se generará el reporte de conformidad HSE de forma automática.</p>
+        </aside>
+      </div>
+    }
+  </div>
+</div>
+
+@if (confirmando) {
+  <div class="backdrop" (click)="confirmando = false"></div>
+  <div class="modal">
+    <p>Hay preguntas sin responder. Se calificarán como incorrectas.</p>
+    <div class="modal-nav">
+      <button type="button" class="ghost" (click)="confirmando = false">Seguir</button>
+      <button type="button" class="primary" (click)="confirmando = false; finalizar()">Finalizar igual</button>
+    </div>
+  </div>
+}

@@ -24,11 +24,12 @@ public class IdiomaService {
 
     /**
      * Detecta el idioma del texto extraído
-     * @return "es" para español, "en" para inglés, "desconocido" si no se puede determinar
+     * @return "es", "en" o "und" (ISO 639: idioma no determinado). Nunca "desconocido"
+     *         porque idioma_detectado era VARCHAR(10) y esa palabra tiene 11 caracteres.
      */
     public String detectar(String texto) {
         if (texto == null || texto.isBlank()) {
-            return "desconocido";
+            return "und";
         }
 
         String textoLower = texto.toLowerCase();
@@ -58,6 +59,6 @@ public class IdiomaService {
             return "es";
         }
 
-        return "desconocido";
+        return "und";
     }
 }

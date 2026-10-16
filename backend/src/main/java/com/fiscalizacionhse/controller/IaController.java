@@ -1,21 +1,27 @@
 package com.fiscalizacionhse.controller;
 
+import com.fiscalizacionhse.dto.response.AnalizarReporteResponse;
 import com.fiscalizacionhse.dto.response.BusquedaAsistidaResponse;
 import com.fiscalizacionhse.dto.response.BusquedaIaResponse;
 import com.fiscalizacionhse.dto.response.ConsultaIaResponse;
 import com.fiscalizacionhse.model.ConsultaIa;
 import com.fiscalizacionhse.repository.ConsultaIaRepository;
+import com.fiscalizacionhse.service.AnalizarReporteService;
 import com.fiscalizacionhse.service.IaBusquedaService;
 import com.fiscalizacionhse.service.IaChatService;
+import com.fiscalizacionhse.service.OllamaClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -26,6 +32,8 @@ public class IaController {
     private final IaBusquedaService busquedaService;
     private final IaChatService chatService;
     private final ConsultaIaRepository consultaIaRepository;
+    private final AnalizarReporteService analizarReporteService;
+    private final OllamaClient ollamaClient;
 
     /**
      * Consultar con RAG: pregunta + contexto de documentos
@@ -38,6 +46,7 @@ public class IaController {
         long empresaId = parseLongObj(body.get("empresaId"), 0L);
         Long usuarioId = Long.parseLong(authentication.getName());
         Long documentoId = parseDocumentoId(body.get("documentoId"));
+        String modelo = body.get("modelo") != null ? body.get("modelo").toString().trim() : "";
 
         if (pregunta.isBlank()) {
             return ResponseEntity.badRequest().build();
@@ -46,7 +55,9 @@ public class IaController {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok(busquedaService.consultarConRag(pregunta, empresaId, usuarioId, documentoId));
+        String modeloFinal = "";
+
+        return ResponseEntity.ok(busquedaService.consultarConRag(pregunta, empresaId, usuarioId, documentoId, modeloFinal));
     }
 
     /** Comprobación rápida de que el backend está arriba (sin autenticación). */
@@ -66,7 +77,40 @@ public class IaController {
         if (empresaId == null || empresaId <= 0) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok(busquedaService.estadoEmpresa(empresaId));
+        Map<String, Object> estado = new LinkedHashMap<>(busquedaService.estadoEmpresa(empresaId));
+        OllamaClient.EstadoOllama ollama = ollamaClient.estado();
+        estado.put("motor", ollama.listo() ? "ollama" : "interno");
+        estado.put("ollamaActivo", ollama.procesoActivo());
+        estado.put("ollamaListo", ollama.listo());
+        estado.put("ollamaModelo", ollama.modelo());
+        estado.put("ollamaMensaje", ollama.mensaje());
+        return ResponseEntity.ok(estado);
+    }
+
+    /** Estado de Ollama en este servidor (sin enviar documentos). */
+    @GetMapping("/ollama")
+    public ResponseEntity<Map<String, Object>> estadoOllama() {
+        OllamaClient.EstadoOllama ollama = ollamaClient.estado();
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("procesoActivo", ollama.procesoActivo());
+        body.put("listo", ollama.listo());
+        body.put("modelo", ollama.modelo());
+        body.put("modelos", ollama.modelos());
+        body.put("mensaje", ollama.mensaje());
+        body.put("baseUrl", ollamaClient.baseUrl());
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * Cruza un informe de campo (texto pegado o archivo) con los PDF de la empresa
+     * y propone un borrador. Si Ollama está en este servidor, redacta con ese motor.
+     */
+    @PostMapping(value = "/analizar-reporte", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AnalizarReporteResponse> analizarReporte(
+            @RequestParam("empresaId") long empresaId,
+            @RequestParam(value = "texto", required = false) String texto,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivo) {
+        return ResponseEntity.ok(analizarReporteService.analizar(empresaId, texto, archivo));
     }
 
     private static long parseLongObj(Object raw, long defaultVal) {
@@ -144,7 +188,7 @@ public class IaController {
     public ResponseEntity<?> resumir(@PathVariable Long documentoId) {
         // Implementación básica - se puede expandir
         return ResponseEntity.ok(Map.of(
-                "mensaje", "Función de resumen automático disponible con API Key de DeepSeek",
+                "mensaje", "Resumen tomado del texto extraído del PDF",
                 "documentoId", documentoId
         ));
     }

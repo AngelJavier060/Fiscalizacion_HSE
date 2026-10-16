@@ -2,6 +2,7 @@ package com.fiscalizacionhse.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -19,14 +20,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 @Slf4j
 public class PdfService {
 
+    private static final int TIMEOUT_PAGINA_SEG = 12;
+    private static final int MIN_CHARS_PAGINA = 50;
+    private static final float DPI_OCR = 200f;
+
+    private static final ExecutorService PAGE_EXECUTOR = Executors.newCachedThreadPool(r -> {
+        Thread t = new Thread(r, "pdf-extract-page");
+        t.setDaemon(true);
+        return t;
+    });
+
+    private final DocumentoExtraccionProgresoStore progreso;
+    private final DocumentoOcrService ocr;
     private final Path uploadDir;
 
-    public PdfService() {
+    public PdfService(DocumentoExtraccionProgresoStore progreso, DocumentoOcrService ocr) {
+        this.progreso = progreso;
+        this.ocr = ocr;
         this.uploadDir = Path.of("uploads/documentos");
         try {
             Files.createDirectories(uploadDir);
@@ -36,9 +56,6 @@ public class PdfService {
         }
     }
 
-    /**
-     * Guarda el archivo PDF en el sistema de archivos
-     */
     public String guardarArchivo(MultipartFile archivo) {
         try {
             String nombreUnico = UUID.randomUUID() + "_" + archivo.getOriginalFilename();
@@ -52,27 +69,60 @@ public class PdfService {
         }
     }
 
-    /**
-     * Extrae el texto completo de un PDF
-     */
     public String extraerTexto(String rutaArchivo) {
+        return extraerTexto(rutaArchivo, null);
+    }
+
+    /**
+     * Extrae letras página a página. Primera pasada rápida; si la página trae poco texto
+     * (infográfico/tabla) reintenta ordenando por posición.
+     */
+    public String extraerTexto(String rutaArchivo, Long documentoId) {
         File file = new File(rutaArchivo);
         if (!file.exists()) {
             log.warn("⚠️ Archivo no encontrado: {}", rutaArchivo);
             return "";
         }
 
-        try (PDDocument document = Loader.loadPDF(file)) {
-            PDFTextStripper stripper = new PDFTextStripper();
-            stripper.setSortByPosition(true);
-            String texto = stripper.getText(document);
+        if (documentoId != null) {
+            progreso.abriendoPdf(documentoId);
+        }
 
-            if (texto.isBlank()) {
-                log.warn("⚠️ El PDF no contiene texto extraíble: {}", rutaArchivo);
-                return "";
+        try (RandomAccessReadBufferedFile access = new RandomAccessReadBufferedFile(file);
+             PDDocument document = Loader.loadPDF(access)) {
+            int paginas = document.getNumberOfPages();
+            log.info("📝 Extrayendo texto: {} ({} páginas)", file.getName(), paginas);
+            if (documentoId != null) {
+                progreso.pagina(documentoId, 0, paginas);
             }
 
-            log.info("✅ Texto extraído: {} caracteres", texto.length());
+            StringBuilder sb = new StringBuilder();
+            for (int i = 1; i <= paginas; i++) {
+                if (documentoId != null) {
+                    progreso.pagina(documentoId, i, paginas);
+                }
+                String pagina = extraerPagina(document, i, false);
+                if (pagina.trim().length() < MIN_CHARS_PAGINA) {
+                    String lenta = extraerPagina(document, i, true);
+                    if (lenta.trim().length() > pagina.trim().length()) {
+                        pagina = lenta;
+                    }
+                }
+                if (pagina.trim().length() < MIN_CHARS_PAGINA) {
+                    String leido = extraerPaginaPorOcr(document, i, paginas, documentoId);
+                    if (leido.trim().length() > pagina.trim().length()) {
+                        pagina = leido;
+                    }
+                }
+                sb.append(pagina).append('\n');
+            }
+
+            String texto = sb.toString();
+            if (texto.isBlank()) {
+                log.warn("⚠️ El PDF no contiene capa de texto (parece imagen): {}", rutaArchivo);
+                return "";
+            }
+            log.info("✅ Texto extraído: {} caracteres ({} páginas)", texto.length(), paginas);
             return texto;
 
         } catch (IOException e) {
@@ -81,17 +131,50 @@ public class PdfService {
         }
     }
 
-    /**
-     * Renderiza una página del PDF como PNG (uso: vista rápida en UI; DPI moderado por tamaño).
-     *
-     * @param paginaDesdeUno número de página 1-based
-     * @param dpi típicamente 72–132
-     */
+    private String extraerPaginaPorOcr(PDDocument document, int pagina, int paginasTotal, Long documentoId) {
+        if (!ocr.disponible()) {
+            return "";
+        }
+        if (documentoId != null) {
+            progreso.ocr(documentoId, pagina, paginasTotal);
+        }
+        try {
+            byte[] png = renderizarPagina(document, pagina, DPI_OCR);
+            String leido = ocr.reconocerPng(png);
+            if (!leido.isBlank()) {
+                log.info("🔎 OCR página {}: {} caracteres", pagina, leido.length());
+            }
+            return leido;
+        } catch (Exception e) {
+            log.warn("⚠️ OCR página {} omitido: {}", pagina, e.getMessage());
+            return "";
+        }
+    }
+
+    private String extraerPagina(PDDocument document, int pagina, boolean sortByPosition) {
+        PDFTextStripper stripper = new PDFTextStripper();
+        stripper.setSortByPosition(sortByPosition);
+        stripper.setStartPage(pagina);
+        stripper.setEndPage(pagina);
+        Future<String> futuro = PAGE_EXECUTOR.submit(() -> stripper.getText(document));
+        try {
+            return futuro.get(TIMEOUT_PAGINA_SEG, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            futuro.cancel(true);
+            log.warn("⚠️ Página {} agotó {}s (sort={})", pagina, TIMEOUT_PAGINA_SEG, sortByPosition);
+            return "";
+        } catch (Exception e) {
+            log.warn("⚠️ Página {} omitida: {}", pagina, e.getMessage());
+            return "";
+        }
+    }
+
     public byte[] renderizarPaginaComoPng(File archivoPdf, int paginaDesdeUno, float dpi) throws IOException {
         if (!archivoPdf.exists()) {
             throw new FileNotFoundException("Archivo no encontrado");
         }
-        try (PDDocument document = Loader.loadPDF(archivoPdf)) {
+        try (RandomAccessReadBufferedFile access = new RandomAccessReadBufferedFile(archivoPdf);
+             PDDocument document = Loader.loadPDF(access)) {
             int total = document.getNumberOfPages();
             if (paginaDesdeUno < 1 || paginaDesdeUno > total) {
                 throw new IllegalArgumentException(
@@ -105,9 +188,14 @@ public class PdfService {
         }
     }
 
-    /**
-     * Elimina un archivo PDF del sistema
-     */
+    private byte[] renderizarPagina(PDDocument document, int paginaDesdeUno, float dpi) throws IOException {
+        PDFRenderer renderer = new PDFRenderer(document);
+        BufferedImage image = renderer.renderImageWithDPI(paginaDesdeUno - 1, dpi, ImageType.RGB);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", baos);
+        return baos.toByteArray();
+    }
+
     public void eliminarArchivo(String rutaArchivo) {
         try {
             Files.deleteIfExists(Path.of(rutaArchivo));
@@ -116,6 +204,7 @@ public class PdfService {
             log.warn("⚠️ No se pudo eliminar el archivo: {}", rutaArchivo);
         }
     }
+
     public Path getUploadDir() {
         return uploadDir;
     }

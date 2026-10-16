@@ -59,11 +59,28 @@ app:
     password: ${SUPER_ADMIN_PASSWORD:AdminHSE2024!}
     nombre: Super Administrador
 
-  # IA: en local use perfil "local" y application-local.yml (gitignored), o variable DEEPSEEK_API_KEY.
+  # IA de circuito cerrado: PDF de la empresa + Ollama en este servidor. Sin APIs de pago.
   ia:
+    ollama:
+      enabled: true
+      base-url: ${OLLAMA_BASE_URL:http://127.0.0.1:11434}
+      model: ${OLLAMA_MODEL:llama3.2}
+      connect-timeout: 8
+      read-timeout: 180
+      temperature: 0.2
+      max-tokens: 2048
     deepseek:
       api-key: ${DEEPSEEK_API_KEY:}
       api-url: https://api.deepseek.com/v1/chat/completions
+      model: deepseek-reasoner
+      model-fast: deepseek-chat
+      embedding-model: deepseek-embedding
+      tts-model: deepseek-tts
+      connect-timeout: 30
+      read-timeout: 120
+      request-timeout: 150
+      default-temperature: 0.0
+      max-tokens: 8192
 
   documentos:
     upload-dir: uploads/documentos

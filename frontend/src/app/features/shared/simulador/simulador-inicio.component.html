@@ -1,0 +1,99 @@
+<div class="dashboard-container sim-page">
+  @if (esSuper) { <app-super-admin-sidebar /> }
+  @if (esUsuario) { <app-usuario-sidebar /> }
+
+  <div class="sa-shell">
+    <header class="sa-topbar">
+      <span class="crumb">Simulador SSO</span>
+    </header>
+    <main class="sa-main">
+      @if (cargando) { <p>Cargando…</p> }
+      @if (error) { <div class="alert">{{ error }}</div> }
+
+      @if (data) {
+        <section class="welcome">
+          <div>
+            <h2>Simulador de evaluaciones SSO</h2>
+            <p>Exámenes aleatorios de 20 o 40 preguntas. Apruebas con {{ data.notaMinima }} o más. Tiempo: {{ data.tiempo20Min }} min.</p>
+          </div>
+        </section>
+
+        <section class="kpis">
+          <article>
+            <span>Avance de la vuelta {{ data.vueltaActual }}</span>
+            <strong>{{ data.preguntasVistasVuelta }} de {{ data.preguntasBanco }}</strong>
+            <div class="bar"><div [style.width.%]="pctVuelta"></div></div>
+          </article>
+          <article>
+            <span>Última nota</span>
+            <strong [class.ok]="data.ultimoAprobado" [class.bad]="data.ultimoAprobado === false">
+              {{ data.ultimaNota != null ? (data.ultimaNota | number:'1.0-1') : '—' }}
+            </strong>
+            <p>{{ data.ultimoAprobado == null ? 'Sin exámenes finalizados' : (data.ultimoAprobado ? 'Aprobado' : 'Reprobado') }}</p>
+          </article>
+          <article>
+            <span>Falladas por repasar</span>
+            <strong>{{ data.falladasPendientes }}</strong>
+          </article>
+        </section>
+
+        @if (data.intentoPendienteId) {
+          <div class="pendiente">
+            Tienes un examen {{ data.intentoPendienteModo }} en curso.
+            <button type="button" class="btn-primary" (click)="continuar()">Continuar</button>
+          </div>
+        }
+
+        <section class="elegir">
+          <h3>Elegir examen</h3>
+          <div class="mods">
+            <label [class.on]="modo === '20'"><input type="radio" name="modo" [(ngModel)]="modo" value="20" /> 20 preguntas ({{ data.tiempo20Min }} min)</label>
+            <label [class.on]="modo === '40'"><input type="radio" name="modo" [(ngModel)]="modo" value="40" /> 40 preguntas ({{ data.tiempo40Min }} min)</label>
+            <label [class.on]="modo === 'falladas'" [class.disabled]="data.falladasPendientes === 0">
+              <input type="radio" name="modo" [(ngModel)]="modo" value="falladas" [disabled]="data.falladasPendientes === 0" />
+              Falladas ({{ data.falladasPendientes }})
+            </label>
+          </div>
+          <label class="tema">
+            Tema
+            <select [(ngModel)]="temaId" [disabled]="modo === 'falladas'">
+              <option [ngValue]="null">Todos los temas</option>
+              @for (t of data.temas; track t.id) {
+                <option [ngValue]="t.id">{{ t.nombre }} ({{ t.preguntasActivas }})</option>
+              }
+            </select>
+          </label>
+          <button type="button" class="btn-primary" [disabled]="iniciando" (click)="empezar()">Comenzar examen</button>
+        </section>
+
+        <section class="hist">
+          <h3>Historial</h3>
+          @if (!data.historial.length) {
+            <p class="muted">Aún no hay intentos.</p>
+          } @else {
+            <table>
+              <thead>
+                <tr><th>Fecha</th><th>Modo</th><th>Tema</th><th>Nota</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                @for (h of data.historial; track h.id) {
+                  <tr>
+                    <td>{{ h.fechaInicio | date:'short' }}</td>
+                    <td>{{ h.modo }}</td>
+                    <td>{{ h.temaNombre }}</td>
+                    <td>
+                      @if (h.estado === 'finalizado' && h.nota != null) {
+                        <button type="button" class="link" (click)="verResultado(h.id)">{{ h.nota | number:'1.0-1' }}</button>
+                      } @else { — }
+                    </td>
+                    <td>{{ h.estado }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </section>
+      }
+    </main>
+  </div>
+</div>
