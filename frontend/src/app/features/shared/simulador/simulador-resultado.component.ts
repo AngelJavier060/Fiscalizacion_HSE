@@ -1,11 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { SuperAdminSidebarComponent } from '../../super-admin/shared/super-admin-sidebar/super-admin-sidebar.component';
 import { UsuarioSidebarComponent } from '../../usuario/shared/usuario-sidebar/usuario-sidebar.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { SimuladorService } from '../../../core/services/simulador.service';
-import { SsoResultado } from '../../../core/models/simulador.model';
+import { SsoResultado, SsoRevision } from '../../../core/models/simulador.model';
 
 type FiltroTema = 'todos' | 'criticos' | 'aprobados';
 type Criticidad = 'Crítico' | 'Obligatorio' | 'Alto' | 'Medio';
@@ -27,19 +28,26 @@ export interface TemaFila {
   templateUrl: './simulador-resultado.component.html',
   styleUrls: ['./simulador-resultado.component.scss'],
 })
-export class SimuladorResultadoComponent implements OnInit {
+export class SimuladorResultadoComponent implements OnInit, OnDestroy {
   private api = inject(SimuladorService);
   private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private sanitizer = inject(DomSanitizer);
 
   res: SsoResultado | null = null;
   error: string | null = null;
   cargando = true;
-  verRevision = false;
+  iniciando: 'misma' | 'otra' | null = null;
+  verRevision = true;
   filtro: FiltroTema = 'todos';
   notaMinima = 70;
   rol = this.auth.getUserRole();
+  abiertaId: number | null = null;
+  mostrarSustentoId: number | null = null;
+  previewUrls: Record<number, string> = {};
+  previewSafe: Record<number, SafeResourceUrl> = {};
+  cargandoSustento: Record<number, boolean> = {};
 
   get base(): string {
     if (this.rol === 'SUPER_ADMIN') return '/super-admin/simulador';
@@ -116,6 +124,7 @@ export class SimuladorResultadoComponent implements OnInit {
   get modoLabel(): string {
     const modo = this.res?.modo || '';
     if (modo === 'falladas') return 'Solo falladas';
+    if (modo === 'banco' || modo === '20' || modo === '40') return 'Banco de preguntas';
     return `Modo ${modo}`;
   }
 
@@ -200,8 +209,37 @@ export class SimuladorResultadoComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    Object.values(this.previewUrls).forEach((u) => URL.revokeObjectURL(u));
+  }
+
   volver(): void {
     this.router.navigate([this.base]);
+  }
+
+  get bancoDesdeResultado(): number {
+    const n = this.res?.totalPreguntas || 0;
+    return n === 20 || n === 40 || n === 60 ? n : 0;
+  }
+
+  empezarDesdeResultado(nuevoSet: boolean): void {
+    if (!this.esUsuario || !this.res || this.iniciando) return;
+    this.iniciando = nuevoSet ? 'otra' : 'misma';
+    this.error = null;
+    const modo = this.res.modo === 'falladas' ? 'falladas' : 'banco';
+    this.api.iniciarExamen(
+      modo,
+      this.res.temaId ?? null,
+      this.bancoDesdeResultado,
+      nuevoSet,
+      this.res.id,
+    ).subscribe({
+      next: (ex) => this.router.navigate([this.base, 'examen', ex.id]),
+      error: (e) => {
+        this.iniciando = null;
+        this.error = e?.error?.mensaje || 'No se pudo iniciar el examen';
+      },
+    });
   }
 
   irADocumentos(): void {
@@ -209,7 +247,123 @@ export class SimuladorResultadoComponent implements OnInit {
   }
 
   toggleRevision(): void {
-    this.verRevision = !this.verRevision;
+    this.verRevision = true;
+    this.irARevision();
+  }
+
+  irARevision(): void {
+    this.verRevision = true;
+    const primera = (this.res?.revision || []).find((p) => !p.esCorrecta);
+    if (primera && this.abiertaId == null) {
+      this.abrir(primera);
+    }
+    setTimeout(() => {
+      document.getElementById('rev-lista')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  abrirTema(tema: string): void {
+    const p = (this.res?.revision || []).find((r) => !r.esCorrecta && r.temaNombre === tema);
+    if (!p) return;
+    this.verRevision = true;
+    this.abrir(p);
+    setTimeout(() => {
+      document.getElementById('rev-' + p.preguntaId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  abrir(p: SsoRevision): void {
+    if (p.esCorrecta) {
+      return;
+    }
+    this.abiertaId = p.preguntaId;
+    this.cerrarVisor();
+  }
+
+  recoger(): void {
+    this.cerrarVisor();
+    const lista = this.res?.revision || [];
+    const idx = lista.findIndex((p) => p.preguntaId === this.abiertaId);
+    const siguiente = lista.slice(idx + 1).find((p) => !p.esCorrecta);
+    this.abiertaId = siguiente ? siguiente.preguntaId : null;
+    if (this.abiertaId != null) {
+      setTimeout(() => {
+        document.getElementById('rev-' + this.abiertaId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }
+
+  get visorPregunta(): SsoRevision | null {
+    if (this.mostrarSustentoId == null || !this.res) {
+      return null;
+    }
+    return this.res.revision.find((p) => p.preguntaId === this.mostrarSustentoId) || null;
+  }
+
+  cerrarVisor(): void {
+    this.mostrarSustentoId = null;
+  }
+
+  esImagen(p: SsoRevision): boolean {
+    const t = (p.sustentoTipo || '').toLowerCase();
+    const n = (p.sustentoNombre || '').toLowerCase();
+    return t.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/.test(n);
+  }
+
+  esPdf(p: SsoRevision): boolean {
+    const t = (p.sustentoTipo || '').toLowerCase();
+    const n = (p.sustentoNombre || '').toLowerCase();
+    return t.includes('pdf') || n.endsWith('.pdf');
+  }
+
+  verEvidencia(p: SsoRevision): void {
+    this.mostrarSustentoId = p.preguntaId;
+    this.cargarPreview(p);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.mostrarSustentoId != null) {
+      this.cerrarVisor();
+    }
+  }
+
+  private mimeSustento(p: SsoRevision): string {
+    if (p.sustentoTipo) {
+      return p.sustentoTipo;
+    }
+    if (this.esPdf(p)) {
+      return 'application/pdf';
+    }
+    return '';
+  }
+
+  private blobTipado(blob: Blob, p: SsoRevision): Blob {
+    const mime = this.mimeSustento(p);
+    if (!mime || blob.type === mime) {
+      return blob;
+    }
+    return new Blob([blob], { type: mime });
+  }
+
+  private cargarPreview(p: SsoRevision): void {
+    if (!p.tieneSustento || this.previewUrls[p.preguntaId] || this.cargandoSustento[p.preguntaId]) {
+      return;
+    }
+    this.cargandoSustento[p.preguntaId] = true;
+    this.api.descargarSustento(p.preguntaId).subscribe({
+      next: (blob) => {
+        const typed = this.blobTipado(blob, p);
+        const url = URL.createObjectURL(typed);
+        this.previewUrls[p.preguntaId] = url;
+        this.previewSafe[p.preguntaId] = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        this.cargandoSustento[p.preguntaId] = false;
+      },
+      error: () => {
+        this.cargandoSustento[p.preguntaId] = false;
+        this.error = 'No se pudo abrir el sustento de la pregunta';
+      },
+    });
   }
 
   prioridad(fila: TemaFila, index: number): string {

@@ -18,6 +18,7 @@ import com.fiscalizacionhse.model.SsoPregunta;
 import com.fiscalizacionhse.model.SsoRotacionUsuario;
 import com.fiscalizacionhse.model.SsoTema;
 import com.fiscalizacionhse.model.Usuario;
+import com.fiscalizacionhse.model.enums.RolUsuario;
 import com.fiscalizacionhse.repository.SsoConfiguracionRepository;
 import com.fiscalizacionhse.repository.SsoIntentoRepository;
 import com.fiscalizacionhse.repository.SsoIntentoRespuestaRepository;
@@ -77,6 +78,30 @@ public class SimuladorExamenService {
                 .findFirst()
                 .orElse(null);
 
+        Set<Long> cumplidasIds = rotacionRepository.findByUsuarioIdAndVuelta(usuarioId, vuelta)
+                .stream().map(SsoRotacionUsuario::getPreguntaId).collect(Collectors.toSet());
+        SsoIntento ultimoBanco = historial.stream()
+                .filter(i -> "finalizado".equals(i.getEstado()) && esModoBanco(i.getModo()))
+                .findFirst().orElse(null);
+        boolean repetir = ultimoBanco != null && !Boolean.TRUE.equals(ultimoBanco.getAprobado());
+
+        List<SsoTemaResponse> temas = temaRepository.findByActivoTrueOrderByNombreAsc().stream()
+                .map(t -> {
+                    long activasTema = preguntaRepository.countByTemaIdAndActivoTrue(t.getId());
+                    long cumplidasTema = preguntaRepository.findByActivoTrueAndTemaId(t.getId()).stream()
+                            .filter(p -> cumplidasIds.contains(p.getId()))
+                            .count();
+                    return SsoTemaResponse.builder()
+                            .id(t.getId())
+                            .nombre(t.getNombre())
+                            .activo(true)
+                            .totalPreguntas(preguntaRepository.countByTemaId(t.getId()))
+                            .preguntasActivas(activasTema)
+                            .cumplidasVuelta(cumplidasTema)
+                            .build();
+                })
+                .toList();
+
         return SsoInicioResponse.builder()
                 .vueltaActual(vuelta)
                 .preguntasVistasVuelta(vistas)
@@ -87,18 +112,20 @@ public class SimuladorExamenService {
                 .ultimaFecha(ultimo == null ? null : ultimo.getFechaFin())
                 .intentoPendienteId(pendiente == null ? null : pendiente.getId())
                 .intentoPendienteModo(pendiente == null ? null : pendiente.getModo())
-                .temas(temaRepository.findByActivoTrueOrderByNombreAsc().stream()
-                        .map(t -> SsoTemaResponse.builder()
-                                .id(t.getId())
-                                .nombre(t.getNombre())
-                                .activo(true)
-                                .totalPreguntas(preguntaRepository.countByTemaId(t.getId()))
-                                .preguntasActivas(preguntaRepository.countByTemaIdAndActivoTrue(t.getId()))
-                                .build())
-                        .toList())
-                .notaMinima(entero("nota_minima", 70))
+                .temas(temas)
+                .notaMinima(entero("nota_minima", 90))
                 .tiempo20Min(tiempoExamenMin())
                 .tiempo40Min(tiempoExamenMin())
+                .tiempoExamenMin(tiempoExamenMin())
+                .preguntasPorBanco(preguntasPorBanco())
+                .bloqueRepetir(repetir)
+                .bloqueRepetirNota(ultimoBanco == null ? null : ultimoBanco.getNota())
+                .bloqueRepetirTotal(ultimoBanco == null ? 0 : ultimoBanco.getTotalPreguntas())
+                .bloqueRepetirTemaId(ultimoBanco == null || ultimoBanco.getTema() == null
+                        ? null : ultimoBanco.getTema().getId())
+                .bloqueRepetirTemaNombre(ultimoBanco == null
+                        ? null
+                        : (ultimoBanco.getTema() == null ? "General" : ultimoBanco.getTema().getNombre()))
                 .historial(historial.stream().limit(20).map(this::toHistorial).toList())
                 .build();
     }
@@ -106,6 +133,9 @@ public class SimuladorExamenService {
     @Transactional
     public SsoExamenResponse iniciar(Long usuarioId, SsoIniciarExamenRequest request) {
         Usuario usuario = getUsuario(usuarioId);
+        if (usuario.getRol() == RolUsuario.ADMIN_EMPRESA) {
+            throw new BadRequestException("El administrador de empresa consulta el banco de estudio, no rinde el examen.");
+        }
         SsoIntento pendiente = intentoRepository
                 .findFirstByUsuarioIdAndEstadoOrderByFechaInicioDesc(usuarioId, "en_curso")
                 .orElse(null);
@@ -118,14 +148,25 @@ public class SimuladorExamenService {
             }
         }
 
+        SsoIntento origen = cargarOrigen(usuarioId, request.getIntentoOrigenId());
+
         String modo = request.getModo() == null ? "" : request.getModo().trim().toLowerCase();
-        if (!List.of("20", "40", "falladas").contains(modo)) {
-            throw new BadRequestException("Modo inválido. Use 20, 40 o falladas");
+        if (modo.isBlank() && origen != null) {
+            modo = origen.getModo() == null ? "" : origen.getModo().trim().toLowerCase();
+        }
+        if ("20".equals(modo) || "40".equals(modo)) {
+            modo = "banco";
+        }
+        if (!List.of("banco", "falladas").contains(modo)) {
+            throw new BadRequestException("Elija general, un tema o el repaso de falladas");
         }
 
         SsoTema tema = null;
-        if (request.getTemaId() != null) {
-            tema = temaRepository.findById(request.getTemaId())
+        Long temaId = request.getTemaId() != null
+                ? request.getTemaId()
+                : (origen != null && origen.getTema() != null ? origen.getTema().getId() : null);
+        if (!"falladas".equals(modo) && temaId != null) {
+            tema = temaRepository.findById(temaId)
                     .orElseThrow(() -> new ResourceNotFoundException("Tema no encontrado"));
             if (!Boolean.TRUE.equals(tema.getActivo())) {
                 throw new BadRequestException("El tema está inactivo");
@@ -134,38 +175,68 @@ public class SimuladorExamenService {
 
         boolean bancoInsuficiente = false;
         String aviso = null;
-        List<PreguntaElegida> elegidas;
+        List<SsoPregunta> preguntas = null;
+        int nBanco = request.getPreguntasPorBanco() == null
+                ? (origen != null ? bancoDesdeTotal(origen.getTotalPreguntas()) : preguntasPorBanco())
+                : SsoBancoReglas.normalizarBanco(request.getPreguntasPorBanco());
+        boolean repetirMismo = Boolean.FALSE.equals(request.getNuevoSet());
 
         if ("falladas".equals(modo)) {
-            List<SsoPregunta> falladas = preguntasFalladas(usuarioId);
-            if (falladas.isEmpty()) {
-                throw new BadRequestException("No tienes preguntas falladas para repasar");
+            tema = null;
+            if (repetirMismo && origen != null) {
+                preguntas = preguntasActivasDe(origen);
+                aviso = "Repite las mismas preguntas (otro orden).";
+            } else {
+                preguntas = preguntasFalladas(usuarioId);
+                if (preguntas.isEmpty()) {
+                    throw new BadRequestException("No tienes preguntas falladas para repasar");
+                }
+                Collections.shuffle(preguntas);
+                int tope = SsoBancoReglas.tope(nBanco, preguntas.size());
+                if (preguntas.size() > tope) {
+                    preguntas = new ArrayList<>(preguntas.subList(0, tope));
+                }
             }
-            Collections.shuffle(falladas);
-            if (falladas.size() > 20) {
-                falladas = new ArrayList<>(falladas.subList(0, 20));
-            }
-            elegidas = falladas.stream()
-                    .map(p -> new PreguntaElegida(p, usuario.getVueltaActual()))
-                    .toList();
         } else {
-            int n = Integer.parseInt(modo);
             List<SsoPregunta> activas = tema == null
                     ? preguntaRepository.findByActivoTrue()
                     : preguntaRepository.findByActivoTrueAndTemaId(tema.getId());
             if (activas.isEmpty()) {
                 throw new BadRequestException("No hay preguntas activas para este alcance");
             }
-            ResultadoRotacion rot = rotar(usuario, activas, n);
-            elegidas = rot.elegidas;
-            bancoInsuficiente = rot.bancoInsuficiente;
-            if (bancoInsuficiente) {
-                aviso = "El banco tiene menos preguntas que las solicitadas. El examen sale con "
-                        + elegidas.size() + " disponibles.";
+            SsoIntento ultimo = origen != null ? origen : ultimoBancoMismoAlcance(usuarioId, tema);
+            boolean ultimoReprobado = ultimo != null && !Boolean.TRUE.equals(ultimo.getAprobado());
+            if (repetirMismo && ultimo != null) {
+                SsoIntento detalle = intentoRepository
+                        .findDetalleByIdAndUsuarioId(ultimo.getId(), usuarioId)
+                        .orElse(ultimo);
+                preguntas = preguntasActivasDe(detalle);
+                aviso = "Repite las mismas preguntas (otro orden). Nota anterior: "
+                        + (ultimo.getNota() == null ? "—" : ultimo.getNota().stripTrailingZeros().toPlainString())
+                        + ".";
+            } else {
+                Set<Long> evitar = Set.of();
+                if (ultimo != null && (origen != null || ultimoReprobado)) {
+                    SsoIntento detalle = intentoRepository
+                            .findDetalleByIdAndUsuarioId(ultimo.getId(), usuarioId)
+                            .orElse(ultimo);
+                    evitar = detalle.getRespuestas().stream()
+                            .map(r -> r.getPregunta().getId())
+                            .collect(Collectors.toSet());
+                }
+                preguntas = siguienteBanco(usuario, activas, nBanco, tema == null, evitar);
+                if (nBanco > 0 && preguntas.size() < nBanco) {
+                    bancoInsuficiente = activas.size() < nBanco;
+                    aviso = "Último banco de esta vuelta: " + preguntas.size() + " preguntas pendientes.";
+                }
             }
         }
 
-        int tiempo = tiempoExamenMin();
+        if (preguntas == null || preguntas.isEmpty()) {
+            throw new BadRequestException("No hay preguntas para armar el examen");
+        }
+
+        int tiempo = SsoBancoReglas.tiempoSegunCantidad(preguntas.size());
 
         SsoIntento intento = SsoIntento.builder()
                 .usuario(usuario)
@@ -174,32 +245,24 @@ public class SimuladorExamenService {
                 .estado("en_curso")
                 .fechaInicio(LocalDateTime.now())
                 .tiempoLimiteMin(tiempo)
-                .totalPreguntas(elegidas.size())
+                .totalPreguntas(preguntas.size())
                 .build();
         intento = intentoRepository.save(intento);
 
-        List<PreguntaElegida> ordenadas = new ArrayList<>(elegidas);
+        List<SsoPregunta> ordenadas = new ArrayList<>(preguntas);
         Collections.shuffle(ordenadas);
         int orden = 1;
-        for (PreguntaElegida pe : ordenadas) {
-            List<SsoOpcion> ops = opcionesDe(pe.pregunta);
+        for (SsoPregunta pregunta : ordenadas) {
+            List<SsoOpcion> ops = opcionesDe(pregunta);
             List<Long> ids = ops.stream().map(SsoOpcion::getId).collect(Collectors.toCollection(ArrayList::new));
             Collections.shuffle(ids);
             SsoIntentoRespuesta resp = SsoIntentoRespuesta.builder()
                     .intento(intento)
-                    .pregunta(pe.pregunta)
+                    .pregunta(pregunta)
                     .orden(orden++)
                     .ordenOpciones(writeJson(ids))
                     .build();
             intento.getRespuestas().add(resp);
-
-            if (!"falladas".equals(modo)) {
-                rotacionRepository.save(SsoRotacionUsuario.builder()
-                        .usuarioId(usuarioId)
-                        .preguntaId(pe.pregunta.getId())
-                        .vuelta(pe.vuelta)
-                        .build());
-            }
         }
         usuarioRepository.save(usuario);
         return toExamen(intento, false, bancoInsuficiente, aviso);
@@ -293,58 +356,134 @@ public class SimuladorExamenService {
                 : BigDecimal.valueOf(correctas)
                 .multiply(BigDecimal.valueOf(100))
                 .divide(BigDecimal.valueOf(total), 1, RoundingMode.HALF_UP);
-        int minima = entero("nota_minima", 70);
+        int minima = entero("nota_minima", 90);
         intento.setCorrectas(correctas);
         intento.setNota(nota);
         intento.setAprobado(nota.compareTo(BigDecimal.valueOf(minima)) >= 0);
         intento.setEstado("finalizado");
         intento.setFechaFin(LocalDateTime.now());
+        if (Boolean.TRUE.equals(intento.getAprobado()) && esModoBanco(intento.getModo())) {
+            registrarCumplidas(intento);
+        }
     }
 
-    private ResultadoRotacion rotar(Usuario usuario, List<SsoPregunta> activas, int n) {
+    private void registrarCumplidas(SsoIntento intento) {
+        Usuario usuario = intento.getUsuario();
+        int vuelta = usuario.getVueltaActual() == null ? 1 : usuario.getVueltaActual();
+        for (SsoIntentoRespuesta r : intento.getRespuestas()) {
+            Long pid = r.getPregunta().getId();
+            if (!rotacionRepository.existsByUsuarioIdAndPreguntaIdAndVuelta(usuario.getId(), pid, vuelta)) {
+                rotacionRepository.save(SsoRotacionUsuario.builder()
+                        .usuarioId(usuario.getId())
+                        .preguntaId(pid)
+                        .vuelta(vuelta)
+                        .build());
+            }
+        }
+        long banco = preguntaRepository.countByActivoTrue();
+        long cumplidas = rotacionRepository.countByUsuarioIdAndVuelta(usuario.getId(), vuelta);
+        if (banco > 0 && cumplidas >= banco) {
+            usuario.setVueltaActual(vuelta + 1);
+            usuarioRepository.save(usuario);
+        }
+    }
+
+    private List<SsoPregunta> siguienteBanco(
+            Usuario usuario, List<SsoPregunta> activas, int n, boolean general, Set<Long> evitar) {
         int vuelta = usuario.getVueltaActual() == null ? 1 : usuario.getVueltaActual();
         usuario.setVueltaActual(vuelta);
-
-        Set<Long> vistas = rotacionRepository.findByUsuarioIdAndVuelta(usuario.getId(), vuelta)
+        Set<Long> cumplidas = rotacionRepository.findByUsuarioIdAndVuelta(usuario.getId(), vuelta)
                 .stream().map(SsoRotacionUsuario::getPreguntaId).collect(Collectors.toSet());
-        List<SsoPregunta> noVistas = activas.stream()
-                .filter(p -> !vistas.contains(p.getId()))
+        List<SsoPregunta> pendientes = activas.stream()
+                .filter(p -> !cumplidas.contains(p.getId()))
                 .collect(Collectors.toCollection(ArrayList::new));
-
-        if (noVistas.isEmpty() && !activas.isEmpty()) {
+        if (pendientes.isEmpty()) {
+            if (!general) {
+                throw new BadRequestException("Ya cumplió este tema en la vuelta " + vuelta
+                        + ". Elija otro tema o el banco general para seguir.");
+            }
             vuelta = vuelta + 1;
             usuario.setVueltaActual(vuelta);
-            noVistas = new ArrayList<>(activas);
+            pendientes = new ArrayList<>(activas);
         }
-
-        List<PreguntaElegida> elegidas = new ArrayList<>();
-        Collections.shuffle(noVistas);
-        if (noVistas.size() >= n) {
-            for (SsoPregunta p : noVistas.subList(0, n)) {
-                elegidas.add(new PreguntaElegida(p, vuelta));
-            }
-            return new ResultadoRotacion(elegidas, activas.size() < n);
-        }
-
-        for (SsoPregunta p : noVistas) {
-            elegidas.add(new PreguntaElegida(p, vuelta));
-        }
-        int faltan = n - elegidas.size();
-        Set<Long> yaEnExamen = elegidas.stream().map(e -> e.pregunta.getId()).collect(Collectors.toSet());
-        List<SsoPregunta> pool = activas.stream()
-                .filter(p -> !yaEnExamen.contains(p.getId()))
+        Set<Long> excluir = evitar == null ? Set.of() : evitar;
+        List<SsoPregunta> nuevas = pendientes.stream()
+                .filter(p -> !excluir.contains(p.getId()))
                 .collect(Collectors.toCollection(ArrayList::new));
-        if (pool.isEmpty()) {
-            return new ResultadoRotacion(elegidas, true);
+        List<SsoPregunta> previas = pendientes.stream()
+                .filter(p -> excluir.contains(p.getId()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        Collections.shuffle(nuevas);
+        Collections.shuffle(previas);
+        int tomar = SsoBancoReglas.tope(n, pendientes.size());
+        List<SsoPregunta> armado = new ArrayList<>(nuevas);
+        if (armado.size() < tomar) {
+            for (SsoPregunta p : previas) {
+                if (armado.size() >= tomar) {
+                    break;
+                }
+                armado.add(p);
+            }
         }
-        int nuevaVuelta = vuelta + 1;
-        usuario.setVueltaActual(nuevaVuelta);
-        Collections.shuffle(pool);
-        int tomar = Math.min(faltan, pool.size());
-        for (int i = 0; i < tomar; i++) {
-            elegidas.add(new PreguntaElegida(pool.get(i), nuevaVuelta));
+        if (armado.size() > tomar) {
+            armado = new ArrayList<>(armado.subList(0, tomar));
         }
-        return new ResultadoRotacion(elegidas, elegidas.size() < n);
+        return armado;
+    }
+
+    private SsoIntento ultimoBancoMismoAlcance(Long usuarioId, SsoTema tema) {
+        Long temaId = tema == null ? null : tema.getId();
+        return intentoRepository.findByUsuarioIdOrderByFechaInicioDesc(usuarioId).stream()
+                .filter(i -> "finalizado".equals(i.getEstado()) && esModoBanco(i.getModo()))
+                .filter(i -> {
+                    Long actual = i.getTema() == null ? null : i.getTema().getId();
+                    return Objects.equals(actual, temaId);
+                })
+                .findFirst()
+                .orElse(null);
+    }
+
+    private SsoIntento cargarOrigen(Long usuarioId, Long intentoOrigenId) {
+        if (intentoOrigenId == null) {
+            return null;
+        }
+        SsoIntento origen = intentoRepository.findDetalleByIdAndUsuarioId(intentoOrigenId, usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Resultado no encontrado"));
+        if ("en_curso".equals(origen.getEstado())) {
+            throw new BadRequestException("Ese examen aún no ha finalizado");
+        }
+        return origen;
+    }
+
+    private int bancoDesdeTotal(Integer total) {
+        int n = total == null ? 0 : total;
+        if (n == 20 || n == 40 || n == 60) {
+            return n;
+        }
+        return SsoBancoReglas.TODAS;
+    }
+
+    private List<SsoPregunta> preguntasActivasDe(SsoIntento intento) {
+        List<SsoPregunta> out = new ArrayList<>();
+        for (SsoIntentoRespuesta r : intento.getRespuestas()) {
+            SsoPregunta p = r.getPregunta();
+            if (p != null && Boolean.TRUE.equals(p.getActivo())) {
+                SsoPregunta detalle = preguntaRepository.findDetalleById(p.getId()).orElse(p);
+                out.add(detalle);
+            }
+        }
+        if (out.isEmpty()) {
+            throw new BadRequestException("Ese banco ya no tiene preguntas activas. Inicie el siguiente.");
+        }
+        return out;
+    }
+
+    private boolean esModoBanco(String modo) {
+        return modo != null && Set.of("banco", "20", "40").contains(modo);
+    }
+
+    private int preguntasPorBanco() {
+        return SsoBancoReglas.normalizarBanco(entero("preguntas_por_banco", 20));
     }
 
     private List<SsoPregunta> preguntasFalladas(Long usuarioId) {
@@ -463,6 +602,9 @@ public class SimuladorExamenService {
                     .enunciado(p.getEnunciado())
                     .explicacion(p.getExplicacion())
                     .fuente(p.getFuente())
+                    .tieneSustento(p.getSustentoRuta() != null && !p.getSustentoRuta().isBlank())
+                    .sustentoNombre(p.getSustentoNombre())
+                    .sustentoTipo(p.getSustentoTipo())
                     .temaNombre(temaNom)
                     .opcionElegidaId(elegidaId)
                     .opcionCorrectaId(correctaId)
@@ -474,6 +616,7 @@ public class SimuladorExamenService {
         return SsoResultadoResponse.builder()
                 .id(intento.getId())
                 .modo(intento.getModo())
+                .temaId(intento.getTema() == null ? null : intento.getTema().getId())
                 .temaNombre(intento.getTema() == null ? "Todos los temas" : intento.getTema().getNombre())
                 .estado(intento.getEstado())
                 .fechaInicio(intento.getFechaInicio())
@@ -538,11 +681,7 @@ public class SimuladorExamenService {
     }
 
     private int tiempoExamenMin() {
-        int t = entero("tiempo_examen_min", -1);
-        if (t == 5 || t == 10 || t == 20 || t == 30) {
-            return t;
-        }
-        return entero("tiempo_20_min", 30);
+        return SsoBancoReglas.tiempoMin(preguntasPorBanco());
     }
 
     private boolean vencido(SsoIntento intento) {
@@ -589,7 +728,4 @@ public class SimuladorExamenService {
         }
     }
 
-    private record PreguntaElegida(SsoPregunta pregunta, int vuelta) {}
-
-    private record ResultadoRotacion(List<PreguntaElegida> elegidas, boolean bancoInsuficiente) {}
 }

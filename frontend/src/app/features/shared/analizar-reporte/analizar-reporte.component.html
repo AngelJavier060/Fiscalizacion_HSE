@@ -5,8 +5,11 @@
   @if (esUsuario) {
     <app-usuario-sidebar />
   }
+  @if (esAdminEmpresa) {
+    <app-admin-empresa-sidebar />
+  }
 
-  <main class="main-content" [class.no-sidebar]="!esSuperAdmin && !esUsuario">
+  <main class="main-content" [class.no-sidebar]="!esSuperAdmin && !esUsuario && !esAdminEmpresa">
     <header class="top-app-bar">
       <div class="topbar-left">
         <span class="topbar-route">Inteligencia</span>

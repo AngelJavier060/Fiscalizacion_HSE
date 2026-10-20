@@ -1,0 +1,1230 @@
+Banco de preguntas SSO · Parte 2
+Página 1
+Banco de preguntas SSO · Parte 2
+Seguridad y salud ocupacional · Repaso con respuestas explicadas
+Contiene 75 preguntas nuevas que no están en «Los mejores SSO». Se enfocan en los temas
+que más se evalúan en operaciones petroleras y en control de contratistas: permisos de
+trabajo, espacios confinados, H2S, bloqueo y etiquetado, trabajos en caliente, altura, izaje,
+excavaciones, investigación de accidentes, ISO 45001, legislación ecuatoriana, primeros
+auxilios y emergencias. No son preguntas oficiales de ENAP SIPEC: son preguntas de
+práctica con datos de normas reconocidas (OSHA, NFPA, ANSI, ACGIH, ISO, AHA).
+Cómo leer cada pregunta
+ ✓ Correcta · respuesta y explicación de por qué es la correcta
+✗ Incorrecta · argumento de por qué está mal
+Nota · aclaración, corrección o dato que conviene verificar
+La posición de la respuesta correcta (A, B o C) cambia en cada pregunta para que no memorices la letra.
+Tapa las explicaciones para practicar.
+Preguntas por tema
+Espacios confinados
+6
+H2S y gases
+6
+Trabajos en altura
+6
+Permisos de trabajo
+5
+Legislación ecuatoriana
+5
+Izaje
+4
+Incendios
+4
+Primeros auxilios
+4
+Bloqueo y etiquetado (LOTO)
+3
+Trabajos en caliente
+3
+Excavaciones
+3
+Materiales peligrosos
+3
+Investigación de accidentes
+3
+Gestión de riesgos
+3
+ISO 45001
+3
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 2
+Higiene industrial
+3
+EPP
+3
+Emergencias
+3
+Señalización
+2
+Indicadores de accidentabilidad
+2
+Riesgo eléctrico
+1
+Preguntas con nota de corrección o verificación
+12, 33, 60. Revisa estas preguntas con tu material oficial antes del examen.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 3
+ 1
+PERMISOS DE TRABAJO
+¿Cuál es el propósito principal de un permiso de trabajo?
+ A
+Reemplazar el análisis de trabajo seguro (ATS)
+✗ Incorrecta. No lo reemplaza: el ATS analiza los pasos y peligros de la tarea, y el permiso lo
+complementa.
+ B
+Controlar formalmente un trabajo de alto riesgo, verificando peligros, controles y
+autorizaciones antes de empezar
+✓ Correcta. El permiso asegura que el emisor y el ejecutor revisen juntos el área, los aislamientos, las
+mediciones y el EPP antes de iniciar, y que todo quede firmado.
+ C
+Registrar las horas trabajadas por la contratista
+✗ Incorrecta. Eso es control de asistencia, no gestión de riesgos.
+ 2
+PERMISOS DE TRABAJO
+¿Dónde debe estar el permiso de trabajo mientras se ejecuta la tarea?
+ A
+Archivado en la oficina del supervisor
+✗ Incorrecta. Si no está en el sitio, nadie puede verificar las condiciones mientras se trabaja.
+ B
+Solo en formato digital en el correo del emisor
+✗ Incorrecta. El ejecutor y los inspectores necesitan acceso inmediato en el área.
+ C
+En el sitio de trabajo, visible y disponible para verificación
+✓ Correcta. Cualquier supervisor, inspector o trabajador debe poder comprobar en el lugar que el
+trabajo está autorizado y con qué condiciones.
+ 3
+PERMISOS DE TRABAJO
+¿Qué significa SIMOPS?
+ A
+Operaciones simultáneas: dos o más actividades que se ejecutan al mismo tiempo
+en la misma área y pueden afectarse entre sí
+✓ Correcta. Ejemplo: un trabajo en caliente cerca de una descarga de combustible. Las SIMOPS
+exigen coordinación entre permisos y un análisis de interacción de riesgos.
+ B
+Sistema de monitoreo de operaciones de seguridad
+✗ Incorrecta. No es un sistema de monitoreo: es la sigla de Simultaneous Operations.
+ C
+Simulacro de operaciones de emergencia
+✗ Incorrecta. Un simulacro es un ejercicio de emergencia, no la ejecución de trabajos paralelos.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 4
+ 4
+PERMISOS DE TRABAJO
+¿Quién puede detener un trabajo cuando observa una condición insegura
+(autoridad para detener el trabajo, Stop Work)?
+ A
+Cualquier trabajador, sin importar su cargo o empresa
+✓ Correcta. La autoridad para detener el trabajo es universal y sin represalias. Detener a tiempo evita
+el accidente; luego se analiza y se corrige.
+ B
+Solo el supervisor HSE
+✗ Incorrecta. Limitarla al HSE retrasa la reacción ante un peligro inminente.
+ C
+Solo el gerente de la operación
+✗ Incorrecta. Es aún más lento; el peligro no espera a la jerarquía.
+ 5
+PERMISOS DE TRABAJO
+¿Cuándo debe elaborarse el Análisis de Trabajo Seguro (ATS/AST)?
+ A
+Una sola vez al año para todas las tareas
+✗ Incorrecta. Las condiciones cambian a diario; el ATS es específico de cada tarea.
+ B
+Al finalizar el trabajo, como registro
+✗ Incorrecta. Hecho después ya no previene nada.
+ C
+Antes de iniciar la tarea, en el sitio, con los trabajadores que la ejecutarán
+✓ Correcta. El ATS divide la tarea en pasos, identifica los peligros de cada paso y define los controles.
+Hecho en el sitio, refleja las condiciones reales.
+ 6
+ESPACIOS CONFINADOS
+¿Cuál es el rango de oxígeno considerado seguro para ingresar a un espacio
+confinado?
+ A
+De 19,5% a 23,5%
+✓ Correcta. Por debajo de 19,5% hay deficiencia de oxígeno (asfixia); por encima de 23,5% hay
+enriquecimiento, que aumenta el riesgo de incendio.
+ B
+De 21% a 30%
+✗ Incorrecta. Más de 23,5% es una atmósfera enriquecida: los materiales arden con mucha más
+facilidad.
+ C
+De 16% a 21%
+✗ Incorrecta. 16% ya es deficiencia de oxígeno: causa alteraciones de juicio y coordinación.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 5
+ 7
+ESPACIOS CONFINADOS
+¿Cuál es el límite máximo de gases inflamables para autorizar el ingreso a un
+espacio confinado?
+ A
+Hasta el 50% del LIE
+✗ Incorrecta. Está demasiado cerca del punto de explosión; una pequeña acumulación lo superaría.
+ B
+Hasta el 100% del LIE
+✗ Incorrecta. Al 100% del LIE la mezcla ya es explosiva.
+ C
+Menos del 10% del Límite Inferior de Explosividad (LIE)
+✓ Correcta. El 10% del LIE deja un margen amplio antes de llegar a una mezcla que pueda
+encenderse. En trabajos en caliente muchas empresas exigen 0%.
+ 8
+ESPACIOS CONFINADOS
+¿En qué orden se miden los gases antes de ingresar a un espacio confinado?
+ A
+Tóxicos, oxígeno e inflamables
+✗ Incorrecta. Si no se conoce primero el oxígeno, las lecturas de inflamables pueden ser falsas.
+ B
+Oxígeno, gases inflamables y gases tóxicos
+✓ Correcta. El oxígeno va primero porque muchos sensores de inflamables necesitan oxígeno para
+leer bien; luego se mide la inflamabilidad y después los tóxicos (H2S, CO).
+ C
+Solo se mide el oxígeno
+✗ Incorrecta. Un espacio con oxígeno normal puede tener H2S o metano a niveles peligrosos.
+ 9
+ESPACIOS CONFINADOS
+¿Por qué la atmósfera de un espacio confinado se mide en la parte superior,
+media e inferior?
+ A
+Porque el detector se descalibra si se usa a una sola altura
+✗ Incorrecta. La altura no descalibra el equipo; el objetivo es encontrar la estratificación.
+ B
+Porque los gases se estratifican según su densidad: unos se acumulan arriba y
+otros abajo
+✓ Correcta. El metano es más liviano que el aire y sube; el H2S y el CO2 son más pesados y se
+acumulan en el fondo.
+ C
+Para cumplir un formato, sin razón técnica
+✗ Incorrecta. Sí hay razón técnica: medir en un solo nivel puede pasar por alto una bolsa de gas.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 6
+ 10
+ESPACIOS CONFINADOS
+Un trabajador colapsa dentro de un espacio confinado. ¿Qué debe hacer el vigía
+(asistente)?
+ A
+Activar la emergencia y el rescate sin ingresar, salvo que esté capacitado,
+equipado y sea relevado por otro vigía
+✓ Correcta. Una gran parte de las muertes en espacios confinados son de rescatistas improvisados
+que entran sin protección respiratoria.
+ B
+Retirarse del área y esperar al supervisor
+✗ Incorrecta. El vigía no debe abandonar su puesto: debe activar la emergencia y apoyar el rescate
+desde afuera.
+ C
+Ingresar de inmediato a sacarlo
+✗ Incorrecta. Si la atmósfera es peligrosa, el vigía se convierte en la segunda víctima.
+ 11
+ESPACIOS CONFINADOS
+¿Qué norma de OSHA regula los espacios confinados que requieren permiso en la
+industria general?
+ A
+OSHA 29 CFR 1910.146
+✓ Correcta. Define el espacio confinado con permiso, el programa, las mediciones, el vigía, el
+supervisor de entrada y el rescate.
+ B
+OSHA 29 CFR 1910.147
+✗ Incorrecta. La 1910.147 trata del control de energías peligrosas (LOTO).
+ C
+OSHA 29 CFR 1926.651
+✗ Incorrecta. La 1926.651 trata de excavaciones.
+ 12
+H2S Y GASES
+¿Cuál es el TLV-TWA de la ACGIH para el sulfuro de hidrógeno (H2S)?
+ A
+10 ppm
+✗ Incorrecta. Era un valor antiguo y aún aparece en algunos procedimientos, pero ya no es el TLV
+vigente de la ACGIH.
+ B
+100 ppm
+✗ Incorrecta. 100 ppm es el IDLH: concentración inmediatamente peligrosa para la vida.
+ C
+1 ppm (STEL de 5 ppm)
+✓ Correcta. La ACGIH bajó el límite a 1 ppm (promedio de 8 h) y 5 ppm de exposición corta, por los
+efectos del H2S aun a bajas concentraciones.
+Nota: Muchas operadoras configuran las alarmas de los detectores personales en 10 ppm (baja) y 15 o 20
+ppm (alta). Verifica los valores del procedimiento de ENAP.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 7
+ 13
+H2S Y GASES
+¿Por qué el olfato no es confiable para detectar H2S?
+ A
+Porque el H2S no tiene olor
+✗ Incorrecta. Sí tiene olor característico a bajas concentraciones.
+ B
+Porque a concentraciones altas (unos 100 ppm) paraliza el nervio olfativo y deja
+de percibirse el olor
+✓ Correcta. A bajas concentraciones huele a huevo podrido, pero justo cuando es más peligroso deja
+de olerse. Por eso siempre se usa un detector.
+ C
+Porque solo lo detectan las personas entrenadas
+✗ Incorrecta. La parálisis olfativa afecta a todos por igual.
+ 14
+H2S Y GASES
+¿Cómo se comporta el H2S respecto al aire?
+ A
+Se mezcla de forma uniforme en todo el ambiente
+✗ Incorrecta. Por su densidad tiende a acumularse abajo, sobre todo sin viento.
+ B
+Es más pesado que el aire y se acumula en zonas bajas (cubetos, sótanos, fosas)
+✓ Correcta. Su densidad relativa es de 1,19. Por eso las zonas bajas y los espacios confinados son los
+de mayor riesgo.
+ C
+Es más liviano que el aire y se dispersa hacia arriba
+✗ Incorrecta. Ese es el comportamiento del metano, no del H2S.
+ 15
+H2S Y GASES
+Ante una alarma de H2S, ¿hacia dónde se debe evacuar?
+ A
+En dirección contraria o perpendicular al viento (viento cruzado), hacia zonas
+altas, y al punto de reunión seguro
+✓ Correcta. Se usa la manga de viento para saber hacia dónde va la nube. Moverse en dirección
+cruzada al viento saca a la persona de la pluma de gas más rápido.
+ B
+A favor del viento, para alejarse más rápido
+✗ Incorrecta. El viento lleva la nube de gas hacia la persona.
+ C
+Hacia la zona más baja del área
+✗ Incorrecta. El H2S se acumula en las zonas bajas.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 8
+ 16
+H2S Y GASES
+¿Qué protección respiratoria se requiere para ingresar a una atmósfera con H2S
+sobre el IDLH?
+ A
+Equipo de respiración autónoma (ERA/SCBA) o línea de aire con cilindro de escape
+✓ Correcta. Sobre el IDLH solo se permiten equipos con suministro de aire. Los filtros no garantizan
+protección y no dan oxígeno.
+ B
+Mascarilla N95
+✗ Incorrecta. La N95 filtra partículas, no gases.
+ C
+Media cara con cartucho para gases ácidos
+✗ Incorrecta. Los purificadores de aire no son aptos para atmósferas IDLH.
+ 17
+H2S Y GASES
+¿Cuál es el rango de inflamabilidad (LIE - LSE) del metano?
+ A
+5% a 15% en volumen
+✓ Correcta. Por debajo de 5% la mezcla es muy pobre para arder; por encima de 15%, demasiado
+rica. Entre esos valores, una chispa la enciende.
+ B
+20% a 50%
+✗ Incorrecta. Por encima de 15% la mezcla de metano es demasiado rica para encenderse.
+ C
+1% a 3%
+✗ Incorrecta. Es un rango muy bajo; no corresponde al metano.
+ 18
+BLOQUEO Y ETIQUETADO (LOTO)
+¿Qué norma de OSHA regula el control de energías peligrosas (bloqueo y
+etiquetado)?
+ A
+OSHA 29 CFR 1910.146
+✗ Incorrecta. La 1910.146 trata de espacios confinados.
+ B
+NFPA 70E
+✗ Incorrecta. La NFPA 70E trata de la seguridad eléctrica; complementa el bloqueo eléctrico, pero no
+es la norma general de LOTO.
+ C
+OSHA 29 CFR 1910.147
+✓ Correcta. Establece el programa de control de energía: procedimientos, candados, etiquetas,
+verificación y capacitación.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 9
+ 19
+BLOQUEO Y ETIQUETADO (LOTO)
+¿Cuál es el principio básico del bloqueo personal?
+ A
+Un candado por equipo, que coloca el supervisor por todos
+✗ Incorrecta. Si el supervisor lo retira por error, los trabajadores quedan expuestos.
+ B
+Un trabajador, un candado, una llave: cada persona expuesta coloca su propio
+candado
+✓ Correcta. Así nadie puede reenergizar el equipo mientras otra persona sigue trabajando, porque
+solo su dueño retira cada candado.
+ C
+Basta con colocar la etiqueta, sin candado
+✗ Incorrecta. La etiqueta solo advierte; no impide físicamente la reenergización.
+ 20
+BLOQUEO Y ETIQUETADO (LOTO)
+Después de aislar y bloquear un equipo, ¿qué paso es obligatorio antes de
+intervenirlo?
+ A
+Ninguno: si el breaker está abajo, el equipo es seguro
+✗ Incorrecta. Un breaker equivocado o la energía residual pueden causar un accidente.
+ B
+Retirar las etiquetas para que no estorben
+✗ Incorrecta. Las etiquetas deben quedarse puestas durante todo el trabajo.
+ C
+Verificar la energía cero (intentar arrancar, medir ausencia de tensión, comprobar
+presión cero)
+✓ Correcta. La verificación confirma que el aislamiento funcionó y que no queda energía residual:
+presión atrapada, capacitores cargados o partes por gravedad.
+ 21
+RIESGO ELÉCTRICO
+¿Cuáles son las 5 reglas de oro para trabajar sin tensión?
+ A
+Usar guantes, casco, botas, gafas y overol
+✗ Incorrecta. Es EPP; no sustituye las maniobras que dejan el circuito sin tensión.
+ B
+Cortar, trabajar, reconectar, medir y reportar
+✗ Incorrecta. Omite el bloqueo, la verificación y la puesta a tierra.
+ C
+Cortar todas las fuentes, bloquear, verificar la ausencia de tensión, poner a tierra
+y en cortocircuito, y señalizar la zona
+✓ Correcta. Se aplican en ese orden. La puesta a tierra protege si el circuito se reenergiza por error o
+por inducción.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 10
+ 22
+TRABAJOS EN CALIENTE
+¿Cuánto tiempo debe mantenerse la vigilancia contra incendios (fire watch)
+después de terminar un trabajo en caliente?
+ A
+5 minutos
+✗ Incorrecta. Es insuficiente para detectar brasas ocultas.
+ B
+No hace falta si el trabajo terminó bien
+✗ Incorrecta. Muchos incendios empiezan después de que el soldador se retira.
+ C
+Al menos 30 minutos
+✓ Correcta. Las chispas y escorias pueden quedar latentes en grietas o materiales y encender un
+incendio después de terminado el trabajo (OSHA 1910.252).
+ 23
+TRABAJOS EN CALIENTE
+¿Qué radio se considera para retirar o proteger los materiales combustibles
+alrededor de un trabajo en caliente?
+ A
+1 metro
+✗ Incorrecta. Las chispas recorren mucho más.
+ B
+11 metros (35 pies)
+✓ Correcta. Las chispas de soldadura y corte pueden viajar esa distancia. Si no se pueden retirar, se
+cubren con mantas ignífugas.
+ C
+50 metros
+✗ Incorrecta. Es excesivo como criterio general; el estándar reconocido es 11 m.
+ 24
+TRABAJOS EN CALIENTE
+¿Qué dispositivo evita que la llama retroceda hacia los cilindros en un equipo de
+oxicorte?
+ A
+El manómetro
+✗ Incorrecta. Solo indica presión; no detiene la llama.
+ B
+El arrestallamas (válvula antirretroceso)
+✓ Correcta. Se instala en el regulador o en el soplete y detiene el retroceso de la llama y el flujo
+inverso de gas.
+ C
+El capuchón del cilindro
+✗ Incorrecta. Protege la válvula durante el transporte; no actúa en operación.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 11
+ 25
+TRABAJOS EN ALTURA
+Según OSHA, ¿qué resistencia mínima debe tener un punto de anclaje para
+detención de caídas por persona?
+ A
+1.000 libras
+✗ Incorrecta. Es insuficiente para soportar la fuerza dinámica de una caída.
+ B
+300 libras
+✗ Incorrecta. Se acerca al peso de una persona con herramientas; no considera la fuerza del
+impacto.
+ C
+5.000 libras (22,2 kN)
+✓ Correcta. O el doble de la fuerza máxima de detención, si lo diseña una persona calificada.
+ 26
+TRABAJOS EN ALTURA
+¿Cuál es la caída libre máxima permitida en un sistema de detención de caídas?
+ A
+3,5 metros
+✗ Incorrecta. Una caída libre tan larga genera fuerzas que pueden lesionar gravemente.
+ B
+No hay límite si se usa absorbedor
+✗ Incorrecta. El absorbedor está diseñado para una caída libre limitada; no sustituye el límite.
+ C
+1,8 metros (6 pies)
+✓ Correcta. Limitar la caída libre reduce la fuerza de impacto sobre el cuerpo. Por eso se ancla por
+encima del D dorsal.
+ 27
+TRABAJOS EN ALTURA
+¿Qué es el trauma por suspensión?
+ A
+La acumulación de sangre en las piernas de una persona que queda colgada del
+arnés, que puede causar desmayo y la muerte
+✓ Correcta. Por eso todo trabajo en altura requiere un plan de rescate inmediato y, si es posible,
+estribos de alivio (cintas para apoyar los pies).
+ B
+El mareo por miedo a las alturas
+✗ Incorrecta. Eso es vértigo o acrofobia, otro fenómeno.
+ C
+La lesión por el golpe contra la estructura durante la caída
+✗ Incorrecta. Ese es un trauma por impacto, no por suspensión.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 12
+ 28
+TRABAJOS EN ALTURA
+¿Qué argolla del arnés se usa para conectar el sistema de detención de caídas?
+ A
+Las argollas laterales de la cintura
+✗ Incorrecta. Son para posicionamiento, no para detener caídas: concentrarían la fuerza en la
+cadera.
+ B
+La argolla esternal, siempre
+✗ Incorrecta. La esternal se usa en algunos sistemas como escaleras o rescate, no como conexión
+general de detención.
+ C
+La argolla D dorsal (en la espalda, entre los omóplatos)
+✓ Correcta. Mantiene a la persona en posición vertical después de detener la caída y distribuye la
+fuerza. Las argollas laterales son para posicionamiento.
+ 29
+TRABAJOS EN ALTURA
+¿Qué se considera para calcular la distancia libre de caída (clearance)?
+ A
+El peso del trabajador nada más
+✗ Incorrecta. El peso influye en la fuerza, no es el único factor de la distancia.
+ B
+Solo la longitud de la eslinga
+✗ Incorrecta. Omite la apertura del absorbedor, la altura de la persona y el margen.
+ C
+La elongación de la eslinga y del absorbedor, la altura del trabajador, la
+elongación del arnés y un margen de seguridad
+✓ Correcta. Si la distancia libre disponible es menor que el cálculo, el trabajador golpeará el piso o
+una estructura aunque el sistema funcione.
+ 30
+TRABAJOS EN ALTURA
+¿Cuándo debe inspeccionarse el arnés de seguridad?
+ A
+Una vez cada 5 años
+✗ Incorrecta. Es un intervalo demasiado largo.
+ B
+Solo cuando se compra
+✗ Incorrecta. Los daños aparecen con el uso; se necesita inspección continua.
+ C
+Antes de cada uso por el usuario, y de forma periódica por una persona
+competente
+✓ Correcta. La inspección antes de cada uso detecta cortes, quemaduras, costuras rotas o herrajes
+deformados. Un arnés que detuvo una caída se retira de servicio.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 13
+ 31
+IZAJE
+¿Qué pasa con la tensión de cada ramal de una eslinga al disminuir el ángulo
+respecto a la horizontal?
+ A
+No cambia, el ángulo no influye
+✗ Incorrecta. El ángulo es uno de los factores más críticos del izaje.
+ B
+Aumenta: a 30° cada ramal soporta el doble de su parte de la carga
+✓ Correcta. Factores de tensión: 90° = 1,0; 60° = 1,155; 45° = 1,414; 30° = 2,0. Por eso no se
+recomiendan ángulos menores de 30°.
+ C
+Disminuye
+✗ Incorrecta. Ocurre lo contrario: a menor ángulo, mayor tensión.
+ 32
+IZAJE
+¿Para qué se usan las cuerdas guía (vientos o taglines) en un izaje?
+ A
+Para controlar el giro y el balanceo de la carga sin que el personal se acerque a
+ella
+✓ Correcta. Mantienen al trabajador fuera de la zona de aplastamiento y de la línea de fuego.
+ B
+Para ayudar a la grúa a levantar la carga
+✗ Incorrecta. No aportan capacidad de izaje.
+ C
+Para amarrar la carga al gancho
+✗ Incorrecta. La carga se sujeta con eslingas y accesorios certificados, no con cuerdas guía.
+ 33
+IZAJE
+¿Qué condición suele clasificar un izaje como CRÍTICO?
+ A
+Solo cuando llueve
+✗ Incorrecta. El clima puede suspender un izaje, pero no es el criterio de clasificación.
+ B
+Cualquier izaje de más de 100 kg
+✗ Incorrecta. El peso por sí solo no define la criticidad: depende de la capacidad de la grúa y del
+entorno.
+ C
+Cuando la carga supera el 75% de la capacidad de la grúa para esa configuración,
+o hay izaje con dos grúas, o sobre equipos en operación o personas
+✓ Correcta. Un izaje crítico requiere plan de izaje firmado, cálculos, rigger calificado y supervisión
+dedicada.
+Nota: El porcentaje exacto (75% u 80%) depende del estándar de cada empresa. Verifica el de ENAP.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 14
+ 34
+IZAJE
+¿Cuál es la regla básica sobre el personal y la carga suspendida?
+ A
+Solo el rigger puede estar debajo para guiarla
+✗ Incorrecta. El rigger guía con cuerdas desde fuera de la zona de caída.
+ B
+Se puede pasar rápido si se usa casco
+✗ Incorrecta. El casco no protege contra una carga de varias toneladas.
+ C
+Nadie debe pasar ni permanecer debajo de una carga suspendida
+✓ Correcta. Una falla de eslinga, gancho o freno deja caer la carga sin aviso. Se acordona el radio de
+giro y la zona bajo la carga.
+ 35
+EXCAVACIONES
+Según OSHA, ¿desde qué profundidad una excavación requiere un sistema de
+protección contra derrumbes (talud, entibado o caja)?
+ A
+1,5 metros (5 pies)
+✓ Correcta. Excepto si está en roca estable. Sobre 6 m (20 pies) el sistema debe diseñarlo un
+ingeniero profesional (OSHA 1926.652).
+ B
+3 metros
+✗ Incorrecta. Un derrumbe de menos de 3 m puede sepultar y asfixiar a una persona.
+ C
+Solo cuando hay agua en la zanja
+✗ Incorrecta. El agua aumenta el riesgo, pero la profundidad es el criterio principal.
+ 36
+EXCAVACIONES
+¿A qué distancia mínima del borde de una excavación debe colocarse el material
+excavado?
+ A
+No importa la distancia
+✗ Incorrecta. Sí importa: el peso cerca del borde favorece el colapso.
+ B
+0,6 metros (2 pies)
+✓ Correcta. Así se evita que el material caiga dentro o sobrecargue la pared.
+ C
+Pegado al borde
+✗ Incorrecta. Sobrecarga la pared y puede caer sobre los trabajadores.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 15
+ 37
+EXCAVACIONES
+¿Qué tipo de suelo es el MENOS estable según la clasificación de OSHA?
+ A
+Tipo C
+✓ Correcta. Clasificación: roca estable, Tipo A (más cohesivo), Tipo B y Tipo C (granular, arena, suelo
+sumergido). El Tipo C requiere el talud más tendido (1,5:1).
+ B
+Roca estable
+✗ Incorrecta. Es la condición más segura; puede excavarse en vertical.
+ C
+Tipo A
+✗ Incorrecta. Es el más cohesivo y estable de los suelos.
+ 38
+INCENDIOS
+¿Cuáles son los cuatro elementos del tetraedro del fuego?
+ A
+Combustible, agua, chispa y humo
+✗ Incorrecta. El agua es un agente extintor y el humo es un producto de la combustión.
+ B
+Combustible, oxígeno (comburente), calor y reacción en cadena
+✓ Correcta. Si se elimina cualquiera de los cuatro, el fuego se apaga: retirar combustible, sofocar,
+enfriar o inhibir.
+ C
+Oxígeno, nitrógeno, calor y presión
+✗ Incorrecta. El nitrógeno es inerte y la presión no es un elemento del fuego.
+ 39
+INCENDIOS
+¿Qué es el punto de inflamación (flash point) de un líquido?
+ A
+La temperatura mínima a la que el líquido desprende vapores suficientes para
+encenderse al contacto con una fuente de ignición
+✓ Correcta. Cuanto más bajo es el punto de inflamación, más peligroso es el líquido. La gasolina lo
+tiene muy por debajo de 0 °C.
+ B
+La temperatura a la que el líquido hierve
+✗ Incorrecta. Ese es el punto de ebullición.
+ C
+La temperatura a la que arde sin necesidad de chispa
+✗ Incorrecta. Esa es la temperatura de autoignición.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 16
+ 40
+INCENDIOS
+¿Qué clase de fuego corresponde a metales combustibles (magnesio, sodio,
+titanio)?
+ A
+Clase K
+✗ Incorrecta. La Clase K es de aceites y grasas de cocina.
+ B
+Clase D
+✓ Correcta. Clases: A sólidos, B líquidos y gases, C eléctricos, D metales, K aceites de cocina. Los
+metales requieren polvos especiales.
+ C
+Clase B
+✗ Incorrecta. La Clase B es de líquidos y gases inflamables.
+ 41
+INCENDIOS
+¿Cuál es la técnica correcta de uso de un extintor portátil?
+ A
+Descargar el extintor en el aire antes de acercarse
+✗ Incorrecta. Desperdicia agente: los extintores portátiles duran pocos segundos.
+ B
+Apuntar a las llamas más altas
+✗ Incorrecta. Las llamas son el efecto; el agente debe ir a la base.
+ C
+PASE: tirar del pasador, apuntar a la base del fuego, apretar la manija y barrer de
+lado a lado
+✓ Correcta. Siempre se apunta a la base, donde está el combustible, y se mantiene una ruta de
+escape a la espalda.
+ 42
+MATERIALES PELIGROSOS
+En el rombo NFPA 704, ¿qué indica el color rojo?
+ A
+Reactividad
+✗ Incorrecta. La reactividad es el amarillo.
+ B
+Inflamabilidad
+✓ Correcta. Azul: salud; rojo: inflamabilidad; amarillo: reactividad (inestabilidad); blanco: riesgos
+especiales (W, OX). La escala va de 0 (sin riesgo) a 4 (riesgo severo).
+ C
+Salud
+✗ Incorrecta. La salud es el azul.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 17
+ 43
+MATERIALES PELIGROSOS
+¿Cuáles son las palabras de advertencia del Sistema Globalmente Armonizado
+(SGA/GHS)?
+ A
+«Tóxico» y «Nocivo»
+✗ Incorrecta. Eran términos de sistemas anteriores, no las palabras de advertencia del SGA.
+ B
+«Alto» y «Precaución»
+✗ Incorrecta. No son las palabras del SGA.
+ C
+«Peligro» para categorías graves y «Atención» para las menos graves
+✓ Correcta. Van en la etiqueta y en la sección 2 de la SDS, junto con los pictogramas y las frases H y
+P.
+ 44
+MATERIALES PELIGROSOS
+¿Cuántos pictogramas de peligro tiene el SGA/GHS?
+ A
+16 pictogramas
+✗ Incorrecta. 16 son las secciones de la SDS.
+ B
+4 pictogramas
+✗ Incorrecta. Son 4 los colores del rombo NFPA 704, no los pictogramas del SGA.
+ C
+9 pictogramas
+✓ Correcta. Tienen forma de rombo con borde rojo y símbolo negro: explosivo, llama, llama sobre
+círculo, cilindro de gas, corrosión, calavera, signo de exclamación, peligro para la salud y medio
+ambiente.
+ 45
+SEÑALIZACIÓN
+Según la INEN ISO 3864, ¿qué significa una señal circular azul con pictograma
+blanco?
+ A
+Prohibición
+✗ Incorrecta. La prohibición es un círculo blanco con borde y banda diagonal roja.
+ B
+Advertencia
+✗ Incorrecta. La advertencia es un triángulo con borde negro y fondo amarillo.
+ C
+Obligación (por ejemplo, uso obligatorio de casco)
+✓ Correcta. Círculo con banda roja: prohibición. Círculo azul: obligación. Triángulo amarillo:
+advertencia. Cuadrado o rectángulo verde: condición segura. Rojo cuadrado: equipo contra incendio.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 18
+ 46
+SEÑALIZACIÓN
+¿Qué indica una señal cuadrada o rectangular verde?
+ A
+Advertencia de peligro
+✗ Incorrecta. La advertencia es triangular y amarilla.
+ B
+Condición segura o salvamento (salida de emergencia, primeros auxilios, punto
+de encuentro)
+✓ Correcta. El verde guía a las personas hacia la seguridad.
+ C
+Equipo contra incendio
+✗ Incorrecta. Los equipos contra incendio usan señales rojas.
+ 47
+INVESTIGACIÓN DE ACCIDENTES
+¿Qué proporción plantea la pirámide de Frank Bird (1969)?
+ A
+1 : 29 : 300
+✗ Incorrecta. Es la proporción de Heinrich (1931): 1 lesión grave, 29 leves y 300 sin lesión.
+ B
+1 lesión grave : 10 lesiones leves : 30 daños a la propiedad : 600 incidentes sin
+lesión ni daño
+✓ Correcta. Se basa en el análisis de más de 1,7 millones de accidentes. Muestra que controlar los
+incidentes y casi accidentes previene los eventos graves.
+ C
+1 : 100 : 1.000
+✗ Incorrecta. No corresponde a ningún estudio reconocido.
+ 48
+INVESTIGACIÓN DE ACCIDENTES
+¿Qué método de investigación pregunta sucesivamente «por qué» para llegar a
+la causa raíz?
+ A
+El diagrama de Ishikawa
+✗ Incorrecta. Ishikawa (espina de pescado) agrupa causas por categorías (método, máquina, mano
+de obra, materiales, medio y medición).
+ B
+Los 5 porqués
+✓ Correcta. Se pregunta por qué ocurrió cada causa hasta llegar a una causa de gestión o de sistema.
+El número 5 es orientativo.
+ C
+El árbol de causas
+✗ Incorrecta. El árbol de causas construye una red lógica de hechos hacia atrás desde la lesión; no se
+basa en repetir el «por qué».
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 19
+ 49
+INVESTIGACIÓN DE ACCIDENTES
+¿Cuál es el objetivo principal de investigar un accidente?
+ A
+Determinar a quién se sanciona
+✗ Incorrecta. El enfoque punitivo desalienta el reporte y no corrige las fallas del sistema.
+ B
+Cumplir un trámite ante la aseguradora
+✗ Incorrecta. El reporte es obligatorio, pero el fin es la prevención.
+ C
+Identificar las causas básicas e inmediatas para implementar acciones que eviten
+que se repita
+✓ Correcta. La investigación busca aprender y prevenir, no buscar culpables. Un enfoque punitivo
+hace que los trabajadores oculten los incidentes.
+ 50
+GESTIÓN DE RIESGOS
+En un diagrama de corbatín (bow-tie), ¿qué va al lado izquierdo del evento tope?
+ A
+El plan de comunicación
+✗ Incorrecta. No es un elemento del bow-tie.
+ B
+Las amenazas (causas) y las barreras preventivas
+✓ Correcta. A la derecha van las consecuencias y las barreras de mitigación. El centro es el evento
+tope (pérdida de control, como una fuga).
+ C
+Las consecuencias
+✗ Incorrecta. Las consecuencias van a la derecha.
+ 51
+GESTIÓN DE RIESGOS
+¿Qué técnica de análisis de riesgos de procesos usa palabras guía como «más»,
+«menos», «no» o «inverso»?
+ A
+Método Fine
+✗ Incorrecta. El método Fine calcula un grado de peligrosidad; no analiza desviaciones de proceso.
+ B
+What-if
+✗ Incorrecta. El What-if se basa en preguntas abiertas del tipo «¿qué pasa si…?», no en palabras guía
+estandarizadas.
+ C
+HAZOP
+✓ Correcta. El HAZOP aplica las palabras guía a los parámetros (flujo, presión, temperatura) de cada
+nodo del proceso para encontrar desviaciones.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 20
+ 52
+GESTIÓN DE RIESGOS
+¿Qué significa el principio ALARP?
+ A
+Eliminar el riesgo por completo en todos los casos
+✗ Incorrecta. El riesgo cero rara vez es alcanzable; ALARP reconoce un riesgo residual tolerable.
+ B
+Aceptar cualquier riesgo si la operación es rentable
+✗ Incorrecta. Es lo contrario: ALARP obliga a reducir el riesgo mientras sea razonable.
+ C
+Reducir el riesgo a un nivel tan bajo como sea razonablemente factible
+✓ Correcta. El riesgo se reduce hasta que el costo de reducirlo más sea claramente desproporcionado
+frente al beneficio.
+ 53
+ISO 45001
+¿Qué norma reemplazó a la OHSAS 18001?
+ A
+ISO 9001
+✗ Incorrecta. La ISO 9001 es de gestión de la calidad.
+ B
+ISO 14001
+✗ Incorrecta. La ISO 14001 es de gestión ambiental.
+ C
+ISO 45001 (publicada en 2018)
+✓ Correcta. Usa la estructura de alto nivel (cláusulas 4 a 10), común con la ISO 9001 y la ISO 14001,
+y el ciclo PHVA.
+ 54
+ISO 45001
+En la ISO 45001, ¿qué cláusula trata del liderazgo y la participación de los
+trabajadores?
+ A
+Cláusula 5
+✓ Correcta. Estructura: 4 contexto; 5 liderazgo y participación; 6 planificación; 7 apoyo; 8 operación;
+9 evaluación del desempeño; 10 mejora.
+ B
+Cláusula 10
+✗ Incorrecta. La cláusula 10 es mejora (incidentes, no conformidades y acciones correctivas).
+ C
+Cláusula 8
+✗ Incorrecta. La cláusula 8 es operación (controles, emergencias, contratistas).
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 21
+ 55
+ISO 45001
+¿Qué significan las siglas del ciclo PHVA?
+ A
+Planificar, Hacer, Verificar y Actuar
+✓ Correcta. Es el ciclo de mejora continua de Deming en el que se basan los sistemas de gestión ISO.
+ B
+Prevenir, Hacer, Validar, Auditar
+✗ Incorrecta. No corresponde al ciclo de Deming.
+ C
+Planificar, Habilitar, Vigilar, Archivar
+✗ Incorrecta. No corresponde al ciclo de Deming.
+ 56
+LEGISLACIÓN ECUATORIANA
+¿Qué artículo de la Constitución del Ecuador establece el derecho a desarrollar
+las labores en un ambiente adecuado que garantice la salud, la seguridad y el
+bienestar?
+ A
+Artículo 326, numeral 5
+✓ Correcta. Es la base constitucional de la seguridad y salud en el trabajo en Ecuador.
+ B
+Artículo 1
+✗ Incorrecta. El artículo 1 define al Ecuador como Estado constitucional de derechos y justicia.
+ C
+Artículo 410 de la Constitución
+✗ Incorrecta. El artículo 410 relacionado con prevención de riesgos es del Código del Trabajo, no de
+la Constitución.
+ 57
+LEGISLACIÓN ECUATORIANA
+¿Qué artículo del Código del Trabajo establece las obligaciones del empleador y
+del trabajador respecto a la prevención de riesgos?
+ A
+Artículo 410
+✓ Correcta. Obliga al empleador a asegurar condiciones de trabajo sin peligro para la salud o la vida,
+y al trabajador a acatar las medidas de prevención.
+ B
+Artículo 42
+✗ Incorrecta. El artículo 42 enumera las obligaciones generales del empleador, no las de prevención
+de riesgos en particular.
+ C
+Artículo 326
+✗ Incorrecta. El 326 es de la Constitución.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 22
+ 58
+LEGISLACIÓN ECUATORIANA
+¿Qué instrumento regula el Seguro General de Riesgos del Trabajo del IESS?
+ A
+La NFPA 101
+✗ Incorrecta. Es una norma estadounidense de seguridad humana.
+ B
+La Resolución C.D. 513 del IESS
+✓ Correcta. Regula las prestaciones por accidentes de trabajo y enfermedades profesionales, la
+calificación de siniestros y los avisos.
+ C
+La Decisión 584 de la CAN
+✗ Incorrecta. Es el Instrumento Andino de Seguridad y Salud en el Trabajo, de alcance regional.
+ 59
+LEGISLACIÓN ECUATORIANA
+¿Qué es la Decisión 584 de la Comunidad Andina?
+ A
+El Instrumento Andino de Seguridad y Salud en el Trabajo
+✓ Correcta. Obliga a los países miembros (Ecuador, Colombia, Perú, Bolivia) a contar con políticas y
+sistemas de gestión de SST. Su reglamento es la Resolución 957.
+ B
+Una norma técnica sobre extintores
+✗ Incorrecta. No es una norma técnica; es un instrumento internacional de SST.
+ C
+El reglamento del IESS sobre riesgos del trabajo
+✗ Incorrecta. Ese es la Resolución C.D. 513.
+ 60
+LEGISLACIÓN ECUATORIANA
+¿Cuál es el reglamento ambiental vigente para las operaciones hidrocarburíferas
+en Ecuador?
+ A
+La INEN 2266
+✗ Incorrecta. Trata del manejo de productos químicos peligrosos, no de las operaciones
+hidrocarburíferas en general.
+ B
+El RAOHE: Reglamento Ambiental de Operaciones Hidrocarburíferas (Acuerdo
+Ministerial 100-A, 2020)
+✓ Correcta. Reemplazó al Decreto Ejecutivo 1215 y regula el manejo ambiental en exploración,
+producción, transporte y refinación.
+ C
+El Decreto Ejecutivo 2393
+✗ Incorrecta. El 2393 era el reglamento de seguridad y salud de los trabajadores, no ambiental.
+Nota: Verifica la versión vigente del RAOHE en tu material; ha tenido reformas.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 23
+ 61
+INDICADORES DE ACCIDENTABILIDAD
+¿Cuál es la fórmula del Índice de Frecuencia (IF)?
+ A
+IF = días perdidos × 200.000 / horas-hombre trabajadas
+✗ Incorrecta. Esa es la fórmula del Índice de Gravedad (IG).
+ B
+IF = días perdidos / número de lesiones
+✗ Incorrecta. Esa es la Tasa de Riesgo (TR).
+ C
+IF = número de lesiones × 200.000 / horas-hombre trabajadas
+✓ Correcta. Expresa las lesiones por cada 100 trabajadores a tiempo completo en un año.
+ 62
+INDICADORES DE ACCIDENTABILIDAD
+¿Cuál es la fórmula del Índice de Gravedad (IG)?
+ A
+IG = número de días perdidos × 200.000 / horas-hombre trabajadas
+✓ Correcta. Mide la severidad: cuántos días se pierden por cada 200.000 horas trabajadas.
+ B
+IG = IF × TR
+✗ Incorrecta. No es la definición del índice, aunque los tres indicadores se relacionan.
+ C
+IG = número de lesiones × 200.000 / horas-hombre trabajadas
+✗ Incorrecta. Esa es la fórmula del Índice de Frecuencia.
+ 63
+HIGIENE INDUSTRIAL
+¿Qué índice se usa para evaluar el estrés térmico por calor?
+ A
+WBGT (temperatura de globo y bulbo húmedo)
+✓ Correcta. Combina la temperatura del aire, la humedad y la radiación. Se usa para definir los
+regímenes de trabajo-descanso.
+ B
+dB(A)
+✗ Incorrecta. El dB(A) mide el ruido.
+ C
+Lux
+✗ Incorrecta. El lux es la unidad de iluminación.
+ 64
+HIGIENE INDUSTRIAL
+¿Qué equipo mide la exposición personal al ruido durante toda la jornada?
+ A
+El sonómetro
+✗ Incorrecta. Mide niveles puntuales, no la dosis personal de la jornada.
+ B
+El luxómetro
+✗ Incorrecta. Mide iluminación.
+ C
+El dosímetro de ruido
+✓ Correcta. Se coloca en el trabajador y calcula la dosis acumulada. El sonómetro mide el nivel en un
+punto y momento específicos.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 24
+ 65
+HIGIENE INDUSTRIAL
+¿Qué enfermedad se asocia a la exposición prolongada a vibraciones mano-brazo
+(amoladoras, martillos neumáticos)?
+ A
+El síndrome de Raynaud (dedo blanco)
+✓ Correcta. Las vibraciones dañan los vasos sanguíneos y los nervios de los dedos: palidez,
+adormecimiento y pérdida de destreza.
+ B
+La hipoacusia
+✗ Incorrecta. La hipoacusia es causada por el ruido.
+ C
+La silicosis
+✗ Incorrecta. La silicosis es causada por el polvo de sílice.
+ 66
+EPP
+¿Qué indica una mascarilla N95?
+ A
+Protege contra gases y vapores tóxicos
+✗ Incorrecta. Los filtros de partículas no retienen gases; se necesitan cartuchos químicos.
+ B
+Filtra al menos el 95% de las partículas suspendidas que no son a base de aceite
+✓ Correcta. N: no resistente a aceites; R: resistente; P: a prueba de aceites. El número es la eficiencia
+(95, 99 o 100).
+ C
+Suministra el 95% del oxígeno necesario
+✗ Incorrecta. Es un purificador de aire; no suministra oxígeno.
+ 67
+EPP
+Según el código de colores NIOSH, ¿qué color de cartucho corresponde a vapores
+orgánicos?
+ A
+Blanco
+✗ Incorrecta. El blanco es para gases ácidos.
+ B
+Negro
+✓ Correcta. Negro: vapores orgánicos; blanco: gases ácidos; amarillo: vapores orgánicos y gases
+ácidos; verde: amoníaco; magenta: filtro P100.
+ C
+Verde
+✗ Incorrecta. El verde es para amoníaco y metilamina.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 25
+ 68
+EPP
+¿Por qué es necesaria la prueba de ajuste (fit test) de un respirador?
+ A
+Solo para cumplir un requisito documental
+✗ Incorrecta. Tiene una razón técnica directa: sin sello no hay protección.
+ B
+Porque si el respirador no sella en la cara, el aire contaminado entra por los
+bordes sin pasar por el filtro
+✓ Correcta. Cada rostro es distinto; la prueba confirma la talla y el modelo adecuados. El vello facial
+en la zona de sello impide un buen ajuste.
+ C
+Para comprobar que el filtro no esté vencido
+✗ Incorrecta. Eso es una inspección del cartucho, no una prueba de ajuste.
+ 69
+PRIMEROS AUXILIOS
+Según la AHA, ¿cuál es la relación compresiones-ventilaciones en la RCP de un
+adulto con un solo reanimador?
+ A
+5 compresiones y 1 ventilación
+✗ Incorrecta. Es una relación antigua que ya no se usa.
+ B
+30 compresiones y 2 ventilaciones
+✓ Correcta. Con un ritmo de 100 a 120 compresiones por minuto y una profundidad de 5 a 6 cm,
+permitiendo que el tórax se expanda por completo.
+ C
+15 compresiones y 2 ventilaciones
+✗ Incorrecta. Es la relación para niños con dos reanimadores, no la del adulto.
+ 70
+PRIMEROS AUXILIOS
+¿Cuál es el primer auxilio correcto para una quemadura térmica leve?
+ A
+Aplicar pasta dental o aceite
+✗ Incorrecta. Retienen el calor y aumentan el riesgo de infección.
+ B
+Aplicar hielo directo
+✗ Incorrecta. El hielo puede causar lesión por frío en un tejido ya dañado.
+ C
+Enfriarla con agua corriente a temperatura ambiente durante 10 a 20 minutos
+✓ Correcta. El agua detiene la progresión del daño y alivia el dolor. Luego se cubre con un apósito
+limpio.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 26
+ 71
+PRIMEROS AUXILIOS
+¿Qué significa la secuencia PAS en primeros auxilios?
+ A
+Proteger, Avisar y Socorrer
+✓ Correcta. Primero se asegura la escena para no generar más víctimas, luego se avisa a
+emergencias y después se atiende al herido.
+ B
+Preguntar, Analizar y Salir
+✗ Incorrecta. No corresponde a la secuencia reconocida.
+ C
+Palpar, Auscultar y Suturar
+✗ Incorrecta. Son técnicas médicas, no la secuencia de actuación del socorrista.
+ 72
+PRIMEROS AUXILIOS
+¿Cuál es la primera medida para controlar una hemorragia externa?
+ A
+Presión directa sobre la herida con un apósito o tela limpia
+✓ Correcta. La presión directa controla la mayoría de las hemorragias. El torniquete se reserva para
+hemorragias graves en extremidades que no ceden con presión.
+ B
+Aplicar un torniquete de inmediato en todos los casos
+✗ Incorrecta. El torniquete es una medida extrema, no la primera para cualquier sangrado.
+ C
+Lavar la herida con alcohol
+✗ Incorrecta. El alcohol no detiene la hemorragia y daña el tejido.
+ 73
+EMERGENCIAS
+¿Qué entidad es el ente rector de la gestión de riesgos de desastres en Ecuador?
+ A
+La Secretaría Nacional de Gestión de Riesgos
+✓ Correcta. Coordina la prevención y la respuesta ante desastres. El ECU 911 coordina la atención de
+las llamadas de emergencia.
+ B
+El IESS
+✗ Incorrecta. El IESS administra la seguridad social y los riesgos del trabajo, no los desastres.
+ C
+El Cuerpo de Bomberos de cada cantón
+✗ Incorrecta. Los bomberos responden a emergencias; la rectoría nacional es de la Secretaría.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 2
+Página 27
+ 74
+EMERGENCIAS
+¿Qué elementos mínimos debe incluir un plan de emergencia?
+ A
+Análisis de riesgos, organización de brigadas, procedimientos de respuesta,
+comunicación y contactos actualizados, rutas de evacuación y puntos de
+encuentro, y simulacros
+✓ Correcta. Un plan con contactos desactualizados o sin simulacros falla justo cuando se necesita,
+como en la observación de Grúas Atlas.
+ B
+Solo el número del ECU 911
+✗ Incorrecta. La ayuda externa tarda; la respuesta inicial depende de la organización interna.
+ C
+Solo el listado de extintores
+✗ Incorrecta. Es un inventario de recursos; no organiza la respuesta.
+ 75
+EMERGENCIAS
+¿Qué es un punto de encuentro?
+ A
+La oficina del jefe de seguridad
+✗ Incorrecta. Puede estar dentro del área afectada.
+ B
+Un lugar seguro, señalizado y alejado del peligro, donde el personal se reúne
+después de evacuar para hacer el conteo
+✓ Correcta. El conteo permite saber si falta alguien y orientar la búsqueda y el rescate.
+ C
+El estacionamiento junto a los tanques de combustible
+✗ Incorrecta. Estaría expuesto al mismo peligro del que se evacúa.

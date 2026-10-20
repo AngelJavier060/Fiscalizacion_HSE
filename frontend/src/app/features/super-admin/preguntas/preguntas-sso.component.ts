@@ -1,10 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { of, switchMap } from 'rxjs';
 import { SuperAdminSidebarComponent } from '../shared/super-admin-sidebar/super-admin-sidebar.component';
 import { SimuladorService } from '../../../core/services/simulador.service';
-import { SsoImportPreview, SsoOpcionAdmin, SsoPreguntaAdmin, SsoTema } from '../../../core/models/simulador.model';
+import {
+  SsoCobertura,
+  SsoEstadisticaPregunta,
+  SsoEstadisticas,
+  SsoImportPreview,
+  SsoOpcionAdmin,
+  SsoPreguntaAdmin,
+  SsoTema,
+} from '../../../core/models/simulador.model';
 
 @Component({
   selector: 'app-preguntas-sso',
@@ -13,10 +22,10 @@ import { SsoImportPreview, SsoOpcionAdmin, SsoPreguntaAdmin, SsoTema } from '../
   templateUrl: './preguntas-sso.component.html',
   styleUrls: ['./preguntas-sso.component.scss'],
 })
-export class PreguntasSsoComponent implements OnInit {
+export class PreguntasSsoComponent implements OnInit, OnDestroy {
   private api = inject(SimuladorService);
 
-  tab: 'preguntas' | 'temas' | 'importar' = 'preguntas';
+  tab: 'preguntas' | 'temas' | 'importar' | 'cobertura' | 'estadisticas' = 'preguntas';
   temas: SsoTema[] = [];
   preguntas: SsoPreguntaAdmin[] = [];
   cargando = true;
@@ -34,6 +43,12 @@ export class PreguntasSsoComponent implements OnInit {
   formFuente = '';
   formActivo = true;
   formOpciones: SsoOpcionAdmin[] = [];
+  formSustentoFile: File | null = null;
+  formSustentoNombre: string | null = null;
+  formSustentoTipo: string | null = null;
+  formTieneSustento = false;
+  formQuitarSustento = false;
+  formSustentoPreviewUrl: string | null = null;
 
   nuevoTema = '';
   editTemaId: number | null = null;
@@ -43,10 +58,31 @@ export class PreguntasSsoComponent implements OnInit {
   preview: SsoImportPreview | null = null;
   importando = false;
 
-  readonly tiempos = [5, 10, 20, 30];
-  tiempoExamenMin = 30;
+  readonly notas = [80, 90];
+  readonly bancos = [
+    { n: 20, min: 15, label: '20 preguntas', tiempo: '15 min' },
+    { n: 40, min: 30, label: '40 preguntas', tiempo: '30 min' },
+    { n: 60, min: 50, label: '60 preguntas', tiempo: '50 min' },
+    { n: 0, min: 90, label: 'Todas', tiempo: '1 h 30 min' },
+  ];
+  tiempoExamenMin = 15;
+  notaMinima = 90;
+  preguntasPorBanco = 20;
   guardandoTiempo = false;
   okTiempo: string | null = null;
+  cobertura: SsoCobertura | null = null;
+  cargandoCobertura = false;
+  stats: SsoEstadisticas | null = null;
+  cargandoStats = false;
+  statsDias = 0;
+  statsQ = '';
+  statsTema: number | null = null;
+  statsDificultad: 'todas' | 'critica' | 'media' | 'dominada' = 'todas';
+  statsUso: 'evaluadas' | 'nunca' | 'repetidas' | 'todas' = 'evaluadas';
+  statsChip: 'ninguno' | 'falladas' | 'repetidas' | 'faltan' = 'ninguno';
+  statsPagina = 1;
+  readonly statsTamPagina = 8;
+  statsSel: SsoEstadisticaPregunta | null = null;
 
   ngOnInit(): void {
     this.recargar();
@@ -55,24 +91,220 @@ export class PreguntasSsoComponent implements OnInit {
 
   cargarConfig(): void {
     this.api.obtenerConfiguracion().subscribe({
-      next: (c) => (this.tiempoExamenMin = c.tiempoExamenMin),
+      next: (c) => {
+        this.tiempoExamenMin = c.tiempoExamenMin;
+        this.notaMinima = c.notaMinima;
+        this.preguntasPorBanco = this.leerBanco(c.preguntasPorBanco);
+      },
     });
   }
 
-  guardarTiempo(minutos: number): void {
+  guardarConfig(parcial: { tiempoExamenMin?: number; notaMinima?: number; preguntasPorBanco?: number }): void {
     this.guardandoTiempo = true;
     this.okTiempo = null;
-    this.api.guardarConfiguracion(minutos).subscribe({
+    this.api.guardarConfiguracion({
+      tiempoExamenMin: parcial.tiempoExamenMin ?? this.tiempoExamenMin,
+      notaMinima: parcial.notaMinima ?? this.notaMinima,
+      preguntasPorBanco: parcial.preguntasPorBanco ?? this.preguntasPorBanco,
+    }).subscribe({
       next: (c) => {
         this.tiempoExamenMin = c.tiempoExamenMin;
+        this.notaMinima = c.notaMinima;
+        this.preguntasPorBanco = this.leerBanco(c.preguntasPorBanco);
         this.guardandoTiempo = false;
-        this.okTiempo = `Los exámenes durarán ${c.tiempoExamenMin} minutos. Al vencerse se cierran y califican solos.`;
+        this.okTiempo = this.textoRegla(this.preguntasPorBanco, c.tiempoExamenMin, c.notaMinima);
       },
       error: (e) => {
         this.guardandoTiempo = false;
-        this.error = e?.error?.mensaje || 'No se pudo guardar el tiempo';
+        this.error = e?.error?.mensaje || 'No se pudo guardar la configuración';
       },
     });
+  }
+
+  textoBanco(n: number): string {
+    return n === 0 ? 'todas las preguntas' : `${n} preguntas`;
+  }
+
+  textoTiempo(min: number): string {
+    if (min >= 60) {
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+      return m ? `${h} h ${m} min` : `${h} h`;
+    }
+    return `${min} min`;
+  }
+
+  textoRegla(banco: number, min: number, nota: number): string {
+    return `Banco de ${this.textoBanco(banco)} · ${this.textoTiempo(min)} · avanza con ${nota}%.`;
+  }
+
+  private leerBanco(n?: number | null): number {
+    return n === 0 || n === 20 || n === 40 || n === 60 ? n : 20;
+  }
+
+  elegirBanco(n: number): void {
+    const item = this.bancos.find((b) => b.n === n);
+    this.guardarConfig({ preguntasPorBanco: n, tiempoExamenMin: item?.min ?? 15 });
+  }
+
+  abrirCobertura(): void {
+    this.tab = 'cobertura';
+    this.cargandoCobertura = true;
+    this.api.cobertura().subscribe({
+      next: (c) => {
+        this.cobertura = c;
+        this.cargandoCobertura = false;
+      },
+      error: () => {
+        this.cargandoCobertura = false;
+        this.error = 'No se pudo cargar la cobertura del banco';
+      },
+    });
+  }
+
+  abrirEstadisticas(): void {
+    this.tab = 'estadisticas';
+    this.cargarEstadisticas();
+  }
+
+  cargarEstadisticas(): void {
+    this.cargandoStats = true;
+    this.api.estadisticas(this.statsDias).subscribe({
+      next: (s) => {
+        this.stats = s;
+        this.cargandoStats = false;
+        this.statsPagina = 1;
+        if (this.statsSel) {
+          this.statsSel = s.preguntas.find((p) => p.id === this.statsSel?.id) || s.preguntas[0] || null;
+        } else {
+          this.statsSel = s.preguntas.find((p) => !p.nuncaSalio) || s.preguntas[0] || null;
+        }
+      },
+      error: () => {
+        this.cargandoStats = false;
+        this.error = 'No se pudieron cargar las estadísticas del banco';
+      },
+    });
+  }
+
+  get statsFiltradas(): SsoEstadisticaPregunta[] {
+    if (!this.stats) {
+      return [];
+    }
+    const q = this.statsQ.trim().toLowerCase();
+    return this.stats.preguntas.filter((p) => {
+      if (this.statsTema != null && p.temaId !== this.statsTema) {
+        return false;
+      }
+      if (this.statsUso === 'evaluadas' && p.nuncaSalio) {
+        return false;
+      }
+      if (this.statsUso === 'nunca' && !p.nuncaSalio) {
+        return false;
+      }
+      if (this.statsUso === 'repetidas' && !p.repetida) {
+        return false;
+      }
+      if (this.statsChip === 'falladas' && (p.nuncaSalio || p.aciertoPct >= 45)) {
+        return false;
+      }
+      if (this.statsChip === 'repetidas' && !p.repetida) {
+        return false;
+      }
+      if (this.statsChip === 'faltan' && !p.nuncaSalio) {
+        return false;
+      }
+      if (this.statsDificultad === 'critica' && (p.nuncaSalio || p.aciertoPct >= 50)) {
+        return false;
+      }
+      if (this.statsDificultad === 'media' && (p.nuncaSalio || p.aciertoPct < 50 || p.aciertoPct > 75)) {
+        return false;
+      }
+      if (this.statsDificultad === 'dominada' && (p.nuncaSalio || p.aciertoPct < 75)) {
+        return false;
+      }
+      if (q && !(`${p.enunciado} ${p.temaNombre}`).toLowerCase().includes(q)) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  get statsPaginas(): number {
+    return Math.max(1, Math.ceil(this.statsFiltradas.length / this.statsTamPagina));
+  }
+
+  get statsVista(): SsoEstadisticaPregunta[] {
+    const start = (this.statsPagina - 1) * this.statsTamPagina;
+    return this.statsFiltradas.slice(start, start + this.statsTamPagina);
+  }
+
+  get statsTemasEvaluados() {
+    return (this.stats?.porTema || []).filter((t) => t.intentos > 0);
+  }
+
+  colorAcierto(pct: number): 'ok' | 'mid' | 'bad' {
+    if (pct >= 75) {
+      return 'ok';
+    }
+    if (pct >= 50) {
+      return 'mid';
+    }
+    return 'bad';
+  }
+
+  inspeccionar(p: SsoEstadisticaPregunta): void {
+    this.statsSel = p;
+  }
+
+  irAEditarDesdeStats(id: number): void {
+    const p = this.preguntas.find((x) => x.id === id);
+    if (p) {
+      this.abrirEditar(p);
+      return;
+    }
+    this.api.obtenerPregunta(id).subscribe({
+      next: (full) => this.abrirEditar(full),
+      error: () => (this.error = 'No se pudo abrir la pregunta'),
+    });
+  }
+
+  aplicarChip(chip: 'ninguno' | 'falladas' | 'repetidas' | 'faltan'): void {
+    if (this.statsChip === chip) {
+      this.statsChip = 'ninguno';
+      this.statsUso = 'evaluadas';
+    } else {
+      this.statsChip = chip;
+      this.statsUso = chip === 'faltan' ? 'nunca' : chip === 'repetidas' ? 'repetidas' : 'evaluadas';
+    }
+    this.statsPagina = 1;
+  }
+
+  exportarCsv(): void {
+    const rows = this.statsFiltradas;
+    const header = ['id', 'tema', 'enunciado', 'veces_salio', 'intentos', 'aciertos', 'acierto_pct', 'distractor', 'faltante', 'repetida'];
+    const lines = [header.join(';')];
+    for (const p of rows) {
+      lines.push([
+        p.id,
+        `"${(p.temaNombre || '').replace(/"/g, '""')}"`,
+        `"${(p.enunciado || '').replace(/"/g, '""')}"`,
+        p.vecesSalio,
+        p.intentos,
+        p.aciertos,
+        p.aciertoPct,
+        `"${(p.distractorTexto || '').replace(/"/g, '""')}"`,
+        p.nuncaSalio ? 1 : 0,
+        p.repetida ? 1 : 0,
+      ].join(';'));
+    }
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'estadisticas-preguntas-sso.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   recargar(): void {
@@ -108,6 +340,7 @@ export class PreguntasSsoComponent implements OnInit {
       { texto: '', esCorrecta: true, argumento: '' },
       { texto: '', esCorrecta: false, argumento: '' },
     ];
+    this.resetSustentoForm();
     this.editorAbierto = true;
     this.error = null;
   }
@@ -120,8 +353,17 @@ export class PreguntasSsoComponent implements OnInit {
     this.formFuente = p.fuente || '';
     this.formActivo = p.activo;
     this.formOpciones = p.opciones.map((o) => ({ ...o }));
+    this.resetSustentoForm();
+    this.formTieneSustento = !!p.tieneSustento;
+    this.formSustentoNombre = p.sustentoNombre || (p.tieneSustento ? 'evidencia' : null);
+    this.formSustentoTipo = p.sustentoTipo || null;
     this.editorAbierto = true;
     this.error = null;
+    this.cargarPreviewExistente(p);
+  }
+
+  ngOnDestroy(): void {
+    this.revokePreview();
   }
 
   agregarOpcion(): void {
@@ -178,7 +420,18 @@ export class PreguntasSsoComponent implements OnInit {
     const req = this.editando
       ? this.api.actualizarPregunta(this.editando.id, body)
       : this.api.crearPregunta(body);
-    req.subscribe({
+    req.pipe(
+      switchMap((saved) => {
+        this.editando = saved;
+        if (this.formSustentoFile) {
+          return this.api.subirSustento(saved.id, this.formSustentoFile);
+        }
+        if (this.formQuitarSustento && saved.tieneSustento) {
+          return this.api.eliminarSustento(saved.id);
+        }
+        return of(saved);
+      }),
+    ).subscribe({
       next: () => {
         this.guardando = false;
         this.editorAbierto = false;
@@ -189,6 +442,94 @@ export class PreguntasSsoComponent implements OnInit {
         this.error = e?.error?.mensaje || 'No se pudo guardar';
       },
     });
+  }
+
+  onSustento(ev: Event): void {
+    const input = ev.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.revokePreview();
+    this.formSustentoFile = null;
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) {
+      this.error = 'El archivo no puede superar 15 MB';
+      input.value = '';
+      return;
+    }
+    const ok = /\.(pdf|jpe?g|png|webp|gif)$/i.test(file.name) || /^(application\/pdf|image\/)/.test(file.type);
+    if (!ok) {
+      this.error = 'Solo PDF o imagen (JPG, PNG, WEBP, GIF)';
+      input.value = '';
+      return;
+    }
+    this.error = null;
+    this.formSustentoFile = file;
+    this.formSustentoNombre = file.name;
+    this.formSustentoTipo = file.type;
+    this.formTieneSustento = true;
+    this.formQuitarSustento = false;
+    if (file.type.startsWith('image/')) {
+      this.formSustentoPreviewUrl = URL.createObjectURL(file);
+    }
+  }
+
+  quitarSustentoForm(): void {
+    this.revokePreview();
+    this.formSustentoFile = null;
+    this.formSustentoNombre = null;
+    this.formSustentoTipo = null;
+    this.formTieneSustento = false;
+    this.formQuitarSustento = true;
+  }
+
+  verSustentoEditor(): void {
+    if (this.formSustentoFile) {
+      const url = URL.createObjectURL(this.formSustentoFile);
+      window.open(url, '_blank');
+      return;
+    }
+    if (this.editando?.id && this.formTieneSustento && !this.formQuitarSustento) {
+      this.abrirSustento(this.editando.id);
+    }
+  }
+
+  abrirSustento(preguntaId: number): void {
+    this.api.descargarSustento(preguntaId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: () => (this.error = 'No se pudo abrir el sustento'),
+    });
+  }
+
+  esImagenSustento(): boolean {
+    return !!this.formSustentoTipo?.startsWith('image/');
+  }
+
+  private resetSustentoForm(): void {
+    this.revokePreview();
+    this.formSustentoFile = null;
+    this.formSustentoNombre = null;
+    this.formSustentoTipo = null;
+    this.formTieneSustento = false;
+    this.formQuitarSustento = false;
+  }
+
+  private cargarPreviewExistente(p: SsoPreguntaAdmin): void {
+    if (!p.tieneSustento || !p.sustentoTipo?.startsWith('image/')) return;
+    this.api.descargarSustento(p.id).subscribe({
+      next: (blob) => {
+        this.revokePreview();
+        this.formSustentoPreviewUrl = URL.createObjectURL(blob);
+      },
+    });
+  }
+
+  private revokePreview(): void {
+    if (this.formSustentoPreviewUrl) {
+      URL.revokeObjectURL(this.formSustentoPreviewUrl);
+      this.formSustentoPreviewUrl = null;
+    }
   }
 
   letra(i: number): string {

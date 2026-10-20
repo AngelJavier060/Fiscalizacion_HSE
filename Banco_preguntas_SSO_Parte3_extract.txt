@@ -1,0 +1,980 @@
+Banco de preguntas SSO · Parte 3
+Página 1
+Banco de preguntas SSO · Parte 3
+Seguridad y salud ocupacional · Repaso con respuestas explicadas
+Contiene 60 preguntas nuevas que no se repiten en la Parte 1 ni en la Parte 2. Completa los
+temas que faltaban: conceptos básicos de accidentabilidad, cultura de seguridad, seguridad de
+procesos, andamios y escaleras, montacargas, herramientas, cilindros y electricidad estática,
+arco eléctrico, toxicología, radiaciones, riesgo biológico en la Amazonía, seguridad vial, tanques
+y derrames, comando de incidentes, triage y vigilancia de la salud. No son preguntas
+oficiales de ENAP SIPEC: son preguntas de práctica con datos de normas reconocidas.
+Cómo leer cada pregunta
+ ✓ Correcta · respuesta y explicación de por qué es la correcta
+✗ Incorrecta · argumento de por qué está mal
+Nota · aclaración, corrección o dato que conviene verificar
+La posición de la respuesta correcta (A, B o C) cambia en cada pregunta para que no memorices la letra.
+Tapa las explicaciones para practicar.
+Preguntas por tema
+Seguridad de procesos
+8
+Toxicología
+6
+Conceptos básicos
+5
+Emergencias
+5
+Cultura de seguridad
+4
+Andamios y escaleras
+4
+Montacargas
+3
+Radiaciones
+3
+Riesgo biológico
+3
+Salud ocupacional
+3
+Gestión de contratistas
+3
+Herramientas
+2
+Cilindros de gas
+2
+Riesgo eléctrico
+2
+Seguridad vial
+2
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 2
+Psicosocial
+2
+Higiene industrial
+1
+Ergonomía
+1
+EPP
+1
+Preguntas con nota de corrección o verificación
+15, 19. Revisa estas preguntas con tu material oficial antes del examen.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 3
+ 1
+CONCEPTOS BÁSICOS
+¿Qué diferencia hay entre un acto inseguro y una condición insegura?
+ A
+El acto lo comete la empresa y la condición el trabajador
+✗ Incorrecta. Es al revés: el acto es de la persona y la condición está en el entorno.
+ B
+El acto es un comportamiento de la persona; la condición es una deficiencia del
+entorno, equipo o documentación
+✓ Correcta. Ejemplos: trabajar sin arnés es un acto; un manlift con llantas cortadas o un plan de
+emergencia desactualizado son condiciones.
+ C
+Son lo mismo, solo cambia el nombre según la empresa
+✗ Incorrecta. Son conceptos distintos y se tratan con acciones diferentes.
+ 2
+CONCEPTOS BÁSICOS
+¿Qué es un cuasi accidente (near miss)?
+ A
+Un accidente con lesión leve
+✗ Incorrecta. Si hubo lesión, ya es un accidente, aunque sea leve.
+ B
+Un accidente que no se reportó a tiempo
+✗ Incorrecta. El reporte tardío no cambia la clasificación del evento.
+ C
+Un evento que pudo causar lesión o daño, pero no lo hizo por circunstancias
+favorables
+✓ Correcta. Por ejemplo, una herramienta que cae desde altura y no golpea a nadie. Reportarlo
+permite corregir antes de que ocurra la lesión.
+ 3
+CONCEPTOS BÁSICOS
+¿Qué es una lesión con tiempo perdido (LTI)?
+ A
+Una lesión laboral que impide al trabajador volver a su turno normal siguiente
+✓ Correcta. No cuenta el día del accidente. Es la base del Índice de Frecuencia y del Índice de
+Gravedad.
+ B
+Cualquier lesión que requiera primeros auxilios
+✗ Incorrecta. Los primeros auxilios sin incapacidad no son LTI.
+ C
+Una lesión que ocurre fuera del horario de trabajo
+✗ Incorrecta. El horario no define una LTI; lo define la pérdida de días.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 4
+ 4
+CONCEPTOS BÁSICOS
+¿Cuáles son los 6 grupos de factores de riesgo usados en las matrices de riesgo
+laboral en Ecuador?
+ A
+Físicos, mecánicos, químicos, biológicos, ergonómicos y psicosociales
+✓ Correcta. Es la clasificación que usan las matrices de identificación de riesgos del Ministerio del
+Trabajo y del IESS.
+ B
+Naturales, humanos, técnicos y legales
+✗ Incorrecta. No es la clasificación de factores de riesgo laboral.
+ C
+Leves, moderados, importantes e intolerables
+✗ Incorrecta. Son niveles de valoración del riesgo, no grupos de factores.
+ 5
+CONCEPTOS BÁSICOS
+¿A qué grupo de factores de riesgo pertenece el trabajo en altura?
+ A
+Ergonómico
+✗ Incorrecta. Los ergonómicos son posturas, cargas y movimientos repetitivos.
+ B
+Físico
+✗ Incorrecta. Los físicos son ruido, vibraciones, temperatura, iluminación y radiaciones.
+ C
+Mecánico
+✓ Correcta. Los factores mecánicos incluyen caídas a distinto nivel, atrapamientos, golpes, cortes y
+proyección de partículas.
+ 6
+CULTURA DE SEGURIDAD
+¿Cuáles son las 4 etapas de la curva de Bradley (DuPont)?
+ A
+Reactiva, dependiente, independiente e interdependiente
+✓ Correcta. En la etapa interdependiente los trabajadores se cuidan entre sí y la tasa de lesiones es
+la más baja.
+ B
+Inicial, básica, intermedia y avanzada
+✗ Incorrecta. No es la nomenclatura de la curva de Bradley.
+ C
+Planificar, hacer, verificar y actuar
+✗ Incorrecta. Ese es el ciclo PHVA de mejora continua.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 5
+ 7
+CULTURA DE SEGURIDAD
+¿Qué plantea el modelo del queso suizo de James Reason?
+ A
+Los accidentes ocurren por una sola causa
+✗ Incorrecta. El modelo explica justamente que hay varias causas combinadas.
+ B
+Por cada accidente grave hay 300 sin lesión
+✗ Incorrecta. Esa es la proporción de Heinrich.
+ C
+Un accidente ocurre cuando las fallas de varias barreras de defensa se alinean al
+mismo tiempo
+✓ Correcta. Cada barrera tiene «agujeros» (fallas activas y condiciones latentes). Si se alinean, el
+peligro las atraviesa todas.
+ 8
+CULTURA DE SEGURIDAD
+En la teoría del dominó de Heinrich, ¿qué ficha se recomienda retirar para evitar
+el accidente?
+ A
+La de la lesión
+✗ Incorrecta. La lesión es el resultado; quitarla no evita el accidente.
+ B
+La del acto o condición insegura (tercera ficha)
+✓ Correcta. Fichas: ascendencia y medio social, falta personal, acto o condición insegura, accidente y
+lesión. Al retirar la tercera se corta la secuencia.
+ C
+La de ascendencia y medio social
+✗ Incorrecta. Es la más difícil de modificar desde la empresa.
+ 9
+CULTURA DE SEGURIDAD
+¿Cuál es un indicador proactivo (leading)?
+ A
+Los días perdidos por accidentes
+✗ Incorrecta. Mide consecuencias pasadas: es reactivo.
+ B
+El número de inspecciones u observaciones preventivas realizadas
+✓ Correcta. Los indicadores proactivos miden lo que se hace para prevenir. Los reactivos (lagging)
+miden lo que ya ocurrió: lesiones, días perdidos.
+ C
+El Índice de Frecuencia
+✗ Incorrecta. Mide lesiones ocurridas: es reactivo.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 6
+ 10
+SEGURIDAD DE PROCESOS
+¿Qué es la gestión del cambio (MOC)?
+ A
+Un proceso para evaluar y autorizar los riesgos de cualquier cambio en equipos,
+procesos, materiales o personal antes de implementarlo
+✓ Correcta. Muchos accidentes mayores ocurrieron por cambios «pequeños» sin análisis, como un
+reemplazo de material o un bypass temporal.
+ B
+El cambio de turno documentado
+✗ Incorrecta. El relevo de turno es otra práctica, aunque también importante.
+ C
+Un procedimiento para rotar al personal
+✗ Incorrecta. La rotación de personal puede requerir MOC, pero el MOC no es eso.
+ 11
+SEGURIDAD DE PROCESOS
+¿Qué norma de OSHA regula la gestión de seguridad de procesos (PSM) con
+sustancias altamente peligrosas?
+ A
+OSHA 29 CFR 1910.119
+✓ Correcta. Tiene 14 elementos, entre ellos análisis de riesgos de procesos (PHA), procedimientos
+operativos, integridad mecánica, MOC, permisos de trabajo en caliente e investigación de incidentes.
+ B
+OSHA 29 CFR 1910.147
+✗ Incorrecta. La 1910.147 trata de bloqueo y etiquetado.
+ C
+OSHA 29 CFR 1910.178
+✗ Incorrecta. La 1910.178 trata de montacargas.
+ 12
+SEGURIDAD DE PROCESOS
+Según la API RP 754, ¿qué es un evento de seguridad de procesos Tier 1?
+ A
+Una observación de comportamiento
+✗ Incorrecta. Es un indicador de seguridad personal, no de seguridad de procesos.
+ B
+Cualquier lesión de primeros auxilios
+✗ Incorrecta. No mide pérdidas de contención del proceso.
+ C
+Una pérdida de contención con las consecuencias más graves (lesión con tiempo
+perdido, incendio, explosión o una liberación sobre el umbral)
+✓ Correcta. Tier 1 y Tier 2 son indicadores reactivos; Tier 3 y Tier 4 son proactivos (desafíos a
+barreras y desempeño del sistema).
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 7
+ 13
+SEGURIDAD DE PROCESOS
+¿Qué es una BLEVE?
+ A
+Un derrame de crudo en un cubeto
+✗ Incorrecta. Un derrame no es una explosión.
+ B
+La explosión de un recipiente con líquido presurizado (como GLP) cuando el fuego
+lo calienta y su pared falla
+✓ Correcta. Es la sigla de Boiling Liquid Expanding Vapor Explosion. Genera bola de fuego, onda
+expansiva y fragmentos; por eso se enfrían los tanques expuestos al fuego.
+ C
+La ebullición del agua en un tanque de crudo que expulsa el contenido
+✗ Incorrecta. Eso es el boil-over.
+ 14
+SEGURIDAD DE PROCESOS
+¿Qué es el boil-over en un tanque de crudo incendiado?
+ A
+La explosión del vapor dentro de un cilindro de GLP
+✗ Incorrecta. Eso es una BLEVE.
+ B
+La expulsión violenta del crudo en llamas cuando la onda de calor llega al agua
+del fondo y esta hierve de golpe
+✓ Correcta. Puede ocurrir horas después de iniciado el incendio y lanzar crudo ardiendo a gran
+distancia. Es un riesgo crítico para los bomberos.
+ C
+El derrame por llenar el tanque sobre su capacidad
+✗ Incorrecta. Eso es un sobrellenado.
+ 15
+SEGURIDAD DE PROCESOS
+¿Qué capacidad mínima suele exigirse a un cubeto (dique) que rodea tanques de
+hidrocarburos?
+ A
+El 110% de la capacidad del tanque más grande
+✓ Correcta. El margen adicional cubre el agua de lluvia y la espuma usada en un incendio.
+ B
+El 50% del tanque más grande
+✗ Incorrecta. No contendría un derrame total.
+ C
+La suma de todos los tanques
+✗ Incorrecta. No es el criterio usual; se dimensiona por el tanque mayor.
+Nota: El 110% es el criterio usual en la normativa ambiental hidrocarburífera de Ecuador; verifica el artículo
+vigente del RAOHE.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 8
+ 16
+SEGURIDAD DE PROCESOS
+Ante un derrame de hidrocarburo, ¿cuál es la primera acción si es seguro
+hacerlo?
+ A
+Detener la fuente y contener el derrame (barreras, kit antiderrame) para que no
+llegue a drenajes o cuerpos de agua
+✓ Correcta. Se controla también cualquier fuente de ignición y luego se recupera el producto y se
+gestionan los residuos como peligrosos.
+ B
+Lavar el área con abundante agua
+✗ Incorrecta. Esparce el hidrocarburo y puede llevarlo a esteros y ríos.
+ C
+Cubrir el derrame con tierra y retirarse
+✗ Incorrecta. No detiene la fuente ni da un manejo adecuado del residuo.
+ 17
+SEGURIDAD DE PROCESOS
+¿Para qué se conecta a tierra y se une eléctricamente (bonding) un recipiente al
+transvasar líquidos inflamables?
+ A
+Para disipar la electricidad estática y evitar una chispa que encienda los vapores
+✓ Correcta. El flujo del líquido genera carga estática. La unión iguala el potencial entre recipientes y
+la puesta a tierra descarga esa energía.
+ B
+Para evitar que el recipiente se oxide
+✗ Incorrecta. La protección contra corrosión es otro sistema (protección catódica).
+ C
+Para medir el volumen transvasado
+✗ Incorrecta. La conexión eléctrica no mide volumen.
+ 18
+ANDAMIOS Y ESCALERAS
+Según OSHA, ¿cuántas veces su carga prevista debe soportar un andamio sin
+fallar?
+ A
+1 vez
+✗ Incorrecta. No deja ningún margen de seguridad.
+ B
+2 veces
+✗ Incorrecta. Es insuficiente según OSHA.
+ C
+4 veces
+✓ Correcta. OSHA 1926.451 exige que el andamio y sus componentes soporten su propio peso más 4
+veces la carga máxima prevista.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 9
+ 19
+ANDAMIOS Y ESCALERAS
+¿Qué indica una tarjeta verde en un andamio?
+ A
+Que está en construcción
+✗ Incorrecta. Un andamio en armado lleva tarjeta roja.
+ B
+Que fue inspeccionado por una persona competente y está apto para uso
+✓ Correcta. Verde: apto. Amarilla: apto con restricciones (por ejemplo, uso obligatorio de arnés).
+Roja: no apto, prohibido subir.
+ C
+Que solo puede usarlo el armador
+✗ Incorrecta. La tarjeta verde habilita el uso del personal autorizado.
+Nota: El sistema de tarjetas es una práctica de la industria; los colores exactos los define el procedimiento de
+cada empresa.
+ 20
+ANDAMIOS Y ESCALERAS
+¿Qué relación de apoyo debe tener una escalera portátil recostada?
+ A
+Vertical, pegada a la pared
+✗ Incorrecta. Se vuelca hacia atrás con facilidad.
+ B
+1 a 1
+✗ Incorrecta. Queda demasiado inclinada y tiende a resbalar.
+ C
+1 a 4: por cada 4 m de altura, la base se separa 1 m de la pared
+✓ Correcta. Da un ángulo de unos 75°. Además, la escalera debe sobresalir 1 m (3 pies) sobre el
+punto de apoyo superior.
+ 21
+ANDAMIOS Y ESCALERAS
+¿Qué es la regla de los 3 puntos de contacto?
+ A
+Que 3 personas sostengan la escalera
+✗ Incorrecta. No es la regla; con 1 persona sosteniendo la base es suficiente cuando se requiere.
+ B
+Subir de 3 en 3 peldaños
+✗ Incorrecta. Aumenta el riesgo de resbalar.
+ C
+Mantener siempre 2 manos y 1 pie, o 2 pies y 1 mano, en contacto con la escalera
+o el equipo al subir o bajar
+✓ Correcta. Por eso no se suben herramientas en las manos: se izan con una cuerda o se llevan en un
+cinturón portaherramientas.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 10
+ 22
+MONTACARGAS
+¿Qué es el triángulo de estabilidad de un montacargas?
+ A
+Las tres señales de advertencia en la cabina
+✗ Incorrecta. No es un concepto de señalización.
+ B
+El espacio de 3 m que se debe dejar alrededor
+✗ Incorrecta. Es una distancia de seguridad, no el triángulo de estabilidad.
+ C
+El área entre los dos puntos de apoyo de las ruedas delanteras y el pivote del eje
+trasero, dentro de la cual debe estar el centro de gravedad combinado
+✓ Correcta. Si el centro de gravedad sale del triángulo (por carga alta, giro brusco o pendiente), el
+montacargas se vuelca.
+ 23
+MONTACARGAS
+¿Cómo debe circular un montacargas cargado en una pendiente?
+ A
+Con la carga hacia abajo de la pendiente
+✗ Incorrecta. La carga puede deslizarse y el montacargas volcarse hacia adelante.
+ B
+Con la carga hacia arriba de la pendiente: sube de frente y baja en reversa
+✓ Correcta. Así el peso de la carga presiona contra la pendiente y no hacia adelante, lo que evita el
+vuelco y la caída de la carga.
+ C
+Cruzando la pendiente en diagonal
+✗ Incorrecta. El cruce lateral aumenta el riesgo de vuelco.
+ 24
+MONTACARGAS
+¿Qué norma de OSHA regula los montacargas (equipos industriales
+motorizados)?
+ A
+OSHA 29 CFR 1910.119
+✗ Incorrecta. Es la norma de seguridad de procesos (PSM).
+ B
+OSHA 29 CFR 1910.178
+✓ Correcta. Exige capacitación y evaluación de cada operador, inspección diaria y reglas de
+operación.
+ C
+OSHA 29 CFR 1926.451
+✗ Incorrecta. Es la norma de andamios.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 11
+ 25
+HERRAMIENTAS
+¿Qué condición debe cumplir el disco de una amoladora?
+ A
+Puede ser de cualquier tamaño si entra en el eje
+✗ Incorrecta. Un disco más grande que el diseño supera la velocidad periférica segura.
+ B
+Se puede retirar la guarda para mejorar la visión
+✗ Incorrecta. La guarda es la protección contra la rotura del disco.
+ C
+Su velocidad máxima (RPM) debe ser igual o mayor a la de la amoladora, y debe
+usarse con la guarda puesta
+✓ Correcta. Un disco que gira por encima de su velocidad nominal puede estallar y proyectar
+fragmentos.
+ 26
+HERRAMIENTAS
+¿Qué protección eléctrica evita la electrocución al usar herramientas portátiles
+en zonas húmedas?
+ A
+Un breaker termomagnético común
+✗ Incorrecta. Protege contra sobrecarga y cortocircuito, pero no contra pequeñas fugas a través del
+cuerpo.
+ B
+Una extensión más larga
+✗ Incorrecta. La longitud del cable no da protección.
+ C
+Un interruptor diferencial (GFCI o RCD) de alta sensibilidad, de 30 mA o menos
+✓ Correcta. Detecta la fuga de corriente a tierra (por ejemplo, a través de una persona) y corta en
+milisegundos.
+ 27
+CILINDROS DE GAS
+¿Cómo deben almacenarse los cilindros de gas comprimido?
+ A
+En posición vertical, asegurados con cadena o abrazadera, con el capuchón
+puesto y en un lugar ventilado
+✓ Correcta. Un cilindro que cae y rompe la válvula puede salir disparado como un proyectil.
+ B
+Al sol para mantener la presión
+✗ Incorrecta. El calor aumenta la presión interna y el riesgo de ruptura.
+ C
+Acostados para que no se caigan
+✗ Incorrecta. El acetileno acostado puede liberar acetona; además se dañan las válvulas.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 12
+ 28
+CILINDROS DE GAS
+¿Por encima de qué presión NO debe usarse el acetileno?
+ A
+150 psig
+✗ Incorrecta. Es una presión muy peligrosa para el acetileno libre.
+ B
+No tiene límite
+✗ Incorrecta. El acetileno es inestable a presión.
+ C
+15 psig (1 bar aproximadamente)
+✓ Correcta. Sobre esa presión el acetileno libre puede descomponerse de forma explosiva, aun sin
+oxígeno.
+ 29
+RIESGO ELÉCTRICO
+Según la NFPA 70E, ¿qué es el límite de protección contra arco eléctrico?
+ A
+La distancia mínima para no recibir un choque eléctrico
+✗ Incorrecta. Eso corresponde a los límites de aproximación por choque, no por arco.
+ B
+La distancia a la que se escucha el arco
+✗ Incorrecta. El límite se basa en energía térmica, no en ruido.
+ C
+La distancia a la que la energía incidente de un arco llega a 1,2 cal/cm², suficiente
+para causar una quemadura de segundo grado
+✓ Correcta. Dentro de ese límite la persona debe usar EPP con calificación de arco.
+ 30
+RIESGO ELÉCTRICO
+Según la NFPA 70E, ¿cuál es la calificación mínima del EPP para arco de
+Categoría 2?
+ A
+40 cal/cm²
+✗ Incorrecta. Corresponde a la Categoría 4.
+ B
+4 cal/cm²
+✗ Incorrecta. Corresponde a la Categoría 1.
+ C
+8 cal/cm²
+✓ Correcta. Categoría 1: 4 cal/cm²; 2: 8 cal/cm²; 3: 25 cal/cm²; 4: 40 cal/cm².
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 13
+ 31
+TOXICOLOGÍA
+¿Cuál es la principal vía de ingreso de los contaminantes químicos en el trabajo?
+ A
+La vía ocular
+✗ Incorrecta. Los ojos pueden lesionarse, pero no son la vía principal de absorción.
+ B
+La vía respiratoria (inhalatoria)
+✓ Correcta. Los gases, vapores, humos y polvos llegan a los pulmones y pasan rápido a la sangre.
+Otras vías: dérmica, digestiva y parenteral.
+ C
+La vía digestiva
+✗ Incorrecta. Es importante por malos hábitos de higiene, pero no es la principal en el trabajo.
+ 32
+TOXICOLOGÍA
+¿Qué significa DL50?
+ A
+La dosis que causa la muerte del 50% de una población de prueba
+✓ Correcta. Mide la toxicidad aguda. Cuanto menor es la DL50, más tóxica es la sustancia.
+ B
+La dosis máxima permitida en 50 años de trabajo
+✗ Incorrecta. No es un límite de exposición laboral.
+ C
+El 50% del límite de exposición
+✗ Incorrecta. Es el nivel de acción de algunas normas, no la DL50.
+ 33
+TOXICOLOGÍA
+¿Qué es el efecto sinérgico entre dos sustancias?
+ A
+Cuando una sustancia reduce el efecto de la otra
+✗ Incorrecta. Ese es el efecto antagónico.
+ B
+Cuando el efecto combinado es igual a la suma
+✗ Incorrecta. Ese es el efecto aditivo.
+ C
+Cuando el efecto combinado es mayor que la suma de los efectos de cada una
+✓ Correcta. Ejemplo clásico: tabaco y asbesto multiplican el riesgo de cáncer de pulmón.
+ 34
+TOXICOLOGÍA
+¿Qué efecto produce el monóxido de carbono (CO) en el organismo?
+ A
+Causa quemaduras en la piel
+✗ Incorrecta. El CO es un asfixiante químico, no un corrosivo.
+ B
+Destruye los glóbulos blancos
+✗ Incorrecta. No es su mecanismo de acción.
+ C
+Se une a la hemoglobina (carboxihemoglobina) e impide el transporte de oxígeno
+✓ Correcta. Su afinidad por la hemoglobina es unas 200 veces mayor que la del oxígeno. Es incoloro e
+inodoro: solo se detecta con un medidor.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 14
+ 35
+TOXICOLOGÍA
+¿Qué enfermedad se asocia a la exposición crónica al benceno?
+ A
+Leucemia
+✓ Correcta. El benceno es un cancerígeno reconocido (Grupo 1 de la IARC) que daña la médula ósea.
+Está presente en el crudo y la gasolina.
+ B
+Silicosis
+✗ Incorrecta. La silicosis es causada por la sílice.
+ C
+Saturnismo
+✗ Incorrecta. El saturnismo es causado por el plomo.
+ 36
+TOXICOLOGÍA
+¿Qué cáncer está asociado específicamente a la exposición al asbesto?
+ A
+Melanoma
+✗ Incorrecta. El melanoma se asocia a la radiación ultravioleta.
+ B
+Mesotelioma (cáncer de pleura o peritoneo)
+✓ Correcta. El asbesto también causa asbestosis y cáncer de pulmón. El mesotelioma puede aparecer
+décadas después de la exposición.
+ C
+Leucemia
+✗ Incorrecta. La leucemia se asocia al benceno.
+ 37
+RADIACIONES
+¿Cuáles son los 3 principios de protección contra radiación ionizante?
+ A
+Tiempo, distancia y blindaje
+✓ Correcta. Menos tiempo de exposición, más distancia a la fuente y una barrera (plomo, concreto).
+Es la base del criterio ALARA.
+ B
+Guantes, botas y casco
+✗ Incorrecta. El EPP común no blinda la radiación gamma.
+ C
+Ventilación, iluminación y orden
+✗ Incorrecta. No protegen contra la radiación ionizante.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 15
+ 38
+RADIACIONES
+Según la ley del inverso del cuadrado, si se duplica la distancia a una fuente de
+radiación, ¿qué pasa con la dosis?
+ A
+Se reduce a la mitad
+✗ Incorrecta. Sería una relación lineal; la radiación disminuye con el cuadrado.
+ B
+Se reduce a la cuarta parte
+✓ Correcta. La intensidad es inversamente proporcional al cuadrado de la distancia: (1/2)² = 1/4.
+ C
+No cambia
+✗ Incorrecta. La distancia es uno de los controles más eficaces.
+ 39
+RADIACIONES
+¿En qué actividad petrolera es común el riesgo de radiación ionizante?
+ A
+En la radiografía industrial de soldaduras (gammagrafía) y en los registros
+eléctricos de pozos con fuentes radiactivas
+✓ Correcta. Se acordona el área, se señaliza con el trébol radiactivo y solo trabaja personal licenciado
+con dosímetro.
+ B
+En el uso de radios de comunicación
+✗ Incorrecta. Las radios emiten radiación no ionizante.
+ C
+En la soldadura con electrodo revestido
+✗ Incorrecta. La soldadura emite radiación ultravioleta (no ionizante), no radiación gamma.
+ 40
+RIESGO BIOLÓGICO
+¿Qué se debe hacer ante una mordedura de serpiente?
+ A
+Aplicar un torniquete fuerte
+✗ Incorrecta. Concentra el veneno en la extremidad y puede causar necrosis.
+ B
+Mantener a la persona en reposo, inmovilizar la extremidad, retirar anillos y
+trasladarla de inmediato a un centro con suero antiofídico
+✓ Correcta. En la Amazonía ecuatoriana la más común es la equis (Bothrops). El tratamiento eficaz es
+el suero, no las medidas caseras.
+ C
+Hacer un corte y succionar el veneno
+✗ Incorrecta. Aumenta el daño y el riesgo de infección; no extrae el veneno.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 16
+ 41
+RIESGO BIOLÓGICO
+¿Qué vacuna suele exigirse para trabajar en la Amazonía ecuatoriana?
+ A
+Influenza estacional
+✗ Incorrecta. Es recomendable, pero no es el requisito por zona endémica.
+ B
+Varicela
+✗ Incorrecta. No es la vacuna exigida por riesgo geográfico.
+ C
+Fiebre amarilla
+✓ Correcta. La Amazonía es zona endémica de fiebre amarilla. También se recomiendan tétanos,
+hepatitis A y B, y medidas contra el dengue y el paludismo.
+ 42
+RIESGO BIOLÓGICO
+¿Cómo se transmiten el dengue y el paludismo (malaria)?
+ A
+De persona a persona por la tos
+✗ Incorrecta. Son enfermedades transmitidas por vectores, no por vía respiratoria.
+ B
+Por la picadura de mosquitos (Aedes para el dengue y Anopheles para el
+paludismo)
+✓ Correcta. Se previenen con repelente, ropa de manga larga, mosquiteros y eliminación de
+criaderos (agua estancada).
+ C
+Por contacto con agua contaminada
+✗ Incorrecta. Esa vía corresponde a enfermedades como la leptospirosis o el cólera.
+ 43
+HIGIENE INDUSTRIAL
+¿Qué distingue al golpe de calor del agotamiento por calor?
+ A
+El golpe de calor solo ocurre con sol directo
+✗ Incorrecta. También ocurre en ambientes cerrados y calurosos.
+ B
+Son el mismo cuadro con distinto nombre
+✗ Incorrecta. El golpe de calor puede ser mortal; el agotamiento es menos grave.
+ C
+En el golpe de calor hay temperatura corporal muy alta, confusión o pérdida de
+conciencia; es una emergencia médica
+✓ Correcta. En el agotamiento hay sudoración abundante, debilidad y náuseas, pero la persona está
+consciente. Ante un golpe de calor se enfría a la persona y se pide ayuda médica de inmediato.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 17
+ 44
+EMERGENCIAS
+¿Qué es la regla 30-30 ante tormentas eléctricas?
+ A
+Trabajar 30 minutos y descansar 30
+✗ Incorrecta. Es un régimen de trabajo-descanso, no la regla de tormentas.
+ B
+Alejarse 30 metros de cualquier árbol
+✗ Incorrecta. Alejarse de árboles ayuda, pero no es la regla 30-30.
+ C
+Suspender trabajos al aire libre si el trueno se oye 30 segundos o menos después
+del rayo, y esperar 30 minutos desde el último trueno para reanudar
+✓ Correcta. Es crítica en trabajos en altura, izajes y torres, donde el trabajador es el punto más alto.
+ 45
+SEGURIDAD VIAL
+¿Qué distancia mínima de seguimiento recomienda la regla de los segundos en
+condiciones normales?
+ A
+1 segundo
+✗ Incorrecta. No alcanza para percibir, reaccionar y frenar.
+ B
+Lo que permita ver la placa del vehículo de adelante
+✗ Incorrecta. Es un criterio impreciso; a alta velocidad se queda corto.
+ C
+3 segundos detrás del vehículo de adelante, y más con lluvia, de noche o con
+carga
+✓ Correcta. Se toma un punto fijo: cuando el vehículo de adelante lo pasa, deben transcurrir al menos
+3 segundos hasta que uno llegue.
+ 46
+SEGURIDAD VIAL
+¿Quiénes deben usar cinturón de seguridad en un vehículo de la empresa?
+ A
+Solo en carretera, no dentro del campo
+✗ Incorrecta. Las vías internas de los campos tienen riesgos de volcamiento.
+ B
+Todos los ocupantes, adelante y atrás
+✓ Correcta. Un pasajero trasero sin cinturón se convierte en proyectil en un choque y puede lesionar
+a los de adelante.
+ C
+Solo el conductor
+✗ Incorrecta. Los pasajeros también sufren lesiones graves sin cinturón.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 18
+ 47
+EMERGENCIAS
+En el triage START, ¿qué color se asigna a un herido que necesita atención
+inmediata?
+ A
+Verde
+✗ Incorrecta. El verde es para heridos leves que pueden caminar.
+ B
+Rojo
+✓ Correcta. Rojo: inmediato; amarillo: diferido; verde: leve (puede caminar); negro: fallecido o sin
+posibilidad de sobrevivir.
+ C
+Amarillo
+✗ Incorrecta. El amarillo es para heridos que pueden esperar sin riesgo inmediato.
+ 48
+EMERGENCIAS
+En el Sistema de Comando de Incidentes (SCI), ¿cuántas personas debe
+supervisar idealmente una persona (alcance de control)?
+ A
+Hasta 20
+✗ Incorrecta. Es demasiado: se pierde la supervisión efectiva.
+ B
+Entre 3 y 7 (lo ideal son 5)
+✓ Correcta. Con más de 7 se pierde el control; con menos de 3 se desperdician recursos.
+ C
+Solo 1
+✗ Incorrecta. No es eficiente para la organización de la respuesta.
+ 49
+EMERGENCIAS
+En el SCI, ¿quién asume el mando al inicio de un incidente?
+ A
+Solo el gerente general de la empresa
+✗ Incorrecta. Esperar al gerente retrasaría la respuesta.
+ B
+Nadie hasta que lleguen los bomberos
+✗ Incorrecta. Sin mando inicial la respuesta se desorganiza.
+ C
+La primera persona capacitada que llega a la escena, hasta transferirlo
+formalmente a otra de mayor capacidad
+✓ Correcta. Siempre hay un comandante del incidente desde el primer momento. La transferencia se
+hace con un informe del estado de la situación.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 19
+ 50
+EMERGENCIAS
+¿Qué es el Puesto de Comando (PC) en el SCI?
+ A
+El punto de encuentro de los evacuados
+✗ Incorrecta. El punto de encuentro sirve para el conteo de personal.
+ B
+El lugar desde donde el comandante del incidente dirige la respuesta, ubicado en
+zona segura
+✓ Correcta. Debe estar fuera de la zona de peligro, con buena comunicación y visibilidad del
+incidente si es posible.
+ C
+La zona donde se atiende a los heridos
+✗ Incorrecta. Esa es el área de concentración de víctimas o el puesto médico.
+ 51
+PSICOSOCIAL
+¿Qué plantea el modelo demanda-control de Karasek?
+ A
+A más control, más estrés
+✗ Incorrecta. Es lo contrario: el control reduce el efecto de las demandas.
+ B
+El estrés depende solo del salario
+✗ Incorrecta. No es la base del modelo.
+ C
+El estrés es mayor cuando las demandas del trabajo son altas y el control del
+trabajador sobre su tarea es bajo
+✓ Correcta. Johnson añadió el apoyo social: altas demandas, bajo control y bajo apoyo es la
+combinación de mayor riesgo.
+ 52
+PSICOSOCIAL
+¿Cuáles son las 3 dimensiones del síndrome de burnout según Maslach?
+ A
+Ansiedad, depresión e insomnio
+✗ Incorrecta. Son síntomas posibles, no las dimensiones del modelo.
+ B
+Acoso laboral, sexual y discriminatorio
+✗ Incorrecta. Son dimensiones del cuestionario psicosocial ecuatoriano.
+ C
+Agotamiento emocional, despersonalización (cinismo) y baja realización personal
+✓ Correcta. Se evalúan con el cuestionario MBI (Maslach Burnout Inventory).
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 20
+ 53
+ERGONOMÍA
+En la ecuación de levantamiento de NIOSH, ¿cuál es la constante de carga (peso
+máximo en condiciones ideales)?
+ A
+10 kg
+✗ Incorrecta. Es el resultado posible tras aplicar multiplicadores, no la constante.
+ B
+50 kg
+✗ Incorrecta. Es muy superior al límite seguro.
+ C
+23 kg
+✓ Correcta. A ese valor se le aplican multiplicadores (distancia horizontal, altura, desplazamiento
+vertical, asimetría, frecuencia y agarre) para obtener el límite de peso recomendado.
+ 54
+SALUD OCUPACIONAL
+¿Qué tipos de exámenes médicos ocupacionales se realizan a lo largo de la vida
+laboral?
+ A
+Preocupacional (de ingreso), periódicos, de reintegro, especiales y de retiro
+✓ Correcta. Permiten conocer el estado de salud al ingresar, detectar efectos de la exposición y dejar
+constancia del estado al salir.
+ B
+Solo cuando el trabajador se enferma
+✗ Incorrecta. La vigilancia de la salud es preventiva, no solo asistencial.
+ C
+Solo el examen de ingreso
+✗ Incorrecta. Sin exámenes periódicos no se detectan las enfermedades ocupacionales.
+ 55
+SALUD OCUPACIONAL
+¿Qué examen se usa para vigilar a trabajadores expuestos a ruido?
+ A
+La audiometría
+✓ Correcta. Detecta la pérdida auditiva inducida por ruido, que empieza en la frecuencia de 4.000 Hz
+(muesca auditiva).
+ B
+La espirometría
+✗ Incorrecta. La espirometría evalúa la función pulmonar.
+ C
+El electrocardiograma
+✗ Incorrecta. Evalúa la actividad del corazón.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 21
+ 56
+SALUD OCUPACIONAL
+¿Qué examen se usa para vigilar a trabajadores expuestos a polvos o humos?
+ A
+La espirometría (y la radiografía de tórax según el agente)
+✓ Correcta. Mide la capacidad y el flujo pulmonar para detectar enfermedades obstructivas o
+restrictivas.
+ B
+La audiometría
+✗ Incorrecta. Evalúa la audición.
+ C
+La optometría
+✗ Incorrecta. Evalúa la visión.
+ 57
+EPP
+Según OSHA, ¿cómo se estima la atenuación real de un protector auditivo con
+NRR de 29 dB al medir el ruido en dB(A)?
+ A
+(29 − 7) / 2 = 11 dB
+✓ Correcta. Se restan 7 dB por la ponderación A y se divide para 2 por el uso real en el campo (factor
+de reducción del 50%).
+ B
+29 dB
+✗ Incorrecta. El NRR del laboratorio sobreestima la protección en el uso real.
+ C
+29 − 7 = 22 dB
+✗ Incorrecta. Falta aplicar el factor de reducción del 50% por el uso en el campo.
+ 58
+GESTIÓN DE CONTRATISTAS
+¿Cuál es el orden lógico de la gestión de seguridad de contratistas?
+ A
+Solo pedir el RUC y la póliza
+✗ Incorrecta. Son requisitos legales y comerciales, no una evaluación de seguridad.
+ B
+Precalificación, selección, inducción, control durante la ejecución y evaluación
+final del desempeño
+✓ Correcta. La precalificación revisa indicadores, sistema de gestión y competencias antes de
+contratar. El control en campo verifica los estándares durante el trabajo.
+ C
+Contratar primero y revisar la seguridad después del primer incidente
+✗ Incorrecta. Es reactivo: el riesgo se descubre cuando ya causó daño.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 3
+Página 22
+ 59
+GESTIÓN DE CONTRATISTAS
+Durante la inspección de un equipo de una contratista se detecta un defecto
+crítico. ¿Qué corresponde?
+ A
+No liberar el equipo, informar a la contratista y al responsable, y reinspeccionarlo
+cuando se corrija
+✓ Correcta. La liberación certifica que el equipo cumple los estándares. Liberarlo con un defecto
+crítico traslada el riesgo al trabajo.
+ B
+Retener el equipo sin informar a nadie
+✗ Incorrecta. Hay que comunicar el hallazgo para que se corrija y quede registro.
+ C
+Liberarlo con una observación para corregir después
+✗ Incorrecta. Un defecto crítico debe corregirse antes de usar el equipo.
+ 60
+GESTIÓN DE CONTRATISTAS
+¿Qué es una inducción de seguridad?
+ A
+Un examen médico de ingreso
+✗ Incorrecta. El examen médico es otro requisito.
+ B
+La capacitación inicial que recibe todo trabajador o visitante antes de ingresar,
+sobre los riesgos del sitio, las normas y la respuesta a emergencias
+✓ Correcta. Incluye las rutas de evacuación, los puntos de encuentro, las alarmas, el EPP requerido y
+los estándares críticos del lugar.
+ C
+Una charla opcional para trabajadores nuevos
+✗ Incorrecta. Es obligatoria para todo el que ingresa, incluidos los visitantes.

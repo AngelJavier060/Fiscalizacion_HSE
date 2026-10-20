@@ -86,6 +86,8 @@ public class SecurityConfig {
                     .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA")
 
                 .requestMatchers("/api/simulador/admin/**").hasRole("SUPER_ADMIN")
+                .requestMatchers("/api/simulador/estudio/**")
+                    .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA")
                 .requestMatchers("/api/simulador/**")
                     .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "USUARIO")
 

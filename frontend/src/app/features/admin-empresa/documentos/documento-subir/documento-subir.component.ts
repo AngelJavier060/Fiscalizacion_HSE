@@ -11,11 +11,13 @@ import {
   documentNavigationLinks,
   type DocumentoLinks,
 } from '../../../../core/helpers/documento-routing.helper';
+import { SuperAdminSidebarComponent } from '../../../super-admin/shared/super-admin-sidebar/super-admin-sidebar.component';
+import { AdminEmpresaSidebarComponent } from '../../shared/admin-empresa-sidebar/admin-empresa-sidebar.component';
 
 @Component({
   selector: 'app-documento-subir',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, SuperAdminSidebarComponent, AdminEmpresaSidebarComponent],
   templateUrl: './documento-subir.component.html',
   styleUrls: ['./documento-subir.component.scss'],
 })

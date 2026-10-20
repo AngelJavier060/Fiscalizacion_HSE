@@ -1,0 +1,191 @@
+<div class="dashboard-container estudio-page">
+  <app-admin-empresa-sidebar />
+
+  <main class="main-content">
+    <header class="topbar est-top">
+      <div class="est-brand">
+        <div class="est-logo" aria-hidden="true">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h2>Banco de estudio SSO</h2>
+          <p>Seguridad y Salud Ocupacional · Repositorio normativo</p>
+        </div>
+      </div>
+      <span class="est-badge">
+        <i class="pulse"></i>
+        Modo estudio / lectura
+      </span>
+    </header>
+
+    <div class="content est-wrap">
+      <section class="est-aviso">
+        <i class="fa-solid fa-circle-info"></i>
+        <p>
+          <strong>Espacio de autoformación técnica:</strong>
+          Consulte la nota general, la normativa vinculante y la evidencia documental.
+          En esta sección <strong>no se rinde examen de opciones múltiples</strong>.
+        </p>
+      </section>
+
+      @if (error) {
+        <div class="sa-alert">{{ error }}</div>
+      }
+
+      <section class="est-filtros">
+        <div class="est-filtros-row">
+          <div class="est-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" [(ngModel)]="q" (keyup.enter)="recargar()"
+              placeholder="Buscar por término técnico, artículo o norma…" />
+          </div>
+          <select [(ngModel)]="filtroTema">
+            <option [ngValue]="null">Todos los temas</option>
+            @for (t of temas; track t.id) {
+              <option [ngValue]="t.id">{{ t.nombre }} ({{ t.preguntasActivas }})</option>
+            }
+          </select>
+          <button type="button" class="est-btn-filtro" (click)="recargar()">Filtrar</button>
+        </div>
+        @if (!cargando) {
+          <p class="est-count">
+            <i></i>
+            {{ preguntas.length }} {{ preguntas.length === 1 ? 'ficha encontrada para estudio' : 'fichas encontradas para estudio' }}
+          </p>
+        }
+      </section>
+
+      @if (cargando) {
+        <p class="muted">Cargando…</p>
+      } @else if (preguntas.length === 0) {
+        <p class="muted">No hay material de estudio activo.</p>
+      } @else {
+        <div class="est-list">
+          @for (p of preguntas; track p.id; let i = $index) {
+            @if (abiertaId === p.id) {
+              <article class="study-card">
+                <div class="study-ribbon">
+                  <div class="study-ribbon-top">
+                    <span class="tema-pill">
+                      <i class="fa-solid fa-tag"></i>
+                      {{ p.temaNombre }}
+                    </span>
+                    <button type="button" class="btn-recoger" (click)="recoger()">
+                      Recoger pregunta
+                      <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                  </div>
+                  <h3>{{ p.enunciado }}</h3>
+                </div>
+
+                <div class="study-body">
+                  <section>
+                    <header>
+                      <i class="dot green"></i>
+                      <h4>Nota general (resumen breve)</h4>
+                    </header>
+                    @if (p.explicacion) {
+                      <p>{{ p.explicacion }}</p>
+                    } @else {
+                      <p class="muted">Sin nota general.</p>
+                    }
+                  </section>
+
+                  <section>
+                    <header>
+                      <i class="dot blue"></i>
+                      <h4>Normativa / fuente</h4>
+                    </header>
+                    <div class="norma-box">
+                      @if (p.fuente) {
+                        <p>{{ p.fuente }}</p>
+                      } @else {
+                        <p class="muted">Sin normativa registrada.</p>
+                      }
+                    </div>
+                  </section>
+
+                  <section>
+                    <header>
+                      <i class="dot red"></i>
+                      <h4>Evidencia (foto o PDF)</h4>
+                    </header>
+                    @if (p.tieneSustento) {
+                      <div class="doc-card">
+                        <div class="doc-meta">
+                          <div class="doc-ico" [class.img]="esImagen(p)">
+                            <span>{{ esPdf(p) ? 'PDF' : (esImagen(p) ? 'FOTO' : 'DOC') }}</span>
+                            <i class="fa-solid" [class.fa-file-pdf]="esPdf(p)" [class.fa-image]="esImagen(p)" [class.fa-paperclip]="!esPdf(p) && !esImagen(p)"></i>
+                          </div>
+                          <div>
+                            <em>Documento adjunto</em>
+                            <strong>{{ p.sustentoNombre || 'Archivo de sustento' }}</strong>
+                            <small>Respaldo técnico cargado por Super Admin</small>
+                          </div>
+                        </div>
+                        <button type="button" (click)="verEvidencia(p)">
+                          <i class="fa-regular fa-eye"></i>
+                          {{ esPdf(p) ? 'Ver PDF' : (esImagen(p) ? 'Ver foto' : 'Ver archivo') }}
+                        </button>
+                      </div>
+                    } @else {
+                      <p class="muted empty-file">Super Admin aún no adjuntó PDF ni foto.</p>
+                    }
+                  </section>
+                </div>
+
+                <footer class="study-foot">
+                  <button type="button" class="btn-recoger ghost" (click)="recoger()">
+                    <i class="fa-solid fa-chevron-up"></i>
+                    Recoger pregunta
+                  </button>
+                  <div>
+                    <span>{{ i + 1 }} de {{ preguntas.length }}</span>
+                    <button type="button" [disabled]="i === 0" (click)="irA(i - 1)">← Anterior</button>
+                    <button type="button" [disabled]="i >= preguntas.length - 1" (click)="irA(i + 1)">Siguiente →</button>
+                  </div>
+                </footer>
+              </article>
+            } @else {
+              <button type="button" class="study-mini" (click)="abrir(p)">
+                <span class="tema">{{ p.temaNombre }}</span>
+                <strong>{{ p.enunciado }}</strong>
+                @if (p.tieneSustento) {
+                  <em><i class="fa-solid fa-paperclip"></i></em>
+                }
+              </button>
+            }
+          }
+        </div>
+      }
+    </div>
+  </main>
+</div>
+
+@if (visorPregunta; as v) {
+  <div class="visor-fondo" (click)="cerrarVisor()">
+    <div class="visor" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <header>
+        <div>
+          <em>{{ esPdf(v) ? 'PDF' : (esImagen(v) ? 'Foto' : 'Archivo') }}</em>
+          <strong>{{ v.sustentoNombre || 'Sustento' }}</strong>
+        </div>
+        <button type="button" (click)="cerrarVisor()">
+          Cerrar
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+      <div class="visor-cuerpo">
+        @if (cargandoSustento[v.id]) {
+          <p>Cargando archivo…</p>
+        } @else if (esImagen(v) && previewUrls[v.id]) {
+          <img [src]="previewUrls[v.id]" [alt]="v.sustentoNombre || 'Evidencia'" />
+        } @else if (esPdf(v) && previewSafe[v.id]) {
+          <iframe [src]="previewSafe[v.id]" title="PDF de sustento"></iframe>
+        } @else {
+          <p>No se pudo mostrar el archivo.</p>
+        }
+      </div>
+    </div>
+  </div>
+}

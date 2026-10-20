@@ -1,0 +1,4 @@
+ALTER TABLE sso_preguntas
+    ADD COLUMN IF NOT EXISTS sustento_nombre VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS sustento_tipo VARCHAR(120),
+    ADD COLUMN IF NOT EXISTS sustento_ruta VARCHAR(500);

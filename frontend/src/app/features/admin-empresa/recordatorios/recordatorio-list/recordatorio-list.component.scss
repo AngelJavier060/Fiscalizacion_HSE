@@ -7,8 +7,8 @@
 }
 
 .recordatorio-card {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #fff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
   transition: all 0.2s;
@@ -47,7 +47,7 @@
   h4 {
     font-size: 0.9375rem;
     font-weight: 600;
-    color: #f1f5f9;
+    color: #0f172a;
     margin-bottom: 0.25rem;
   }
 
@@ -96,7 +96,7 @@
 
 .detail {
   font-size: 0.8125rem;
-  color: #cbd5e1;
+  color: #334155;
 
   .label {
     color: #64748b;
@@ -144,7 +144,7 @@
   display: flex;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  border-top: 1px solid #1e293b;
+  border-top: 1px solid #f1f5f9;
   justify-content: flex-end;
 }
 
@@ -154,9 +154,9 @@
   font-size: 0.8125rem;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid #334155;
-  background: #0f172a;
-  color: #94a3b8;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
 
   &:hover { border-color: #64748b; color: #f1f5f9; }
 
@@ -189,7 +189,7 @@
   color: #94a3b8;
 
   .empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
-  h3 { font-size: 1.125rem; color: #f1f5f9; margin-bottom: 0.5rem; }
+  h3 { font-size: 1.125rem; color: #0f172a; margin-bottom: 0.5rem; }
   p { margin-bottom: 1.5rem; }
 }
 

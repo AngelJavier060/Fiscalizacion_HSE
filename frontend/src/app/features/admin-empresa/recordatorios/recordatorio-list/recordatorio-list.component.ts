@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
+import { AdminEmpresaSidebarComponent } from '../../shared/admin-empresa-sidebar/admin-empresa-sidebar.component';
 
 @Component({
   selector: 'app-recordatorio-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AdminEmpresaSidebarComponent],
   templateUrl: './recordatorio-list.component.html',
   styleUrls: ['./recordatorio-list.component.scss'],
 })

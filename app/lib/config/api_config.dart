@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 
 /// Configuración de la API para la app móvil
 class ApiConfig {
-  // Cambiar según entorno: desarrollo, staging, producción
-  static const Enviroment _env = Enviroment.production;
+  // Local primero. Para producción cambie a Enviroment.production.
+  static const Enviroment _env = Enviroment.development;
 
   // URLs base según entorno
   static const Map<Enviroment, String> _baseUrls = {
@@ -12,12 +12,9 @@ class ApiConfig {
     Enviroment.production: 'https://hse.improvement-solution.com/api/v1',
   };
 
-  // URLs para dispositivos iOS (cambian por el simulador)
-  static const Map<Enviroment, String> _iosBaseUrls = {
-    Enviroment.development: 'http://localhost:8080/api/v1',
-    Enviroment.staging: 'https://hse.improvement-solution.com/api/v1',
-    Enviroment.production: 'https://hse.improvement-solution.com/api/v1',
-  };
+  /// Teléfono físico en la misma Wi‑Fi: IP de esta PC, ej. '192.168.1.20'.
+  /// Deje null para emulador (10.0.2.2) o iOS/Windows (localhost).
+  static const String? lanHost = null;
 
   // Timeouts — texto-completo de PDFs grandes puede tardar más
   static const Duration connectTimeout = Duration(seconds: 30);
@@ -55,14 +52,24 @@ class ApiConfig {
   static const String simuladorInicio = '/api/simulador/inicio';
   static const String simuladorExamenes = '/api/simulador/examenes';
   static const String simuladorHistorial = '/api/simulador/historial';
+  static const String simuladorPreguntas = '/api/simulador/preguntas';
 
   /// URL base según el entorno configurado.
-  /// En Flutter web de debug, Chrome bloquea CORS hacia producción: se usa el backend local.
+  /// Android emulador: 10.0.2.2 · iOS/Windows/web local: localhost.
   static String get baseUrl {
-    if (kIsWeb && kDebugMode) {
+    if (_env != Enviroment.development) {
+      return _baseUrls[_env]!;
+    }
+    if (lanHost != null && lanHost!.isNotEmpty) {
+      return 'http://$lanHost:8080/api/v1';
+    }
+    if (kIsWeb) {
       return 'http://localhost:8080/api/v1';
     }
-    return _baseUrls[_env]!;
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:8080/api/v1';
+    }
+    return 'http://localhost:8080/api/v1';
   }
 
   /// Construye URL completa para un endpoint

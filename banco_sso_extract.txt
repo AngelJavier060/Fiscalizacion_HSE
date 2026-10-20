@@ -1,0 +1,1822 @@
+Banco de preguntas SSO · Repaso
+Página 1
+Banco de preguntas SSO
+Seguridad y salud ocupacional · Repaso con respuestas explicadas
+Contiene 108 preguntas basadas en tu documento «Los mejores SSO». Están todos los ítems
+del 1 al 90 (el 73 no existía en el original) y la pregunta de saturnismo, que estaba dentro de la
+62. Las listas largas (normas ASME, ANSI Z359, tablas de ruido, métodos ergonómicos) se
+separaron en varias preguntas, y la tabla completa va en la explicación para no perder ningún
+dato.
+Cómo leer cada pregunta
+ ✓ Correcta · respuesta y explicación de por qué es la correcta
+✗ Incorrecta · argumento de por qué está mal
+Nota · aclaración o corrección respecto a tu documento original
+La posición de la respuesta correcta (A, B o C) cambia en cada pregunta para que no memorices la letra.
+Tapa las explicaciones para practicar.
+Preguntas por tema
+Ergonomía
+13
+Incendios y extintores
+12
+Legislación ecuatoriana
+10
+Izaje (ASME B30)
+9
+Señalización
+8
+Riesgo eléctrico
+7
+Materiales peligrosos
+7
+Indicadores de accidentabilidad
+5
+Psicosocial
+5
+Detección y alarmas
+4
+Higiene industrial – Ruido
+4
+Trabajos en altura
+4
+Salud ocupacional
+4
+Áreas clasificadas
+3
+Gestión de riesgos
+3
+Higiene industrial – Químicos
+2
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 2
+EPP
+2
+Excavaciones
+2
+Emergencias
+2
+Maquinaria pesada
+1
+Trabajos en caliente
+1
+Preguntas con nota de corrección o verificación
+5, 7, 13, 16b, 21b, 25e, 27d, 30, 49, 56, 59, 67, 72, 75, 77, 78, 79, 80, 81, 82, 83, 86, 87, 88,
+90. Revisa estas preguntas con tu material oficial antes del examen.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 3
+ 1a
+ERGONOMÍA
+Según el Decreto 255, ¿cuál es el peso máximo de levantamiento de cargas para
+un hombre adulto (entre 20 y 45 años)?
+ A
+20 kg
+✗ Incorrecta. 20 kg corresponde a mujeres adultas o a hombres menores de 20 o mayores de 45
+años, no al hombre adulto en general.
+ B
+25 kg
+✗ Incorrecta. 25 kg es el valor de referencia de otras guías (por ejemplo, la guía técnica española),
+no el del Decreto 255.
+ C
+23 kg
+✓ Correcta. Es el límite fijado para hombres en el rango general de edad. Tabla completa: hombres
+23 kg; mujeres 20 kg; hombres menores de 20 o mayores de 45 años 20 kg; mujeres menores de 20 o
+mayores de 45 años 15 kg.
+ 1b
+ERGONOMÍA
+Según el Decreto 255, ¿cuál es el peso máximo de levantamiento para mujeres
+menores de 20 o mayores de 45 años?
+ A
+15 kg
+✓ Correcta. Para los grupos de edad más vulnerables el límite baja: mujeres de 20 kg a 15 kg y
+hombres de 23 kg a 20 kg.
+ B
+20 kg
+✗ Incorrecta. 20 kg es el límite para mujeres de 20 a 45 años o para hombres menores de 20 o
+mayores de 45.
+ C
+23 kg
+✗ Incorrecta. 23 kg es el límite del hombre adulto; aplicarlo a este grupo duplicaría el riesgo de lesión
+lumbar.
+ 2
+INCENDIOS Y EXTINTORES
+Según el Reglamento de Prevención de Incendios (PICBQ), ¿a qué altura deben
+instalarse los extintores?
+ A
+2 m del piso a la base del extintor, sin importar el peso
+✗ Incorrecta. A 2 m el extintor queda fuera del alcance de muchas personas y no considera el peso
+del equipo.
+ B
+1,5 m para todos los extintores, sin importar el peso
+✗ Incorrecta. Omite la condición del peso: un extintor de más de 18 kg debe quedar a no más de 1
+m.
+ C
+Hasta 1,5 m del piso a la parte superior si pesan menos de 18 kg; si pesan más de
+18 kg, no más de 1 m
+✓ Correcta. El límite depende del peso para que cualquier persona pueda descolgarlo rápido y sin
+lesionarse. Los extintores pesados se colocan más bajos.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 4
+ 3
+DETECCIÓN Y ALARMAS
+¿A qué altura deben instalarse los pulsadores manuales de emergencia según la
+NFPA 72 y el Reglamento PICBQ?
+ A
+1,2 m del piso hasta el centro del pulsador
+✓ Correcta. Es una altura accesible para cualquier persona, incluso en silla de ruedas. La NFPA 72 da
+un rango de 1,07 a 1,22 m.
+ B
+1,8 m del piso hasta la parte superior
+✗ Incorrecta. Queda demasiado alto: dificulta el acceso rápido y no cumple el rango de la NFPA 72.
+ C
+0,5 m del piso
+✗ Incorrecta. A esa altura el pulsador puede quedar tapado por objetos y obliga a agacharse en plena
+emergencia.
+ 4
+INCENDIOS Y EXTINTORES
+¿De qué está compuesto el agente del extintor tipo K?
+ A
+Acetato de potasio, carbonato de potasio y citrato de potasio
+✓ Correcta. Son sales de potasio en solución acuosa que reaccionan con el aceite caliente
+(saponificación), forman una capa jabonosa que sofoca el fuego y enfrían el aceite.
+ B
+Polvo químico seco a base de fosfato monoamónico
+✗ Incorrecta. Es el agente de los extintores ABC; no es el adecuado para aceites de cocina.
+ C
+Dióxido de carbono (CO2)
+✗ Incorrecta. El CO2 se usa en fuegos B y C; en aceites de cocina el fuego puede reavivarse porque
+no enfría lo suficiente.
+ 5
+INCENDIOS Y EXTINTORES
+¿Qué indica la clasificación 2A-10B:C en un extintor?
+ A
+Solo sirve para fuegos clase A, B y C de 2 a 10 kg
+✗ Incorrecta. Los números no son kilos: miden capacidad de extinción para cada clase de fuego.
+ B
+2A: dura 2 minutos; 10B: alcanza 10 metros; C: contiene CO2
+✗ Incorrecta. Los números no son tiempo ni alcance: indican capacidad de extinción. La letra C no
+indica el agente, solo que no conduce electricidad.
+ C
+2A: equivale a 2,5 galones de agua en fuego clase A; 10B: cubre un fuego de
+líquidos inflamables de 10 pies²; C: apto para fuego eléctrico
+✓ Correcta. Cada unidad A equivale a 1,25 galones de agua (2A = 2,5 gal). El número de la B indica
+pies cuadrados de fuego de líquido inflamable. La C no lleva número: solo indica que el agente no
+conduce electricidad.
+Nota: Pregunta marcada en tu documento como «ojo con esta pregunta».
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 5
+ 6
+DETECCIÓN Y ALARMAS
+Según la NFPA 72 y el Reglamento PICBQ, ¿a qué distancia deben instalarse los
+detectores de humo?
+ A
+9,1 m (30 pies) entre detectores; cada uno cubre unos 84 m²
+✓ Correcta. Es el espaciamiento nominal en techos lisos, que asegura que el humo llegue a un
+detector a tiempo.
+ B
+3 m entre detectores; cada uno cubre 9 m²
+✗ Incorrecta. Es demasiado cercano: sobredimensiona el sistema sin necesidad técnica.
+ C
+15 m entre detectores; cada uno cubre 200 m²
+✗ Incorrecta. Duplica el área real de cobertura: quedarían zonas sin detección temprana.
+ 7
+INCENDIOS Y EXTINTORES
+¿En qué se enfoca el método MESERI?
+ A
+En la evaluación de todos los riesgos laborales de un puesto de trabajo
+✗ Incorrecta. Esa es la función de métodos generales como INSHT o GTC 45. MESERI solo evalúa
+incendios.
+ B
+En la evaluación ergonómica de posturas
+✗ Incorrecta. Eso lo hacen métodos como RULA, REBA u OWAS, no MESERI.
+ C
+Exclusivamente en el riesgo de incendio de instalaciones industriales, con una
+evaluación cuantitativa
+✓ Correcta. MESERI pondera factores propios de la instalación (construcción, procesos, materiales,
+fuentes de ignición, concentración de valores) frente a los medios de protección contra incendios, y da
+un valor numérico de riesgo.
+Nota: En tu documento la fórmula aparece como R = X/Y·B. La forma usual de MESERI suma los factores
+propios (X), los de protección (Y) y la brigada (B), cada uno ponderado. Verifica la fórmula exacta con tu
+material.
+ 8a
+INCENDIOS Y EXTINTORES
+¿Cuál es la cobertura de un extintor en un área de riesgo LEVE?
+ A
+200 m² por extintor de 4,5 kg (10 lb)
+✓ Correcta. Con poca carga combustible, un extintor cubre más área. Tabla completa: riesgo leve 200
+m² (4,5 kg/10 lb); moderado 100 m² (6 kg/13-15 lb); alto 75 m² (9 kg/20 lb).
+ B
+75 m² por extintor de 9 kg
+✗ Incorrecta. Corresponde a riesgo ALTO, donde la cobertura es menor y el extintor más grande.
+ C
+100 m² por extintor de 6 kg
+✗ Incorrecta. Corresponde a riesgo MODERADO.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 6
+ 8b
+INCENDIOS Y EXTINTORES
+¿Cuál es la cobertura de un extintor en un área de riesgo ALTO?
+ A
+200 m² por extintor de 4,5 kg
+✗ Incorrecta. Corresponde a riesgo LEVE; en riesgo alto dejaría zonas sin cobertura suficiente.
+ B
+100 m² por extintor de 6 kg
+✗ Incorrecta. Corresponde a riesgo MODERADO.
+ C
+75 m² por extintor de 9 kg (20 lb)
+✓ Correcta. Con mayor carga combustible se necesitan más extintores (menos área por equipo) y de
+mayor capacidad.
+ 9
+IZAJE (ASME B30)
+¿Cuál es la norma de referencia para las señales de mano del rigger en grúas
+móviles?
+ A
+ANSI Z359.1
+✗ Incorrecta. La Z359 es la familia de normas de protección contra caídas, no de izaje.
+ B
+ASME B30.5
+✓ Correcta. La ASME B30.5 (grúas móviles y de oruga) incluye el código estándar de señales de mano
+entre el rigger y el operador.
+ C
+ASME B30.9
+✗ Incorrecta. La B30.9 trata de eslingas, no de señales para el operador.
+ 10a
+ÁREAS CLASIFICADAS
+Según la NFPA 499 (agroindustria, molinos, minería), ¿qué tipo de material
+corresponde a la Clase II?
+ A
+Fibras y pelusas inflamables
+✗ Incorrecta. Eso es la Clase III.
+ B
+Polvos combustibles
+✓ Correcta. Clase II = polvos combustibles; Clase III = fibras y pelusas inflamables. División 1:
+presencia continua o frecuente; División 2: solo ocasional o accidental.
+ C
+Gases y vapores inflamables
+✗ Incorrecta. Eso es la Clase I, que trata la NFPA 497.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 7
+ 10b
+ÁREAS CLASIFICADAS
+En la clasificación de áreas, ¿qué significa División 2?
+ A
+El material está presente de forma continua en operación normal
+✗ Incorrecta. Eso describe la División 1.
+ B
+El área no tiene ningún riesgo de atmósfera explosiva
+✗ Incorrecta. Un área sin riesgo se llama no clasificada; la División 2 sí tiene riesgo, aunque
+ocasional.
+ C
+El material peligroso está presente solo de forma ocasional o accidental
+✓ Correcta. La División 2 representa condiciones anormales (fugas, fallas); la División 1, presencia
+continua o frecuente en operación normal.
+ 11
+ÁREAS CLASIFICADAS
+Según la NFPA 497 (oil & gas, química, petroquímica), ¿qué es Clase I, División
+1?
+ A
+Un área donde la atmósfera inflamable (gases o vapores) está presente
+normalmente durante las operaciones
+✓ Correcta. La NFPA 497 clasifica áreas con gases o vapores. Clase I, División 1: presencia normal;
+Clase I, División 2: presencia solo accidental.
+ B
+Un área donde la atmósfera inflamable aparece solo por accidente
+✗ Incorrecta. Eso es la Clase I, División 2.
+ C
+Un área con polvos combustibles en suspensión
+✗ Incorrecta. Los polvos son Clase II y los regula la NFPA 499.
+ 12
+RIESGO ELÉCTRICO
+¿Cuál es la diferencia principal entre corriente continua (CC/DC) y corriente
+alterna (CA/AC)?
+ A
+La continua cambia de sentido y la alterna fluye en un solo sentido
+✗ Incorrecta. Invierte los conceptos.
+ B
+La alterna es siempre de alta tensión y la continua de baja tensión
+✗ Incorrecta. El tipo de corriente no depende del voltaje: existen AC y DC tanto de baja como de alta
+tensión.
+ C
+La continua fluye siempre en un solo sentido; la alterna cambia de sentido
+periódicamente (50 o 60 veces por segundo)
+✓ Correcta. En DC la polaridad es fija (baterías, paneles solares). En AC la dirección se invierte según
+la frecuencia de la red; en Ecuador es de 60 Hz.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 8
+ 13
+HIGIENE INDUSTRIAL – RUIDO
+Dos máquinas emiten 90 dB cada una. ¿Cuál es el nivel de ruido combinado?
+ A
+180 dB
+✗ Incorrecta. Es una suma aritmética, que no aplica a una escala logarítmica.
+ B
+93 dB
+✓ Correcta. Los decibeles no se suman aritméticamente porque son una escala logarítmica. Cuando
+se suman las POTENCIAS de dos fuentes iguales, el nivel sube 3 dB sobre el valor de una de ellas.
+ C
+90 dB
+✗ Incorrecta. Dos fuentes iguales sí aumentan el nivel: duplicar la potencia agrega 3 dB.
+Nota: Tu documento indica: «ojo, identificar la palabra potencia».
+ 14
+HIGIENE INDUSTRIAL – QUÍMICOS
+¿Qué organización establece los valores TLV-TWA, TLV-STEL y TLV-C?
+ A
+NIOSH
+✗ Incorrecta. NIOSH publica los REL (límites recomendados), no los TLV.
+ B
+ACGIH (Conferencia Americana de Higienistas Industriales Gubernamentales)
+✓ Correcta. Los TLV (Threshold Limit Values) son publicados cada año por la ACGIH. TWA: promedio
+de 8 h; STEL: exposición corta de 15 min; C: techo que nunca debe superarse.
+ C
+OSHA
+✗ Incorrecta. OSHA establece los PEL (límites legales en EE. UU.), no los TLV.
+ 15
+RIESGO ELÉCTRICO
+¿Qué efecto se produce cuando una persona toca un equipo energizado y sus
+músculos se contraen sin poder soltarlo?
+ A
+Tetanización
+✓ Correcta. La corriente provoca una contracción muscular sostenida e involuntaria que impide soltar
+el conductor y prolonga la exposición.
+ B
+Fibrilación auricular
+✗ Incorrecta. La fibrilación que causa la corriente es ventricular y afecta al corazón, no a los
+músculos de la mano.
+ C
+Hipotermia
+✗ Incorrecta. La corriente produce calor (quemaduras), no un descenso de la temperatura corporal.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 9
+ 16a
+HIGIENE INDUSTRIAL – RUIDO
+Según el Decreto 255, ¿cuál es el tiempo máximo de exposición a 85 dB?
+ A
+4 horas
+✗ Incorrecta. 4 h corresponde a 88 dB.
+ B
+8 horas
+✓ Correcta. 85 dB es el nivel de referencia para una jornada de 8 h. Tabla completa: 85 dB – 8 h; 88
+dB – 4 h; 91 dB – 2 h; 94 dB – 1 h; 97 dB – 30 min; 100 dB – 15 min. Cada 3 dB más, el tiempo
+permitido se reduce a la mitad.
+ C
+12 horas
+✗ Incorrecta. Ninguna exposición a 85 dB está permitida por más de una jornada de 8 h.
+ 16b
+HIGIENE INDUSTRIAL – RUIDO
+Según el Decreto 255, ¿cuál es el tiempo máximo de exposición a 97 dB?
+ A
+30 minutos
+✓ Correcta. Con una tasa de intercambio de 3 dB: 94 dB – 1 h, entonces 97 dB – 30 min y 100 dB – 15
+min.
+ B
+2 horas
+✗ Incorrecta. 2 h corresponde a 91 dB.
+ C
+15 minutos
+✗ Incorrecta. 15 min corresponde a 100 dB.
+Nota: En tu documento aparecía «0.30 minutos»; lo correcto es 30 minutos (0,5 h).
+ 17
+MATERIALES PELIGROSOS
+¿Cuántas secciones tiene una Hoja de Datos de Seguridad (SDS)?
+ A
+16 secciones
+✓ Correcta. El formato SGA/GHS de la SDS tiene 16 secciones fijas, desde la identificación del
+producto hasta otra información.
+ B
+12 secciones
+✗ Incorrecta. No corresponde a ningún formato oficial de la SDS.
+ C
+9 secciones
+✗ Incorrecta. 9 es el número de clases de peligro de la ONU, no las secciones de la SDS.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 10
+ 18
+LEGISLACIÓN ECUATORIANA
+¿Cuántos días de plazo tiene el empleador para reportar un accidente de
+trabajo?
+ A
+30 días calendario
+✗ Incorrecta. Es un plazo demasiado largo; no es el que fija la normativa.
+ B
+24 horas
+✗ Incorrecta. 24 h puede aplicar a notificaciones inmediatas internas o de accidentes graves, pero no
+es el plazo del aviso formal.
+ C
+10 días laborables
+✓ Correcta. El aviso de accidente de trabajo debe presentarse dentro de los 10 días laborables
+siguientes al accidente.
+ 19
+LEGISLACIÓN ECUATORIANA
+¿Qué se considera una enfermedad ocupacional?
+ A
+Toda lesión súbita y violenta que ocurre durante la jornada
+✗ Incorrecta. Eso es un accidente de trabajo: súbito y violento, no crónico.
+ B
+Afecciones crónicas causadas directamente por el ejercicio de la profesión u
+ocupación, como resultado de la exposición a factores de riesgo, que producen o
+no incapacidad laboral
+✓ Correcta. Tres elementos la definen: es crónica, tiene relación causal con el trabajo y se debe a la
+exposición a factores de riesgo. Puede o no generar incapacidad.
+ C
+Solo las enfermedades que producen incapacidad permanente
+✗ Incorrecta. La definición incluye las afecciones que producen o NO incapacidad.
+ 20
+MATERIALES PELIGROSOS
+¿Cuántas clases de peligro tiene la clasificación de la ONU para el transporte de
+mercancías peligrosas?
+ A
+4 clases
+✗ Incorrecta. 4 es el número de categorías del rombo NFPA 704 o del HMIS, no las clases de la ONU.
+ B
+16 clases
+✗ Incorrecta. 16 son las secciones de la SDS.
+ C
+9 clases
+✓ Correcta. Clase 1 explosivos; 2 gases; 3 líquidos inflamables; 4 sólidos inflamables; 5 sustancias
+comburentes (oxidantes) y peróxidos orgánicos; 6 sustancias tóxicas e infecciosas; 7 materiales
+radiactivos; 8 sustancias corrosivas; 9 sustancias y objetos peligrosos varios.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 11
+ 28a
+MATERIALES PELIGROSOS
+Según la clasificación de la ONU, ¿qué clase corresponde a las sustancias
+comburentes (oxidantes) y los peróxidos orgánicos?
+ A
+Clase 3
+✗ Incorrecta. La Clase 3 es de líquidos inflamables.
+ B
+Clase 5
+✓ Correcta. La Clase 5 agrupa sustancias que aportan oxígeno y avivan la combustión (5.1
+comburentes) y los peróxidos orgánicos (5.2).
+ C
+Clase 8
+✗ Incorrecta. La Clase 8 es de sustancias corrosivas.
+ 28b
+MATERIALES PELIGROSOS
+Según la clasificación de la ONU, ¿qué clase corresponde a las sustancias
+corrosivas?
+ A
+Clase 9
+✗ Incorrecta. La Clase 9 es de sustancias y objetos peligrosos varios, como baterías de litio.
+ B
+Clase 6
+✗ Incorrecta. La Clase 6 es de sustancias tóxicas e infecciosas.
+ C
+Clase 8
+✓ Correcta. La Clase 8 incluye ácidos y bases que destruyen tejidos o metales, por ejemplo el ácido
+sulfúrico o la soda cáustica.
+ 28c
+MATERIALES PELIGROSOS
+Según la clasificación de la ONU, ¿qué contiene la Clase 7?
+ A
+Materiales radiactivos
+✓ Correcta. La Clase 7 cubre materiales que emiten radiación ionizante, como fuentes de
+densímetros nucleares o equipos de radiografía industrial.
+ B
+Explosivos
+✗ Incorrecta. Los explosivos son Clase 1.
+ C
+Sustancias tóxicas
+✗ Incorrecta. Las tóxicas son Clase 6.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 12
+ 21a
+EPP
+Según la ANSI/ISEA Z89.1, ¿qué casco protege contra impactos verticales y
+laterales?
+ A
+Clase C
+✗ Incorrecta. La «clase» indica protección eléctrica, no dirección del impacto; además, la Clase C no
+protege contra electricidad.
+ B
+Tipo I
+✗ Incorrecta. El Tipo I solo protege la parte superior contra impactos verticales.
+ C
+Tipo II
+✓ Correcta. Tipo I: solo impactos verticales (golpes desde arriba). Tipo II: impactos verticales y
+laterales (frontal, posterior y lateral).
+ 21b
+EPP
+Según la ANSI/ISEA Z89.1 vigente, ¿qué clase de casco protege hasta 20.000 V?
+ A
+Clase C
+✗ Incorrecta. La Clase C no ofrece protección eléctrica; prioriza la ventilación.
+ B
+Clase E (eléctrico)
+✓ Correcta. Clase G (general): hasta 2.200 V. Clase E (eléctrico): hasta 20.000 V. Clase C
+(conductivo): sin protección eléctrica.
+ C
+Clase G
+✗ Incorrecta. La Clase G solo protege hasta 2.200 V.
+Nota: En tu documento las clases antiguas A/B tenían voltajes cruzados. En la nomenclatura anterior, Clase A
+= 2.200 V (hoy G), Clase B = 20.000 V (hoy E) y Clase C = sin protección.
+ 22
+ERGONOMÍA
+En función del tiempo y la frecuencia de exposición, ¿qué se denomina
+movimiento repetitivo?
+ A
+Todo movimiento que se repite al menos una vez por hora
+✗ Incorrecta. Es una frecuencia muy baja; no genera la sobrecarga que define al movimiento
+repetitivo.
+ B
+Solo los movimientos que producen dolor inmediato
+✗ Incorrecta. La definición se basa en la frecuencia y la duración, no en el dolor.
+ C
+Todo movimiento que se repite de forma similar en ciclos de menos de 30
+segundos, o más de 2 veces por minuto, durante más del 50% del ciclo o de la
+jornada
+✓ Correcta. Son movimientos reiterados en ciclos cortos que involucran músculos, huesos,
+articulaciones, tendones, ligamentos y nervios, especialmente de las extremidades superiores.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 13
+ 23
+RIESGO ELÉCTRICO
+¿Cuál de las siguientes NO es una energía peligrosa que deba controlarse con
+bloqueo y etiquetado (LOTO)?
+ A
+Energía potencial (cargas suspendidas, resortes)
+✗ Incorrecta. SÍ es peligrosa: puede liberarse al retirar un soporte o un seguro.
+ B
+La energía de la luz natural en el área de trabajo
+✓ Correcta. Las energías peligrosas a controlar son: eléctrica, fluidos a presión (hidráulica), aire a
+presión (neumática), cinética (partes en movimiento), potencial (gravedad, resortes), y líquidos y
+gases presurizados.
+ C
+Fluido o aire a presión
+✗ Incorrecta. SÍ es peligrosa: la presión residual puede proyectar partes o fluidos.
+ 24
+HIGIENE INDUSTRIAL – QUÍMICOS
+En un muestreo de exposición a químicos, ¿dónde debe tomarse la muestra?
+ A
+En el centro del área, a 2 m del suelo
+✗ Incorrecta. Es un muestreo ambiental de área, que no representa la exposición personal.
+ B
+En la zona respiratoria del trabajador, a unos 30 cm del rostro
+✓ Correcta. La muestra debe representar lo que el trabajador realmente inhala, por eso el captador
+se coloca en la solapa, dentro de un radio de unos 30 cm de nariz y boca.
+ C
+Junto a la fuente de emisión
+✗ Incorrecta. Sobrestima la exposición: mide la concentración en la fuente, no en la respiración del
+trabajador.
+ 25a
+IZAJE (ASME B30)
+¿Qué norma ASME trata de las eslingas (slings)?
+ A
+ASME B30.9
+✓ Correcta. La B30.9 cubre eslingas de cable, cadena, malla metálica y sintéticas: fabricación,
+inspección y retiro de servicio.
+ B
+ASME B30.10
+✗ Incorrecta. La B30.10 trata de ganchos.
+ C
+ASME B30.26
+✗ Incorrecta. La B30.26 trata de accesorios (grilletes, tensores, eslabones).
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 14
+ 25b
+IZAJE (ASME B30)
+¿Qué norma ASME trata de los ganchos (hooks)?
+ A
+ASME B30.9
+✗ Incorrecta. La B30.9 trata de eslingas.
+ B
+ASME B30.2
+✗ Incorrecta. La B30.2 trata de grúas puente y grúas pórtico.
+ C
+ASME B30.10
+✓ Correcta. La B30.10 establece la inspección y los criterios de descarte de ganchos (deformación,
+apertura de garganta, desgaste).
+ 25c
+IZAJE (ASME B30)
+¿Qué norma ASME trata de las grúas puente y grúas pórtico?
+ A
+ASME B30.2
+✓ Correcta. Lista de referencia: B30.2 grúas puente y pórtico; B30.5 grúas móviles y de oruga; B30.9
+eslingas; B30.10 ganchos; B30.12 carga suspendida desde helicópteros; B30.13 equipos de
+almacenamiento y recuperación (AS/RS); B30.14 tractores con pluma lateral (side boom); B30.16
+polipastos; B30.20 dispositivos debajo del gancho; B30.26 accesorios de izaje.
+ B
+ASME B30.14
+✗ Incorrecta. La B30.14 trata de tractores con pluma lateral (side boom).
+ C
+ASME B30.5
+✗ Incorrecta. La B30.5 trata de grúas móviles y de oruga.
+ 25d
+IZAJE (ASME B30)
+¿Qué norma ASME trata de los dispositivos de levantamiento debajo del gancho
+(below-the-hook)?
+ A
+ASME B30.20
+✓ Correcta. La B30.20 cubre balancines, separadores, pinzas, ventosas de vacío, imanes y otros
+dispositivos que se colocan bajo el gancho.
+ B
+ASME B30.12
+✗ Incorrecta. La B30.12 trata de cargas suspendidas desde helicópteros.
+ C
+ASME B30.16
+✗ Incorrecta. La B30.16 trata de polipastos.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 15
+ 25e
+IZAJE (ASME B30)
+¿Qué norma ASME trata de los accesorios de izaje (grilletes, tensores,
+eslabones)?
+ A
+ASME B30.9
+✗ Incorrecta. La B30.9 trata de eslingas, no de accesorios metálicos.
+ B
+ASME B30.26
+✓ Correcta. La B30.26 (rigging hardware) cubre grilletes, tensores, eslabones, cáncamos y otros
+accesorios.
+ C
+ASME B30.1
+✗ Incorrecta. La B30.1 trata de gatos (jacks), rodillos y pórticos hidráulicos.
+Nota: En tu documento la B30.1 figura como «cabrestantes (winches)». La B30.1 trata de gatos (jacks),
+rodillos y colchones de aire; los winches están en la B30.7. Verifica con tu material.
+ 26
+INCENDIOS Y EXTINTORES
+¿Cuál es el agente de los extintores marcados como tipo AB?
+ A
+CO2
+✗ Incorrecta. El CO2 se clasifica como BC: no es eficaz en fuego A porque no penetra ni enfría las
+brasas.
+ B
+Acetato de potasio
+✗ Incorrecta. Es el agente del extintor tipo K, para aceites de cocina.
+ C
+Espuma AFFF (espuma formadora de película acuosa)
+✓ Correcta. La espuma enfría (fuego A) y forma una película sobre el líquido que lo sofoca y evita la
+reignición (fuego B). No es apta para equipos energizados.
+ 27a
+TRABAJOS EN ALTURA
+¿Qué norma ANSI Z359 establece los requisitos de los arneses de cuerpo
+completo?
+ A
+ANSI Z359.4
+✗ Incorrecta. La Z359.4 trata de sistemas de rescate y evacuación.
+ B
+ANSI Z359.13
+✗ Incorrecta. La Z359.13 trata de eslingas (lanyards) y absorbedores de energía.
+ C
+ANSI Z359.11
+✓ Correcta. Familia Z359: .0 terminología; .1 requisitos generales del sistema anticaídas; .2 gestión
+del programa; .3 restricción y posicionamiento; .4 rescate y evacuación; .6 diseño de sistemas activos
+y anclajes; .11 arneses; .13 eslingas y absorbedores; .14 líneas de vida autorretráctiles (SRL).
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 16
+ 27b
+TRABAJOS EN ALTURA
+¿Qué norma ANSI Z359 cubre los dispositivos autorretráctiles (SRL)?
+ A
+ANSI Z359.14
+✓ Correcta. La Z359.14 clasifica los SRL (Clase 1 y Clase 2 para anclaje a nivel de pie o borde) y sus
+ensayos.
+ B
+ANSI Z359.11
+✗ Incorrecta. La Z359.11 trata de arneses.
+ C
+ANSI Z359.2
+✗ Incorrecta. La Z359.2 trata de la gestión del programa de protección contra caídas.
+ 27c
+TRABAJOS EN ALTURA
+¿Qué norma ANSI Z359 trata de la gestión del programa de protección contra
+caídas?
+ A
+ANSI Z359.2
+✓ Correcta. Establece cómo la empresa administra su programa: roles, capacitación, procedimientos,
+inspección y rescate.
+ B
+ANSI Z359.6
+✗ Incorrecta. La Z359.6 trata del diseño de sistemas activos y anclajes estructurales.
+ C
+ANSI Z359.0
+✗ Incorrecta. La Z359.0 contiene solo definiciones y terminología.
+ 27d
+IZAJE (ASME B30)
+¿Qué norma ASME trata de las grúas de pluma articulada (knuckle boom)?
+ A
+ASME B30.22
+✓ Correcta. Otras normas listadas en tu documento: B30.17 grúas y monorrieles con trolley
+suspendido; B30.18 grúas apiladoras; B30.19 teleféricos (cableways); B30.21 polipastos de palanca;
+B30.24 grúas para contenedores.
+ B
+ASME B30.18
+✗ Incorrecta. La B30.18 trata de grúas apiladoras (stacker cranes).
+ C
+ASME B30.24
+✗ Incorrecta. La B30.24 trata de grúas para contenedores.
+Nota: En tu documento estas normas ASME aparecían dentro de la ANSI Z359 y algunas descripciones no
+coinciden con la norma (B30.17, .18, .19, .21 y .23). Las de esta pregunta son las de la ASME vigente; verifica
+con tu material.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 17
+ 27e
+IZAJE (ASME B30)
+¿Qué norma ASME trata de las grúas para operaciones de transferencia de
+contenedores?
+ A
+ASME B30.22
+✗ Incorrecta. La B30.22 trata de grúas de pluma articulada.
+ B
+ASME B30.24
+✓ Correcta. La B30.24 cubre grúas de muelle y pórtico para contenedores en terminales portuarias.
+ C
+ASME B30.5
+✗ Incorrecta. La B30.5 trata de grúas móviles y de oruga.
+ 29
+IZAJE (ASME B30)
+¿Cuál es el factor de seguridad de los elementos de izaje (por ejemplo, eslingas
+de cable de acero)?
+ A
+1 a 1
+✗ Incorrecta. No deja ningún margen de seguridad: el elemento trabajaría en su límite de rotura.
+ B
+2 a 1
+✗ Incorrecta. Es un margen muy bajo: una carga dinámica o un desgaste normal podrían romper el
+elemento.
+ C
+5 a 1
+✓ Correcta. La carga de rotura del elemento debe ser al menos 5 veces su carga de trabajo (WLL).
+Cubre desgaste, cargas dinámicas e imprecisiones.
+ 30
+RIESGO ELÉCTRICO
+¿Desde qué voltaje se considera media tensión?
+ A
+Desde 69.000 V
+✗ Incorrecta. 69 kV ya corresponde a alta tensión (subtransmisión).
+ B
+Desde 110 V
+✗ Incorrecta. 110-220 V es baja tensión de uso doméstico.
+ C
+De 1.000 a 23.000 voltios
+✓ Correcta. Por debajo de 1.000 V es baja tensión; en el rango indicado, media tensión; por encima,
+alta tensión.
+Nota: El rango exacto de media tensión varía según la normativa del país o de la empresa eléctrica; se
+mantiene el valor de tu material.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 18
+ 31
+SEÑALIZACIÓN
+¿Cuál es la norma local que regula la señalización de seguridad en Ecuador?
+ A
+NFPA 704
+✗ Incorrecta. Es una norma estadounidense para el rombo de identificación de peligros, no la norma
+local de señalización.
+ B
+INEN ISO 3864
+✓ Correcta. Ecuador adoptó la ISO 3864 como norma INEN; define colores, formas y diseño de las
+señales de seguridad.
+ C
+INEN 2266
+✗ Incorrecta. La INEN 2266 trata del transporte, almacenamiento y manejo de productos químicos
+peligrosos.
+ 32
+INDICADORES DE ACCIDENTABILIDAD
+¿Cuál es la fórmula para calcular la Tasa de Riesgo (TR)?
+ A
+TR = número de días perdidos / número de lesiones (o TR = IG / IF)
+✓ Correcta. Indica el promedio de días perdidos por cada lesión. Como IG e IF usan la misma base de
+horas, su cociente da el mismo resultado.
+ B
+TR = IF × IG
+✗ Incorrecta. Multiplicar los índices no da días perdidos por lesión; no tiene sentido físico.
+ C
+TR = número de lesiones × 200.000 / horas trabajadas
+✗ Incorrecta. Esa es la fórmula del Índice de Frecuencia (IF).
+ 33
+ERGONOMÍA
+Según la ISO 11228-1, ¿qué factor tiene mayor impacto en el riesgo ergonómico
+al levantar una carga?
+ A
+La temperatura del ambiente
+✗ Incorrecta. Influye en el confort, pero no es un factor de la ecuación de levantamiento de la ISO
+11228-1.
+ B
+El color de la carga
+✗ Incorrecta. No tiene ningún efecto biomecánico.
+ C
+La distancia horizontal entre la carga y el cuerpo del trabajador
+✓ Correcta. Mientras más lejos está la carga del cuerpo, mayor es el momento de fuerza sobre la
+columna lumbar. Es el multiplicador que más reduce el peso recomendado.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 19
+ 34
+GESTIÓN DE RIESGOS
+¿Cuál es la diferencia entre causa y amenaza?
+ A
+La amenaza es el daño ocurrido y la causa es la probabilidad
+✗ Incorrecta. Confunde los conceptos: el daño es la consecuencia, y la probabilidad forma parte del
+riesgo.
+ B
+Son sinónimos
+✗ Incorrecta. No lo son: la causa ya produjo el evento; la amenaza es un potencial.
+ C
+La causa es el factor que origina directamente un incidente; la amenaza es una
+situación o agente que puede generar un evento peligroso
+✓ Correcta. Ejemplo de causa: un cable suelto provoca una caída. Ejemplo de amenaza: la actividad
+sísmica es una amenaza natural, aunque aún no haya causado daño.
+ 35
+RIESGO ELÉCTRICO
+¿Cuál es la distancia mínima entre los conductores de una línea aérea de 1 kV a
+69 kV y una masa fija (estructura, equipo)?
+ A
+3 m
+✓ Correcta. Tabla completa: hasta 1 kV: 1 m; de 1 a 69 kV: 3 m; más de 69 kV: 5 m. A mayor voltaje,
+mayor riesgo de arco y más distancia.
+ B
+1 m
+✗ Incorrecta. 1 m solo aplica a tensiones de hasta 1 kV.
+ C
+5 m
+✗ Incorrecta. 5 m aplica a tensiones de más de 69 kV.
+ 36
+INDICADORES DE ACCIDENTABILIDAD
+¿Qué organismos adoptaron ampliamente las fórmulas del Índice de Frecuencia
+y del Índice de Gravedad?
+ A
+NFPA
+✗ Incorrecta. La NFPA publica normas de protección contra incendios.
+ B
+NSC, OSHA y OIT
+✓ Correcta. Las fórmulas se establecieron para comparar de forma objetiva la frecuencia y la
+gravedad de los accidentes, normalizando los datos para empresas de distinto tamaño.
+ C
+ACGIH
+✗ Incorrecta. La ACGIH publica límites de exposición (TLV), no indicadores de accidentabilidad.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 20
+ 37a
+MATERIALES PELIGROSOS
+¿Cuál es el principal componente del gas natural?
+ A
+Sulfuro de hidrógeno (H2S)
+✗ Incorrecta. El H2S es un contaminante tóxico que puede acompañar al gas, no su componente
+principal.
+ B
+Metano (CH4)
+✓ Correcta. El gas natural es mayormente metano. También contiene etano (C2H6), propano (C3H8),
+butano (C4H10) y pentano (C5H12).
+ C
+Butano (C4H10)
+✗ Incorrecta. El butano es un componente menor; se usa en el GLP y en plásticos.
+ 37b
+MATERIALES PELIGROSOS
+¿Qué hidrocarburo del gas natural se usa principalmente en la producción de
+gasolina y como disolvente?
+ A
+Pentano (C5H12)
+✓ Correcta. El pentano es el más pesado de la lista; es líquido a temperatura ambiente y por eso se
+usa en gasolinas y como solvente.
+ B
+Etano (C2H6)
+✗ Incorrecta. El etano se usa como materia prima petroquímica (etileno).
+ C
+Metano (CH4)
+✗ Incorrecta. El metano se usa como combustible gaseoso.
+ 38
+ERGONOMÍA
+Para movimientos repetitivos de miembros superiores, ¿qué tiempo se considera
+pausa de recuperación?
+ A
+1 minuto por cada 4 horas
+✗ Incorrecta. Es insuficiente para recuperar los tejidos.
+ B
+10 minutos por cada 50-60 minutos de trabajo repetitivo
+✓ Correcta. El método OCRA considera adecuada una relación de 5:1 entre trabajo y recuperación (50
+min de trabajo y 10 min de pausa).
+ C
+30 minutos al final de la jornada
+✗ Incorrecta. La recuperación debe estar distribuida durante la jornada, no acumulada al final.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 21
+ 39
+RIESGO ELÉCTRICO
+¿Cuál es el objetivo principal de la NFPA 70E?
+ A
+Establecer prácticas de trabajo seguro para proteger a los trabajadores contra
+choques eléctricos y arco eléctrico
+✓ Correcta. La NFPA 70E trata de la seguridad eléctrica en el lugar de trabajo: análisis de riesgo,
+límites de aproximación, EPP para arco y trabajo en condición eléctricamente segura.
+ B
+Definir las normas de instalación de sistemas eléctricos en edificios
+✗ Incorrecta. Eso lo hace la NFPA 70 (Código Eléctrico Nacional), no la 70E.
+ C
+Establecer requisitos de protección de equipos eléctricos contra incendios
+✗ Incorrecta. La 70E protege a las PERSONAS, no a los equipos.
+ 40
+MAQUINARIA PESADA
+¿Cómo se llaman las estructuras que protegen al operador de maquinaria pesada
+en caso de vuelco?
+ A
+LOTO
+✗ Incorrecta. Es el bloqueo y etiquetado de energías, no una estructura de protección.
+ B
+ROPS (Rollover Protective Structures)
+✓ Correcta. La ROPS es una cabina o marco reforzado que mantiene el espacio de supervivencia si la
+máquina se vuelca. Siempre se usa con cinturón de seguridad.
+ C
+FOPS
+✗ Incorrecta. La FOPS (Falling Object Protective Structure) protege contra caída de objetos, no contra
+vuelco.
+ 41
+EXCAVACIONES
+¿A qué distancia del borde de una excavación debe ubicarse la maquinaria si
+existen vibraciones?
+ A
+Igual a la profundidad de la excavación
+✗ Incorrecta. No compensa el efecto adicional de las vibraciones.
+ B
+0,5 m del borde, sin importar la profundidad
+✗ Incorrecta. Es insuficiente: es la distancia mínima para materiales, no para maquinaria que vibra.
+ C
+1,5 veces la profundidad de la excavación
+✓ Correcta. Las vibraciones y el peso de la maquinaria aumentan la presión sobre las paredes;
+alejarla reduce el riesgo de derrumbe.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 22
+ 42
+ERGONOMÍA
+¿Qué caracteriza una «tarea repetitiva» en la evaluación de movimientos
+repetitivos de las extremidades superiores?
+ A
+Una tarea que exige levantar más de 25 kg
+✗ Incorrecta. Eso es manipulación de cargas, otro factor de riesgo.
+ B
+Una tarea en la que se repiten los mismos gestos durante más del 50% del tiempo
+de trabajo
+✓ Correcta. Es uno de los criterios del método OCRA: el ciclo es de menos de 30 s o se repiten los
+mismos gestos en más de la mitad del tiempo.
+ C
+Cualquier tarea de más de 8 horas
+✗ Incorrecta. La duración total no define la repetitividad, sino la repetición de los gestos.
+ 43
+LEGISLACIÓN ECUATORIANA
+Según la estructura del Reglamento de Higiene y Seguridad (RHS, versión 8),
+¿qué tema aborda el Capítulo V?
+ A
+Registro, investigación y notificación de accidentes
+✗ Incorrecta. Corresponde al Capítulo IV.
+ B
+Incumplimientos y sanciones
+✗ Incorrecta. Corresponde al Capítulo VI.
+ C
+Información, capacitación, certificación de competencias y entrenamiento en
+prevención de riesgos
+✓ Correcta. Estructura: Cap. I disposiciones reglamentarias; Cap. II gestión de prevención de riesgos;
+Cap. III programas de prevención; Cap. IV registro, investigación y notificación de accidentes y
+enfermedades; Cap. V información, capacitación y entrenamiento; Cap. VI incumplimientos y
+sanciones.
+ 44
+INCENDIOS Y EXTINTORES
+Según el Acuerdo Ministerial 196, ¿cuál es la altura máxima de instalación de los
+extintores portátiles que NO están dentro de un gabinete?
+ A
+2,00 metros
+✗ Incorrecta. Supera la altura máxima y dificulta el acceso.
+ B
+1,20 metros
+✗ Incorrecta. Es la altura de los pulsadores de emergencia, no de los extintores.
+ C
+1,50 metros
+✓ Correcta. El AM 196 fija 1,50 m como altura máxima, medida desde la base del extintor.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 23
+ 49
+INCENDIOS Y EXTINTORES
+Según el Acuerdo Ministerial 196, ¿desde qué punto se mide la altura de 1,50 m
+de un extintor portátil fuera de gabinete?
+ A
+Desde el centro del extintor
+✗ Incorrecta. El centro se usa como referencia para los pulsadores (1,2 m al centro), no para los
+extintores en el AM 196.
+ B
+Desde la parte superior de la manija
+✗ Incorrecta. La referencia a la parte superior es del Reglamento PICBQ (pregunta 2); el AM 196 mide
+desde la base.
+ C
+Desde la base del extintor
+✓ Correcta. El AM 196 indica «1,50 metros, contados desde la base del extintor».
+Nota: En tu documento las preguntas 44 y 49 eran iguales; se dividieron en dos aspectos (altura y punto de
+medición) para no repetirlas.
+ 45
+INCENDIOS Y EXTINTORES
+Según la legislación contra incendios de Ecuador, en una planta de envasado o
+trasvase de GLP, ¿cuál es la distancia máxima entre extintores?
+ A
+500 metros
+✗ Incorrecta. Es una distancia excesiva: no permitiría una respuesta rápida.
+ B
+10 metros
+✗ Incorrecta. Es demasiado corta; no corresponde al valor normativo.
+ C
+100 metros
+✓ Correcta. Es la distancia máxima que fija la normativa para estas plantas, según tu material de
+estudio.
+ 46
+SEÑALIZACIÓN
+¿Cuál es la norma más relevante para las señales y símbolos de emergencia?
+ A
+NFPA 10
+✗ Incorrecta. La NFPA 10 trata de los extintores portátiles.
+ B
+NFPA 170
+✓ Correcta. La NFPA 170 (Standard for Fire Safety and Emergency Symbols) define los símbolos para
+planos de emergencia, equipos contra incendio y evacuación.
+ C
+NFPA 72
+✗ Incorrecta. La NFPA 72 trata de los sistemas de detección y alarma.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 24
+ 47
+TRABAJOS EN CALIENTE
+Según la NFPA 51, ¿cuál es la distancia mínima de separación entre cilindros de
+oxígeno y acetileno almacenados?
+ A
+1 metro
+✗ Incorrecta. Es insuficiente para evitar que una fuga o un incendio afecte al otro cilindro.
+ B
+6 metros (20 pies)
+✓ Correcta. Se separan para que una fuga de acetileno no se combine con el oxígeno. Otra opción es
+una barrera no combustible de al menos 1,5 m de alto con resistencia al fuego de 30 min.
+ C
+Pueden almacenarse juntos si tienen el capuchón puesto
+✗ Incorrecta. El capuchón protege la válvula, pero no sustituye la separación entre oxidante y
+combustible.
+ 48
+PSICOSOCIAL
+¿Qué país tiene la batería de riesgo psicosocial con 19 dimensiones
+intralaborales agrupadas en 4 dominios?
+ A
+Ecuador
+✗ Incorrecta. El cuestionario ecuatoriano tiene otra estructura e incluye dimensiones como el acoso
+laboral, discriminatorio y sexual.
+ B
+Colombia
+✓ Correcta. La batería del Ministerio de Trabajo de Colombia agrupa las 19 dimensiones en 4
+dominios: liderazgo y relaciones sociales, control sobre el trabajo, demandas del trabajo y
+recompensas.
+ C
+España (FPSICO)
+✗ Incorrecta. El FPSICO del INSST español usa 9 factores, no 19 dimensiones.
+ 50
+PSICOSOCIAL
+Según la legislación ecuatoriana, ¿cuál es el objetivo principal de la intervención
+psicosocial de tipo «secundaria»?
+ A
+Dar tratamiento médico o psicológico a trabajadores ya afectados
+✗ Incorrecta. Eso es la intervención terciaria.
+ B
+Informar y capacitar a los trabajadores para darles herramientas con las que
+afrontar los factores de riesgo
+✓ Correcta. La primaria actúa sobre la organización (eliminar la causa); la secundaria fortalece a la
+persona (información y capacitación); la terciaria atiende a quien ya tiene daño.
+ C
+Rediseñar la organización del trabajo para eliminar el factor de riesgo
+✗ Incorrecta. Eso es la intervención primaria.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 25
+ 51
+ERGONOMÍA
+¿Cuál es el método más usado para cuantificar la fuerza que requiere el
+trabajador en la evaluación de movimientos repetitivos?
+ A
+El índice WBGT
+✗ Incorrecta. El WBGT evalúa el estrés térmico.
+ B
+El método LIPT
+✗ Incorrecta. El LIPT evalúa el acoso psicológico, no la fuerza.
+ C
+La escala CR-10 de Borg (esfuerzo percibido)
+✓ Correcta. El método OCRA usa la escala de Borg (0 a 10) para que el trabajador califique el
+esfuerzo que percibe en cada acción técnica.
+ 52
+LEGISLACIÓN ECUATORIANA
+¿Qué plazo inicial tiene un empleador para presentar los requerimientos de una
+inspección especializada in situ que no presentó en el momento?
+ A
+30 días
+✗ Incorrecta. Es un plazo mayor al que fija la normativa para la presentación inicial.
+ B
+48 horas
+✗ Incorrecta. Es un plazo menor al que establece la normativa.
+ C
+10 días
+✓ Correcta. Es el plazo inicial que otorga el inspector para que el empleador entregue la
+documentación faltante.
+ 53
+SALUD OCUPACIONAL
+¿Cuál de estas es una responsabilidad específica del médico a cargo de la
+gestión de salud en el trabajo o del SISAT?
+ A
+Sancionar a los trabajadores que no usan EPP
+✗ Incorrecta. La potestad disciplinaria es del empleador, no del servicio médico.
+ B
+Aprobar el presupuesto anual de la empresa
+✗ Incorrecta. Es una función administrativa de la gerencia.
+ C
+Asesorar al empleador sobre la distribución del personal según su aptitud
+✓ Correcta. El médico ocupacional evalúa la aptitud y recomienda ubicar a cada trabajador en un
+puesto compatible con su estado de salud.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 26
+ 54
+SEÑALIZACIÓN
+¿Cuál de estas normas NO se relaciona con señalización: ISO 3864-1, ISO 3864-4,
+ISO 7010, ANSI Z535, NFPA 170, OSHA 1910.145?
+ A
+Todas se relacionan con señalización
+✓ Correcta. ISO 3864-1/-4: diseño y colorimetría de señales; ISO 7010: símbolos gráficos; ANSI Z535:
+señales y etiquetas de seguridad; NFPA 170: símbolos de emergencia; OSHA 1910.145: señales y
+etiquetas de prevención de accidentes.
+ B
+OSHA 1910.145
+✗ Incorrecta. SÍ se relaciona: especifica las señales y etiquetas de prevención de accidentes.
+ C
+NFPA 170
+✗ Incorrecta. SÍ se relaciona: define los símbolos de seguridad contra incendios y emergencias.
+ 55
+ERGONOMÍA
+La columna vertebral tiene curvas naturales. ¿Cómo es la curvatura cervical?
+ A
+Convexa hacia adelante (lordosis)
+✓ Correcta. Columna: cervical lordosis, dorsal cifosis, lumbar lordosis y sacra cifosis. Estas curvas
+distribuyen el peso y absorben impactos.
+ B
+Convexa hacia atrás (cifosis)
+✗ Incorrecta. La cifosis es la curvatura de la zona dorsal (torácica).
+ C
+Recta, sin curvatura
+✗ Incorrecta. Una columna cervical recta (rectificación) es una alteración, no la condición normal.
+ 56
+TRABAJOS EN ALTURA
+Una escalera de fibra de vidrio de uso extra pesado se clasifica como:
+ A
+Tipo IAA – 375 libras
+✓ Correcta. Clasificación ANSI de escaleras portátiles: IAA 375 lb (servicio especial extra pesado); IA
+300 lb; I 250 lb; II 225 lb; III 200 lb.
+ B
+Tipo I – 250 libras
+✗ Incorrecta. El Tipo I es de servicio pesado (industrial), no extra pesado.
+ C
+Tipo III – 200 libras
+✗ Incorrecta. El Tipo III es de servicio liviano (doméstico).
+Nota: Tu documento cita la ANSI A14.3. Esa norma trata de escaleras fijas; las escaleras portátiles de fibra se
+rigen por la ANSI A14.5.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 27
+ 57
+PSICOSOCIAL
+¿A qué metodología corresponde considerar como dimensiones psicosociales el
+acoso laboral, el acoso discriminatorio y el acoso sexual?
+ A
+Al cuestionario ecuatoriano de evaluación de riesgo psicosocial
+✓ Correcta. El cuestionario del Ministerio del Trabajo de Ecuador incluye estas dimensiones de
+«cuestionada interpretación» en sus resultados.
+ B
+A la batería colombiana
+✗ Incorrecta. La batería colombiana tiene 19 dimensiones en 4 dominios y no incluye estas
+dimensiones de la misma forma.
+ C
+Al método LIPT
+✗ Incorrecta. El LIPT solo mide el acoso psicológico (mobbing), no el conjunto de dimensiones
+psicosociales.
+ 58
+DETECCIÓN Y ALARMAS
+Según la NFPA 72, ¿a qué distancia mínima deben ubicarse los detectores de
+humo de paredes o esquinas y de rejillas de aire?
+ A
+3 m de paredes y 5 m de rejillas
+✗ Incorrecta. Son distancias excesivas que reducen la cobertura sin necesidad.
+ B
+10 cm de paredes o esquinas y 0,9 m de rejillas de aire
+✓ Correcta. En las esquinas se forman «bolsas de aire muerto» donde el humo no llega, y las rejillas
+desvían el humo lejos del detector.
+ C
+1 cm de las paredes y pegado a la rejilla
+✗ Incorrecta. El detector quedaría en la zona de aire muerto y el flujo de la rejilla alejaría el humo.
+ 59
+EXCAVACIONES
+Si una zanja tiene más de 1,22 m de profundidad, se deben tomar medidas para
+evitar colapsos y asegurar la salida. ¿A qué norma corresponde?
+ A
+OSHA 29 CFR 1926.651 (Subparte P – Excavaciones)
+✓ Correcta. La Subparte P de OSHA trata de las excavaciones. A partir de 4 pies (1,22 m) se exige un
+medio de salida (escalera) cada 7,6 m y la evaluación de atmósferas y sistemas de protección.
+ B
+NFPA 51
+✗ Incorrecta. La NFPA 51 trata de los sistemas de gas para soldadura y corte.
+ C
+OSHA 1910.145
+✗ Incorrecta. La 1910.145 trata de señales y etiquetas.
+Nota: Los sistemas de protección contra derrumbe (taludes, entibado) están en la 1926.652. Tu material cita
+la 1926.651; se mantiene.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 28
+ 60
+INCENDIOS Y EXTINTORES
+¿Cuál es la norma de instalación de bombas estacionarias para protección contra
+incendios?
+ A
+NFPA 25
+✗ Incorrecta. La NFPA 25 trata de la inspección, prueba y mantenimiento de sistemas a base de
+agua.
+ B
+NFPA 20
+✓ Correcta. La NFPA 20 establece los requisitos de instalación, motores, controladores y pruebas de
+las bombas contra incendios.
+ C
+NFPA 13
+✗ Incorrecta. La NFPA 13 trata de la instalación de rociadores automáticos (sprinklers).
+ 61
+ERGONOMÍA
+¿Cuál es la metodología actual para evaluar posturas forzadas dinámicas?
+ A
+UNE-EN 1005-2
+✗ Incorrecta. La 1005-2 trata de la manipulación manual de objetos (cargas).
+ B
+ISO 11228-1
+✗ Incorrecta. La ISO 11228-1 trata del levantamiento y transporte de cargas.
+ C
+UNE-EN 1005-4
+✓ Correcta. La UNE-EN 1005-4 evalúa posturas y movimientos durante el trabajo con máquinas,
+considerando ángulos y frecuencia.
+ 62
+SEÑALIZACIÓN
+¿Cuál es la norma de símbolos de emergencia?
+ A
+NFPA 170
+✓ Correcta. Repaso de la pregunta 46: la NFPA 170 es la norma de símbolos de seguridad contra
+incendios y emergencias.
+ B
+NFPA 101
+✗ Incorrecta. La NFPA 101 es el Código de Seguridad Humana (medios de egreso).
+ C
+NFPA 704
+✗ Incorrecta. La NFPA 704 define el rombo de peligros de materiales, no los símbolos de emergencia
+en general.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 29
+ 62b
+SALUD OCUPACIONAL
+¿Cómo se llama la intoxicación por plomo causada por la exposición laboral?
+ A
+Silicosis
+✗ Incorrecta. La silicosis es causada por el polvo de sílice.
+ B
+Saturnismo profesional
+✓ Correcta. El plomo se acumula en el organismo y daña la sangre, los riñones y el sistema nervioso.
+Es frecuente en fundiciones, baterías y pinturas.
+ C
+Asbestosis
+✗ Incorrecta. La asbestosis es causada por las fibras de asbesto.
+ 63
+GESTIÓN DE RIESGOS
+¿Cuál es el orden correcto de la jerarquía de controles?
+ A
+Eliminación, sustitución, controles de ingeniería, controles administrativos, EPP
+✓ Correcta. Se va de lo más eficaz (quitar el peligro) a lo menos eficaz (proteger a la persona). El EPP
+es la última barrera.
+ B
+Sustitución, eliminación, EPP, ingeniería, administrativos
+✗ Incorrecta. El orden está alterado: la eliminación va primero y el EPP al final.
+ C
+EPP, controles administrativos, ingeniería, sustitución, eliminación
+✗ Incorrecta. Es el orden invertido: empezar por el EPP deja el peligro intacto.
+ 64
+EMERGENCIAS
+En una actividad económica de riesgo medio, ¿qué medida de preparación ante
+emergencias se exige al empleador?
+ A
+Solo comprar extintores
+✗ Incorrecta. Los extintores son un recurso, pero no reemplazan el plan ni los simulacros.
+ B
+Hacer simulacros cada 5 años
+✗ Incorrecta. La frecuencia mínima es anual.
+ C
+Elaborar planes de emergencia y contingencia y hacer simulacros al menos una
+vez al año
+✓ Correcta. La normativa exige planificar y practicar: el plan sin simulacro no comprueba la respuesta
+real.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 30
+ 65
+SALUD OCUPACIONAL
+¿Qué describe mejor la función principal del servicio médico de empresa?
+ A
+Enfocarse en la prevención de riesgos, la promoción de la salud y la adaptación
+del trabajador al puesto
+✓ Correcta. El servicio médico es esencialmente preventivo: vigilancia de la salud, aptitud y
+promoción.
+ B
+Emitir certificados de reposo a pedido del trabajador
+✗ Incorrecta. Es una actividad administrativa, no su función principal.
+ C
+Atender solo emergencias y enfermedades comunes
+✗ Incorrecta. Reduce el servicio a lo asistencial y deja de lado su enfoque preventivo.
+ 66
+LEGISLACIÓN ECUATORIANA
+En Ecuador, ¿cómo está clasificada la norma INEN 2266?
+ A
+Obligatoria en todos los casos
+✗ Incorrecta. Su carácter es voluntario; se vuelve obligatoria solo si un reglamento la incorpora.
+ B
+Voluntaria
+✓ Correcta. Según tu material, la NTE INEN 2266 (transporte, almacenamiento y manejo de productos
+químicos peligrosos) tiene carácter voluntario, aunque puede volverse exigible cuando otra regulación
+la cita.
+ C
+Derogada
+✗ Incorrecta. La norma está vigente.
+ 67
+PSICOSOCIAL
+¿Qué método permite analizar el acoso psicológico (mobbing)?
+ A
+MESERI
+✗ Incorrecta. El MESERI evalúa el riesgo de incendio.
+ B
+LIPT (Leymann Inventory of Psychological Terror)
+✓ Correcta. Lo creó Heinz Leymann y evalúa 45 conductas de acoso con su frecuencia y duración.
+ C
+OCRA
+✗ Incorrecta. El OCRA evalúa movimientos repetitivos.
+Nota: En tu documento la sigla LIPT aparecía como «lugar, intensidad, frecuencia, tiempo». En realidad
+significa Leymann Inventory of Psychological Terror(ization).
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 31
+ 81
+PSICOSOCIAL
+¿Quién es el autor del método LIPT para analizar el acoso psicológico?
+ A
+Gunnar Borg
+✗ Incorrecta. Borg creó la escala de esfuerzo percibido (CR-10).
+ B
+Heinz Leymann
+✓ Correcta. La L de LIPT viene de su apellido. Leymann describió el mobbing en el trabajo en los años
+80.
+ C
+William Fine
+✗ Incorrecta. Fine creó el método de grado de peligrosidad y repercusión.
+Nota: En tu documento las preguntas 67 y 81 eran iguales; se dividieron para no repetirlas.
+ 68
+SEÑALIZACIÓN
+Las normas INEN ISO 9095 e INEN ISO 14726 reemplazan a:
+ A
+La INEN 2266 (productos químicos peligrosos)
+✗ Incorrecta. La INEN 2266 sigue vigente y trata otro tema.
+ B
+La INEN 440 (colores de identificación de tuberías)
+✓ Correcta. La INEN 440 definía los colores de tuberías; hoy se usan las normas ISO adoptadas por el
+INEN.
+ C
+La INEN 439 (colores y señales de seguridad)
+✗ Incorrecta. La INEN 439 fue reemplazada por la INEN ISO 3864.
+ 80
+SEÑALIZACIÓN
+¿Qué tema regulaba la norma INEN 440, hoy reemplazada por la INEN ISO 9095 y
+la INEN ISO 14726?
+ A
+Los colores de identificación de tuberías
+✓ Correcta. Las nuevas normas definen los colores y marcas para identificar el contenido de tuberías
+(por ejemplo, en buques e instalaciones).
+ B
+La clasificación de extintores
+✗ Incorrecta. Los extintores se rigen por la NFPA 10 y los reglamentos de incendio.
+ C
+Las señales de evacuación
+✗ Incorrecta. Las señales de evacuación se rigen por la INEN ISO 3864 y la ISO 7010.
+Nota: En tu documento las preguntas 68 y 80 eran iguales; se dividieron para no repetirlas.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 32
+ 69
+INDICADORES DE ACCIDENTABILIDAD
+Si en un año se reportan 100 casos nuevos de trastornos musculoesqueléticos
+en una población de 10.000 personas (10 casos por cada 1.000 personas al año),
+esto es:
+ A
+Tasa de riesgo
+✗ Incorrecta. La tasa de riesgo mide días perdidos por lesión.
+ B
+Incidencia
+✓ Correcta. La incidencia mide los casos NUEVOS en un período, en relación con la población
+expuesta.
+ C
+Prevalencia
+✗ Incorrecta. La prevalencia cuenta TODOS los casos existentes (nuevos y antiguos) en un momento
+dado.
+ 79
+INDICADORES DE ACCIDENTABILIDAD
+¿Qué diferencia a la incidencia de la prevalencia?
+ A
+La prevalencia solo cuenta los casos nuevos
+✗ Incorrecta. Invierte los conceptos.
+ B
+La incidencia cuenta solo los casos nuevos en un período; la prevalencia cuenta
+todos los casos existentes
+✓ Correcta. Ejemplo: 100 casos nuevos en 10.000 personas en un año = incidencia de 10 por 1.000.
+Si además había 300 casos antiguos, la prevalencia incluye los 400.
+ C
+Son sinónimos
+✗ Incorrecta. No lo son: miden cosas distintas.
+Nota: En tu documento las preguntas 69 y 79 eran iguales; se dividieron para no repetirlas.
+ 70
+LEGISLACIÓN ECUATORIANA
+Elaborar, socializar y entregar a cada trabajador un ejemplar del Reglamento de
+Higiene y Seguridad o del Plan de Prevención de Riesgos aprobado por el
+Ministerio del Trabajo, dejando constancia de la entrega, está establecido en:
+ A
+La NFPA 101
+✗ Incorrecta. Es una norma estadounidense de seguridad humana, no legislación laboral ecuatoriana.
+ B
+El Acuerdo Ministerial 1404-1978
+✗ Incorrecta. El AM 1404 trata de los servicios médicos de empresa.
+ C
+El Acuerdo Ministerial 196-2024
+✓ Correcta. Es una obligación del empleador establecida en el AM 196-2024.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 33
+ 78
+LEGISLACIÓN ECUATORIANA
+Según el AM 196-2024, ¿qué debe hacer el empleador con el Reglamento de
+Higiene y Seguridad aprobado?
+ A
+Publicarlo solo en la cartelera
+✗ Incorrecta. La cartelera no deja constancia individual de entrega.
+ B
+Elaborarlo, socializarlo y entregar un ejemplar a cada trabajador, dejando
+constancia de la entrega
+✓ Correcta. No basta con tenerlo aprobado: cada trabajador debe recibirlo y debe quedar evidencia
+de la entrega.
+ C
+Archivarlo en la oficina de RR. HH.
+✗ Incorrecta. Archivarlo no cumple la obligación de socializarlo y entregarlo.
+Nota: En tu documento las preguntas 70 y 78 eran iguales; se dividieron para no repetirlas.
+ 71
+LEGISLACIÓN ECUATORIANA
+¿Qué acuerdo ministerial del Ministerio del Trabajo todavía no ha sido derogado?
+ A
+AM 1404-1978
+✓ Correcta. El AM 1404 (Reglamento para el funcionamiento de los servicios médicos de empresa)
+sigue vigente.
+ B
+AM 196-2024
+✗ Incorrecta. El AM 196-2024 es reciente y vigente, pero la pregunta apunta al acuerdo antiguo que
+se mantiene: el 1404.
+ C
+Decreto Ejecutivo 2393
+✗ Incorrecta. El Decreto 2393 fue reemplazado por el nuevo reglamento (Decreto 255), según tu
+material.
+ 77
+SALUD OCUPACIONAL
+¿Qué regula el Acuerdo Ministerial 1404-1978, que sigue vigente?
+ A
+El transporte de materiales peligrosos
+✗ Incorrecta. El transporte se rige por la INEN 2266.
+ B
+El funcionamiento de los servicios médicos de empresa
+✓ Correcta. Define las funciones del médico de empresa: prevención, vigilancia de la salud, primeros
+auxilios y educación sanitaria.
+ C
+La señalización de seguridad
+✗ Incorrecta. La señalización se rige por la INEN ISO 3864.
+Nota: En tu documento las preguntas 71 y 77 eran iguales; se dividieron para no repetirlas.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 34
+ 72
+EMERGENCIAS
+¿Cuál de las siguientes afirmaciones sobre requisitos de seguridad en los
+lugares de trabajo es INCORRECTA, según tu material?
+ A
+Las escaleras de caracol, de madera, ascensores y escaleras de mano no son vías
+de evacuación
+✓ Correcta. Se mantiene la respuesta indicada en tu material.
+ B
+Las vías de evacuación deben estar señalizadas e iluminadas
+✗ Incorrecta. Es una afirmación CORRECTA: es un requisito básico de las rutas de evacuación.
+ C
+Las salidas de emergencia deben abrir en el sentido de la evacuación
+✗ Incorrecta. Es una afirmación CORRECTA: evita bloqueos por aglomeración.
+Nota: Revisa esta pregunta con tu fuente: la afirmación marcada como incorrecta coincide con criterios
+usuales de las normas de evacuación.
+ 74
+ERGONOMÍA
+En Ecuador, sobre los riesgos ergonómicos biomecánicos en la manipulación de
+cargas, ¿qué elemento queda explícitamente excluido como medida de
+protección?
+ A
+Los soportes o fajas lumbares
+✓ Correcta. Las fajas no reducen la carga sobre la columna y pueden dar una falsa sensación de
+seguridad. Por eso no se aceptan como medida de protección.
+ B
+La capacitación en técnicas de levantamiento
+✗ Incorrecta. SÍ es una medida válida: es un control administrativo.
+ C
+Las ayudas mecánicas (carretillas, polipastos)
+✗ Incorrecta. SÍ son medidas válidas: son controles de ingeniería.
+ 75
+SEÑALIZACIÓN
+¿A qué es aplicable el criterio S ≥ L²/2000?
+ A
+Al cálculo de la carga de viento de un poste
+✗ Incorrecta. La fórmula relaciona el área visible de la señal con la distancia de lectura, no con
+esfuerzos estructurales.
+ B
+Al tamaño mínimo de una señal de seguridad según su distancia de observación
+✓ Correcta. S es la superficie de la señal en m² y L la distancia máxima desde la que debe verse en
+metros (válido hasta unos 50 m). Ejemplo: a 20 m, S ≥ 400/2000 = 0,2 m².
+ C
+Al nivel de iluminación de una ruta de evacuación
+✗ Incorrecta. La iluminación se mide en lux; esta fórmula da superficie en m².
+Nota: En tu documento aparece L²/200 y se explica como diseño estructural de postes. El criterio conocido es
+S ≥ L²/2000 para el tamaño de la señal. Si en el examen aparece la opción «señalización vertical», es la que se
+refiere a este criterio.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 35
+ 76
+LEGISLACIÓN ECUATORIANA
+¿Cómo se conforman los organismos paritarios de seguridad y salud?
+ A
+Comité paritario en todo centro desde 1 trabajador
+✗ Incorrecta. Las empresas pequeñas no están obligadas a conformar un comité.
+ B
+Comité paritario en centros con 50 o más trabajadores; delegado en centros de 10
+a 49 trabajadores
+✓ Correcta. El organismo depende del tamaño del centro de trabajo, según tu material.
+ C
+Solo un delegado, sin importar el número de trabajadores
+✗ Incorrecta. Desde 50 trabajadores se exige un comité paritario.
+ 82
+GESTIÓN DE RIESGOS
+Grado de repercusión, grado de peligrosidad y factor de ponderación (% de
+expuestos), ¿a qué metodología corresponden?
+ A
+William Fine
+✓ Correcta. El método William Fine calcula el Grado de Peligrosidad (consecuencia × exposición ×
+probabilidad) y luego el Grado de Repercusión con un factor de ponderación según el % de
+trabajadores expuestos.
+ B
+GTC 45
+✗ Incorrecta. La guía colombiana GTC 45 usa nivel de deficiencia, exposición, probabilidad y
+consecuencia, no el grado de repercusión.
+ C
+HAZOP
+✗ Incorrecta. El HAZOP analiza desviaciones de proceso con palabras guía (más, menos, no).
+Nota: Tu documento traía opciones sin marcar la correcta; se respondió con la metodología a la que
+pertenecen esos términos.
+ 83
+SEÑALIZACIÓN
+Según la INEN ISO 3864-1, ¿cómo es la señal de información complementaria?
+ A
+No existe información complementaria
+✗ Incorrecta. Sí existe: la ISO 3864-1 la define.
+ B
+Un rectángulo blanco o del color de la señal de seguridad
+✓ Correcta. La señal complementaria va debajo o al lado de la principal, con texto o símbolo; su
+fondo es blanco o del mismo color de la señal que acompaña.
+ C
+Un rectángulo azul sin información
+✗ Incorrecta. Una señal complementaria sin información no tiene función; el azul es el color de
+obligación.
+Nota: Tu documento traía opciones sin marcar la correcta; se marcó la que define la norma.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 36
+ 84
+DETECCIÓN Y ALARMAS
+¿Cuál de estos es un tipo de detector de HUMO?
+ A
+Fotoeléctrico
+✓ Correcta. Los detectores de humo pueden ser fotoeléctricos (óptico), iónicos o de doble tecnología.
+Los UV/infrarrojos detectan llama y los térmicos detectan calor.
+ B
+Térmico
+✗ Incorrecta. El térmico detecta temperatura, no humo.
+ C
+UV/infrarrojo
+✗ Incorrecta. Detecta la radiación de la llama, no el humo.
+ 85
+INCENDIOS Y EXTINTORES
+¿Cómo actúa el método de extinción por inhibición química?
+ A
+Interrumpe la reacción en cadena de la combustión, impidiendo que los radicales
+libres sigan formando nuevas moléculas
+✓ Correcta. Actúa sobre el cuarto lado del tetraedro del fuego (reacción en cadena). Apaga sin
+necesidad de enfriar ni sofocar; así actúan, por ejemplo, el polvo químico seco y los agentes limpios.
+ B
+Baja la temperatura del combustible
+✗ Incorrecta. Eso es el enfriamiento.
+ C
+Retira el oxígeno del fuego
+✗ Incorrecta. Eso es la sofocación.
+ 86
+LEGISLACIÓN ECUATORIANA
+¿Qué ente regula las políticas de seguridad y salud en el trabajo en Ecuador?
+ A
+El Ministerio del Trabajo
+✓ Correcta. Es el ente rector de las políticas de SST: aprueba reglamentos, registra organismos
+paritarios e inspecciona.
+ B
+El Ministerio de Salud
+✗ Incorrecta. Rige la salud pública en general, no las políticas laborales de SST.
+ C
+Solo el IESS
+✗ Incorrecta. El IESS administra el Seguro General de Riesgos del Trabajo, pero no es el ente rector
+de las políticas.
+Nota: Tu documento traía opciones sin marcar la correcta. Una de ellas era «MT, IESS y Ministerio de Salud»:
+los tres intervienen, pero el rector es el Ministerio del Trabajo. Verifica cómo lo pide tu examen.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 37
+ 87
+RIESGO ELÉCTRICO
+¿Qué es un contacto eléctrico indirecto?
+ A
+El contacto con una parte energizada (cable desnudo, borne)
+✗ Incorrecta. Eso es un contacto DIRECTO.
+ B
+El contacto con una masa (carcasa, estructura) que quedó energizada por una
+falla
+✓ Correcta. En el contacto directo se toca una parte activa que normalmente tiene tensión. En el
+indirecto, la parte que normalmente no tiene tensión se energiza por una falla de aislamiento.
+ C
+El contacto con 0,3 V a 5 V
+✗ Incorrecta. Un contacto no se clasifica por voltaje sino por cómo ocurre.
+Nota: Tu documento traía opciones sin marcar la correcta; se marcó la definición técnica.
+ 88
+INDICADORES DE ACCIDENTABILIDAD
+¿Cuál es el estándar de horas-hombre para el reporte de accidentabilidad (IF, IG)
+según la normativa usada en Ecuador?
+ A
+10.000 horas-hombre
+✗ Incorrecta. No corresponde a ningún estándar de reporte.
+ B
+200.000 horas-hombre
+✓ Correcta. 200.000 = 100 trabajadores × 40 horas semanales × 50 semanas. Es la base que usan
+OSHA y el IESS en las fórmulas de IF e IG.
+ C
+1.000.000 horas-hombre
+✗ Incorrecta. Es la base que usan otros países y la OIT en algunas estadísticas, no la del reporte que
+se pide aquí.
+Nota: Tu documento traía 200.000 y 1.000.000 sin marcar la correcta.
+ 89a
+ERGONOMÍA
+¿Qué método ergonómico evalúa los movimientos repetitivos?
+ A
+OWAS
+✗ Incorrecta. OWAS evalúa posturas generales y carga.
+ B
+REBA
+✗ Incorrecta. REBA evalúa posturas de todo el cuerpo.
+ C
+OCRA
+✓ Correcta. Métodos: OCRA – movimientos repetitivos; RULA – posturas de miembros superiores;
+REBA – carga postural estática y dinámica de todo el cuerpo; OWAS – carga postural (con manipulación
+de carga); LUBA – confort postural de cuello, espalda y hombros.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Repaso
+Página 38
+ 89b
+ERGONOMÍA
+¿Qué método evalúa principalmente las posturas de los miembros superiores?
+ A
+RULA (Rapid Upper Limb Assessment)
+✓ Correcta. Su nombre lo dice: «upper limb» significa miembros superiores (brazo, antebrazo,
+muñeca, cuello y tronco).
+ B
+LUBA
+✗ Incorrecta. LUBA evalúa el confort postural de cuello, espalda y hombros.
+ C
+OCRA
+✗ Incorrecta. OCRA evalúa la repetitividad, no la postura en sí.
+ 89c
+ERGONOMÍA
+¿Qué método evalúa la carga postural estática y dinámica de todo el cuerpo?
+ A
+RULA
+✗ Incorrecta. RULA se enfoca en los miembros superiores.
+ B
+REBA (Rapid Entire Body Assessment)
+✓ Correcta. «Entire body» significa cuerpo entero; incluye las piernas y el tipo de agarre.
+ C
+OCRA
+✗ Incorrecta. OCRA evalúa movimientos repetitivos.
+ 90
+HIGIENE INDUSTRIAL – RUIDO
+¿A qué factor corresponde el valor 2 × 10-5 Pa?
+ A
+Ruido: es la presión acústica de referencia (umbral de audición, 0 dB)
+✓ Correcta. Es la presión sonora más baja que percibe el oído humano. Todos los niveles en dB se
+calculan en relación con ese valor.
+ B
+Presión atmosférica normal
+✗ Incorrecta. La presión atmosférica es de unos 101.325 Pa, mucho mayor.
+ C
+Iluminación
+✗ Incorrecta. La iluminación se mide en lux, no en pascales.
+Nota: Tu documento traía las opciones Iluminación / Ruido / Presión acústica sin marcar la correcta. Ruido y
+presión acústica se refieren a lo mismo.

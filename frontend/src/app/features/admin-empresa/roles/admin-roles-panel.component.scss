@@ -1,23 +1,5 @@
 @import '../usuarios/admin-usuarios-list.component.scss';
 
-.link-top {
-  color: #6ee7b7;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.intro {
-  color: #94a3b8;
-  font-size: 0.9rem;
-  line-height: 1.55;
-  margin-bottom: 1.5rem;
-  max-width: 48rem;
-}
-
 .roles-grid {
   display: grid;
   gap: 1rem;
@@ -25,14 +7,14 @@
 }
 
 .role-card {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #fff;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 1.2rem;
 
   h3 {
     margin: 0 0 0.35rem;
-    color: #f1f5f9;
+    color: #0f172a;
     font-size: 1rem;
   }
   .code {
@@ -44,26 +26,12 @@
   ul {
     margin: 0;
     padding-left: 1.1rem;
-    color: #94a3b8;
+    color: #475569;
     font-size: 0.85rem;
     line-height: 1.5;
   }
 
-  &.ae {
-    border-top: 3px solid #059669;
-  }
-  &.us {
-    border-top: 3px solid #0284c7;
-  }
-  &.sa {
-    border-top: 3px solid #6366f1;
-  }
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  &.ae { border-top: 3px solid #059669; }
+  &.us { border-top: 3px solid #0284c7; }
+  &.sa { border-top: 3px solid #6366f1; }
 }

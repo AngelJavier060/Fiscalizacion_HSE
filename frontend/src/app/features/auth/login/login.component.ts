@@ -22,9 +22,6 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
-  /** true si el usuario entró desde «Acceder» en la landing (siempre mostrar formulario). */
-  desdeLanding = false;
-  sesionActiva = false;
 
   constructor(
     private fb: FormBuilder,
@@ -37,24 +34,10 @@ export class LoginComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
 
-    this.desdeLanding = this.route.snapshot.queryParamMap.get('from') === 'landing';
-    this.sesionActiva = this.authService.isAuthenticated();
-
-    // Solo saltar al panel si ya hay sesión y NO vino desde la landing
-    if (this.sesionActiva && !this.desdeLanding) {
+    const desdeLanding = this.route.snapshot.queryParamMap.get('from') === 'landing';
+    if (this.authService.isAuthenticated() && !desdeLanding) {
       this.redirigirSegunRol();
     }
-  }
-
-  continuarAlSistema(): void {
-    this.redirigirSegunRol();
-  }
-
-  cerrarSesionYQuedarse(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    this.sesionActiva = false;
-    this.router.navigate(['/auth/login'], { queryParams: { from: 'landing' } });
   }
 
   onSubmit(): void {

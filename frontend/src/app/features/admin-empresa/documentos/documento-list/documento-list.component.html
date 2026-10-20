@@ -1,56 +1,11 @@
-<div class="docs-page">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <h1 class="brand-title">
-        <span class="mat-icon brand-icon">security</span>
-        Fiscalización HSE
-      </h1>
-      <p class="brand-sub">{{ esRutaSuperAdmin ? 'Panel de Gestión' : 'Mi Empresa' }}</p>
-    </div>
+<div class="dashboard-container docs-layout">
+  @if (esRutaSuperAdmin) {
+    <app-super-admin-sidebar />
+  } @else {
+    <app-admin-empresa-sidebar />
+  }
 
-    <nav class="sidebar-nav">
-      <a [routerLink]="nav.sidebarInicio" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: esRutaSuperAdmin }" class="nav-link">
-        <span class="mat-icon">business</span>
-        <span>{{ esRutaSuperAdmin ? 'Empresas' : 'Dashboard' }}</span>
-      </a>
-      <a [routerLink]="nav.documentos" routerLinkActive="active" class="nav-link">
-        <span class="mat-icon">description</span>
-        <span>Documentos</span>
-      </a>
-      <a [routerLink]="nav.analizarReporte" routerLinkActive="active" class="nav-link">
-        <span class="mat-icon">analytics</span>
-        <span>Analizar reporte</span>
-      </a>
-      @if (esRutaSuperAdmin) {
-        <a [routerLink]="nav.ia" routerLinkActive="active" class="nav-link">
-          <span class="mat-icon">psychology</span>
-          <span>IA</span>
-        </a>
-      } @else {
-        <a routerLink="/admin-empresa/recordatorios" routerLinkActive="active" class="nav-link">
-          <span class="mat-icon">notifications</span>
-          <span>Recordatorios</span>
-        </a>
-        <a [routerLink]="nav.ia" routerLinkActive="active" class="nav-link">
-          <span class="mat-icon">psychology</span>
-          <span>FISCALIZA-AI</span>
-        </a>
-      }
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="user-block">
-        <div class="user-avatar">{{ inicialesUsuario }}</div>
-        <div class="user-meta">
-          <span class="user-name">{{ user?.nombre || 'Administrador' }}</span>
-          <span class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</span>
-        </div>
-      </div>
-      <button type="button" class="btn-logout" (click)="logout()">Cerrar Sesión</button>
-    </div>
-  </aside>
-
+  <div class="docs-page">
   <!-- Top bar -->
   <header class="top-app-bar">
     <span class="topbar-title">Gestión Documental HSE</span>
@@ -280,4 +235,5 @@
       </div>
     </div>
   }
+  </div>
 </div>

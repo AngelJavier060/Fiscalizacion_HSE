@@ -16,6 +16,9 @@ public class SsoPreguntaAdminResponse {
     private String explicacion;
     private String fuente;
     private String imagen;
+    private String sustentoNombre;
+    private String sustentoTipo;
+    private boolean tieneSustento;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaEdicion;

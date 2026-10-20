@@ -17,6 +17,7 @@ class SsoTema {
   final bool activo;
   final int totalPreguntas;
   final int preguntasActivas;
+  final int cumplidasVuelta;
 
   SsoTema({
     required this.id,
@@ -24,6 +25,7 @@ class SsoTema {
     required this.activo,
     required this.totalPreguntas,
     required this.preguntasActivas,
+    this.cumplidasVuelta = 0,
   });
 
   factory SsoTema.fromJson(Map<String, dynamic> json) => SsoTema(
@@ -32,6 +34,7 @@ class SsoTema {
         activo: json['activo'] as bool? ?? true,
         totalPreguntas: _asInt(json['totalPreguntas']),
         preguntasActivas: _asInt(json['preguntasActivas']),
+        cumplidasVuelta: _asInt(json['cumplidasVuelta']),
       );
 }
 
@@ -88,6 +91,13 @@ class SsoInicio {
   final int notaMinima;
   final int tiempo20Min;
   final int tiempo40Min;
+  final int tiempoExamenMin;
+  final int preguntasPorBanco;
+  final bool bloqueRepetir;
+  final double? bloqueRepetirNota;
+  final int bloqueRepetirTotal;
+  final int? bloqueRepetirTemaId;
+  final String? bloqueRepetirTemaNombre;
   final List<SsoHistorialItem> historial;
 
   SsoInicio({
@@ -104,6 +114,13 @@ class SsoInicio {
     required this.notaMinima,
     required this.tiempo20Min,
     required this.tiempo40Min,
+    this.tiempoExamenMin = 0,
+    this.preguntasPorBanco = 20,
+    this.bloqueRepetir = false,
+    this.bloqueRepetirNota,
+    this.bloqueRepetirTotal = 0,
+    this.bloqueRepetirTemaId,
+    this.bloqueRepetirTemaNombre,
     required this.historial,
   });
 
@@ -123,9 +140,16 @@ class SsoInicio {
             .whereType<Map>()
             .map((e) => SsoTema.fromJson(Map<String, dynamic>.from(e)))
             .toList(),
-        notaMinima: _asInt(json['notaMinima'], 70),
-        tiempo20Min: _asInt(json['tiempo20Min'], 30),
+        notaMinima: _asInt(json['notaMinima'], 90),
+        tiempo20Min: _asInt(json['tiempo20Min'], 15),
         tiempo40Min: _asInt(json['tiempo40Min'], 30),
+        tiempoExamenMin: _asInt(json['tiempoExamenMin'], 0),
+        preguntasPorBanco: _asInt(json['preguntasPorBanco'], 20),
+        bloqueRepetir: json['bloqueRepetir'] as bool? ?? false,
+        bloqueRepetirNota: json['bloqueRepetirNota'] == null ? null : _asDouble(json['bloqueRepetirNota']),
+        bloqueRepetirTotal: _asInt(json['bloqueRepetirTotal']),
+        bloqueRepetirTemaId: json['bloqueRepetirTemaId'] == null ? null : _asInt(json['bloqueRepetirTemaId']),
+        bloqueRepetirTemaNombre: json['bloqueRepetirTemaNombre'] as String?,
         historial: ((json['historial'] as List?) ?? [])
             .whereType<Map>()
             .map((e) => SsoHistorialItem.fromJson(Map<String, dynamic>.from(e)))
@@ -137,6 +161,21 @@ class SsoInicio {
     final p = ((preguntasVistasVuelta / preguntasBanco) * 100).round();
     return p.clamp(0, 100);
   }
+
+  int get minutosExamen => tiempoExamenMin > 0 ? tiempoExamenMin : tiempo20Min;
+
+  String get tiempoLabel {
+    final min = minutosExamen;
+    if (min >= 60) {
+      final h = min ~/ 60;
+      final m = min % 60;
+      return m == 0 ? '$h h' : '$h h $m min';
+    }
+    return '$min min';
+  }
+
+  String get bancoLabel =>
+      preguntasPorBanco == 0 ? 'todas las preguntas' : '$preguntasPorBanco preguntas';
 }
 
 class SsoExamenOpcion {
@@ -281,6 +320,9 @@ class SsoRevision {
   final String enunciado;
   final String? explicacion;
   final String? fuente;
+  final bool tieneSustento;
+  final String? sustentoNombre;
+  final String? sustentoTipo;
   final String temaNombre;
   final bool? esCorrecta;
   final List<SsoOpcionRev> opciones;
@@ -291,6 +333,9 @@ class SsoRevision {
     required this.enunciado,
     this.explicacion,
     this.fuente,
+    this.tieneSustento = false,
+    this.sustentoNombre,
+    this.sustentoTipo,
     required this.temaNombre,
     this.esCorrecta,
     required this.opciones,
@@ -302,6 +347,9 @@ class SsoRevision {
         enunciado: json['enunciado'] as String? ?? '',
         explicacion: json['explicacion'] as String?,
         fuente: json['fuente'] as String?,
+        tieneSustento: json['tieneSustento'] as bool? ?? false,
+        sustentoNombre: json['sustentoNombre'] as String?,
+        sustentoTipo: json['sustentoTipo'] as String?,
         temaNombre: json['temaNombre'] as String? ?? '',
         esCorrecta: json['esCorrecta'] as bool?,
         opciones: ((json['opciones'] as List?) ?? [])
@@ -309,6 +357,44 @@ class SsoRevision {
             .map((e) => SsoOpcionRev.fromJson(Map<String, dynamic>.from(e)))
             .toList(),
       );
+
+  bool get fallada => esCorrecta != true;
+
+  bool get esImagen {
+    final t = (sustentoTipo ?? '').toLowerCase();
+    final n = (sustentoNombre ?? '').toLowerCase();
+    return t.startsWith('image/') || RegExp(r'\.(jpg|jpeg|png|webp|gif)$').hasMatch(n);
+  }
+
+  bool get esPdf {
+    final t = (sustentoTipo ?? '').toLowerCase();
+    final n = (sustentoNombre ?? '').toLowerCase();
+    return t.contains('pdf') || n.endsWith('.pdf');
+  }
+}
+
+class SustentoArchivo {
+  final List<int> bytes;
+  final String nombre;
+  final String mime;
+
+  SustentoArchivo({
+    required this.bytes,
+    required this.nombre,
+    required this.mime,
+  });
+
+  bool get esImagen {
+    final t = mime.toLowerCase();
+    final n = nombre.toLowerCase();
+    return t.startsWith('image/') || RegExp(r'\.(jpg|jpeg|png|webp|gif)$').hasMatch(n);
+  }
+
+  bool get esPdf {
+    final t = mime.toLowerCase();
+    final n = nombre.toLowerCase();
+    return t.contains('pdf') || n.endsWith('.pdf');
+  }
 }
 
 class SsoResultado {

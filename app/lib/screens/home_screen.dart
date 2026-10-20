@@ -234,6 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final user = _user;
     return _accesos.where((a) {
       if (a.ruta == '/simulador') {
+        if (user?.rol == 'ADMIN_EMPRESA') return false;
         return user == null || user.tieneModulo('simulador');
       }
       return true;

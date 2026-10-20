@@ -30,11 +30,21 @@ public class SsoPregunta {
     @Column(columnDefinition = "TEXT")
     private String explicacion;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "TEXT")
     private String fuente;
 
     @Column(length = 500)
     private String imagen;
+
+    /** Nombre original del archivo de sustento (PDF o imagen). */
+    @Column(name = "sustento_nombre", length = 255)
+    private String sustentoNombre;
+
+    @Column(name = "sustento_tipo", length = 120)
+    private String sustentoTipo;
+
+    @Column(name = "sustento_ruta", length = 500)
+    private String sustentoRuta;
 
     @Column(nullable = false)
     @Builder.Default

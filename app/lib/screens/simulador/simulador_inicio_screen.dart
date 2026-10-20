@@ -32,8 +32,9 @@ class _SimuladorInicioScreenState extends State<SimuladorInicioScreen> {
   bool _cargando = true;
   bool _iniciando = false;
   String? _error;
-  String _modo = '20';
+  String _alcance = 'general';
   int? _temaId;
+  int _banco = 20;
 
   @override
   void initState() {
@@ -52,12 +53,15 @@ class _SimuladorInicioScreenState extends State<SimuladorInicioScreen> {
       setState(() {
         _data = data;
         _cargando = false;
-        if (_modo == 'falladas' && data.falladasPendientes == 0) {
-          _modo = '20';
+        if (_alcance == 'falladas' && data.falladasPendientes == 0) {
+          _alcance = 'general';
         }
         if (_temaId != null && data.temas.every((t) => t.id != _temaId)) {
-          _temaId = null;
+          _temaId = data.temas.isEmpty ? null : data.temas.first.id;
         }
+        _temaId ??= data.temas.isEmpty ? null : data.temas.first.id;
+        final n = data.preguntasPorBanco;
+        _banco = (n == 0 || n == 20 || n == 40 || n == 60) ? n : 20;
       });
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -74,15 +78,17 @@ class _SimuladorInicioScreenState extends State<SimuladorInicioScreen> {
     }
   }
 
-  Future<void> _empezar() async {
+  Future<void> _empezar({bool nuevoSet = true}) async {
     setState(() {
       _iniciando = true;
       _error = null;
     });
     try {
       final ex = await _api.iniciarExamen(
-        _modo,
-        temaId: _modo == 'falladas' ? null : _temaId,
+        _alcance == 'falladas' ? 'falladas' : 'banco',
+        temaId: _alcance == 'tema' ? _temaId : null,
+        preguntasPorBanco: _banco,
+        nuevoSet: nuevoSet,
       );
       if (!mounted) return;
       await Navigator.pushNamed(
@@ -178,15 +184,14 @@ class _SimuladorInicioScreenState extends State<SimuladorInicioScreen> {
                     const SizedBox(height: 20),
                     _ElegirExamen(
                       data: _data!,
-                      modo: _modo,
+                      alcance: _alcance,
                       temaId: _temaId,
+                      banco: _banco,
                       iniciando: _iniciando,
-                      onModo: (m) => setState(() {
-                        _modo = m;
-                        if (m == 'falladas') _temaId = null;
-                      }),
+                      onAlcance: (m) => setState(() => _alcance = m),
                       onTema: (id) => setState(() => _temaId = id),
-                      onEmpezar: _iniciando ? null : _empezar,
+                      onBanco: (n) => setState(() => _banco = n),
+                      onEmpezar: _iniciando ? null : (nuevo) => _empezar(nuevoSet: nuevo),
                     ),
                     const SizedBox(height: 20),
                     _Historial(
@@ -255,7 +260,7 @@ class _Welcome extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Exámenes aleatorios de 20 o 40 preguntas. Apruebas con ${data.notaMinima} o más. Tiempo: ${data.tiempo20Min} min.',
+            'Elija 20 (15 min), 40 (30 min), 60 (50 min) o Todas (1 h 30 min). Si salen menos de 10 preguntas, el tiempo es 10 min. Las preguntas y las opciones se mezclan al azar. Con ${data.notaMinima}% o más avanza; si no, puede repetir las mismas o continuar con otras.',
             style: const TextStyle(color: _Pal.onSurfaceVar, fontSize: 14, height: 1.4),
           ),
         ],
@@ -326,7 +331,7 @@ class _Kpis extends StatelessWidget {
                     Text(
                       data.ultimoAprobado == null
                           ? 'Sin exámenes finalizados'
-                          : (data.ultimoAprobado! ? 'Aprobado' : 'Reprobado'),
+                          : (data.ultimoAprobado! ? 'Avanzó de banco' : 'Puede repetir o continuar'),
                       style: const TextStyle(color: _Pal.onSurfaceVar, fontSize: 12),
                     ),
                   ],
@@ -422,24 +427,96 @@ class _Pendiente extends StatelessWidget {
   }
 }
 
+class _BancoOpt {
+  final int n;
+  final String label;
+  final String tiempo;
+  const _BancoOpt(this.n, this.label, this.tiempo);
+}
+
+const _bancos = [
+  _BancoOpt(20, '20 preguntas', '15 min'),
+  _BancoOpt(40, '40 preguntas', '30 min'),
+  _BancoOpt(60, '60 preguntas', '50 min'),
+  _BancoOpt(0, 'Todas', '1 h 30 min'),
+];
+
+int _tiempoSegunCantidad(int n) {
+  if (n < 10) return 10;
+  if (n <= 20) return 15;
+  if (n <= 40) return 30;
+  if (n <= 60) return 50;
+  return 90;
+}
+
+String _labelTiempo(int min) {
+  if (min >= 60) {
+    final h = min ~/ 60;
+    final m = min % 60;
+    return m == 0 ? '$h h' : '$h h $m min';
+  }
+  return '$min min';
+}
+
 class _ElegirExamen extends StatelessWidget {
   final SsoInicio data;
-  final String modo;
+  final String alcance;
   final int? temaId;
+  final int banco;
   final bool iniciando;
-  final ValueChanged<String> onModo;
+  final ValueChanged<String> onAlcance;
   final ValueChanged<int?> onTema;
-  final VoidCallback? onEmpezar;
+  final ValueChanged<int> onBanco;
+  final ValueChanged<bool>? onEmpezar;
 
   const _ElegirExamen({
     required this.data,
-    required this.modo,
+    required this.alcance,
     required this.temaId,
+    required this.banco,
     required this.iniciando,
-    required this.onModo,
+    required this.onAlcance,
     required this.onTema,
+    required this.onBanco,
     required this.onEmpezar,
   });
+
+  int get _totalAlcance {
+    if (alcance == 'tema') {
+      for (final t in data.temas) {
+        if (t.id == temaId) return t.preguntasActivas;
+      }
+      return 0;
+    }
+    return data.preguntasBanco;
+  }
+
+  int get _cumplidas {
+    if (alcance == 'tema') {
+      for (final t in data.temas) {
+        if (t.id == temaId) return t.cumplidasVuelta;
+      }
+      return 0;
+    }
+    return data.preguntasVistasVuelta;
+  }
+
+  int get _preguntasEste {
+    if (alcance == 'falladas') {
+      final n = data.falladasPendientes;
+      return banco == 0 ? n : (n < banco ? n : banco);
+    }
+    final pendientes = _totalAlcance - _cumplidas;
+    final pool = pendientes > 0 ? pendientes : (alcance == 'general' ? _totalAlcance : pendientes);
+    return banco == 0 ? pool : (pool < banco ? pool : banco);
+  }
+
+  bool get _puedeRepetir {
+    if (!data.bloqueRepetir || alcance == 'falladas') return false;
+    return alcance == 'general'
+        ? data.bloqueRepetirTemaId == null
+        : data.bloqueRepetirTemaId == temaId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -454,91 +531,172 @@ class _ElegirExamen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Elegir examen',
+            'Elegir alcance',
             style: TextStyle(color: _Pal.onSurface, fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
+          if (_puedeRepetir) ...[
+            Text(
+              'El último intento de ${data.bloqueRepetirTemaNombre ?? 'General'} no alcanzó ${data.notaMinima}% (nota ${data.bloqueRepetirNota?.toStringAsFixed(0) ?? '—'}%). Puede repetir las mismas preguntas (otro orden) o continuar con otras al azar.',
+              style: const TextStyle(color: Color(0xFF9A3412), fontSize: 13, height: 1.35),
+            ),
+            const SizedBox(height: 12),
+          ],
           _ModoChip(
-            selected: modo == '20',
-            label: '20 preguntas (${data.tiempo20Min} min)',
-            onTap: () => onModo('20'),
+            selected: alcance == 'general',
+            label: 'General (todos los temas)',
+            onTap: () => onAlcance('general'),
           ),
           const SizedBox(height: 8),
           _ModoChip(
-            selected: modo == '40',
-            label: '40 preguntas (${data.tiempo40Min} min)',
-            onTap: () => onModo('40'),
+            selected: alcance == 'tema',
+            label: 'Por tema',
+            onTap: () => onAlcance('tema'),
           ),
           const SizedBox(height: 8),
           _ModoChip(
-            selected: modo == 'falladas',
+            selected: alcance == 'falladas',
             enabled: data.falladasPendientes > 0,
             label: 'Falladas (${data.falladasPendientes})',
-            onTap: data.falladasPendientes > 0 ? () => onModo('falladas') : null,
+            onTap: data.falladasPendientes > 0 ? () => onAlcance('falladas') : null,
           ),
+          if (alcance == 'tema') ...[
+            const SizedBox(height: 16),
+            const Text(
+              'Tema',
+              style: TextStyle(color: _Pal.onSurfaceVar, fontSize: 12, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 6),
+            InputDecorator(
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: _Pal.low,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _Pal.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _Pal.border),
+                ),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int?>(
+                  value: temaId,
+                  isExpanded: true,
+                  dropdownColor: _Pal.surface,
+                  style: const TextStyle(color: _Pal.onSurface, fontSize: 14),
+                  items: data.temas
+                      .map(
+                        (t) => DropdownMenuItem<int?>(
+                          value: t.id,
+                          child: Text('${t.nombre} · ${t.cumplidasVuelta}/${t.preguntasActivas}'),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: onTema,
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
           const Text(
-            'Tema',
-            style: TextStyle(color: _Pal.onSurfaceVar, fontSize: 12, fontWeight: FontWeight.w600),
+            'Tamaño del examen',
+            style: TextStyle(color: _Pal.onSurface, fontSize: 14, fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 6),
-          InputDecorator(
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: _Pal.low,
-              enabled: modo != 'falladas',
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: _Pal.border),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: _Pal.border),
-              ),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<int?>(
-                value: modo == 'falladas' ? null : temaId,
-                isExpanded: true,
-                dropdownColor: _Pal.surface,
-                style: const TextStyle(color: _Pal.onSurface, fontSize: 14),
-                items: [
-                  const DropdownMenuItem<int?>(
-                    value: null,
-                    child: Text('Todos los temas'),
-                  ),
-                  ...data.temas.map(
-                    (t) => DropdownMenuItem<int?>(
-                      value: t.id,
-                      child: Text('${t.nombre} (${t.preguntasActivas})'),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _bancos
+                .map(
+                  (b) => ChoiceChip(
+                    label: Text('${b.label}\n${b.tiempo}', textAlign: TextAlign.center),
+                    selected: banco == b.n,
+                    onSelected: (_) => onBanco(b.n),
+                    selectedColor: _Pal.high,
+                    labelStyle: TextStyle(
+                      color: banco == b.n ? _Pal.primary : _Pal.onSurface,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                      height: 1.25,
                     ),
+                    backgroundColor: _Pal.surface,
+                    side: BorderSide(color: banco == b.n ? _Pal.primary : _Pal.border),
                   ),
-                ],
-                onChanged: modo == 'falladas' ? null : onTema,
-              ),
-            ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Este examen: $_preguntasEste preguntas · ${_labelTiempo(_tiempoSegunCantidad(_preguntasEste))}',
+            style: const TextStyle(color: _Pal.onSurfaceVar, fontSize: 13, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: onEmpezar,
-              style: FilledButton.styleFrom(
-                backgroundColor: _Pal.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          if (iniciando)
+            const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: _Pal.primary),
               ),
-              child: iniciando
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Text('Comenzar examen', style: TextStyle(fontWeight: FontWeight.w700)),
+            )
+          else if (_puedeRepetir)
+            Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: onEmpezar == null ? null : () => onEmpezar!(false),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: _Pal.primary,
+                      side: const BorderSide(color: _Pal.primary),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Repetir las mismas (${data.bloqueRepetirTotal})',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: onEmpezar == null ? null : () => onEmpezar!(true),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _Pal.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Continuar con otras ($_preguntasEste)',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onEmpezar == null ? null : () => onEmpezar!(true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: _Pal.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: Text(
+                  'Comenzar $_preguntasEste ${_preguntasEste == 1 ? 'pregunta' : 'preguntas'}',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );

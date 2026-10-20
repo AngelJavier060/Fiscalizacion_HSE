@@ -1,0 +1,835 @@
+Banco de preguntas SSO · Parte 4
+Página 1
+Banco de preguntas SSO · Parte 4
+Seguridad y salud ocupacional · Repaso con respuestas explicadas
+Contiene 50 preguntas nuevas que no se repiten en las Partes 1, 2 y 3. Cubre los temas
+propios de la operación petrolera en el Oriente y de las inspecciones a contratistas: plataformas
+elevadoras (manlift), corte y poda con motosierra, redacción de hallazgos, derecho de vía y
+ductos, facilidades de producción, pozos y workover, vacuum y tanqueros, NORM, fatiga,
+alcohol y drogas, transporte fluvial, MEDEVAC, residuos y orden y limpieza. No son preguntas
+oficiales de ENAP SIPEC: son preguntas de práctica con datos de normas y buenas prácticas
+reconocidas.
+Cómo leer cada pregunta
+ ✓ Correcta · respuesta y explicación de por qué es la correcta
+✗ Incorrecta · argumento de por qué está mal
+Nota · aclaración, corrección o dato que conviene verificar
+La posición de la respuesta correcta (A, B o C) cambia en cada pregunta para que no memorices la letra.
+Tapa las explicaciones para practicar.
+Preguntas por tema
+Plataformas elevadoras
+9
+Corte y poda de árboles
+7
+Facilidades de producción
+6
+Inspecciones y hallazgos
+5
+Pozos y workover
+5
+Derecho de vía y ductos
+4
+Vacuum y tanqueros
+2
+NORM
+2
+Fatiga
+2
+Emergencias
+2
+Residuos
+2
+Alcohol y drogas
+1
+Transporte fluvial
+1
+Orden y limpieza
+1
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 2
+Conceptos básicos
+1
+Preguntas con nota de corrección o verificación
+8, 23, 31, 43, 48. Revisa estas preguntas con tu material oficial antes del examen.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 3
+ 1
+PLATAFORMAS ELEVADORAS
+¿Qué familia de normas regula las plataformas elevadoras móviles de personal
+(MEWP, manlift)?
+ A
+ASME B30.5
+✗ Incorrecta. La B30.5 regula las grúas móviles.
+ B
+ANSI A92 (A92.20 diseño, A92.22 uso seguro, A92.24 capacitación)
+✓ Correcta. Desde 2018 la A92 separa el diseño del equipo, su uso seguro y la capacitación de
+operadores y ocupantes.
+ C
+ANSI Z359
+✗ Incorrecta. La Z359 regula los equipos de protección contra caídas, no las plataformas.
+ 2
+PLATAFORMAS ELEVADORAS
+¿Cuándo debe hacerse la inspección preoperacional de un manlift?
+ A
+Solo una vez al año
+✗ Incorrecta. La anual la hace un técnico calificado y no reemplaza la revisión diaria.
+ B
+Solo cuando el equipo presenta una falla
+✗ Incorrecta. Inspeccionar después de la falla es reactivo; la revisión diaria busca detectarla antes.
+ C
+Antes de cada turno o uso, por el operador, con su lista de verificación
+✓ Correcta. Se revisan llantas, fugas hidráulicas, controles, frenos, alarmas, barandas, puntos de
+anclaje y controles de emergencia. Además existen inspecciones frecuentes y anuales por personal
+calificado.
+ 3
+PLATAFORMAS ELEVADORAS
+Si en la inspección preoperacional un manlift tiene llantas con cortes, ¿qué
+corresponde?
+ A
+Retirar el equipo de servicio, etiquetarlo «fuera de servicio» y no usarlo hasta
+reparar y reinspeccionar
+✓ Correcta. Las llantas son parte del sistema de estabilidad; un daño puede causar inclinación o
+vuelco con la canastilla elevada.
+ B
+Usarlo con cuidado y a baja altura
+✗ Incorrecta. La estabilidad sigue comprometida a cualquier altura.
+ C
+Inflar las llantas y continuar
+✗ Incorrecta. Inflar no repara un corte en la estructura de la llanta.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 4
+ 4
+PLATAFORMAS ELEVADORAS
+¿Dónde debe conectarse el arnés de un trabajador en la canastilla de un manlift
+de brazo?
+ A
+Al punto de anclaje designado por el fabricante dentro de la canastilla
+✓ Correcta. Así, si el brazo se mueve o se produce un efecto catapulta, el trabajador queda unido al
+equipo. Se usa una eslinga corta de restricción para no salir de la canastilla.
+ B
+A una estructura cercana, fuera de la canastilla
+✗ Incorrecta. Si el equipo se mueve, el trabajador queda colgado entre la estructura y la canastilla.
+ C
+A la baranda superior de la canastilla
+✗ Incorrecta. La baranda no está certificada como punto de anclaje.
+ 5
+PLATAFORMAS ELEVADORAS
+¿Para qué sirven los controles inferiores (de tierra) de un manlift?
+ A
+Solo para el mantenimiento del taller
+✗ Incorrecta. Son un control de emergencia en campo.
+ B
+Para que el operador maneje el equipo desde el suelo mientras alguien sube por las
+barandas
+✗ Incorrecta. Nunca se trepa por las barandas ni el brazo.
+ C
+Para bajar la canastilla en una emergencia si el operador no puede hacerlo desde
+arriba
+✓ Correcta. Siempre debe haber una persona en tierra que sepa usarlos. Se prueban en la inspección
+preoperacional.
+ 6
+PLATAFORMAS ELEVADORAS
+¿Qué práctica está PROHIBIDA en la canastilla de un manlift?
+ A
+Pararse sobre las barandas o usar escaleras o cajones para ganar altura
+✓ Correcta. Elimina la protección de la baranda y cambia el centro de gravedad; es una causa
+frecuente de caídas desde plataformas.
+ B
+Mantener la puerta de la canastilla cerrada
+✗ Incorrecta. Es una práctica correcta.
+ C
+Usar el arnés conectado al anclaje de la canastilla
+✗ Incorrecta. Es una práctica obligatoria, no prohibida.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 5
+ 7
+PLATAFORMAS ELEVADORAS
+¿Qué diferencia una MEWP del Grupo A de una del Grupo B?
+ A
+El Grupo A es eléctrico y el Grupo B a combustión
+✗ Incorrecta. El grupo no depende del tipo de motor.
+ B
+El Grupo A es para interiores y el Grupo B para exteriores
+✗ Incorrecta. El grupo no se define por el lugar de uso.
+ C
+En el Grupo A el centro de la plataforma siempre queda dentro de las líneas de
+vuelco (tijera); en el Grupo B puede salir de ellas (brazo articulado o telescópico)
+✓ Correcta. El Grupo B tiene más alcance horizontal y, por eso, mayor exigencia de estabilidad y de
+protección contra caídas.
+ 8
+PLATAFORMAS ELEVADORAS
+¿Qué velocidad de viento suele limitar el uso de un manlift con la canastilla
+elevada?
+ A
+No hay límite si las llantas están bien
+✗ Incorrecta. El viento afecta la estabilidad aunque el equipo esté en buen estado.
+ B
+12,5 m/s (unos 45 km/h), o el límite menor que indique el fabricante
+✓ Correcta. El viento empuja la canastilla y la carga (paneles, ramas) y puede volcar el equipo. Se
+mide con anemómetro.
+ C
+100 km/h
+✗ Incorrecta. Muy por encima de cualquier límite de operación segura.
+Nota: El límite exacto lo da la placa del fabricante; algunos equipos solo son aptos para interiores (0 m/s).
+ 9
+PLATAFORMAS ELEVADORAS
+Según OSHA, ¿qué distancia mínima debe mantener un equipo (grúa o
+plataforma) de una línea eléctrica de hasta 50 kV?
+ A
+Basta con no tocar la línea
+✗ Incorrecta. La electricidad puede formar un arco a distancia, sobre todo en alta tensión.
+ B
+3 metros (10 pies)
+✓ Correcta. Sobre 50 kV la distancia aumenta con el voltaje. Si no se puede mantener, se pide la
+desenergización de la línea a la empresa eléctrica.
+ C
+1 metro
+✗ Incorrecta. Es insuficiente: el arco puede saltar sin contacto directo.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 6
+ 10
+CORTE Y PODA DE ÁRBOLES
+¿Cuál es la zona de peligro alrededor de un árbol que se va a talar?
+ A
+Un radio de 2 veces la altura del árbol
+✓ Correcta. Solo el operador debe estar dentro de esa zona. El árbol puede caer en otra dirección o
+arrastrar ramas de otros árboles.
+ B
+5 metros, sin importar la altura
+✗ Incorrecta. Un árbol de 20 m alcanza mucho más.
+ C
+Un radio igual a la mitad de la altura
+✗ Incorrecta. El árbol caído llegaría fuera de esa zona.
+ 11
+CORTE Y PODA DE ÁRBOLES
+¿Hacia dónde deben planificarse las rutas de escape del operador de motosierra
+al talar?
+ A
+Hacia atrás en diagonal, a unos 45° del sentido opuesto a la caída
+✓ Correcta. Detrás del árbol, en línea recta, el tronco puede rebotar o deslizarse hacia atrás al caer.
+Las rutas se despejan antes de empezar el corte.
+ B
+En la misma dirección de la caída
+✗ Incorrecta. El trabajador quedaría debajo del árbol.
+ C
+Directamente detrás del árbol, en línea recta
+✗ Incorrecta. Es la zona de rebote del tronco.
+ 12
+CORTE Y PODA DE ÁRBOLES
+¿Qué es la bisagra (charnela) en la tala dirigida?
+ A
+El freno de la cadena
+✗ Incorrecta. Es un dispositivo de la motosierra, no parte de la técnica de corte.
+ B
+La rama más gruesa del árbol
+✗ Incorrecta. No es un término de la técnica de tala.
+ C
+La franja de madera sin cortar entre la boca y el corte de caída, que guía la
+dirección del árbol
+✓ Correcta. Si se corta la bisagra, el operador pierde el control de la caída.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 7
+ 13
+CORTE Y PODA DE ÁRBOLES
+¿Qué zona de la espada de la motosierra provoca el rebote (kickback) al hacer
+contacto?
+ A
+La parte inferior de la espada
+✗ Incorrecta. Al cortar con la parte inferior la sierra tira hacia adelante, no rebota.
+ B
+El cuarto superior de la punta de la espada
+✓ Correcta. Si esa zona toca un objeto, la motosierra se lanza hacia arriba y atrás, hacia la cara del
+operador. El freno de cadena detiene la cadena en milisegundos.
+ C
+El motor
+✗ Incorrecta. El motor no hace contacto con la madera.
+ 14
+CORTE Y PODA DE ÁRBOLES
+¿Qué EPP específico requiere un operador de motosierra?
+ A
+Overol común de algodón
+✗ Incorrecta. No tiene protección contra corte.
+ B
+Pantalón o zahón anticorte, botas anticorte, casco con visor de malla y protector
+auditivo, y guantes
+✓ Correcta. Las fibras del pantalón anticorte se enredan en la cadena y la detienen antes de llegar a
+la pierna.
+ C
+Solo casco y gafas
+✗ Incorrecta. No protege las piernas, que son la zona más lesionada.
+ 15
+CORTE Y PODA DE ÁRBOLES
+¿Quién puede podar árboles cerca de líneas eléctricas energizadas?
+ A
+Solo personal calificado en trabajos cerca de líneas, con permiso, coordinación
+con la empresa eléctrica y herramientas aisladas
+✓ Correcta. La rama puede conducir electricidad si toca la línea. Lo ideal es pedir la desenergización.
+ B
+Cualquier operador de motosierra con guantes de cuero
+✗ Incorrecta. El cuero no aísla la electricidad.
+ C
+Cualquiera si no llueve
+✗ Incorrecta. Una rama verde conduce electricidad aunque no llueva.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 8
+ 16
+CORTE Y PODA DE ÁRBOLES
+¿Qué son las «ramas colgadas» (viudas) en trabajos de poda y tala?
+ A
+Ramas rotas o sueltas que quedan atrapadas en la copa y pueden caer sin aviso
+✓ Correcta. Se identifican antes de empezar y se retiran o se acordona la zona, porque pueden caer
+con la vibración del corte.
+ B
+Ramas que crecen hacia abajo
+✗ Incorrecta. No es el significado del término.
+ C
+Ramas sin hojas que no representan riesgo
+✗ Incorrecta. Son uno de los riesgos más graves en poda y tala.
+ 17
+INSPECCIONES Y HALLAZGOS
+¿Qué debe contener la descripción de un hallazgo de inspección?
+ A
+El hecho observado, el lugar, la empresa o equipo, el estándar incumplido y el
+riesgo que genera
+✓ Correcta. Una buena descripción permite entender el hallazgo sin haber estado en el sitio. Se
+acompaña de evidencia fotográfica.
+ B
+Solo la palabra «incumple»
+✗ Incorrecta. No dice qué se incumplió ni dónde, y no permite corregirlo.
+ C
+La opinión del inspector sobre la contratista
+✗ Incorrecta. Las opiniones no son hechos verificables.
+ 18
+INSPECCIONES Y HALLAZGOS
+¿Qué diferencia hay entre una acción inmediata y una acción correctiva?
+ A
+Son lo mismo con distinto nombre
+✗ Incorrecta. Tienen objetivos distintos: contener frente a evitar la repetición.
+ B
+La correctiva se hace antes que la inmediata
+✗ Incorrecta. La inmediata va primero porque controla el peligro presente.
+ C
+La inmediata controla el riesgo en el momento; la correctiva elimina la causa para
+que no se repita
+✓ Correcta. Ejemplo: retirar un manlift con llantas cortadas es inmediata; incluir las llantas en la lista
+de inspección preoperacional es correctiva.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 9
+ 19
+INSPECCIONES Y HALLAZGOS
+¿Qué es una acción preventiva?
+ A
+Una acción que corrige un incidente que ya ocurrió
+✗ Incorrecta. Esa es una acción correctiva.
+ B
+Una acción que elimina la causa de un problema potencial que todavía no ha
+ocurrido
+✓ Correcta. Ejemplo: revisar los planes de emergencia de todas las contratistas después de encontrar
+uno desactualizado.
+ C
+Una charla de 5 minutos
+✗ Incorrecta. Una charla puede ser parte de una acción, pero no la define.
+ 20
+INSPECCIONES Y HALLAZGOS
+¿Qué criterio debe cumplir un plan de acción bien redactado?
+ A
+Que solo diga «mejorar la seguridad»
+✗ Incorrecta. No dice qué hacer, quién ni cuándo.
+ B
+Que sea lo más general posible
+✗ Incorrecta. Una acción general no se puede medir ni cerrar.
+ C
+SMART: específico, medible, alcanzable, relevante y con plazo definido, con un
+responsable asignado
+✓ Correcta. Sin responsable ni fecha, la acción no se cumple ni se puede verificar su cierre.
+ 21
+INSPECCIONES Y HALLAZGOS
+¿Cuál de estas es una causa básica (de gestión) y no una causa inmediata?
+ A
+El trabajador sin arnés
+✗ Incorrecta. Es un acto inseguro: una causa inmediata.
+ B
+La llanta con cortes
+✗ Incorrecta. Es una condición insegura: una causa inmediata.
+ C
+La falta de un programa de mantenimiento preventivo de los equipos
+✓ Correcta. Las causas inmediatas son los actos y condiciones que se ven en el sitio. Las básicas son
+factores personales o de trabajo y fallas del sistema de gestión que explican por qué existían.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 10
+ 22
+DERECHO DE VÍA Y DUCTOS
+¿Qué es el derecho de vía (DDV)?
+ A
+La vía pública por donde circulan los vehículos de la empresa
+✗ Incorrecta. No es una carretera; es una franja sobre la línea.
+ B
+El permiso para conducir dentro del campo
+✗ Incorrecta. No es un permiso de conducción.
+ C
+La franja de terreno a lo largo de un ducto o línea, reservada para su operación,
+mantenimiento y protección
+✓ Correcta. En el DDV se restringen las construcciones y excavaciones no autorizadas, y se mantiene
+la vegetación controlada.
+ 23
+DERECHO DE VÍA Y DUCTOS
+Antes de excavar en el DDV, ¿qué se debe hacer?
+ A
+Excavar con retroexcavadora y detenerse al ver el tubo
+✗ Incorrecta. Cuando se ve el tubo, la cuchara ya puede haberlo golpeado.
+ B
+Localizar y marcar las líneas enterradas con detector y planos, y excavar en forma
+manual cerca de ellas
+✓ Correcta. Golpear un ducto con maquinaria puede causar una fuga, incendio o explosión. La
+excavación manual expone la línea con seguridad.
+ C
+Confiar en la memoria del personal antiguo
+✗ Incorrecta. Las líneas cambian y la memoria no es un método de localización.
+Nota: La distancia para pasar de excavación mecánica a manual la define el procedimiento de la operadora.
+ 24
+DERECHO DE VÍA Y DUCTOS
+¿Qué es un «chancho» o raspatubos (pig) en un ducto?
+ A
+Una válvula de bloqueo del ducto
+✗ Incorrecta. No es una válvula.
+ B
+Un dispositivo que se introduce y viaja por dentro del ducto para limpiarlo,
+separar productos o inspeccionarlo
+✓ Correcta. Las trampas de lanzamiento y recibo se despresurizan y drenan antes de abrirse; abrirlas
+con presión es un riesgo grave.
+ C
+Un sensor fijo de fugas
+✗ Incorrecta. El pig se desplaza por dentro de la línea.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 11
+ 25
+DERECHO DE VÍA Y DUCTOS
+¿Para qué sirve la protección catódica en un ducto enterrado?
+ A
+Para detectar fugas de gas
+✗ Incorrecta. No es un sistema de detección.
+ B
+Para aislar el ducto de los rayos
+✗ Incorrecta. Su función es contra la corrosión, no contra descargas atmosféricas.
+ C
+Para evitar la corrosión externa del acero mediante una corriente eléctrica o
+ánodos de sacrificio
+✓ Correcta. La corrosión adelgaza la pared del ducto y puede causar fugas. La protección catódica se
+monitorea con mediciones de potencial.
+ 26
+FACILIDADES DE PRODUCCIÓN
+¿Cuál es la función de una válvula de alivio de presión (PSV)?
+ A
+Regular el caudal en operación normal
+✗ Incorrecta. Eso lo hace una válvula de control.
+ B
+Cerrar el pozo en una emergencia
+✗ Incorrecta. Eso lo hacen las válvulas del sistema de paro de emergencia.
+ C
+Abrir automáticamente cuando la presión supera el valor de calibración, para
+evitar la ruptura del equipo
+✓ Correcta. Es la última barrera contra la sobrepresión. Bloquearla o retirarla sin autorización y sin
+protección alternativa está prohibido.
+ 27
+FACILIDADES DE PRODUCCIÓN
+¿Qué es un sistema ESD?
+ A
+El sistema de paro de emergencia, que lleva la instalación a una condición segura
+(cierre de válvulas, parada de equipos) ante una emergencia
+✓ Correcta. Se activa en forma automática (por detección de gas, fuego o presión) o manual con
+pulsadores. Su bypass requiere autorización especial.
+ B
+Un sistema de detección de humo en oficinas
+✗ Incorrecta. La detección puede activar el ESD, pero no es el ESD.
+ C
+Un sistema de energía de respaldo
+✗ Incorrecta. Eso es una UPS o un generador de emergencia.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 12
+ 28
+FACILIDADES DE PRODUCCIÓN
+¿Qué separa un separador trifásico?
+ A
+Petróleo, arena y aire
+✗ Incorrecta. La arena puede estar presente, pero las tres fases son petróleo, gas y agua.
+ B
+Gasolina, diésel y queroseno
+✗ Incorrecta. Esos productos se obtienen en una refinería.
+ C
+Petróleo, gas y agua
+✓ Correcta. El gas va a proceso o a la tea, el crudo a tanques y el agua de formación a tratamiento y
+reinyección.
+ 29
+FACILIDADES DE PRODUCCIÓN
+¿Para qué sirve la tea (flare) en una facilidad de producción?
+ A
+Para calentar el crudo en los tanques
+✗ Incorrecta. El calentamiento se hace con equipos de proceso, no con la tea.
+ B
+Para iluminar la estación de noche
+✗ Incorrecta. La llama no es un sistema de iluminación.
+ C
+Para quemar de forma controlada el gas que no se aprovecha o que se libera en
+una emergencia o despresurización
+✓ Correcta. Quemar el gas evita liberar metano y H2S sin control a la atmósfera. Su zona tiene
+restricción por radiación térmica.
+ 30
+FACILIDADES DE PRODUCCIÓN
+¿Qué se hace en Ecuador con el agua de formación que sale con el crudo?
+ A
+Se usa para riego de las vías
+✗ Incorrecta. Contiene sales e hidrocarburos que contaminan el suelo.
+ B
+Se descarga al río más cercano después de enfriarla
+✗ Incorrecta. Contaminaría el agua y está prohibido.
+ C
+Se trata y se reinyecta en formaciones aprobadas, sin descargarla a cuerpos de
+agua
+✓ Correcta. El agua de formación es salada y contiene hidrocarburos y metales; la normativa
+ambiental hidrocarburífera exige su reinyección.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 13
+ 31
+FACILIDADES DE PRODUCCIÓN
+En un detector fijo de gases inflamables, ¿qué indica una lectura de 20% LIE?
+ A
+Que la atmósfera ya es explosiva
+✗ Incorrecta. Solo es explosiva al llegar al 100% del LIE.
+ B
+Que la concentración es el 20% del límite inferior de explosividad: suele activar la
+primera alarma
+✓ Correcta. Es un aviso temprano, lejos del punto de explosión. Un nivel mayor (por ejemplo, 40% o
+60% LIE) suele activar el paro o la evacuación.
+ C
+Que hay 20% de gas en el aire
+✗ Incorrecta. Es el 20% del LIE, no el 20% del volumen de aire.
+Nota: Los puntos de alarma exactos los define la filosofía de seguridad de cada instalación.
+ 32
+POZOS Y WORKOVER
+¿Qué es un influjo (kick) en un pozo?
+ A
+La entrada no controlada de fluidos de la formación al pozo porque su presión
+supera la presión hidrostática del fluido del pozo
+✓ Correcta. Si no se controla a tiempo, puede convertirse en un reventón (blowout).
+ B
+Un golpe de la tubería contra el cabezal
+✗ Incorrecta. No es un fenómeno mecánico.
+ C
+La pérdida de fluido de perforación hacia la formación
+✗ Incorrecta. Eso es una pérdida de circulación, el caso contrario.
+ 33
+POZOS Y WORKOVER
+¿Cuál es la barrera primaria de control de un pozo?
+ A
+El casco del perforador
+✗ Incorrecta. Es EPP, no una barrera de pozo.
+ B
+El BOP
+✗ Incorrecta. El BOP es la barrera secundaria, para cuando falla la primaria.
+ C
+La columna hidrostática del fluido (lodo o fluido de control) dentro del pozo
+✓ Correcta. Su peso contrarresta la presión de la formación. La barrera secundaria es el preventor de
+reventones (BOP).
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 14
+ 34
+POZOS Y WORKOVER
+¿Cuál es la función del preventor de reventones (BOP)?
+ A
+Medir la producción del pozo
+✗ Incorrecta. Eso se hace en el separador de prueba o el medidor.
+ B
+Bombear el crudo hacia la estación
+✗ Incorrecta. Esa es la función de las bombas de producción.
+ C
+Cerrar el pozo en superficie para contener un influjo y evitar un reventón
+✓ Correcta. Tiene arietes (rams) y preventor anular. Se prueba a presión antes de las operaciones y
+periódicamente.
+ 35
+POZOS Y WORKOVER
+¿Cuál es una señal de alerta de un influjo durante un trabajo de pozo?
+ A
+Aumento del volumen en los tanques de fluido, o flujo del pozo con las bombas
+apagadas
+✓ Correcta. Detectarlo temprano permite cerrar el pozo con un volumen de influjo pequeño y
+controlarlo con seguridad.
+ B
+Disminución del ruido del motor
+✗ Incorrecta. No está relacionado con el control del pozo.
+ C
+Que el cielo se nuble
+✗ Incorrecta. Las condiciones del clima no indican un influjo.
+ 36
+POZOS Y WORKOVER
+¿Qué es un trabajo de reacondicionamiento (workover)?
+ A
+El mantenimiento de las vías de acceso
+✗ Incorrecta. No es un trabajo de pozo.
+ B
+La intervención de un pozo ya perforado para repararlo, cambiar su sistema de
+levantamiento o mejorar su producción
+✓ Correcta. Ejemplo: cambiar una bomba electrosumergible. Implica riesgos de control de pozo, izaje
+y trabajos en altura en el mástil.
+ C
+La perforación de un pozo nuevo
+✗ Incorrecta. Eso es perforación, no reacondicionamiento.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 15
+ 37
+VACUUM Y TANQUEROS
+Durante la succión con un camión vacuum, ¿dónde debe orientarse el venteo de
+la bomba?
+ A
+A favor del viento, lejos del personal y de fuentes de ignición
+✓ Correcta. El venteo puede liberar vapores inflamables y H2S del producto succionado. Se monitorea
+el área con un detector de gases.
+ B
+No importa hacia dónde
+✗ Incorrecta. La dirección del venteo determina quién queda expuesto.
+ C
+Hacia la cabina del conductor
+✗ Incorrecta. Expone al conductor a vapores tóxicos e inflamables.
+ 38
+VACUUM Y TANQUEROS
+¿Qué medidas se toman con el vehículo durante la carga o descarga de un
+tanquero?
+ A
+Mantener el motor encendido y el conductor fumando en la cabina
+✗ Incorrecta. Fumar es una fuente de ignición junto a vapores inflamables.
+ B
+Motor apagado (salvo que la bomba lo requiera), freno puesto, cuñas en las
+ruedas, puesta a tierra y extintor a mano
+✓ Correcta. Evitan que el vehículo se mueva con las mangueras conectadas y controlan las fuentes
+de ignición.
+ C
+Mover el vehículo para acomodar las mangueras
+✗ Incorrecta. El vehículo no se mueve con mangueras conectadas.
+ 39
+NORM
+¿Qué es el NORM en la industria petrolera?
+ A
+Material radiactivo de origen natural que se concentra en incrustaciones, lodos y
+equipos de producción
+✓ Correcta. Proviene del radio presente en el agua de formación, que se deposita en el sarro de
+tuberías, tanques y separadores.
+ B
+Una norma de seguridad de la ONU
+✗ Incorrecta. No es una norma; es la sigla de Naturally Occurring Radioactive Material.
+ C
+Un tipo de crudo liviano
+✗ Incorrecta. No es un tipo de crudo.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 16
+ 40
+NORM
+¿Qué precaución se toma al limpiar tuberías o tanques con posible NORM?
+ A
+Botar los residuos con la basura común
+✗ Incorrecta. Los residuos con NORM requieren gestión especial.
+ B
+Medir la radiación antes, evitar generar polvo (trabajo en húmedo), usar EPP y
+protección respiratoria, y gestionar los residuos como especiales
+✓ Correcta. El mayor riesgo es inhalar o ingerir el polvo de las incrustaciones.
+ C
+Lijar en seco para retirar rápido el sarro
+✗ Incorrecta. Genera polvo radiactivo que se inhala.
+ 41
+FATIGA
+¿Qué es un microsueño?
+ A
+Dormir menos de 8 horas
+✗ Incorrecta. Puede causar microsueños, pero no es su definición.
+ B
+Una siesta programada de 20 minutos
+✗ Incorrecta. Es un descanso planificado, no un microsueño.
+ C
+Un episodio de sueño involuntario de pocos segundos, sin que la persona se dé
+cuenta
+✓ Correcta. Es muy peligroso al conducir u operar equipos: a 60 km/h, 4 segundos de microsueño
+equivalen a recorrer unos 67 m sin control.
+ 42
+FATIGA
+¿Cuál es la mejor medida para controlar la fatiga en turnos largos o rotativos?
+ A
+Trabajar más rápido para terminar antes
+✗ Incorrecta. Aumenta el riesgo de error.
+ B
+Planificar los turnos con descanso suficiente, limitar las horas extra, programar
+pausas y no asignar tareas críticas a personal fatigado
+✓ Correcta. La fatiga reduce la atención igual que el alcohol. Se gestiona desde la organización del
+trabajo, no solo con la voluntad del trabajador.
+ C
+Consumir bebidas energéticas
+✗ Incorrecta. Enmascaran la fatiga pero no la eliminan.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 17
+ 43
+ALCOHOL Y DROGAS
+¿En qué situaciones suelen hacerse pruebas de alcohol y drogas en operaciones
+petroleras?
+ A
+Solo una vez en toda la relación laboral
+✗ Incorrecta. Una sola prueba no controla el consumo durante el trabajo.
+ B
+Solo cuando el trabajador lo pide
+✗ Incorrecta. Una prueba voluntaria no cumple la función de control.
+ C
+Al ingreso, de forma aleatoria, por sospecha razonable y después de un incidente
+✓ Correcta. Las operaciones de alto riesgo aplican tolerancia cero: el consumo afecta el juicio, los
+reflejos y la coordinación.
+Nota: Los criterios exactos los define la política de alcohol y drogas de la operadora.
+ 44
+TRANSPORTE FLUVIAL
+¿Cuándo debe usarse el chaleco salvavidas en el transporte fluvial?
+ A
+Solo si la persona no sabe nadar
+✗ Incorrecta. La corriente y la ropa de trabajo hacen que hasta un buen nadador se ahogue.
+ B
+Tenerlo a mano dentro de la lancha
+✗ Incorrecta. En un accidente no hay tiempo de alcanzarlo y ponérselo.
+ C
+Durante todo el trayecto, puesto y abrochado, desde que se sube a la
+embarcación hasta que se desembarca
+✓ Correcta. En una volcadura no hay tiempo de ponérselo. Los ríos amazónicos tienen corrientes
+fuertes y palizadas.
+ 45
+EMERGENCIAS
+¿Qué es una MEDEVAC?
+ A
+Un medicamento de primeros auxilios
+✗ Incorrecta. No es un medicamento.
+ B
+El examen médico de retiro
+✗ Incorrecta. No es un examen ocupacional.
+ C
+La evacuación médica de un paciente desde el campo hacia un centro de atención,
+por tierra, agua o aire
+✓ Correcta. En el Oriente las distancias son largas, por eso el plan define rutas, transporte,
+comunicación y centros de referencia de antemano.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 18
+ 46
+EMERGENCIAS
+¿Qué se busca con el concepto de la «hora dorada» en una MEDEVAC?
+ A
+Que el paciente descanse una hora antes del traslado
+✗ Incorrecta. Retrasar el traslado empeora el pronóstico.
+ B
+Que el paciente con trauma grave reciba atención definitiva lo antes posible,
+idealmente dentro de la primera hora
+✓ Correcta. La supervivencia baja con cada minuto de retraso. Por eso el tiempo de respuesta y
+traslado se planifica y se practica en simulacros.
+ C
+Que el traslado se haga siempre a una hora fija del día
+✗ Incorrecta. Las emergencias no esperan horarios.
+ 47
+RESIDUOS
+¿Qué documento acompaña la entrega de residuos peligrosos a un gestor
+ambiental en Ecuador?
+ A
+Una factura de venta común
+✗ Incorrecta. No acredita la trazabilidad ni la gestión ambiental.
+ B
+El manifiesto único de entrega, transporte y recepción de desechos peligrosos
+✓ Correcta. Permite rastrear el residuo desde quien lo genera hasta su disposición final. Solo se
+entregan a gestores con licencia ambiental.
+ C
+El permiso de trabajo en caliente
+✗ Incorrecta. Es un documento de seguridad operativa.
+ 48
+RESIDUOS
+¿Cómo se identifican los residuos peligrosos en la separación en la fuente?
+ A
+En el recipiente de residuos orgánicos
+✗ Incorrecta. Mezclarlos contamina todo el contenido.
+ B
+En recipientes rojos rotulados como peligrosos (por ejemplo, filtros, wipes con
+hidrocarburo, baterías)
+✓ Correcta. Separarlos evita contaminar los residuos comunes y facilita su gestión con el gestor
+autorizado.
+ C
+No requieren separación
+✗ Incorrecta. Su mezcla con residuos comunes está prohibida.
+Nota: Colores según la NTE INEN 2841; verifica el código de colores del programa de residuos de la operadora.
+
+
+===== PAGE =====
+Banco de preguntas SSO · Parte 4
+Página 19
+ 49
+ORDEN Y LIMPIEZA
+¿Qué significan las 5S?
+ A
+Seguridad, salud, servicio, sistema y supervisión
+✗ Incorrecta. No corresponde a la metodología 5S.
+ B
+Las 5 reglas de oro eléctricas
+✗ Incorrecta. Son otro concepto (trabajos sin tensión).
+ C
+Clasificar, ordenar, limpiar, estandarizar y mantener la disciplina
+✓ Correcta. Un área ordenada reduce caídas al mismo nivel, golpes y riesgos de incendio, y facilita
+detectar fugas o daños.
+ 50
+CONCEPTOS BÁSICOS
+¿Qué es la «línea de fuego»?
+ A
+La fila de trabajadores durante la charla
+✗ Incorrecta. No está relacionado con la exposición a energías.
+ B
+La trayectoria por donde puede moverse un objeto o una energía liberada (carga
+suspendida, vehículo, manguera presurizada, resorte) y golpear a una persona
+✓ Correcta. Muchos accidentes graves ocurren por estar en la línea de fuego. Se controla ubicándose
+fuera de esa trayectoria.
+ C
+La línea de mangueras contra incendio
+✗ Incorrecta. No es el significado del término de seguridad.

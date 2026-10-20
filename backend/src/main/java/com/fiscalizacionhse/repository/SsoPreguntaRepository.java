@@ -25,7 +25,8 @@ public interface SsoPreguntaRepository extends JpaRepository<SsoPregunta, Long> 
             WHERE (:temaId IS NULL OR p.tema.id = :temaId)
               AND (:activo IS NULL OR p.activo = :activo)
               AND (:q = '' OR LOWER(p.enunciado) LIKE LOWER(CONCAT('%', :q, '%'))
-                   OR (p.fuente IS NOT NULL AND LOWER(p.fuente) LIKE LOWER(CONCAT('%', :q, '%'))))
+                   OR (p.fuente IS NOT NULL AND LOWER(p.fuente) LIKE LOWER(CONCAT('%', :q, '%')))
+                   OR (p.explicacion IS NOT NULL AND LOWER(p.explicacion) LIKE LOWER(CONCAT('%', :q, '%'))))
             ORDER BY p.id DESC
             """)
     List<SsoPregunta> buscar(
@@ -34,6 +35,15 @@ public interface SsoPreguntaRepository extends JpaRepository<SsoPregunta, Long> 
             @Param("activo") Boolean activo);
 
     List<SsoPregunta> findByActivoTrue();
+
+    @Query("""
+            SELECT DISTINCT p FROM SsoPregunta p
+            JOIN FETCH p.tema
+            LEFT JOIN FETCH p.opciones
+            WHERE p.activo = true
+            ORDER BY p.id ASC
+            """)
+    List<SsoPregunta> findActivasConDetalle();
 
     List<SsoPregunta> findByActivoTrueAndTemaId(Long temaId);
 

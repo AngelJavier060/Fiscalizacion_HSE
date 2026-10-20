@@ -1,0 +1,56 @@
+<aside class="sidebar ae-sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-mark">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+    <div class="brand-text">
+      <span class="brand-title">Fiscalización HSE</span>
+      <span class="brand-chip">Admin Empresa</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    @for (seccion of secciones; track seccion.id) {
+      @if (seccionVisible(seccion)) {
+        <div class="nav-group">
+          <p class="nav-group-label">{{ seccion.label }}</p>
+          <ul class="nav-list">
+            @for (item of seccion.items; track item.id) {
+              @if (visible(item)) {
+                <li>
+                  <a
+                    [routerLink]="item.route"
+                    class="nav-link"
+                    [class.active]="esActivo(item)"
+                    [class.ai]="item.id === 'ia'">
+                    <span class="nav-link-main">
+                      <i [class]="item.faIcon"></i>
+                      <span>{{ item.label }}</span>
+                    </span>
+                    @if (item.badge) {
+                      <span class="nav-badge" [class.ai]="item.badgeKind === 'ai'">{{ item.badge }}</span>
+                    }
+                  </a>
+                </li>
+              }
+            }
+          </ul>
+        </div>
+      }
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-block">
+      <div class="user-avatar">{{ iniciales }}</div>
+      <div class="user-meta">
+        <p class="user-name">{{ user?.nombre || 'Administrador' }}</p>
+        <p class="user-email">{{ empresaNombre }}</p>
+      </div>
+    </div>
+    <button type="button" class="btn-logout" (click)="logout()">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+</aside>

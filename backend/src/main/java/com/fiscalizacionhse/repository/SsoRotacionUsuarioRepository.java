@@ -11,4 +11,6 @@ public interface SsoRotacionUsuarioRepository extends JpaRepository<SsoRotacionU
     List<SsoRotacionUsuario> findByUsuarioIdAndVuelta(Long usuarioId, Integer vuelta);
 
     long countByUsuarioIdAndVuelta(Long usuarioId, Integer vuelta);
+
+    boolean existsByUsuarioIdAndPreguntaIdAndVuelta(Long usuarioId, Long preguntaId, Integer vuelta);
 }

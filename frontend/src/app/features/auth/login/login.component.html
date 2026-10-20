@@ -14,20 +14,6 @@
     </div>
     }
 
-    @if (desdeLanding && sesionActiva) {
-      <div class="sesion-activa-banner">
-        <p>Ya tiene una sesión iniciada.</p>
-        <div class="sesion-activa-banner__actions">
-          <button type="button" class="btn-secondary-inline" (click)="continuarAlSistema()">
-            Ir al sistema
-          </button>
-          <button type="button" class="btn-link-inline" (click)="cerrarSesionYQuedarse()">
-            Cerrar sesión e ingresar con otra cuenta
-          </button>
-        </div>
-      </div>
-    }
-
     <!-- Formulario -->
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <!-- Error -->

@@ -6,45 +6,15 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { IaChatComponent } from '../../shared/ia-chat/ia-chat.component';
 import { environment } from '../../../../environments/environment';
+import { AdminEmpresaSidebarComponent } from '../shared/admin-empresa-sidebar/admin-empresa-sidebar.component';
 
 @Component({
   selector: 'app-ia-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, IaChatComponent],
+  imports: [CommonModule, RouterModule, FormsModule, IaChatComponent, AdminEmpresaSidebarComponent],
   template: `
     <div class="dashboard-container ia-page-shell">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="logo-small">
-            <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-              <rect width="48" height="48" rx="12" fill="#059669"/>
-              <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <span class="brand">Fiscalización HSE</span>
-        </div>
-        <nav class="sidebar-nav">
-          <div class="nav-label">Mi Empresa</div>
-          <a routerLink="/admin-empresa/dashboard" class="nav-item"><span class="nav-icon">📊</span> Dashboard</a>
-          <a routerLink="/admin-empresa/documentos" class="nav-item"><span class="nav-icon">📄</span> Documentos</a>
-          <a class="nav-item"><span class="nav-icon">👥</span> Usuarios</a>
-          <div class="nav-label">Inteligencia</div>
-          <a routerLink="/admin-empresa/ia" class="nav-item active"><span class="nav-icon">🤖</span> FISCALIZA-AI</a>
-          <a routerLink="/admin-empresa/analizar-reporte" class="nav-item"><span class="nav-icon">📋</span> Analizar reporte</a>
-          <a routerLink="/admin-empresa/recordatorios" class="nav-item"><span class="nav-icon">🔔</span> Recordatorios</a>
-          <a class="nav-item"><span class="nav-icon">⚙️</span> Ajustes</a>
-        </nav>
-        <div class="sidebar-footer">
-          <div class="user-info">
-            <div class="user-avatar admin">{{ user?.nombre?.charAt(0) || 'A' }}</div>
-            <div>
-              <p class="user-name">{{ user?.nombre || 'Admin' }}</p>
-              <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
-            </div>
-          </div>
-          <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
-        </div>
-      </aside>
+      <app-admin-empresa-sidebar />
 
       <main class="ia-full-main">
         <app-ia-chat
@@ -75,11 +45,10 @@ import { environment } from '../../../../environments/environment';
     .ia-full-main {
       flex: 1;
       min-width: 0;
-      height: 100vh;
+      height: 100%;
       overflow: hidden;
       display: flex;
       padding: 0;
-      margin-left: 260px;
     }
 
     .ia-full-main app-ia-chat {

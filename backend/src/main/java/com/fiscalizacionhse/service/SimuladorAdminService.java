@@ -3,7 +3,9 @@ package com.fiscalizacionhse.service;
 import com.fiscalizacionhse.dto.request.SsoConfiguracionRequest;
 import com.fiscalizacionhse.dto.request.SsoPreguntaRequest;
 import com.fiscalizacionhse.dto.request.SsoTemaRequest;
+import com.fiscalizacionhse.dto.response.SsoCoberturaResponse;
 import com.fiscalizacionhse.dto.response.SsoConfiguracionResponse;
+import com.fiscalizacionhse.dto.response.SsoEstadisticasResponse;
 import com.fiscalizacionhse.dto.response.SsoImportPreviewResponse;
 import com.fiscalizacionhse.dto.response.SsoPreguntaAdminResponse;
 import com.fiscalizacionhse.dto.response.SsoTemaResponse;
@@ -11,14 +13,18 @@ import com.fiscalizacionhse.exception.BadRequestException;
 import com.fiscalizacionhse.exception.ConflictException;
 import com.fiscalizacionhse.exception.ResourceNotFoundException;
 import com.fiscalizacionhse.model.SsoConfiguracion;
+import com.fiscalizacionhse.model.SsoIntento;
 import com.fiscalizacionhse.model.SsoOpcion;
 import com.fiscalizacionhse.model.SsoPregunta;
 import com.fiscalizacionhse.model.SsoTema;
 import com.fiscalizacionhse.model.Usuario;
+import com.fiscalizacionhse.model.enums.RolUsuario;
 import com.fiscalizacionhse.repository.SsoConfiguracionRepository;
+import com.fiscalizacionhse.repository.SsoIntentoRepository;
 import com.fiscalizacionhse.repository.SsoIntentoRespuestaRepository;
 import com.fiscalizacionhse.repository.SsoOpcionRepository;
 import com.fiscalizacionhse.repository.SsoPreguntaRepository;
+import com.fiscalizacionhse.repository.SsoRotacionUsuarioRepository;
 import com.fiscalizacionhse.repository.SsoTemaRepository;
 import com.fiscalizacionhse.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,19 +34,31 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -50,29 +68,280 @@ public class SimuladorAdminService {
     private final SsoPreguntaRepository preguntaRepository;
     private final SsoOpcionRepository opcionRepository;
     private final SsoIntentoRespuestaRepository intentoRespuestaRepository;
+    private final SsoIntentoRepository intentoRepository;
+    private final SsoRotacionUsuarioRepository rotacionRepository;
     private final UsuarioRepository usuarioRepository;
     private final SsoConfiguracionRepository configuracionRepository;
 
-    private static final List<Integer> TIEMPOS_PERMITIDOS = List.of(5, 10, 20, 30);
+    private static final List<Integer> TIEMPOS_PERMITIDOS = SsoBancoReglas.TIEMPOS;
+    private static final List<Integer> NOTAS_PERMITIDAS = List.of(80, 90);
+    private static final List<Integer> BANCOS_PERMITIDOS = SsoBancoReglas.BANCOS;
+    private static final long SUSTENTO_MAX_BYTES = 15L * 1024 * 1024;
+    private static final Set<String> SUSTENTO_EXT = Set.of(".pdf", ".jpg", ".jpeg", ".png", ".webp", ".gif");
+    private static final Set<String> SUSTENTO_MIME = Set.of(
+            "application/pdf",
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif"
+    );
+
+    public record SustentoArchivo(String nombre, String tipoMime, Resource resource) {}
 
     public SsoConfiguracionResponse obtenerConfiguracion() {
+        int banco = SsoBancoReglas.normalizarBanco(entero("preguntas_por_banco", 20));
+        int minutos = SsoBancoReglas.tiempoMin(banco);
         return SsoConfiguracionResponse.builder()
-                .tiempoExamenMin(entero("tiempo_examen_min", entero("tiempo_20_min", 30)))
-                .notaMinima(entero("nota_minima", 70))
+                .tiempoExamenMin(minutos)
+                .notaMinima(entero("nota_minima", 90))
+                .preguntasPorBanco(banco)
                 .tiemposPermitidos(TIEMPOS_PERMITIDOS)
+                .notasPermitidas(NOTAS_PERMITIDAS)
+                .bancosPermitidos(BANCOS_PERMITIDOS)
                 .build();
     }
 
     @Transactional
     public SsoConfiguracionResponse guardarConfiguracion(SsoConfiguracionRequest request) {
-        int minutos = request.getTiempoExamenMin();
-        if (!TIEMPOS_PERMITIDOS.contains(minutos)) {
-            throw new BadRequestException("El tiempo debe ser 5, 10, 20 o 30 minutos");
+        int banco = request.getPreguntasPorBanco() == null
+                ? SsoBancoReglas.normalizarBanco(entero("preguntas_por_banco", 20))
+                : SsoBancoReglas.normalizarBanco(request.getPreguntasPorBanco());
+        if (!BANCOS_PERMITIDOS.contains(banco)) {
+            throw new BadRequestException("El banco debe ser de 20, 40, 60 preguntas o todas");
         }
+        int minutos = SsoBancoReglas.tiempoMin(banco);
+        guardarClave("preguntas_por_banco", String.valueOf(banco));
         guardarClave("tiempo_examen_min", String.valueOf(minutos));
         guardarClave("tiempo_20_min", String.valueOf(minutos));
         guardarClave("tiempo_40_min", String.valueOf(minutos));
+        if (request.getNotaMinima() != null) {
+            if (!NOTAS_PERMITIDAS.contains(request.getNotaMinima())) {
+                throw new BadRequestException("La nota para avanzar debe ser 80 o 90");
+            }
+            guardarClave("nota_minima", String.valueOf(request.getNotaMinima()));
+        }
         return obtenerConfiguracion();
+    }
+
+    @Transactional(readOnly = true)
+    public SsoCoberturaResponse cobertura() {
+        List<SsoPregunta> activas = preguntaRepository.findByActivoTrue();
+        Map<Long, Long> apariciones = aLongMap(intentoRespuestaRepository.aparicionesPorPregunta(LocalDateTime.of(2000, 1, 1, 0, 0)));
+        List<SsoCoberturaResponse.PreguntaSinUso> sinUso = activas.stream()
+                .filter(p -> apariciones.getOrDefault(p.getId(), 0L) == 0)
+                .map(p -> SsoCoberturaResponse.PreguntaSinUso.builder()
+                        .id(p.getId())
+                        .enunciado(p.getEnunciado())
+                        .temaNombre(p.getTema() == null ? "—" : p.getTema().getNombre())
+                        .vecesSalio(0)
+                        .build())
+                .toList();
+        long repetidas = apariciones.values().stream().filter(v -> v > 1).count();
+        int banco = SsoBancoReglas.normalizarBanco(entero("preguntas_por_banco", 20));
+
+        List<SsoCoberturaResponse.UsuarioCobertura> usuarios = new ArrayList<>();
+        for (Usuario u : usuarioRepository.findByRolAndActivoTrueOrderByNombreAsc(RolUsuario.USUARIO)) {
+            int vuelta = u.getVueltaActual() == null ? 1 : u.getVueltaActual();
+            long cumplidas = rotacionRepository.countByUsuarioIdAndVuelta(u.getId(), vuelta);
+            long total = activas.size();
+            int pct = total == 0 ? 0 : (int) Math.min(100, Math.round((cumplidas * 100.0) / total));
+            SsoIntento ultimo = intentoRepository.findByUsuarioIdOrderByFechaInicioDesc(u.getId()).stream()
+                    .filter(i -> "finalizado".equals(i.getEstado()) && !"falladas".equals(i.getModo()))
+                    .findFirst().orElse(null);
+            boolean debeRepetir = ultimo != null && !Boolean.TRUE.equals(ultimo.getAprobado());
+            usuarios.add(SsoCoberturaResponse.UsuarioCobertura.builder()
+                    .id(u.getId())
+                    .nombre(u.getNombre())
+                    .email(u.getEmail())
+                    .empresaNombre(u.getEmpresa() == null ? "—" : u.getEmpresa().getNombre())
+                    .vuelta(vuelta)
+                    .cumplidas(cumplidas)
+                    .total(total)
+                    .porcentaje(pct)
+                    .debeRepetir(debeRepetir)
+                    .ultimaNota(ultimo == null ? null : ultimo.getNota())
+                    .ultimoAlcance(ultimo == null ? null
+                            : (ultimo.getTema() == null ? "General" : ultimo.getTema().getNombre()))
+                    .build());
+        }
+
+        return SsoCoberturaResponse.builder()
+                .totalPreguntasActivas(activas.size())
+                .preguntasNuncaSalieron(sinUso.size())
+                .preguntasEnAlMenosUnExamen(activas.size() - sinUso.size())
+                .preguntasRepetidas(repetidas)
+                .notaAvance(entero("nota_minima", 90))
+                .preguntasPorBanco(banco)
+                .tiempoExamenMin(SsoBancoReglas.tiempoMin(banco))
+                .usuarios(usuarios)
+                .preguntasSinUso(sinUso)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public SsoEstadisticasResponse estadisticas(Integer dias) {
+        int ventana = dias == null ? 0 : Math.max(0, dias);
+        LocalDateTime desde = ventana > 0
+                ? LocalDateTime.now().minusDays(ventana)
+                : LocalDateTime.of(2000, 1, 1, 0, 0);
+
+        List<SsoPregunta> activas = preguntaRepository.findActivasConDetalle();
+        Map<Long, long[]> acierto = new HashMap<>();
+        long respuestas = 0;
+        long aciertosTotales = 0;
+        for (Object[] row : intentoRespuestaRepository.statsAciertoPorPregunta(desde)) {
+            Long id = ((Number) row[0]).longValue();
+            long intentos = ((Number) row[1]).longValue();
+            long ok = row[2] == null ? 0 : ((Number) row[2]).longValue();
+            acierto.put(id, new long[]{intentos, ok});
+            respuestas += intentos;
+            aciertosTotales += ok;
+        }
+        Map<Long, Long> apariciones = aLongMap(intentoRespuestaRepository.aparicionesPorPregunta(desde));
+        Map<Long, Map<Long, Long>> votos = new HashMap<>();
+        for (Object[] row : intentoRespuestaRepository.votosPorOpcion(desde)) {
+            Long pid = ((Number) row[0]).longValue();
+            Long oid = ((Number) row[1]).longValue();
+            long n = ((Number) row[2]).longValue();
+            votos.computeIfAbsent(pid, k -> new HashMap<>()).put(oid, n);
+        }
+
+        List<SsoEstadisticasResponse.PreguntaStat> stats = new ArrayList<>();
+        Map<Long, long[]> porTema = new HashMap<>();
+        Map<Long, String> nombreTema = new HashMap<>();
+        int faciles = 0;
+        int intermedias = 0;
+        int criticas = 0;
+        long evaluadas = 0;
+        long nunca = 0;
+        long repetidas = 0;
+        SsoEstadisticasResponse.PreguntaStat masReprobada = null;
+
+        for (SsoPregunta p : activas) {
+            long[] acc = acierto.getOrDefault(p.getId(), new long[]{0, 0});
+            long intentos = acc[0];
+            long ok = acc[1];
+            int pct = intentos == 0 ? 0 : (int) Math.round((ok * 100.0) / intentos);
+            long veces = apariciones.getOrDefault(p.getId(), 0L);
+            boolean sinUso = veces == 0;
+            if (sinUso) {
+                nunca += 1;
+            } else {
+                evaluadas += 1;
+                if (pct >= 75) {
+                    faciles += 1;
+                } else if (pct >= 50) {
+                    intermedias += 1;
+                } else {
+                    criticas += 1;
+                }
+            }
+            if (veces > 1) {
+                repetidas += 1;
+            }
+
+            List<SsoOpcion> ops = new ArrayList<>(p.getOpciones() == null ? List.of() : p.getOpciones());
+            ops.sort(Comparator.comparing(SsoOpcion::getId));
+            Map<Long, Long> votosPreg = votos.getOrDefault(p.getId(), Map.of());
+            List<SsoEstadisticasResponse.OpcionStat> opStats = new ArrayList<>();
+            String distractor = null;
+            int distractorPct = 0;
+            long maxWrong = 0;
+            for (SsoOpcion o : ops) {
+                long v = votosPreg.getOrDefault(o.getId(), 0L);
+                int opPct = intentos == 0 ? 0 : (int) Math.round((v * 100.0) / intentos);
+                opStats.add(SsoEstadisticasResponse.OpcionStat.builder()
+                        .id(o.getId())
+                        .texto(o.getTexto())
+                        .correcta(Boolean.TRUE.equals(o.getEsCorrecta()))
+                        .votos(v)
+                        .pct(opPct)
+                        .build());
+                if (!Boolean.TRUE.equals(o.getEsCorrecta()) && v > maxWrong) {
+                    maxWrong = v;
+                    distractor = o.getTexto();
+                    distractorPct = opPct;
+                }
+            }
+
+            Long temaId = p.getTema() == null ? null : p.getTema().getId();
+            String temaNombre = p.getTema() == null ? "—" : p.getTema().getNombre();
+            nombreTema.put(temaId, temaNombre);
+            long[] tAcc = porTema.computeIfAbsent(temaId, k -> new long[]{0, 0});
+            tAcc[0] += intentos;
+            tAcc[1] += ok;
+
+            SsoEstadisticasResponse.PreguntaStat st = SsoEstadisticasResponse.PreguntaStat.builder()
+                    .id(p.getId())
+                    .enunciado(p.getEnunciado())
+                    .temaId(temaId)
+                    .temaNombre(temaNombre)
+                    .intentos(intentos)
+                    .aciertos(ok)
+                    .aciertoPct(pct)
+                    .vecesSalio(veces)
+                    .nuncaSalio(sinUso)
+                    .repetida(veces > 1)
+                    .distractorTexto(distractor)
+                    .distractorPct(distractorPct)
+                    .opciones(opStats)
+                    .build();
+            stats.add(st);
+            if (!sinUso && intentos > 0 && (masReprobada == null || pct < masReprobada.getAciertoPct()
+                    || (pct == masReprobada.getAciertoPct() && intentos > masReprobada.getIntentos()))) {
+                masReprobada = st;
+            }
+        }
+
+        stats.sort(Comparator
+                .comparing(SsoEstadisticasResponse.PreguntaStat::isNuncaSalio)
+                .thenComparingInt(SsoEstadisticasResponse.PreguntaStat::getAciertoPct)
+                .thenComparing(SsoEstadisticasResponse.PreguntaStat::getIntentos, Comparator.reverseOrder()));
+
+        List<SsoEstadisticasResponse.TemaStat> temas = porTema.entrySet().stream()
+                .map(e -> {
+                    long tot = e.getValue()[0];
+                    long ok = e.getValue()[1];
+                    return SsoEstadisticasResponse.TemaStat.builder()
+                            .id(e.getKey())
+                            .nombre(nombreTema.getOrDefault(e.getKey(), "—"))
+                            .intentos(tot)
+                            .aciertoPct(tot == 0 ? 0 : (int) Math.round((ok * 100.0) / tot))
+                            .build();
+                })
+                .sorted(Comparator.comparingInt(SsoEstadisticasResponse.TemaStat::getAciertoPct).reversed())
+                .toList();
+
+        int coberturaPct = activas.isEmpty() ? 0 : (int) Math.round((evaluadas * 100.0) / activas.size());
+        return SsoEstadisticasResponse.builder()
+                .dias(ventana)
+                .tasaGlobalAcierto(respuestas == 0 ? 0 : (int) Math.round((aciertosTotales * 100.0) / respuestas))
+                .respuestasContadas(respuestas)
+                .preguntasActivas(activas.size())
+                .preguntasEvaluadas(evaluadas)
+                .preguntasNuncaSalieron(nunca)
+                .preguntasRepetidas(repetidas)
+                .preguntasCriticas(criticas)
+                .coberturaPct(coberturaPct)
+                .masReprobadaId(masReprobada == null ? null : masReprobada.getId())
+                .masReprobadaEnunciado(masReprobada == null ? null : masReprobada.getEnunciado())
+                .masReprobadaTema(masReprobada == null ? null : masReprobada.getTemaNombre())
+                .masReprobadaAcierto(masReprobada == null ? 0 : masReprobada.getAciertoPct())
+                .masReprobadaIntentos(masReprobada == null ? 0 : masReprobada.getIntentos())
+                .faciles(faciles)
+                .intermedias(intermedias)
+                .criticas(criticas)
+                .porTema(temas)
+                .preguntas(stats)
+                .build();
+    }
+
+    private Map<Long, Long> aLongMap(List<Object[]> rows) {
+        Map<Long, Long> out = new HashMap<>();
+        for (Object[] row : rows) {
+            out.put(((Number) row[0]).longValue(), ((Number) row[1]).longValue());
+        }
+        return out;
     }
 
     public List<SsoTemaResponse> listarTemas() {
@@ -190,6 +459,75 @@ public class SimuladorAdminService {
             }
         }
         return toAdmin(pregunta);
+    }
+
+    @Transactional
+    public SsoPreguntaAdminResponse guardarSustento(Long id, MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new BadRequestException("Seleccione un PDF o una imagen como evidencia");
+        }
+        if (file.getSize() > SUSTENTO_MAX_BYTES) {
+            throw new BadRequestException("El archivo no puede superar 15 MB");
+        }
+        String original = file.getOriginalFilename() == null ? "sustento" : file.getOriginalFilename();
+        String nombre = sanitizarNombre(original);
+        String lower = nombre.toLowerCase(Locale.ROOT);
+        String mime = file.getContentType() == null ? "" : file.getContentType().toLowerCase(Locale.ROOT);
+        boolean extOk = SUSTENTO_EXT.stream().anyMatch(lower::endsWith);
+        boolean mimeOk = SUSTENTO_MIME.contains(mime);
+        if (!extOk && !mimeOk) {
+            throw new BadRequestException("Solo se aceptan PDF, JPG, PNG, WEBP o GIF");
+        }
+        if (mime.isBlank()) {
+            mime = lower.endsWith(".pdf") ? "application/pdf" : "application/octet-stream";
+        }
+
+        SsoPregunta pregunta = preguntaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
+        borrarArchivoFisico(pregunta.getSustentoRuta());
+        try {
+            Path dest = dirSustento().resolve(UUID.randomUUID() + "_" + nombre);
+            Files.copy(file.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
+            pregunta.setSustentoNombre(recortar(nombre, 255));
+            pregunta.setSustentoTipo(recortar(mime, 120));
+            pregunta.setSustentoRuta(dest.toString());
+            pregunta.setFechaEdicion(LocalDateTime.now());
+            return toAdmin(preguntaRepository.save(pregunta));
+        } catch (IOException e) {
+            throw new BadRequestException("No se pudo guardar el archivo de sustento");
+        }
+    }
+
+    @Transactional
+    public SsoPreguntaAdminResponse eliminarSustento(Long id) {
+        SsoPregunta pregunta = preguntaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
+        borrarArchivoFisico(pregunta.getSustentoRuta());
+        pregunta.setSustentoNombre(null);
+        pregunta.setSustentoTipo(null);
+        pregunta.setSustentoRuta(null);
+        pregunta.setFechaEdicion(LocalDateTime.now());
+        return toAdmin(pregunta);
+    }
+
+    public SustentoArchivo leerSustento(Long id) {
+        SsoPregunta pregunta = preguntaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
+        if (pregunta.getSustentoRuta() == null || pregunta.getSustentoRuta().isBlank()) {
+            throw new ResourceNotFoundException("Esta pregunta no tiene evidencia adjunta");
+        }
+        Path file = Path.of(pregunta.getSustentoRuta()).toAbsolutePath().normalize();
+        Path base = dirSustento().toAbsolutePath().normalize();
+        if (!file.startsWith(base) || !Files.isRegularFile(file)) {
+            throw new ResourceNotFoundException("El archivo de sustento no está disponible");
+        }
+        String mime = pregunta.getSustentoTipo() == null || pregunta.getSustentoTipo().isBlank()
+                ? "application/octet-stream"
+                : pregunta.getSustentoTipo();
+        String nombre = pregunta.getSustentoNombre() == null || pregunta.getSustentoNombre().isBlank()
+                ? file.getFileName().toString()
+                : pregunta.getSustentoNombre();
+        return new SustentoArchivo(nombre, mime, new FileSystemResource(file));
     }
 
     @Transactional
@@ -400,6 +738,9 @@ public class SimuladorAdminService {
                 .explicacion(p.getExplicacion())
                 .fuente(p.getFuente())
                 .imagen(p.getImagen())
+                .sustentoNombre(p.getSustentoNombre())
+                .sustentoTipo(p.getSustentoTipo())
+                .tieneSustento(p.getSustentoRuta() != null && !p.getSustentoRuta().isBlank())
                 .activo(p.getActivo())
                 .fechaCreacion(p.getFechaCreacion())
                 .fechaEdicion(p.getFechaEdicion())
@@ -505,6 +846,40 @@ public class SimuladorAdminService {
 
     private String blankToNull(String s) {
         return s == null || s.isBlank() ? null : s.trim();
+    }
+
+    private Path dirSustento() {
+        try {
+            Path dir = Path.of("uploads", "sso-sustentos").toAbsolutePath().normalize();
+            Files.createDirectories(dir);
+            return dir;
+        } catch (IOException e) {
+            throw new BadRequestException("No se pudo crear la carpeta de sustentos");
+        }
+    }
+
+    private void borrarArchivoFisico(String ruta) {
+        if (ruta == null || ruta.isBlank()) return;
+        try {
+            Path file = Path.of(ruta).toAbsolutePath().normalize();
+            Path base = dirSustento().toAbsolutePath().normalize();
+            if (file.startsWith(base) && Files.isRegularFile(file)) {
+                Files.deleteIfExists(file);
+            }
+        } catch (IOException ignored) {
+            // Si el archivo ya no existe, igual se limpia la referencia en BD.
+        }
+    }
+
+    private String sanitizarNombre(String original) {
+        String clean = original.replace('\\', '_').replace('/', '_').replaceAll("[\\x00-\\x1F]", "").trim();
+        if (clean.isBlank()) clean = "sustento";
+        return recortar(clean, 180);
+    }
+
+    private String recortar(String valor, int max) {
+        if (valor == null) return null;
+        return valor.length() <= max ? valor : valor.substring(0, max);
     }
 
     private int entero(String clave, int def) {

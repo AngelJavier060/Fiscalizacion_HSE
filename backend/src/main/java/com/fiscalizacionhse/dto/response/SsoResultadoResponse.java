@@ -12,6 +12,7 @@ import java.util.List;
 public class SsoResultadoResponse {
     private Long id;
     private String modo;
+    private Long temaId;
     private String temaNombre;
     private String estado;
     private LocalDateTime fechaInicio;
@@ -39,6 +40,9 @@ public class SsoResultadoResponse {
         private String enunciado;
         private String explicacion;
         private String fuente;
+        private boolean tieneSustento;
+        private String sustentoNombre;
+        private String sustentoTipo;
         private String temaNombre;
         private Long opcionElegidaId;
         private Long opcionCorrectaId;

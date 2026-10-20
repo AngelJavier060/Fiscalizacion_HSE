@@ -10,5 +10,8 @@ import java.util.List;
 public class SsoConfiguracionResponse {
     private int tiempoExamenMin;
     private int notaMinima;
+    private int preguntasPorBanco;
     private List<Integer> tiemposPermitidos;
+    private List<Integer> notasPermitidas;
+    private List<Integer> bancosPermitidos;
 }

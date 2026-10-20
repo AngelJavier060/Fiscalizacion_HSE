@@ -30,19 +30,33 @@
 
       <section class="sa-tiempo">
         <div>
-          <h3><i class="fa-regular fa-clock"></i> Tiempo de simulación</h3>
-          <p>Aplica a empresa y usuario. Si se acaba el reloj, el examen se cierra y se califica solo.</p>
+          <h3><i class="fa-regular fa-clock"></i> Reglas del simulacro (usuario)</h3>
+          <p>
+            Tiempos: menos de 10 preguntas = 10 min, 20 = 15 min, 40 = 30 min, 60 = 50 min, Todas = 1 h 30 min.
+            Si el tema tiene menos preguntas, el cronómetro se ajusta. Las preguntas y opciones salen al azar.
+            Si no alcanza la nota, el usuario puede repetir las mismas o continuar con otras.
+          </p>
         </div>
-        <div class="sa-tiempo-opts">
-          @for (m of tiempos; track m) {
-            <button
-              type="button"
-              [class.on]="tiempoExamenMin === m"
-              [disabled]="guardandoTiempo"
-              (click)="guardarTiempo(m)">
-              {{ m }} min
-            </button>
-          }
+        <div class="sa-regla">
+          <span>Preguntas y tiempo por banco</span>
+          <div class="sa-tiempo-opts sa-banco-opts">
+            @for (b of bancos; track b.n) {
+              <button type="button" [class.on]="preguntasPorBanco === b.n" [disabled]="guardandoTiempo"
+                (click)="elegirBanco(b.n)">
+                {{ b.label }}
+                <small>{{ b.tiempo }}</small>
+              </button>
+            }
+          </div>
+        </div>
+        <div class="sa-regla">
+          <span>Nota para avanzar</span>
+          <div class="sa-tiempo-opts">
+            @for (n of notas; track n) {
+              <button type="button" [class.on]="notaMinima === n" [disabled]="guardandoTiempo"
+                (click)="guardarConfig({ notaMinima: n })">{{ n }}%</button>
+            }
+          </div>
         </div>
         @if (okTiempo) {
           <p class="sa-tiempo-ok">{{ okTiempo }}</p>
@@ -52,6 +66,8 @@
       <div class="sa-tabs">
         <button type="button" [class.active]="tab === 'preguntas'" (click)="tab = 'preguntas'">Preguntas</button>
         <button type="button" [class.active]="tab === 'temas'" (click)="tab = 'temas'">Temas</button>
+        <button type="button" [class.active]="tab === 'cobertura'" (click)="abrirCobertura()">Cobertura</button>
+        <button type="button" [class.active]="tab === 'estadisticas'" (click)="abrirEstadisticas()">Estadísticas</button>
         <button type="button" [class.active]="tab === 'importar'" (click)="tab = 'importar'">Importar Excel</button>
       </div>
 
@@ -82,7 +98,8 @@
                 <tr>
                   <th>Enunciado</th>
                   <th>Tema</th>
-                  <th>Fuente</th>
+                  <th>Normativa</th>
+                  <th>Sustento</th>
                   <th>Estado</th>
                   <th></th>
                 </tr>
@@ -92,7 +109,16 @@
                   <tr>
                     <td class="enun">{{ p.enunciado }}</td>
                     <td>{{ p.temaNombre }}</td>
-                    <td class="muted">{{ p.fuente || '—' }}</td>
+                    <td class="muted fuente-cell" [title]="p.fuente || ''">{{ p.fuente || '—' }}</td>
+                    <td>
+                      @if (p.tieneSustento) {
+                        <button type="button" class="clip" title="Ver evidencia" (click)="abrirSustento(p.id)">
+                          <i class="fa-solid fa-paperclip"></i>
+                        </button>
+                      } @else {
+                        <span class="muted">—</span>
+                      }
+                    </td>
                     <td>
                       <span class="chip" [class.on]="p.activo" [class.off]="!p.activo">
                         {{ p.activo ? 'Activa' : 'Inactiva' }}
@@ -133,6 +159,328 @@
             </article>
           }
         </div>
+      }
+
+      @if (tab === 'cobertura') {
+        @if (cargandoCobertura) {
+          <p class="muted">Cargando cobertura…</p>
+        } @else if (cobertura) {
+          <div class="kpis-cober">
+            <article>
+              <span>Banco activo</span>
+              <strong>{{ cobertura.totalPreguntasActivas }}</strong>
+            </article>
+            <article>
+              <span>Ya salieron</span>
+              <strong>{{ cobertura.preguntasEnAlMenosUnExamen }}</strong>
+            </article>
+            <article>
+              <span>Faltan por salir</span>
+              <strong [class.bad]="cobertura.preguntasNuncaSalieron > 0">{{ cobertura.preguntasNuncaSalieron }}</strong>
+            </article>
+            <article>
+              <span>Se han repetido</span>
+              <strong>{{ cobertura.preguntasRepetidas || 0 }}</strong>
+            </article>
+            <article>
+              <span>Regla vigente</span>
+              <strong>{{ cobertura.notaAvance }}% · {{ textoBanco(cobertura.preguntasPorBanco) }} · {{ cobertura.tiempoExamenMin || tiempoExamenMin }} min</strong>
+            </article>
+          </div>
+          <p class="muted">
+            Cumplidas = preguntas que el usuario ya superó con la nota de avance en la vuelta actual.
+            Las que faltan deben salir en los siguientes bancos. Las repetidas son las que volvieron a aparecer (normalmente porque no se aprobó el set).
+          </p>
+          <div class="sa-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Empresa</th>
+                  <th>Vuelta</th>
+                  <th>Cumplidas</th>
+                  <th>Última nota</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (u of cobertura.usuarios; track u.id) {
+                  <tr>
+                    <td>
+                      <strong>{{ u.nombre }}</strong>
+                      <div class="muted">{{ u.email }}</div>
+                    </td>
+                    <td>{{ u.empresaNombre }}</td>
+                    <td>{{ u.vuelta }}</td>
+                    <td>{{ u.cumplidas }} / {{ u.total }} ({{ u.porcentaje }}%)</td>
+                    <td>
+                      @if (u.ultimaNota != null) { {{ u.ultimaNota | number:'1.0-1' }} · {{ u.ultimoAlcance }} }
+                      @else { — }
+                    </td>
+                    <td>
+                      @if (u.cumplidas >= u.total && u.total > 0) {
+                        <span class="chip on">Vuelta completa</span>
+                      } @else if (u.debeRepetir) {
+                        <span class="chip off">Debe repetir banco</span>
+                      } @else {
+                        <span class="chip">En curso</span>
+                      }
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="6" class="muted">Aún no hay usuarios para medir cobertura.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if (cobertura.preguntasSinUso.length) {
+            <h4 class="cober-h">Preguntas que todavía no han salido ({{ cobertura.preguntasSinUso.length }})</h4>
+            <ul class="sin-uso">
+              @for (p of cobertura.preguntasSinUso; track p.id) {
+                <li><span>{{ p.temaNombre }}</span> {{ p.enunciado }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="sa-tiempo-ok">Todas las preguntas activas ya salieron al menos una vez en un examen.</p>
+          }
+        }
+      }
+
+      @if (tab === 'estadisticas') {
+        @if (cargandoStats) {
+          <p class="muted">Calculando estadísticas reales del simulacro…</p>
+        } @else if (stats) {
+          <section class="st-head">
+            <div>
+              <h3>Estadísticas y diagnóstico por pregunta</h3>
+              <p>Datos de exámenes finalizados: acierto, repetición y preguntas que aún no salen.</p>
+            </div>
+            <div class="st-head-actions">
+              <button type="button" class="sa-btn-ghost" (click)="statsDias = statsDias === 30 ? 0 : 30; cargarEstadisticas()">
+                <i class="fa-regular fa-calendar"></i>
+                {{ statsDias === 30 ? 'Últimos 30 días' : 'Todo el periodo' }}
+              </button>
+              <button type="button" class="sa-btn-primary" (click)="exportarCsv()">
+                <i class="fa-solid fa-file-export"></i> Exportar CSV
+              </button>
+            </div>
+          </section>
+
+          <section class="st-kpis">
+            <article>
+              <span>Tasa global de acierto</span>
+              <strong>{{ stats.tasaGlobalAcierto }}%</strong>
+              <div class="st-bar"><div [style.width.%]="stats.tasaGlobalAcierto"></div></div>
+              <small>{{ stats.respuestasContadas }} respuestas</small>
+            </article>
+            <article>
+              <span>Preguntas críticas (&lt;50%)</span>
+              <strong class="bad">{{ stats.preguntasCriticas }}</strong>
+              <small>de {{ stats.preguntasEvaluadas }} evaluadas</small>
+            </article>
+            <article>
+              <span>Cobertura en exámenes</span>
+              <strong>{{ stats.preguntasEvaluadas }} / {{ stats.preguntasActivas }}</strong>
+              <div class="st-bar amber"><div [style.width.%]="stats.coberturaPct"></div></div>
+              <small>{{ stats.coberturaPct }}% del banco</small>
+            </article>
+            <article>
+              <span>Faltan por salir</span>
+              <strong [class.bad]="stats.preguntasNuncaSalieron > 0">{{ stats.preguntasNuncaSalieron }}</strong>
+              <small>{{ stats.preguntasRepetidas }} ya se repitieron</small>
+            </article>
+            <article>
+              <span>Más reprobada</span>
+              @if (stats.masReprobadaId) {
+                <p class="st-worst" [title]="stats.masReprobadaEnunciado">{{ stats.masReprobadaEnunciado }}</p>
+                <small>{{ stats.masReprobadaAcierto }}% acierto · {{ stats.masReprobadaIntentos }} intentos</small>
+              } @else {
+                <strong>—</strong>
+                <small>Aún no hay exámenes calificados</small>
+              }
+            </article>
+          </section>
+
+          <section class="st-charts">
+            <div class="st-card">
+              <header>
+                <h4>Tasa de acierto por tema</h4>
+                <span>{{ statsTemasEvaluados.length }} evaluados de {{ stats.porTema.length }}</span>
+              </header>
+              <div class="st-temas-scroll">
+                @for (t of statsTemasEvaluados; track t.id) {
+                  <div class="st-tema">
+                    <div class="st-tema-top">
+                      <span>{{ t.nombre }}</span>
+                      <b [class]="colorAcierto(t.aciertoPct)">{{ t.aciertoPct }}%</b>
+                    </div>
+                    <div class="st-bar"><div [class]="colorAcierto(t.aciertoPct)" [style.width.%]="t.aciertoPct"></div></div>
+                  </div>
+                } @empty {
+                  <p class="muted">Todavía no hay aciertos por tema.</p>
+                }
+              </div>
+              <footer>
+                <span><i class="dot ok"></i> Óptimo (&gt;75%)</span>
+                <span><i class="dot mid"></i> Moderado (50-75%)</span>
+                <span><i class="dot bad"></i> Crítico (&lt;50%)</span>
+              </footer>
+            </div>
+            <div class="st-card">
+              <header>
+                <h4>Semáforo de complejidad</h4>
+                <span>{{ stats.preguntasEvaluadas }} evaluadas</span>
+              </header>
+              <div class="st-semaforo">
+                <div>
+                  <em class="ok">{{ stats.faciles }}</em>
+                  <span>Fáciles</span>
+                </div>
+                <div>
+                  <em class="mid">{{ stats.intermedias }}</em>
+                  <span>Intermedias</span>
+                </div>
+                <div>
+                  <em class="bad">{{ stats.criticas }}</em>
+                  <span>Críticas</span>
+                </div>
+              </div>
+              <div class="st-hint">
+                <i class="fa-regular fa-lightbulb"></i>
+                Use el filtro “Nunca salieron” para forzar la vuelta completa del banco. Las repetidas suelen ser bancos no aprobados.
+              </div>
+            </div>
+          </section>
+
+          <section class="st-filters">
+            <input type="search" [(ngModel)]="statsQ" (ngModelChange)="statsPagina = 1" placeholder="Buscar pregunta, tema o norma…" />
+            <select [(ngModel)]="statsTema" (ngModelChange)="statsPagina = 1">
+              <option [ngValue]="null">Todos los temas</option>
+              @for (t of stats.porTema; track t.id) {
+                <option [ngValue]="t.id">{{ t.nombre }}</option>
+              }
+            </select>
+            <select [(ngModel)]="statsDificultad" (ngModelChange)="statsPagina = 1">
+              <option value="todas">Dificultad: todas</option>
+              <option value="critica">Crítica (&lt;50%)</option>
+              <option value="media">Media (50-75%)</option>
+              <option value="dominada">Dominada (&gt;75%)</option>
+            </select>
+            <select [(ngModel)]="statsUso" (ngModelChange)="statsPagina = 1; statsChip = 'ninguno'">
+              <option value="evaluadas">Evaluadas ({{ stats.preguntasEvaluadas }})</option>
+              <option value="nunca">Nunca salieron ({{ stats.preguntasNuncaSalieron }})</option>
+              <option value="repetidas">Repetidas ({{ stats.preguntasRepetidas }})</option>
+              <option value="todas">Todo el banco ({{ stats.preguntasActivas }})</option>
+            </select>
+            <div class="st-chips">
+              <button type="button" [class.on]="statsChip === 'falladas'" (click)="aplicarChip('falladas')">Más falladas</button>
+              <button type="button" [class.on]="statsChip === 'repetidas'" (click)="aplicarChip('repetidas')">Se repiten</button>
+              <button type="button" [class.on]="statsChip === 'faltan'" (click)="aplicarChip('faltan')">Faltan por salir</button>
+            </div>
+          </section>
+
+          <div class="st-split">
+            <div class="st-table-card">
+              <header>
+                <div>
+                  <h4>Rendimiento por pregunta</h4>
+                  <p>{{ statsFiltradas.length }} preguntas con el filtro actual</p>
+                </div>
+              </header>
+              <div class="sa-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Pregunta / tema</th>
+                      <th>Veces</th>
+                      <th>Intentos</th>
+                      <th>Acierto</th>
+                      <th>Distractor</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (p of statsVista; track p.id) {
+                      <tr [class.sel]="statsSel?.id === p.id">
+                        <td class="enun">
+                          <span class="tema-chip">{{ p.temaNombre }}</span>
+                          {{ p.enunciado }}
+                          @if (p.nuncaSalio) { <em class="tag miss">No ha salido</em> }
+                          @if (p.repetida) { <em class="tag rep">Repetida</em> }
+                        </td>
+                        <td>{{ p.vecesSalio }}</td>
+                        <td>{{ p.intentos }}</td>
+                        <td>
+                          @if (p.nuncaSalio) { — }
+                          @else {
+                            <div class="st-pct">
+                              <b [class]="colorAcierto(p.aciertoPct)">{{ p.aciertoPct }}%</b>
+                              <div class="st-bar sm"><div [class]="colorAcierto(p.aciertoPct)" [style.width.%]="p.aciertoPct"></div></div>
+                            </div>
+                          }
+                        </td>
+                        <td class="muted">
+                          @if (p.distractorTexto) { {{ p.distractorTexto }} ({{ p.distractorPct }}%) }
+                          @else { — }
+                        </td>
+                        <td>
+                          <button type="button" (click)="inspeccionar(p)">Inspeccionar</button>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr><td colspan="6" class="muted">No hay preguntas con ese filtro.</td></tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <footer class="st-pager">
+                <span>Página {{ statsPagina }} de {{ statsPaginas }}</span>
+                <div>
+                  <button type="button" [disabled]="statsPagina <= 1" (click)="statsPagina = statsPagina - 1">Anterior</button>
+                  <button type="button" [disabled]="statsPagina >= statsPaginas" (click)="statsPagina = statsPagina + 1">Siguiente</button>
+                </div>
+              </footer>
+            </div>
+
+            <aside class="st-detail" *ngIf="statsSel as d">
+              <header>
+                <div>
+                  <h4>Desglose de la pregunta</h4>
+                  <p>ID #{{ d.id }} · salió {{ d.vecesSalio }} veces</p>
+                </div>
+                <span class="chip" [class.off]="colorAcierto(d.aciertoPct) === 'bad'" [class.on]="colorAcierto(d.aciertoPct) === 'ok'">
+                  {{ d.nuncaSalio ? 'Sin datos' : (colorAcierto(d.aciertoPct) === 'bad' ? 'Crítica' : (colorAcierto(d.aciertoPct) === 'mid' ? 'Intermedia' : 'Dominada')) }}
+                </span>
+              </header>
+              <span class="tema-chip">{{ d.temaNombre }}</span>
+              <p class="st-q">{{ d.enunciado }}</p>
+              @if (d.intentos === 0) {
+                <p class="muted">Esta pregunta aún no tiene respuestas calificadas. Debe entrar en un banco para completar la vuelta.</p>
+              } @else {
+                <h5>Distribución de respuestas ({{ d.intentos }} intentos)</h5>
+                @for (o of d.opciones; track o.id; let i = $index) {
+                  <div class="st-op" [class.ok]="o.correcta" [class.trap]="!o.correcta && o.pct >= 25 && o.pct >= d.aciertoPct">
+                    <div class="st-op-top">
+                      <span><b>{{ letra(i) }}</b> {{ o.texto }}</span>
+                      <strong>{{ o.pct }}% ({{ o.votos }})</strong>
+                    </div>
+                    <div class="st-bar sm"><div [class]="o.correcta ? 'ok' : 'bad'" [style.width.%]="o.pct"></div></div>
+                    @if (o.correcta) {
+                      <small>Respuesta correcta</small>
+                    } @else if (o.pct >= 25) {
+                      <small>Distractor frecuente</small>
+                    }
+                  </div>
+                }
+              }
+              <div class="st-detail-actions">
+                <button type="button" class="sa-btn-primary" (click)="irAEditarDesdeStats(d.id)">
+                  <i class="fa-solid fa-pen"></i> Editar pregunta
+                </button>
+              </div>
+            </aside>
+          </div>
+        }
       }
 
       @if (tab === 'importar') {
@@ -230,12 +578,44 @@
         + Añadir opción
       </button>
     </div>
-    <label>Nota general (opcional)
-      <textarea rows="2" [(ngModel)]="formExplicacion" placeholder="Comentario extra de la pregunta, si hace falta"></textarea>
-    </label>
-    <label>Fuente
-      <input type="text" [(ngModel)]="formFuente" placeholder="NFPA 20, Decreto 255…" />
-    </label>
+    <section class="sustento">
+      <h4>Sustento de la pregunta</h4>
+      <p class="ops-hint">
+        La <strong>nota general</strong> es un resumen breve de esta pregunta (qué enseña y por qué esa es la respuesta).
+        La <strong>normativa</strong> es el nombre del documento (NFPA, decreto, MSDS…).
+        El archivo es la evidencia: foto de la tabla, página del PDF o recorte donde lo dice.
+      </p>
+      <label>Nota general (resumen breve)
+        <textarea rows="3" [(ngModel)]="formExplicacion"
+          placeholder="Ej.: Esta pregunta cubre la clasificación NFPA 704. El diamante rojo indica inflamabilidad; el 4 es el nivel más peligroso."></textarea>
+      </label>
+      <label>Normativa / fuente
+        <textarea rows="4" [(ngModel)]="formFuente"
+          placeholder="Puede escribir la cita completa. Ej.: Hiroyuki Hirano, 5 Pillars of the Visual Workplace (1995). Las 5S apoyan ISO 45001 e ISO 9001. En Ecuador: Decisión 584 CAN, Código del Trabajo art. 410 y Decreto Ejecutivo 255."></textarea>
+      </label>
+      <div class="sustento-box">
+        <span>Evidencia (foto o PDF, máx. 15 MB)</span>
+        @if (formTieneSustento && formSustentoNombre) {
+          <div class="sustento-file">
+            @if (esImagenSustento() && formSustentoPreviewUrl) {
+              <img [src]="formSustentoPreviewUrl" alt="Vista previa del sustento" />
+            } @else {
+              <i class="fa-regular fa-file-pdf"></i>
+            }
+            <div>
+              <strong>{{ formSustentoNombre }}</strong>
+              <p>{{ formSustentoFile ? 'Se subirá al guardar' : 'Archivo actual' }}</p>
+            </div>
+            <button type="button" class="sa-btn-ghost" (click)="verSustentoEditor()">Ver</button>
+            <button type="button" class="sa-btn-ghost" (click)="quitarSustentoForm()">Quitar</button>
+          </div>
+        }
+        <label class="file-pick">
+          {{ formTieneSustento ? 'Reemplazar archivo' : 'Subir foto o PDF' }}
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,application/pdf,image/*" (change)="onSustento($event)" />
+        </label>
+      </div>
+    </section>
     <label class="check">
       <input type="checkbox" [(ngModel)]="formActivo" /> Activa (sale en exámenes nuevos)
     </label>

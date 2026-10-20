@@ -10,6 +10,7 @@ import { Empresa } from '../../../core/models/empresa.model';
 import { environment } from '../../../../environments/environment';
 import { SuperAdminSidebarComponent } from '../../super-admin/shared/super-admin-sidebar/super-admin-sidebar.component';
 import { UsuarioSidebarComponent } from '../../usuario/shared/usuario-sidebar/usuario-sidebar.component';
+import { AdminEmpresaSidebarComponent } from '../../admin-empresa/shared/admin-empresa-sidebar/admin-empresa-sidebar.component';
 import { MarkdownPipe } from '../pipes/markdown.pipe';
 
 const EMPRESA_FISCALIZACION_KEY = 'hse.empresaFiscalizacionId';
@@ -37,7 +38,7 @@ export interface AnalizarReporteUi {
 @Component({
   selector: 'app-analizar-reporte',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SuperAdminSidebarComponent, UsuarioSidebarComponent, MarkdownPipe],
+  imports: [CommonModule, FormsModule, RouterModule, SuperAdminSidebarComponent, UsuarioSidebarComponent, AdminEmpresaSidebarComponent, MarkdownPipe],
   templateUrl: './analizar-reporte.component.html',
   styleUrls: ['./analizar-reporte.component.scss'],
 })
@@ -48,6 +49,7 @@ export class AnalizarReporteComponent implements OnInit {
 
   esSuperAdmin = this.auth.getUserRole() === 'SUPER_ADMIN';
   esUsuario = this.auth.getUserRole() === 'USUARIO';
+  esAdminEmpresa = this.auth.getUserRole() === 'ADMIN_EMPRESA';
   empresa: Empresa | null = null;
   empresaId: number | null = null;
   empresaNombre = '';

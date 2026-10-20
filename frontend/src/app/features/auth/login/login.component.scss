@@ -71,52 +71,6 @@
   }
 }
 
-.sesion-activa-banner {
-  margin-bottom: 1.25rem;
-  padding: 0.875rem 1rem;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  border-radius: 8px;
-  color: #e2e8f0;
-  font-size: 0.875rem;
-
-  p {
-    margin: 0 0 0.75rem;
-  }
-}
-
-.sesion-activa-banner__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.btn-secondary-inline {
-  padding: 0.5rem 1rem;
-  background: #1a56db;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-link-inline {
-  padding: 0;
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 0.8125rem;
-  text-decoration: underline;
-  cursor: pointer;
-  text-align: left;
-
-  &:hover {
-    color: #e2e8f0;
-  }
-}
-
 .login-form {
   display: flex;
   flex-direction: column;

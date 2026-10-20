@@ -14,7 +14,11 @@
         <section class="welcome">
           <div>
             <h2>Simulador de evaluaciones SSO</h2>
-            <p>Exámenes aleatorios de 20 o 40 preguntas. Apruebas con {{ data.notaMinima }} o más. Tiempo: {{ data.tiempo20Min }} min.</p>
+            <p>
+              Elija 20 (15 min), 40 (30 min), 60 (50 min) o Todas (1 h 30 min).
+              Si salen menos de 10 preguntas, el tiempo es 10 min. Las preguntas y las opciones se mezclan al azar.
+              Si no alcanza {{ data.notaMinima }}%, puede repetir las mismas o continuar con otras.
+            </p>
           </div>
         </section>
 
@@ -23,47 +27,103 @@
             <span>Avance de la vuelta {{ data.vueltaActual }}</span>
             <strong>{{ data.preguntasVistasVuelta }} de {{ data.preguntasBanco }}</strong>
             <div class="bar"><div [style.width.%]="pctVuelta"></div></div>
+            <p>{{ pctVuelta }}% cumplido con {{ data.notaMinima }}% o más</p>
           </article>
           <article>
             <span>Última nota</span>
             <strong [class.ok]="data.ultimoAprobado" [class.bad]="data.ultimoAprobado === false">
               {{ data.ultimaNota != null ? (data.ultimaNota | number:'1.0-1') : '—' }}
             </strong>
-            <p>{{ data.ultimoAprobado == null ? 'Sin exámenes finalizados' : (data.ultimoAprobado ? 'Aprobado' : 'Reprobado') }}</p>
+            <p>{{ data.ultimoAprobado == null ? 'Sin exámenes finalizados' : (data.ultimoAprobado ? 'Avanzó de banco' : 'Puede repetir las mismas o continuar con otras') }}</p>
           </article>
           <article>
-            <span>Falladas por repasar</span>
-            <strong>{{ data.falladasPendientes }}</strong>
+            <span>Alcance elegido</span>
+            <strong>{{ alcanceLabel }}</strong>
+            <p>{{ cumplidasAlcance }} / {{ totalAlcance }} cumplidas en este alcance</p>
           </article>
         </section>
 
         @if (data.intentoPendienteId) {
           <div class="pendiente">
-            Tienes un examen {{ data.intentoPendienteModo }} en curso.
+            Tienes un examen en curso.
             <button type="button" class="btn-primary" (click)="continuar()">Continuar</button>
           </div>
         }
 
+        @if (puedeRepetir) {
+          <div class="repetir">
+            El último intento de <strong>{{ data.bloqueRepetirTemaNombre }}</strong>
+            no alcanzó {{ data.notaMinima }}% (nota {{ data.bloqueRepetirNota | number:'1.0-1' }}%).
+            Puede <strong>repetir las mismas preguntas</strong> (otro orden) o <strong>continuar con otras</strong> al azar.
+          </div>
+        }
+
         <section class="elegir">
-          <h3>Elegir examen</h3>
+          <h3>Elegir alcance</h3>
           <div class="mods">
-            <label [class.on]="modo === '20'"><input type="radio" name="modo" [(ngModel)]="modo" value="20" /> 20 preguntas ({{ data.tiempo20Min }} min)</label>
-            <label [class.on]="modo === '40'"><input type="radio" name="modo" [(ngModel)]="modo" value="40" /> 40 preguntas ({{ data.tiempo40Min }} min)</label>
-            <label [class.on]="modo === 'falladas'" [class.disabled]="data.falladasPendientes === 0">
-              <input type="radio" name="modo" [(ngModel)]="modo" value="falladas" [disabled]="data.falladasPendientes === 0" />
-              Falladas ({{ data.falladasPendientes }})
+            <label [class.on]="alcance === 'general'">
+              <input type="radio" name="alcance" [(ngModel)]="alcance" value="general" />
+              General (todos los temas)
+            </label>
+            <label [class.on]="alcance === 'tema'">
+              <input type="radio" name="alcance" [(ngModel)]="alcance" value="tema" />
+              Por tema
+            </label>
+            <label [class.on]="alcance === 'falladas'" [class.disabled]="data.falladasPendientes === 0">
+              <input type="radio" name="alcance" [(ngModel)]="alcance" value="falladas" [disabled]="data.falladasPendientes === 0" />
+              Repaso de falladas ({{ data.falladasPendientes }})
             </label>
           </div>
-          <label class="tema">
-            Tema
-            <select [(ngModel)]="temaId" [disabled]="modo === 'falladas'">
-              <option [ngValue]="null">Todos los temas</option>
-              @for (t of data.temas; track t.id) {
-                <option [ngValue]="t.id">{{ t.nombre }} ({{ t.preguntasActivas }})</option>
-              }
-            </select>
-          </label>
-          <button type="button" class="btn-primary" [disabled]="iniciando" (click)="empezar()">Comenzar examen</button>
+          @if (alcance === 'tema') {
+            <label class="tema">
+              Tema
+              <select [(ngModel)]="temaId">
+                @for (t of data.temas; track t.id) {
+                  <option [ngValue]="t.id">{{ t.nombre }} · {{ t.cumplidasVuelta || 0 }}/{{ t.preguntasActivas }}</option>
+                }
+              </select>
+            </label>
+          }
+          <h4 class="banco-tit">Tamaño del examen</h4>
+          <div class="bancos">
+            @for (b of bancos; track b.n) {
+              <button type="button" [class.on]="bancoElegido === b.n" (click)="bancoElegido = b.n">
+                {{ b.label }}
+                <small>{{ b.tiempo }}</small>
+              </button>
+            }
+          </div>
+          <div class="ficha">
+            <div>
+              <span>Preguntas de este examen</span>
+              <strong>{{ preguntasEsteExamen }}</strong>
+              <p>{{ alcanceLabel }} · {{ bancoLabel }}</p>
+            </div>
+            <div>
+              <span>Tiempo</span>
+              <strong>{{ tiempoLabel }}</strong>
+              <p>Cronómetro del simulacro</p>
+            </div>
+            <div>
+              <span>Para avanzar</span>
+              <strong>{{ data.notaMinima }}%</strong>
+              <p>Las preguntas salen al azar</p>
+            </div>
+          </div>
+          <div class="acciones">
+            @if (puedeRepetir) {
+              <button type="button" class="btn-ghost" [disabled]="iniciando || (alcance === 'tema' && !temaId)" (click)="empezar(false)">
+                Repetir las mismas ({{ data.bloqueRepetirTotal }})
+              </button>
+              <button type="button" class="btn-primary" [disabled]="iniciando || (alcance === 'tema' && !temaId)" (click)="empezar(true)">
+                Continuar con otras ({{ preguntasEsteExamen }})
+              </button>
+            } @else {
+              <button type="button" class="btn-primary" [disabled]="iniciando || (alcance === 'tema' && !temaId)" (click)="empezar(true)">
+                Comenzar {{ preguntasEsteExamen }} {{ preguntasEsteExamen === 1 ? 'pregunta' : 'preguntas' }}
+              </button>
+            }
+          </div>
         </section>
 
         <section class="hist">
@@ -79,14 +139,14 @@
                 @for (h of data.historial; track h.id) {
                   <tr>
                     <td>{{ h.fechaInicio | date:'short' }}</td>
-                    <td>{{ h.modo }}</td>
+                    <td>{{ h.modo === 'banco' || h.modo === '20' || h.modo === '40' ? 'Banco' : h.modo }}</td>
                     <td>{{ h.temaNombre }}</td>
                     <td>
                       @if (h.estado === 'finalizado' && h.nota != null) {
                         <button type="button" class="link" (click)="verResultado(h.id)">{{ h.nota | number:'1.0-1' }}</button>
                       } @else { — }
                     </td>
-                    <td>{{ h.estado }}</td>
+                    <td>{{ h.estado === 'finalizado' ? (h.aprobado ? 'Avanzó' : 'No alcanzó') : h.estado }}</td>
                   </tr>
                 }
               </tbody>

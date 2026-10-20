@@ -3,7 +3,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  SsoCobertura,
   SsoConfiguracion,
+  SsoEstadisticas,
+  SsoEstudioPregunta,
   SsoExamen,
   SsoImportPreview,
   SsoInicio,
@@ -25,8 +28,22 @@ export class SimuladorService {
     return this.http.get<SsoConfiguracion>(`${this.admin}/configuracion`);
   }
 
-  guardarConfiguracion(tiempoExamenMin: number): Observable<SsoConfiguracion> {
-    return this.http.put<SsoConfiguracion>(`${this.admin}/configuracion`, { tiempoExamenMin });
+  guardarConfiguracion(body: {
+    tiempoExamenMin: number;
+    notaMinima?: number;
+    preguntasPorBanco?: number;
+  }): Observable<SsoConfiguracion> {
+    return this.http.put<SsoConfiguracion>(`${this.admin}/configuracion`, body);
+  }
+
+  cobertura(): Observable<SsoCobertura> {
+    return this.http.get<SsoCobertura>(`${this.admin}/cobertura`);
+  }
+
+  estadisticas(dias = 0): Observable<SsoEstadisticas> {
+    return this.http.get<SsoEstadisticas>(`${this.admin}/estadisticas`, {
+      params: { dias: String(dias) },
+    });
   }
 
   listarTemas(): Observable<SsoTema[]> {
@@ -65,6 +82,20 @@ export class SimuladorService {
     return this.http.patch<SsoPreguntaAdmin>(`${this.admin}/preguntas/${id}/activo`, {});
   }
 
+  subirSustento(id: number, file: File): Observable<SsoPreguntaAdmin> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<SsoPreguntaAdmin>(`${this.admin}/preguntas/${id}/sustento`, fd);
+  }
+
+  eliminarSustento(id: number): Observable<SsoPreguntaAdmin> {
+    return this.http.delete<SsoPreguntaAdmin>(`${this.admin}/preguntas/${id}/sustento`);
+  }
+
+  descargarSustento(id: number): Observable<Blob> {
+    return this.http.get(`${this.api}/preguntas/${id}/sustento`, { responseType: 'blob' });
+  }
+
   previewImport(file: File): Observable<SsoImportPreview> {
     const fd = new FormData();
     fd.append('file', file);
@@ -79,8 +110,20 @@ export class SimuladorService {
     return this.http.get<SsoInicio>(`${this.api}/inicio`);
   }
 
-  iniciarExamen(modo: string, temaId?: number | null): Observable<SsoExamen> {
-    return this.http.post<SsoExamen>(`${this.api}/examenes`, { modo, temaId: temaId ?? null });
+  iniciarExamen(
+    modo: string,
+    temaId?: number | null,
+    preguntasPorBanco?: number | null,
+    nuevoSet = true,
+    intentoOrigenId?: number | null,
+  ): Observable<SsoExamen> {
+    return this.http.post<SsoExamen>(`${this.api}/examenes`, {
+      modo,
+      temaId: temaId ?? null,
+      preguntasPorBanco: preguntasPorBanco ?? null,
+      nuevoSet,
+      intentoOrigenId: intentoOrigenId ?? null,
+    });
   }
 
   obtenerExamen(id: number): Observable<SsoExamen> {
@@ -101,5 +144,16 @@ export class SimuladorService {
 
   historial(): Observable<SsoHistorialItem[]> {
     return this.http.get<SsoHistorialItem[]>(`${this.api}/historial`);
+  }
+
+  listarTemasEstudio(): Observable<SsoTema[]> {
+    return this.http.get<SsoTema[]>(`${this.api}/estudio/temas`);
+  }
+
+  listarEstudio(q?: string, temaId?: number | null): Observable<SsoEstudioPregunta[]> {
+    let params = new HttpParams();
+    if (q) params = params.set('q', q);
+    if (temaId != null) params = params.set('temaId', String(temaId));
+    return this.http.get<SsoEstudioPregunta[]>(`${this.api}/estudio/preguntas`, { params });
   }
 }

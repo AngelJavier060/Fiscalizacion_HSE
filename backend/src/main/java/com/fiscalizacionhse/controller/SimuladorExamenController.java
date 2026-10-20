@@ -6,9 +6,11 @@ import com.fiscalizacionhse.dto.response.SsoExamenResponse;
 import com.fiscalizacionhse.dto.response.SsoHistorialItemResponse;
 import com.fiscalizacionhse.dto.response.SsoInicioResponse;
 import com.fiscalizacionhse.dto.response.SsoResultadoResponse;
+import com.fiscalizacionhse.service.SimuladorAdminService;
 import com.fiscalizacionhse.service.SimuladorExamenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,7 @@ import java.util.List;
 public class SimuladorExamenController {
 
     private final SimuladorExamenService examenService;
+    private final SimuladorAdminService adminService;
 
     @GetMapping("/inicio")
     public ResponseEntity<SsoInicioResponse> inicio(Authentication auth) {
@@ -61,6 +64,11 @@ public class SimuladorExamenController {
     @GetMapping("/historial")
     public ResponseEntity<List<SsoHistorialItemResponse>> historial(Authentication auth) {
         return ResponseEntity.ok(examenService.historial(uid(auth)));
+    }
+
+    @GetMapping("/preguntas/{id}/sustento")
+    public ResponseEntity<Resource> verSustento(@PathVariable Long id) {
+        return SimuladorAdminController.archivoSustento(adminService.leerSustento(id));
     }
 
     private Long uid(Authentication auth) {

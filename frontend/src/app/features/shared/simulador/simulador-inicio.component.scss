@@ -23,6 +23,14 @@
   background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem;
 }
 .pendiente { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.repetir {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  font-size: .85rem;
+}
 .mods { display: flex; flex-wrap: wrap; gap: .75rem; margin: .75rem 0; }
 .mods label {
   border: 1px solid #e2e8f0; border-radius: .75rem; padding: .5rem .75rem; cursor: pointer; font-size: .8rem;
@@ -31,9 +39,49 @@
 }
 .tema { display: flex; flex-direction: column; gap: .35rem; font-size: .75rem; font-weight: 600; color: #64748b; margin-bottom: 1rem; }
 .tema select { padding: .5rem; border-radius: .65rem; border: 1px solid #e2e8f0; font: inherit; }
+.banco-tit { margin: .25rem 0 .5rem; font-size: .85rem; color: #0f172a; }
+.bancos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: .6rem;
+  margin: 0 0 1rem;
+  button {
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    border-radius: .85rem;
+    padding: .7rem .75rem;
+    cursor: pointer;
+    text-align: left;
+    font-weight: 700;
+    font-size: .85rem;
+    color: #0f172a;
+    small { display: block; margin-top: .2rem; font-weight: 600; color: #64748b; font-size: .72rem; }
+    &.on { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; small { color: #1d4ed8; } }
+  }
+}
+.ficha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: .75rem;
+  margin: 0 0 1rem;
+  div {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: .85rem;
+    padding: .85rem 1rem;
+  }
+  span { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; color: #94a3b8; font-weight: 700; }
+  strong { display: block; font-size: 1.35rem; margin: .25rem 0 .15rem; color: #0f172a; }
+  p { margin: 0; font-size: .75rem; color: #64748b; }
+}
+.acciones { display: flex; flex-wrap: wrap; gap: .6rem; }
 .btn-primary {
   background: #2563eb; color: #fff; border: none; border-radius: .75rem; padding: .55rem 1rem;
   font-weight: 600; font-size: .8rem; cursor: pointer;
+}
+.btn-ghost {
+  background: #fff; color: #1d4ed8; border: 1px solid #2563eb; border-radius: .75rem;
+  padding: .55rem 1rem; font-weight: 600; font-size: .8rem; cursor: pointer;
 }
 .alert { background: #fff1f2; color: #be123c; padding: .75rem 1rem; border-radius: .75rem; }
 table { width: 100%; border-collapse: collapse; font-size: .8rem; }

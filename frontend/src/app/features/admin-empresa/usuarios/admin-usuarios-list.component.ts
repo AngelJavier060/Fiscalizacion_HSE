@@ -5,11 +5,12 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
 import { Usuario } from '../../../core/models/usuario.model';
+import { AdminEmpresaSidebarComponent } from '../shared/admin-empresa-sidebar/admin-empresa-sidebar.component';
 
 @Component({
   selector: 'app-admin-usuarios-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AdminEmpresaSidebarComponent],
   templateUrl: './admin-usuarios-list.component.html',
   styleUrls: ['./admin-usuarios-list.component.scss'],
 })

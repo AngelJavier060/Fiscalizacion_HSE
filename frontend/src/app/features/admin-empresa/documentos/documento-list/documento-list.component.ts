@@ -11,6 +11,8 @@ import {
   type DocumentoLinks,
 } from '../../../../core/helpers/documento-routing.helper';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
+import { SuperAdminSidebarComponent } from '../../../super-admin/shared/super-admin-sidebar/super-admin-sidebar.component';
+import { AdminEmpresaSidebarComponent } from '../../shared/admin-empresa-sidebar/admin-empresa-sidebar.component';
 
 export interface BusquedaAsistidaUi {
   consulta: string;
@@ -22,7 +24,7 @@ export interface BusquedaAsistidaUi {
 @Component({
   selector: 'app-documento-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, MarkdownPipe],
+  imports: [CommonModule, RouterModule, FormsModule, MarkdownPipe, SuperAdminSidebarComponent, AdminEmpresaSidebarComponent],
   templateUrl: './documento-list.component.html',
   styleUrls: ['./documento-list.component.scss'],
 })

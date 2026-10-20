@@ -11,4 +11,5 @@ public class SsoTemaResponse {
     private Boolean activo;
     private long totalPreguntas;
     private long preguntasActivas;
+    private long cumplidasVuelta;
 }

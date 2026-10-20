@@ -29,6 +29,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     long countByRol(RolUsuario rol);
 
+    @EntityGraph(attributePaths = "empresa")
+    List<Usuario> findByRolAndActivoTrueOrderByNombreAsc(RolUsuario rol);
+
     boolean existsByEmail(String email);
 
     boolean existsByEmailAndIdNot(String email, Long id);

@@ -1,135 +1,164 @@
-<div class="dashboard-container">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-small">
-        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-          <rect width="48" height="48" rx="12" fill="#059669"/>
-          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <span class="brand">Fiscalización HSE</span>
-    </div>
+<div class="dashboard-container ae-dash">
+  <app-admin-empresa-sidebar />
 
-    <nav class="sidebar-nav">
-      <div class="nav-label">Mi Empresa</div>
-      <a routerLink="/admin-empresa/dashboard" routerLinkActive="active" class="nav-item" [routerLinkActiveOptions]="{ exact: true }">
-        <span class="nav-icon">📊</span> Dashboard
-      </a>
-      <a *ngIf="tieneModulo('documentos')" routerLink="/admin-empresa/documentos" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">📄</span> Documentos
-      </a>
-      <div class="nav-label" *ngIf="tieneModulo('usuarios')">Accesos</div>
-      <a *ngIf="tieneModulo('usuarios')" routerLink="/admin-empresa/usuarios" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">👥</span> Usuarios
-      </a>
-      <a *ngIf="tieneModulo('usuarios')" routerLink="/admin-empresa/roles" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">🎭</span> Roles
-      </a>
-      <div class="nav-label" *ngIf="tieneModulo('ia')">Inteligencia</div>
-      <a *ngIf="tieneModulo('ia')" routerLink="/admin-empresa/ia" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">🤖</span> FISCALIZA-AI
-      </a>
-      <div class="nav-label" *ngIf="tieneModulo('recordatorios')">Configuración</div>
-      <a *ngIf="tieneModulo('recordatorios')" routerLink="/admin-empresa/recordatorios" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">🔔</span> Recordatorios
-      </a>
-      <a *ngIf="tieneModulo('simulador')" routerLink="/admin-empresa/simulador" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">📝</span> Simulador
-      </a>
-    </nav>
+  <div class="ae-shell">
+    <header class="ae-topbar">
+      <nav class="ae-breadcrumb" aria-label="Ruta de navegación">
+        <span class="ae-crumb-brand">Dashboard</span>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span class="ae-crumb-current">{{ empresaNombre }}</span>
+      </nav>
 
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar admin">{{ user?.nombre?.charAt(0) || 'A' }}</div>
-        <div>
-          <p class="user-name">{{ user?.nombre || 'Admin' }}</p>
-          <p class="user-role">{{ user?.empresaNombre || 'Mi Empresa' }}</p>
+      <div class="ae-topbar-tools">
+        <span class="ae-badge">ADMIN EMPRESA</span>
+        <div class="ae-date-chip">
+          <i class="fa-regular fa-calendar"></i>
+          <span>{{ fechaHoy }}</span>
         </div>
-      </div>
-      <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <header class="topbar">
-      <h2>Dashboard - {{ user?.empresaNombre || 'Mi Empresa' }}</h2>
-      <div class="topbar-actions">
-        <span class="badge-admin">ADMIN EMPRESA</span>
+        <div class="ae-topbar-user">
+          <div class="ae-user-copy">
+            <span>Administrador</span>
+            <p>{{ nombreUsuario }}</p>
+          </div>
+          <div class="ae-user-avatar">{{ iniciales }}</div>
+        </div>
       </div>
     </header>
 
-    <div class="content">
-      <!-- Tarjetas -->
-      <div class="cards-grid">
-        <a *ngIf="tieneModulo('documentos')" routerLink="/admin-empresa/documentos" class="card card-link">
-          <div class="card-icon documentos">📄</div>
-          <div class="card-info">
-            <h3>Documentos</h3>
-            <p class="card-hint">Ver y gestionar PDF normativos</p>
+    <main class="ae-main">
+      <section class="ae-hero">
+        <div class="ae-hero-glow"></div>
+        <div class="ae-hero-inner">
+          <div>
+            <span class="ae-hero-pill">
+              <span class="ae-live-dot"></span>
+              Panel de gestión HSE
+            </span>
+            <h2>Bienvenido, {{ nombreUsuario }}</h2>
+            <p>
+              Administre documentos, accesos y estudio SSO de
+              <strong>{{ empresaNombre }}</strong>.
+            </p>
           </div>
-        </a>
-        <a *ngIf="tieneModulo('documentos')" routerLink="/admin-empresa/documentos/subir" class="card card-link card-cta">
-          <div class="card-icon" style="background:rgba(16,185,129,0.15)">⬆️</div>
-          <div class="card-info">
-            <h3>Subir documento</h3>
-            <p class="card-hint">Añadir un PDF al sistema</p>
-          </div>
-        </a>
-        <a *ngIf="tieneModulo('usuarios')" routerLink="/admin-empresa/usuarios" class="card card-link">
-          <div class="card-icon usuarios">👥</div>
-          <div class="card-info">
-            <h3>Usuarios</h3>
-            <p class="card-hint">Equipo con acceso a la empresa</p>
-          </div>
-        </a>
-        <a *ngIf="tieneModulo('usuarios')" routerLink="/admin-empresa/roles" class="card card-link">
-          <div class="card-icon" style="background: rgba(168, 85, 247, 0.12)">🎭</div>
-          <div class="card-info">
-            <h3>Roles</h3>
-            <p class="card-hint">Permisos Admin / Usuario</p>
-          </div>
-        </a>
-        <a *ngIf="tieneModulo('recordatorios')" routerLink="/admin-empresa/recordatorios" class="card card-link">
-          <div class="card-icon recordatorios">🔔</div>
-          <div class="card-info">
-            <h3>Recordatorios</h3>
-            <p class="card-hint">Gestionar alertas</p>
-          </div>
-        </a>
-      </div>
-
-      <!-- Próximos pasos -->
-      <div class="info-section">
-        <h3>📋 Próximos pasos</h3>
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <div class="step-info">
-              <h4>Subir documentos normativos</h4>
-              <p>Carga los PDFs con las normativas HSE de tu empresa</p>
-            </div>
-            <a routerLink="/admin-empresa/documentos/subir" class="step-action btn-primary-sm">Subir PDF</a>
-          </div>
-          <div class="step">
-            <div class="step-number">2</div>
-            <div class="step-info">
-              <h4>Gestionar usuarios</h4>
-              <p>Crea los usuarios que accederán a la documentación</p>
-            </div>
-            <a routerLink="/admin-empresa/usuarios" class="step-action btn-primary-sm">Ver usuarios</a>
-          </div>
-          <div class="step">
-            <div class="step-number">3</div>
-            <div class="step-info">
-              <h4>Configurar recordatorios</h4>
-              <p>Define qué documentos recordar y cada cuánto tiempo</p>
-            </div>
-            <a routerLink="/admin-empresa/recordatorios" class="step-action btn-secondary-sm">Recordatorios</a>
+          <div class="ae-hero-actions">
+            @if (tieneModulo('documentos')) {
+              <a routerLink="/admin-empresa/documentos/subir" class="ae-btn-primary">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                Subir PDF
+              </a>
+            }
+            @if (tieneModulo('ia')) {
+              <a routerLink="/admin-empresa/ia" class="ae-btn-ghost">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                FISCALIZA-AI
+              </a>
+            }
           </div>
         </div>
-      </div>
-    </div>
-  </main>
+      </section>
+
+      <section class="ae-shortcuts">
+        <div class="ae-section-head">
+          <div>
+            <h3>Módulos de la empresa</h3>
+            <p>Accesos principales para operar la documentación y el equipo</p>
+          </div>
+        </div>
+
+        <div class="ae-shortcut-grid">
+          @if (tieneModulo('documentos')) {
+            <a routerLink="/admin-empresa/documentos" class="ae-shortcut">
+              <div class="ae-shortcut-icon blue"><i class="fa-regular fa-folder-open"></i></div>
+              <div>
+                <h4>Documentos</h4>
+                <p>Ver y gestionar PDF normativos</p>
+              </div>
+              <i class="fa-solid fa-chevron-right ae-arrow"></i>
+            </a>
+            <a routerLink="/admin-empresa/documentos/subir" class="ae-shortcut emerald">
+              <div class="ae-shortcut-icon emerald"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <div>
+                <h4>Subir documento</h4>
+                <p>Añadir un PDF al sistema</p>
+              </div>
+              <i class="fa-solid fa-chevron-right ae-arrow"></i>
+            </a>
+          }
+          @if (tieneModulo('usuarios')) {
+            <a routerLink="/admin-empresa/usuarios" class="ae-shortcut">
+              <div class="ae-shortcut-icon sky"><i class="fa-solid fa-users"></i></div>
+              <div>
+                <h4>Usuarios</h4>
+                <p>Equipo con acceso a la empresa</p>
+              </div>
+              <i class="fa-solid fa-chevron-right ae-arrow"></i>
+            </a>
+            <a routerLink="/admin-empresa/roles" class="ae-shortcut purple">
+              <div class="ae-shortcut-icon purple"><i class="fa-solid fa-id-badge"></i></div>
+              <div>
+                <h4>Roles</h4>
+                <p>Permisos Admin / Usuario</p>
+              </div>
+              <i class="fa-solid fa-chevron-right ae-arrow"></i>
+            </a>
+          }
+          @if (tieneModulo('simulador')) {
+            <a routerLink="/admin-empresa/preguntas" class="ae-shortcut emerald">
+              <div class="ae-shortcut-icon emerald"><i class="fa-solid fa-book-open"></i></div>
+              <div>
+                <h4>Preguntas SSO</h4>
+                <p>Estudiar nota, normativa y evidencia</p>
+              </div>
+              <i class="fa-solid fa-chevron-right ae-arrow"></i>
+            </a>
+          }
+          @if (tieneModulo('recordatorios')) {
+            <a routerLink="/admin-empresa/recordatorios" class="ae-shortcut amber">
+              <div class="ae-shortcut-icon amber"><i class="fa-regular fa-bell"></i></div>
+              <div>
+                <h4>Recordatorios</h4>
+                <p>Gestionar alertas del equipo</p>
+              </div>
+              <i class="fa-solid fa-chevron-right ae-arrow"></i>
+            </a>
+          }
+        </div>
+      </section>
+
+      <section class="ae-steps">
+        <div class="ae-section-head">
+          <div>
+            <h3>Próximos pasos</h3>
+            <p>Ordene la operación HSE de su empresa en tres acciones</p>
+          </div>
+        </div>
+        <div class="ae-step-list">
+          <div class="ae-step">
+            <span class="ae-step-num">1</span>
+            <div>
+              <h4>Subir documentos normativos</h4>
+              <p>Cargue los PDF con las normativas HSE de su empresa</p>
+            </div>
+            <a routerLink="/admin-empresa/documentos/subir" class="ae-step-btn">Subir PDF</a>
+          </div>
+          <div class="ae-step">
+            <span class="ae-step-num">2</span>
+            <div>
+              <h4>Gestionar usuarios</h4>
+              <p>Revise quién accede a la documentación de su organización</p>
+            </div>
+            <a routerLink="/admin-empresa/usuarios" class="ae-step-btn">Ver usuarios</a>
+          </div>
+          <div class="ae-step">
+            <span class="ae-step-num">3</span>
+            <div>
+              <h4>Configurar recordatorios</h4>
+              <p>Defina qué documentos recordar y cada cuánto tiempo</p>
+            </div>
+            <a routerLink="/admin-empresa/recordatorios" class="ae-step-btn ghost">Recordatorios</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 </div>

@@ -23,5 +23,12 @@ public class SsoInicioResponse {
     private int notaMinima;
     private int tiempo20Min;
     private int tiempo40Min;
+    private int tiempoExamenMin;
+    private int preguntasPorBanco;
+    private Long bloqueRepetirTemaId;
+    private String bloqueRepetirTemaNombre;
+    private BigDecimal bloqueRepetirNota;
+    private int bloqueRepetirTotal;
+    private boolean bloqueRepetir;
     private List<SsoHistorialItemResponse> historial;
 }

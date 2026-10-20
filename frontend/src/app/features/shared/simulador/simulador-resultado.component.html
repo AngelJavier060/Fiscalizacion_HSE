@@ -48,7 +48,7 @@
                   </span>
                   <span class="sr-hint">
                     <i class="fa-solid" [class.fa-shield-halved]="res.aprobado" [class.fa-triangle-exclamation]="!res.aprobado"></i>
-                    {{ res.aprobado ? 'Habilitación operativa alcanzada' : 'Requiere reentrenamiento técnico' }}
+                    {{ res.aprobado ? 'Banco superado: pasa al siguiente' : 'Puede repetir las mismas o continuar con otras' }}
                   </span>
                 </div>
                 <h2>Simulación de Fiscalización HSE — {{ res.totalPreguntas }} reactivos</h2>
@@ -59,9 +59,9 @@
                 </p>
               </div>
               <div class="sr-hero-actions">
-                <button type="button" class="sr-btn-primary" (click)="toggleRevision()">
+                <button type="button" class="sr-btn-primary" (click)="irARevision()">
                   <i class="fa-solid fa-rotate-left"></i>
-                  {{ verRevision ? 'Ocultar revisión' : 'Revisar respuestas' }}
+                  Revisar respuestas
                 </button>
                 <button type="button" class="sr-btn-ghost" (click)="volver()">
                   <i class="fa-solid fa-arrow-turn-up"></i>
@@ -122,12 +122,131 @@
           </div>
         </section>
 
+        <section class="sr-rev" id="rev-lista">
+          <h3>Preguntas falladas — pulse para retroalimentar</h3>
+          <p class="sr-rev-hint">Haga clic en una pregunta incorrecta para ver la respuesta, la nota, la normativa y el sustento. Las acertadas quedan compactas.</p>
+          @for (p of res.revision; track p.preguntaId) {
+            @if (p.esCorrecta) {
+              <article class="ok compact">
+                <header>
+                  <span>{{ p.orden }}. {{ p.temaNombre }}</span>
+                  <strong>Correcta</strong>
+                </header>
+              </article>
+            } @else if (abiertaId === p.preguntaId) {
+              <article class="bad open" [id]="'rev-' + p.preguntaId">
+                <header>
+                  <span>{{ p.orden }}. {{ p.temaNombre }}</span>
+                  <button type="button" class="btn-recoger" (click)="recoger()">
+                    Recoger y siguiente
+                    <i class="fa-solid fa-chevron-up"></i>
+                  </button>
+                </header>
+                <p class="enun">{{ p.enunciado }}</p>
+                <ul>
+                  @for (o of p.opciones; track o.id) {
+                    <li [class.correcta]="o.correcta" [class.elegida]="o.elegida">
+                      <div>
+                        {{ o.texto }}
+                        @if (o.correcta) { <em>correcta</em> }
+                        @if (o.elegida && !o.correcta) { <em>tu respuesta</em> }
+                      </div>
+                      @if (!o.correcta && o.argumento) {
+                        <p class="arg">{{ o.argumento }}</p>
+                      }
+                    </li>
+                  }
+                </ul>
+
+                <div class="sr-anexo">
+                  <section>
+                    <h4><i class="dot green"></i> Nota general (resumen breve)</h4>
+                    @if (p.explicacion) {
+                      <p>{{ p.explicacion }}</p>
+                    } @else {
+                      <p class="muted">Sin nota general.</p>
+                    }
+                  </section>
+                  <section>
+                    <h4><i class="dot blue"></i> Normativa / fuente</h4>
+                    <div class="norma-box">
+                      @if (p.fuente) {
+                        <p>{{ p.fuente }}</p>
+                      } @else {
+                        <p class="muted">Sin normativa registrada.</p>
+                      }
+                    </div>
+                  </section>
+                  <section>
+                    <h4><i class="dot red"></i> Evidencia (foto o PDF)</h4>
+                    @if (p.tieneSustento) {
+                      <div class="doc-card">
+                        <div class="doc-meta">
+                          <div class="doc-ico" [class.img]="esImagen(p)">
+                            <span>{{ esPdf(p) ? 'PDF' : (esImagen(p) ? 'FOTO' : 'DOC') }}</span>
+                            <i class="fa-solid" [class.fa-file-pdf]="esPdf(p)" [class.fa-image]="esImagen(p)" [class.fa-paperclip]="!esPdf(p) && !esImagen(p)"></i>
+                          </div>
+                          <div>
+                            <em>Documento adjunto</em>
+                            <strong>{{ p.sustentoNombre || 'Archivo de sustento' }}</strong>
+                          </div>
+                        </div>
+                        <button type="button" (click)="verEvidencia(p)">
+                          <i class="fa-regular fa-eye"></i>
+                          {{ esPdf(p) ? 'Ver PDF' : (esImagen(p) ? 'Ver foto' : 'Ver archivo') }}
+                        </button>
+                      </div>
+                    } @else {
+                      <p class="muted empty-file">Esta pregunta no tiene PDF ni foto de sustento.</p>
+                    }
+                  </section>
+                </div>
+
+                <footer class="study-foot">
+                  <button type="button" class="btn-recoger ghost" (click)="recoger()">
+                    <i class="fa-solid fa-chevron-up"></i>
+                    Recoger y siguiente fallada
+                  </button>
+                </footer>
+              </article>
+            } @else {
+              <button type="button" class="rev-mini bad" [id]="'rev-' + p.preguntaId" (click)="abrir(p)">
+                <span>{{ p.orden }}. {{ p.temaNombre }}</span>
+                <strong>{{ p.enunciado }}</strong>
+                <em>Incorrecta · Pulse para retroalimentar</em>
+              </button>
+            }
+          }
+        </section>
+
+        @if (esUsuario) {
+          <section class="sr-next">
+            <div>
+              <h3>Después de revisar el resultado</h3>
+              <p>
+                Puede volver a dar <strong>esta misma prueba</strong> (las mismas preguntas, en otro orden)
+                o <strong>continuar con otra evaluación</strong> con preguntas distintas al azar.
+              </p>
+            </div>
+            <div class="sr-next-actions">
+              <button type="button" class="sr-btn-ghost" [disabled]="!!iniciando" (click)="empezarDesdeResultado(false)">
+                <i class="fa-solid fa-rotate"></i>
+                {{ iniciando === 'misma' ? 'Armando la misma prueba…' : 'Volver a dar la misma prueba' }}
+              </button>
+              <button type="button" class="sr-btn-primary" [disabled]="!!iniciando" (click)="empezarDesdeResultado(true)">
+                <i class="fa-solid fa-forward"></i>
+                {{ iniciando === 'otra' ? 'Armando otra evaluación…' : 'Continuar con otra evaluación' }}
+              </button>
+            </div>
+          </section>
+        }
+
         <div class="sr-grid">
           <section class="sr-topics">
             <div class="sr-section-head">
               <div>
                 <h3><i class="fa-solid fa-chart-column"></i> Aciertos por tema evaluado</h3>
-                <p>Desglose técnico de cumplimiento normativo y criticidad</p>
+                <p>Pulse un tema reprobado para abrir sus preguntas falladas</p>
               </div>
               <div class="sr-filters">
                 <button type="button" [class.active]="filtro === 'todos'" (click)="filtro = 'todos'">Todos ({{ filas.length }})</button>
@@ -150,7 +269,11 @@
                   </thead>
                   <tbody>
                     @for (t of filasVisibles; track t.tema) {
-                      <tr [class.row-bad]="!t.aprobado && !t.parcial" [class.row-ok]="t.aprobado || t.parcial">
+                      <tr
+                        [class.row-bad]="!t.aprobado && !t.parcial"
+                        [class.row-ok]="t.aprobado || t.parcial"
+                        [class.clickable]="!t.aprobado"
+                        (click)="abrirTema(t.tema)">
                         <td>
                           <div class="sr-tema">
                             {{ t.tema }}
@@ -240,38 +363,35 @@
             </div>
           </aside>
         </div>
-
-        @if (verRevision) {
-          <section class="sr-rev">
-            <h3>Revisión de respuestas</h3>
-            @for (p of res.revision; track p.preguntaId) {
-              <article [class.ok]="p.esCorrecta" [class.bad]="!p.esCorrecta">
-                <header>
-                  <span>{{ p.orden }}. {{ p.temaNombre }}</span>
-                  <strong>{{ p.esCorrecta ? 'Correcta' : 'Incorrecta' }}</strong>
-                </header>
-                <p class="enun">{{ p.enunciado }}</p>
-                <ul>
-                  @for (o of p.opciones; track o.id) {
-                    <li [class.correcta]="o.correcta" [class.elegida]="o.elegida">
-                      <div>
-                        {{ o.texto }}
-                        @if (o.correcta) { <em>correcta</em> }
-                        @if (o.elegida && !o.correcta) { <em>tu respuesta</em> }
-                      </div>
-                      @if (!o.correcta && o.argumento) {
-                        <p class="arg">{{ o.argumento }}</p>
-                      }
-                    </li>
-                  }
-                </ul>
-                @if (p.explicacion) { <p class="exp">{{ p.explicacion }}</p> }
-                @if (p.fuente) { <p class="fuente">Fuente: {{ p.fuente }}</p> }
-              </article>
-            }
-          </section>
-        }
       }
     </main>
   </div>
 </div>
+
+@if (visorPregunta; as v) {
+  <div class="visor-fondo" (click)="cerrarVisor()">
+    <div class="visor" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <header>
+        <div>
+          <em>{{ esPdf(v) ? 'PDF' : (esImagen(v) ? 'Foto' : 'Archivo') }}</em>
+          <strong>{{ v.sustentoNombre || 'Sustento' }}</strong>
+        </div>
+        <button type="button" (click)="cerrarVisor()">
+          Cerrar
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+      <div class="visor-cuerpo">
+        @if (cargandoSustento[v.preguntaId]) {
+          <p>Cargando archivo…</p>
+        } @else if (esImagen(v) && previewUrls[v.preguntaId]) {
+          <img [src]="previewUrls[v.preguntaId]" [alt]="v.sustentoNombre || 'Evidencia'" />
+        } @else if (esPdf(v) && previewSafe[v.preguntaId]) {
+          <iframe [src]="previewSafe[v.preguntaId]" title="PDF de sustento"></iframe>
+        } @else {
+          <p>No se pudo mostrar el archivo.</p>
+        }
+      </div>
+    </div>
+  </div>
+}

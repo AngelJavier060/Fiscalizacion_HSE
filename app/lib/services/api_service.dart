@@ -112,6 +112,25 @@ class ApiService {
     }
   }
 
+  /// GET que retorna bytes (PDF o imagen autenticada).
+  static Future<http.Response> getRaw(String endpoint) async {
+    try {
+      final headers = Map<String, String>.from(await AuthService.getAuthHeaders());
+      headers.remove('Content-Type');
+      final response = await _client.get(
+        ApiConfig.uri(endpoint),
+        headers: headers,
+      );
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return response;
+      }
+      throw ApiException('No se pudo descargar el archivo (${response.statusCode})');
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Error GET $endpoint: $e');
+    }
+  }
+
   /// DELETE request autenticado
   static Future<void> delete(String endpoint) async {
     try {

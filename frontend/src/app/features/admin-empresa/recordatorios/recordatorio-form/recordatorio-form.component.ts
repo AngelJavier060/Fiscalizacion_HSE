@@ -5,11 +5,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
+import { AdminEmpresaSidebarComponent } from '../../shared/admin-empresa-sidebar/admin-empresa-sidebar.component';
 
 @Component({
   selector: 'app-recordatorio-form',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, AdminEmpresaSidebarComponent],
   templateUrl: './recordatorio-form.component.html',
   styleUrls: ['./recordatorio-form.component.scss'],
 })

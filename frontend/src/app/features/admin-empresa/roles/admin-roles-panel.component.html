@@ -1,29 +1,5 @@
 <div class="dashboard-container">
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-small">
-        <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
-          <rect width="48" height="48" rx="12" fill="#059669"/>
-          <path d="M14 24L21 31L34 18" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <span class="brand">Fiscalización HSE</span>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-label">Mi empresa</div>
-      <a routerLink="/admin-empresa/dashboard" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">📊 Dashboard</a>
-      <a routerLink="/admin-empresa/documentos" class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">📄 Documentos</a>
-      <div class="nav-label">Accesos</div>
-      <a routerLink="/admin-empresa/usuarios" class="nav-item" routerLinkActive="active">👥 Usuarios</a>
-      <a routerLink="/admin-empresa/roles" class="nav-item" routerLinkActive="active">🎭 Roles</a>
-      <div class="nav-label">Más</div>
-      <a routerLink="/admin-empresa/recordatorios" class="nav-item" routerLinkActive="active">🔔 Recordatorios</a>
-      <a routerLink="/admin-empresa/ia" class="nav-item" routerLinkActive="active">🤖 FISCALIZA-AI</a>
-    </nav>
-    <div class="sidebar-footer">
-      <button type="button" class="btn-logout" (click)="auth.logout()">Cerrar sesión</button>
-    </div>
-  </aside>
+  <app-admin-empresa-sidebar />
 
   <main class="main-content">
     <header class="topbar">
