@@ -87,6 +87,30 @@ export class SimuladorResultadoComponent implements OnInit, OnDestroy {
     return this.nota - this.notaMinima;
   }
 
+  get efectividad(): number {
+    if (!this.res?.totalPreguntas) return 0;
+    return (this.res.correctas / this.res.totalPreguntas) * 100;
+  }
+
+  get aciertosFaltantes(): number {
+    return Math.max(0, this.aciertosNecesarios - (this.res?.correctas ?? 0));
+  }
+
+  get limiteMinutos(): number {
+    const n = this.res?.totalPreguntas ?? 0;
+    if (n < 10) return 10;
+    if (n <= 20) return 15;
+    if (n <= 40) return 30;
+    if (n <= 60) return 50;
+    return 90;
+  }
+
+  tonoBarra(pct: number): 'bad' | 'mid' | 'ok' {
+    if (pct < 40) return 'bad';
+    if (pct < this.notaMinima) return 'mid';
+    return 'ok';
+  }
+
   get dasharray(): string {
     const pct = Math.max(0, Math.min(100, this.nota));
     return `${pct}, 100`;

@@ -36,90 +36,82 @@
       }
 
       @if (res) {
-        <section class="sr-hero" [class.ok]="res.aprobado" [class.bad]="!res.aprobado">
-          <div class="sr-hero-strip"></div>
-          <div class="sr-hero-body">
-            <div class="sr-metrics" id="sr-stats">
-              <div class="sr-metric sr-score">
-                <div class="sr-ring">
-                  <svg viewBox="0 0 36 36" aria-hidden="true">
-                    <path class="track" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    <path class="fill" [attr.stroke-dasharray]="dasharray" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  </svg>
-                  <div class="sr-ring-label">
-                    <strong>{{ nota | number:'1.0-0' }}</strong>
-                    <span>/100</span>
-                  </div>
-                </div>
-                <div>
-                  <span class="sr-metric-kicker">Puntuación final</span>
-                  <p>{{ res.correctas }} de {{ res.totalPreguntas }} aciertos</p>
-                  @if (brecha < 0) {
-                    <em>Brecha: {{ brecha | number:'1.0-0' }}% del estándar</em>
-                  } @else {
-                    <em class="ok">+{{ brecha | number:'1.0-0' }}% sobre el umbral</em>
-                  }
-                </div>
+        <section class="sr-dash" id="sr-stats" [class.ok]="res.aprobado" [class.bad]="!res.aprobado">
+          <div class="sr-dash-banner">
+            <div class="sr-dash-status">
+              <div class="sr-dash-icon" aria-hidden="true">
+                <i class="fa-solid" [class.fa-xmark]="!res.aprobado" [class.fa-check]="res.aprobado"></i>
               </div>
-
-              <div class="sr-metric">
-                <div class="sr-metric-kicker">
-                  <i class="fa-solid fa-stopwatch"></i>
-                  Tiempo empleado
+              <div>
+                <div class="sr-dash-meta">
+                  <span class="sr-dash-badge">{{ res.aprobado ? 'Aprobado' : 'Reprobado' }}</span>
+                  <span class="sr-dash-req">Requisito mínimo de suficiencia: {{ notaMinima }}%</span>
                 </div>
-                <p>{{ tiempoEmpleado }}</p>
-                <span class="sr-metric-sub">Promedio de {{ promedioReactivo }}</span>
-              </div>
-
-              <div class="sr-metric">
-                <div class="sr-metric-kicker">
-                  <i class="fa-solid fa-triangle-exclamation"></i>
-                  Tasa de error
-                </div>
-                <p [class.bad]="!res.aprobado">{{ tasaError | number:'1.0-1' }}%</p>
-                <span class="sr-metric-sub">{{ incorrectas }} respuestas incorrectas</span>
-              </div>
-
-              <div class="sr-metric sr-ai">
-                <div class="sr-metric-kicker">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                  Diagnóstico Fiscaliza-AI
-                </div>
-                <p class="sr-ai-copy">{{ diagnostico }}</p>
+                <h1>Evaluación Integral HSE &amp; Normativa Industrial</h1>
+                <p>{{ res.aprobado
+                  ? 'El resultado cumple los estándares de certificación técnica en seguridad industrial.'
+                  : 'El resultado obtenido no cumple los estándares de certificación técnica en seguridad industrial.' }}</p>
               </div>
             </div>
-
-            <div class="sr-hero-head">
-              <div>
-                <div class="sr-badges">
-                  <span class="sr-verdict" [class.ok]="res.aprobado" [class.bad]="!res.aprobado">
-                    <i class="fa-solid" [class.fa-circle-check]="res.aprobado" [class.fa-circle-xmark]="!res.aprobado"></i>
-                    {{ res.aprobado ? 'Aprobado' : 'Reprobado' }}
-                  </span>
-                  <span class="sr-hint">
-                    <i class="fa-solid" [class.fa-shield-halved]="res.aprobado" [class.fa-triangle-exclamation]="!res.aprobado"></i>
-                    {{ res.aprobado ? 'Banco superado: pasa al siguiente' : 'Puede repetir las mismas o continuar con otras' }}
-                  </span>
-                </div>
-                <h2>Simulación de Fiscalización HSE — {{ res.totalPreguntas }} reactivos</h2>
-                <p>
-                  Modalidad: <strong>{{ res.temaNombre }} • {{ modoLabel }}</strong>
-                  | Umbral de habilitación operativa:
-                  <strong>{{ notaMinima }}% ({{ aciertosNecesarios }}/{{ res.totalPreguntas }} aciertos)</strong>
-                </p>
+            <div class="sr-dash-grade">
+              <span>Puntaje final</span>
+              <div class="sr-dash-score">
+                <strong>{{ nota | number:'1.1-1' }}%</strong>
+                <em>/ 100%</em>
               </div>
-              <div class="sr-hero-actions">
-                <button type="button" class="sr-btn-primary" (click)="irARevision()">
-                  <i class="fa-solid fa-rotate-left"></i>
-                  Revisar respuestas
-                </button>
-                <button type="button" class="sr-btn-ghost" (click)="volver()">
-                  <i class="fa-solid fa-arrow-turn-up"></i>
-                  Volver al simulador
-                </button>
-              </div>
+              <small>{{ res.correctas }} de {{ res.totalPreguntas }} respuestas correctas</small>
             </div>
           </div>
+
+          <div class="sr-dash-kpis">
+            <div class="sr-dash-kpi">
+              <span><i class="dot ok"></i> Acertadas</span>
+              <strong class="ok">{{ res.correctas }}</strong>
+              <small class="ok">{{ efectividad | number:'1.0-0' }}% efectividad</small>
+            </div>
+            <div class="sr-dash-kpi">
+              <span><i class="dot bad"></i> Incorrectas</span>
+              <strong class="bad">{{ incorrectas }}</strong>
+              <small class="bad">{{ incorrectas > 0 ? 'Requieren refuerzo urgente' : 'Sin errores' }}</small>
+            </div>
+            <div class="sr-dash-kpi">
+              <span>
+                <i class="fa-regular fa-clock"></i>
+                Tiempo empleado
+              </span>
+              <strong>{{ tiempoEmpleado }}</strong>
+              <small>Límite: {{ limiteMinutos }} minutos</small>
+            </div>
+            <div class="sr-dash-kpi">
+              <span>
+                <i class="fa-regular fa-circle-check"></i>
+                Brecha de aprobación
+              </span>
+              <strong [class.bad]="brecha < 0" [class.ok]="brecha >= 0">{{ brecha | number:'1.1-1' }}%</strong>
+              <small [class.bad]="brecha < 0" [class.ok]="brecha >= 0">
+                {{ brecha < 0 ? 'Faltaron ' + aciertosFaltantes + ' aciertos' : 'Umbral alcanzado' }}
+              </small>
+            </div>
+          </div>
+
+          @if (filas.length) {
+            <div class="sr-dash-areas">
+              <h2>Desglose de competencia por área temática</h2>
+              <div class="sr-dash-bars">
+                @for (t of filas; track t.tema) {
+                  <div class="sr-dash-bar">
+                    <div class="sr-dash-bar-lab">
+                      <span>{{ t.tema }}</span>
+                      <strong [attr.data-tone]="tonoBarra(t.pct)">{{ t.pct | number:'1.0-0' }}% ({{ t.correctas }}/{{ t.total }})</strong>
+                    </div>
+                    <div class="sr-dash-track">
+                      <span [attr.data-tone]="tonoBarra(t.pct)" [style.width.%]="t.pct"></span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </section>
 
         <section class="sr-rev" id="rev-lista">

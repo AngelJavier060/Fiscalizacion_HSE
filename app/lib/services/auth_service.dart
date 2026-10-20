@@ -8,22 +8,26 @@ class AuthService {
 
   static const _keyToken    = 'jwt_token';
   static const _keyUserData = 'cached_user_data';
+  static const _keyApiBase  = 'api_base_url';
+
+  /// Si la app cambió de local a producción, borra el token y el historial cacheado.
+  static Future<void> _alinearServidor() async {
+    final prefs = await SharedPreferences.getInstance();
+    final actual = prefs.getString(_keyApiBase);
+    if (actual == ApiConfig.baseUrl) return;
+    await prefs.remove(_keyToken);
+    await prefs.remove(_keyUserData);
+    await prefs.setString(_keyApiBase, ApiConfig.baseUrl);
+  }
 
   /// Login del usuario. Guarda token y datos del usuario en caché.
   Future<Map<String, dynamic>> login(String email, String password) async {
+    await _alinearServidor();
     try {
       return await _loginOnce(email, password);
     } on AuthException {
       rethrow;
     } catch (_) {
-      if (ApiConfig.isLocal) {
-        ApiConfig.useProduction();
-        try {
-          return await _loginOnce(email, password);
-        } on AuthException {
-          rethrow;
-        } catch (_) {}
-      }
       throw AuthException(
         'No hay conexión con el servidor. Revise internet o intente de nuevo.',
         0,
@@ -95,8 +99,9 @@ class AuthService {
 
   /// Obtener token guardado
   static Future<String?> getToken() async {
+    await _alinearServidor();
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('jwt_token');
+    return prefs.getString(_keyToken);
   }
 
   /// Obtener headers con autenticación

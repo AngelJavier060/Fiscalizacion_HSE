@@ -33,12 +33,11 @@ void main() async {
   // Iniciar escucha de conectividad para sincronización automática
   _initConnectivityListener();
   
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('jwt_token');
-  
+  final token = await AuthService.getToken();
+
   runApp(
     ProviderScope(
-      child: FiscalizacionHSEApp(isLoggedIn: token != null),
+      child: FiscalizacionHSEApp(isLoggedIn: token != null && token.isNotEmpty),
     ),
   );
 }
