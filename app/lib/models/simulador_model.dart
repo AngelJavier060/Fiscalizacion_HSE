@@ -229,6 +229,7 @@ class SsoExamen {
   final String estado;
   final String fechaInicio;
   final int tiempoLimiteMin;
+  final int segundosRestantes;
   final int totalPreguntas;
   final int respondidas;
   final bool bancoInsuficiente;
@@ -243,6 +244,7 @@ class SsoExamen {
     required this.estado,
     required this.fechaInicio,
     required this.tiempoLimiteMin,
+    this.segundosRestantes = -1,
     required this.totalPreguntas,
     required this.respondidas,
     required this.bancoInsuficiente,
@@ -258,6 +260,7 @@ class SsoExamen {
         estado: json['estado'] as String? ?? '',
         fechaInicio: json['fechaInicio'] as String? ?? '',
         tiempoLimiteMin: _asInt(json['tiempoLimiteMin'], 30),
+        segundosRestantes: json['segundosRestantes'] == null ? -1 : _asInt(json['segundosRestantes']),
         totalPreguntas: _asInt(json['totalPreguntas']),
         respondidas: _asInt(json['respondidas']),
         bancoInsuficiente: json['bancoInsuficiente'] as bool? ?? false,

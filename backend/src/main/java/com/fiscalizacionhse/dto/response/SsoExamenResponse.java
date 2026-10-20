@@ -16,6 +16,8 @@ public class SsoExamenResponse {
     private String estado;
     private LocalDateTime fechaInicio;
     private Integer tiempoLimiteMin;
+    /** Segundos que quedan, calculados en el servidor (evita el desfase de zona horaria). */
+    private Integer segundosRestantes;
     private int totalPreguntas;
     private int respondidas;
     private boolean bancoInsuficiente;

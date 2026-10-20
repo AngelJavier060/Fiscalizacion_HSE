@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -551,6 +552,7 @@ public class SimuladorExamenService {
                 .estado(intento.getEstado())
                 .fechaInicio(intento.getFechaInicio())
                 .tiempoLimiteMin(intento.getTiempoLimiteMin())
+                .segundosRestantes(segundosRestantes(intento))
                 .totalPreguntas(intento.getTotalPreguntas())
                 .respondidas(respondidas)
                 .bancoInsuficiente(bancoInsuficiente)
@@ -682,6 +684,17 @@ public class SimuladorExamenService {
 
     private int tiempoExamenMin() {
         return SsoBancoReglas.tiempoMin(preguntasPorBanco());
+    }
+
+    private int segundosRestantes(SsoIntento intento) {
+        Integer minutos = intento.getTiempoLimiteMin();
+        if (minutos == null || minutos <= 0 || intento.getFechaInicio() == null) {
+            return 0;
+        }
+        long seg = Duration.between(LocalDateTime.now(), intento.getFechaInicio().plusMinutes(minutos))
+                .getSeconds();
+        long tope = minutos * 60L;
+        return (int) Math.max(0, Math.min(seg, tope));
     }
 
     private boolean vencido(SsoIntento intento) {

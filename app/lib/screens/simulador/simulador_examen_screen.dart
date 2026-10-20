@@ -105,21 +105,19 @@ class _SimuladorExamenScreenState extends State<SimuladorExamenScreen> {
   }
 
   void _arrancarTimer(SsoExamen ex) {
-    final inicio = DateTime.tryParse(ex.fechaInicio)?.toLocal();
-    if (inicio == null) return;
-    final limite = Duration(minutes: ex.tiempoLimiteMin);
-    void tick() {
-      final restante = inicio.add(limite).difference(DateTime.now()).inSeconds;
+    _timer?.cancel();
+    final tope = ex.tiempoLimiteMin * 60;
+    final inicial = ex.segundosRestantes >= 0 ? ex.segundosRestantes : tope;
+    _restanteSeg = inicial > tope ? tope : (inicial < 0 ? 0 : inicial);
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
-      setState(() => _restanteSeg = restante < 0 ? 0 : restante);
-      if (restante <= 0) {
+      final next = _restanteSeg - 1;
+      setState(() => _restanteSeg = next < 0 ? 0 : next);
+      if (next <= 0) {
         _timer?.cancel();
         _finalizar();
       }
-    }
-
-    tick();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => tick());
+    });
   }
 
   bool _agotado(String msg) =>

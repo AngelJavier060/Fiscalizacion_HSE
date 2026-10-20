@@ -181,6 +181,7 @@ export interface SsoExamen {
   estado: string;
   fechaInicio: string;
   tiempoLimiteMin: number;
+  segundosRestantes?: number;
   totalPreguntas: number;
   respondidas: number;
   bancoInsuficiente: boolean;

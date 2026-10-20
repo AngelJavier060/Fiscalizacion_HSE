@@ -1,5 +1,7 @@
 # Perfil producción / Docker — sin application-local.yml
 spring:
+  jackson:
+    time-zone: America/Guayaquil
   jpa:
     show-sql: false
     open-in-view: false

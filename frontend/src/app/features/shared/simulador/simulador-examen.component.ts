@@ -43,8 +43,10 @@ export class SimuladorExamenComponent implements OnInit, OnDestroy {
   }
 
   get reloj(): string {
-    const m = Math.floor(this.restanteSeg / 60);
-    const s = this.restanteSeg % 60;
+    const tope = Math.max(0, (this.examen?.tiempoLimiteMin || 0) * 60);
+    const seg = Math.max(0, Math.min(tope || this.restanteSeg, this.restanteSeg));
+    const m = Math.floor(seg / 60);
+    const s = seg % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
 
@@ -204,16 +206,17 @@ export class SimuladorExamenComponent implements OnInit, OnDestroy {
   }
 
   private arrancarTimer(ex: SsoExamen): void {
-    const inicio = new Date(ex.fechaInicio).getTime();
-    const limite = (ex.tiempoLimiteMin || 0) * 60 * 1000;
+    if (this.timer) clearInterval(this.timer);
+    const tope = Math.max(0, (ex.tiempoLimiteMin || 0) * 60);
+    const inicial = ex.segundosRestantes != null ? ex.segundosRestantes : tope;
+    this.restanteSeg = Math.max(0, Math.min(tope, inicial));
     const tick = () => {
-      this.restanteSeg = Math.max(0, Math.floor((inicio + limite - Date.now()) / 1000));
+      this.restanteSeg = Math.max(0, this.restanteSeg - 1);
       if (this.restanteSeg <= 0) {
         if (this.timer) clearInterval(this.timer);
         this.finalizar();
       }
     };
-    tick();
     this.timer = setInterval(tick, 1000);
   }
 }

@@ -26,7 +26,8 @@ services:
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      JAVA_TOOL_OPTIONS: "-Xms512m -Xmx1536m"
+      TZ: America/Guayaquil
+      JAVA_TOOL_OPTIONS: "-Xms512m -Xmx1536m -Duser.timezone=America/Guayaquil"
     ports:
       - "${BACKEND_HOST_PORT:-8090}:8080"
 

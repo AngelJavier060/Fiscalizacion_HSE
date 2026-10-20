@@ -23,7 +23,7 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      if (error.status === 401) {
+      if (error.status === 401 && !req.url.includes('/simulador/')) {
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
         router.navigate(['/auth/login']);
