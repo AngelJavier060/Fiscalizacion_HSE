@@ -12,37 +12,50 @@ class AuthService {
   /// Login del usuario. Guarda token y datos del usuario en caché.
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final response = await _client.post(
-        ApiConfig.uri(ApiConfig.authLogin),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-
-        // Guardar en caché para que HomeScreen no necesite llamar a /auth/me
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(_keyToken, data['token'] as String? ?? '');
-        await prefs.setString(_keyUserData, jsonEncode(data));
-
-        return data;
-      } else {
-        final body = response.body;
-        Map<String, dynamic>? error;
-        try { error = jsonDecode(body) as Map<String, dynamic>; } catch (_) {}
-        throw AuthException(
-          error?['mensaje'] as String? ??
-          error?['message'] as String? ??
-          'Credenciales incorrectas (${response.statusCode})',
-          response.statusCode,
-        );
-      }
+      return await _loginOnce(email, password);
     } on AuthException {
       rethrow;
-    } catch (e) {
-      throw AuthException('No hay conexión con el servidor. Tus datos están seguros en la app local. Cuando tengas internet, los cambios se sincronizarán automáticamente.', 0);
+    } catch (_) {
+      if (ApiConfig.isLocal) {
+        ApiConfig.useProduction();
+        try {
+          return await _loginOnce(email, password);
+        } on AuthException {
+          rethrow;
+        } catch (_) {}
+      }
+      throw AuthException(
+        'No hay conexión con el servidor. Revise internet o intente de nuevo.',
+        0,
+      );
     }
+  }
+
+  Future<Map<String, dynamic>> _loginOnce(String email, String password) async {
+    final response = await _client.post(
+      ApiConfig.uri(ApiConfig.authLogin),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email.trim().toLowerCase(), 'password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_keyToken, data['token'] as String? ?? '');
+      await prefs.setString(_keyUserData, jsonEncode(data));
+      return data;
+    }
+
+    Map<String, dynamic>? error;
+    try {
+      error = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (_) {}
+    throw AuthException(
+      error?['mensaje'] as String? ??
+          error?['message'] as String? ??
+          'Credenciales incorrectas (${response.statusCode})',
+      response.statusCode,
+    );
   }
 
   /// Obtiene datos del usuario desde caché local (no requiere backend activo).

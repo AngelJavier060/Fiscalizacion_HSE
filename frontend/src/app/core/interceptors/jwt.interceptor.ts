@@ -6,10 +6,12 @@ import { catchError, throwError } from 'rxjs';
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const token = localStorage.getItem('token');
+  const esLogin = req.url.includes('/auth/login');
 
-  // Excluir endpoint de login del interceptor
-  if (req.url.includes('/auth/login')) {
-    return next(req);
+  // El login no debe llevar un token viejo: en producción eso provoca 401.
+  if (esLogin) {
+    const limpia = req.clone({ headers: req.headers.delete('Authorization') });
+    return next(limpia);
   }
 
   // Agregar token si existe
@@ -23,7 +25,11 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      if (error.status === 401 && !req.url.includes('/simulador/')) {
+      if (
+        error.status === 401 &&
+        !req.url.includes('/simulador/') &&
+        !esLogin
+      ) {
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
         router.navigate(['/auth/login']);

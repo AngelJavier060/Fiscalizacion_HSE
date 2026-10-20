@@ -403,6 +403,7 @@ class SustentoArchivo {
 class SsoResultado {
   final int id;
   final String modo;
+  final int? temaId;
   final String temaNombre;
   final String estado;
   final String? fechaInicio;
@@ -417,6 +418,7 @@ class SsoResultado {
   SsoResultado({
     required this.id,
     required this.modo,
+    this.temaId,
     required this.temaNombre,
     required this.estado,
     this.fechaInicio,
@@ -432,6 +434,7 @@ class SsoResultado {
   factory SsoResultado.fromJson(Map<String, dynamic> json) => SsoResultado(
         id: _asInt(json['id']),
         modo: json['modo'] as String? ?? '',
+        temaId: json['temaId'] == null ? null : _asInt(json['temaId']),
         temaNombre: json['temaNombre'] as String? ?? '',
         estado: json['estado'] as String? ?? '',
         fechaInicio: json['fechaInicio'] as String?,
@@ -453,4 +456,24 @@ class SsoResultado {
   int get incorrectas => (totalPreguntas - correctas).clamp(0, totalPreguntas);
   double get tasaError =>
       totalPreguntas == 0 ? 0 : (incorrectas / totalPreguntas) * 100;
+
+  String get tiempoEmpleado {
+    final a = DateTime.tryParse(fechaInicio ?? '');
+    final b = DateTime.tryParse(fechaFin ?? '');
+    if (a == null || b == null) return '—';
+    final s = b.difference(a).inSeconds;
+    if (s < 0) return '—';
+    final m = s ~/ 60;
+    final r = s % 60;
+    return '${m}m ${r.toString().padLeft(2, '0')}s';
+  }
+
+  String get promedioReactivo {
+    final a = DateTime.tryParse(fechaInicio ?? '');
+    final b = DateTime.tryParse(fechaFin ?? '');
+    if (a == null || b == null || totalPreguntas <= 0) return '—';
+    final s = b.difference(a).inSeconds;
+    if (s < 0) return '—';
+    return '${(s / totalPreguntas).round()} seg / reactivo';
+  }
 }

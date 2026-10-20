@@ -51,8 +51,12 @@ class _SimuladorExamenScreenState extends State<SimuladorExamenScreen> {
       _examen != null && _indice == _examen!.preguntas.length - 1;
 
   String get _reloj {
-    final m = (_restanteSeg ~/ 60).toString().padLeft(2, '0');
-    final s = (_restanteSeg % 60).toString().padLeft(2, '0');
+    final tope = (_examen?.tiempoLimiteMin ?? 0) * 60;
+    var seg = _restanteSeg;
+    if (tope > 0 && seg > tope) seg = tope;
+    if (seg < 0) seg = 0;
+    final m = (seg ~/ 60).toString().padLeft(2, '0');
+    final s = (seg % 60).toString().padLeft(2, '0');
     return '$m:$s';
   }
 

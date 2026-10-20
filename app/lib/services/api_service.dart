@@ -7,31 +7,56 @@ import 'auth_service.dart';
 class ApiService {
   static final http.Client _client = http.Client();
 
+  static bool _pareceSinRed(Object e) {
+    final s = e.toString().toLowerCase();
+    return s.contains('socketexception') ||
+        s.contains('failed host lookup') ||
+        s.contains('connection refused') ||
+        s.contains('connection reset') ||
+        s.contains('clientexception') ||
+        s.contains('xmlhttprequest error') ||
+        s.contains('failed to fetch');
+  }
+
+  static Future<T> _conRespaldo<T>(Future<T> Function() accion) async {
+    try {
+      return await accion();
+    } catch (e) {
+      if (ApiConfig.isLocal && _pareceSinRed(e)) {
+        ApiConfig.useProduction();
+        return await accion();
+      }
+      rethrow;
+    }
+  }
+
   /// GET request autenticado
   static Future<Map<String, dynamic>> get(
     String endpoint, {
     Map<String, String>? params,
     Duration? receiveTimeout,
   }) async {
-    try {
-      final headers = await AuthService.getAuthHeaders();
-      final request = http.Request(
-        'GET',
-        ApiConfig.uri(endpoint, params: params),
-      )..headers.addAll(headers);
+    return _conRespaldo(() async {
+      try {
+        final headers = await AuthService.getAuthHeaders();
+        final request = http.Request(
+          'GET',
+          ApiConfig.uri(endpoint, params: params),
+        )..headers.addAll(headers);
 
-      final streamed = await _client.send(request).timeout(
-        receiveTimeout ?? ApiConfig.receiveTimeout,
-        onTimeout: () => throw ApiException(
-          'La respuesta tardó demasiado. Verifica tu conexión e inténtalo de nuevo.',
-        ),
-      );
-      final response = await http.Response.fromStream(streamed);
-      return _handleResponse(response);
-    } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Error GET $endpoint: $e');
-    }
+        final streamed = await _client.send(request).timeout(
+          receiveTimeout ?? ApiConfig.receiveTimeout,
+          onTimeout: () => throw ApiException(
+            'La respuesta tardó demasiado. Verifica tu conexión e inténtalo de nuevo.',
+          ),
+        );
+        final response = await http.Response.fromStream(streamed);
+        return _handleResponse(response);
+      } catch (e) {
+        if (e is ApiException) rethrow;
+        throw ApiException('Error GET $endpoint: $e');
+      }
+    });
   }
 
   /// GET request que retorna lista
@@ -56,17 +81,20 @@ class ApiService {
     String endpoint, {
     Map<String, dynamic>? body,
   }) async {
-    try {
-      final headers = await AuthService.getAuthHeaders();
-      final response = await _client.post(
-        ApiConfig.uri(endpoint),
-        headers: headers,
-        body: body != null ? jsonEncode(body) : null,
-      );
-      return _handleResponse(response);
-    } catch (e) {
-      throw ApiException('Error POST $endpoint: $e');
-    }
+    return _conRespaldo(() async {
+      try {
+        final headers = await AuthService.getAuthHeaders();
+        final response = await _client.post(
+          ApiConfig.uri(endpoint),
+          headers: headers,
+          body: body != null ? jsonEncode(body) : null,
+        );
+        return _handleResponse(response);
+      } catch (e) {
+        if (e is ApiException) rethrow;
+        throw ApiException('Error POST $endpoint: $e');
+      }
+    });
   }
 
   /// PUT request autenticado
@@ -75,23 +103,25 @@ class ApiService {
     Map<String, dynamic>? body,
     Duration? receiveTimeout,
   }) async {
-    try {
-      final headers = await AuthService.getAuthHeaders();
-      final request = http.Request('PUT', ApiConfig.uri(endpoint))
-        ..headers.addAll(headers)
-        ..body = body != null ? jsonEncode(body) : '';
-      final streamed = await _client.send(request).timeout(
-        receiveTimeout ?? ApiConfig.receiveTimeout,
-        onTimeout: () => throw ApiException(
-          'La respuesta tardó demasiado. Verifica tu conexión e inténtalo de nuevo.',
-        ),
-      );
-      final response = await http.Response.fromStream(streamed);
-      return _handleResponse(response);
-    } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Error PUT $endpoint: $e');
-    }
+    return _conRespaldo(() async {
+      try {
+        final headers = await AuthService.getAuthHeaders();
+        final request = http.Request('PUT', ApiConfig.uri(endpoint))
+          ..headers.addAll(headers)
+          ..body = body != null ? jsonEncode(body) : '';
+        final streamed = await _client.send(request).timeout(
+          receiveTimeout ?? ApiConfig.receiveTimeout,
+          onTimeout: () => throw ApiException(
+            'La respuesta tardó demasiado. Verifica tu conexión e inténtalo de nuevo.',
+          ),
+        );
+        final response = await http.Response.fromStream(streamed);
+        return _handleResponse(response);
+      } catch (e) {
+        if (e is ApiException) rethrow;
+        throw ApiException('Error PUT $endpoint: $e');
+      }
+    });
   }
 
   /// PATCH request autenticado
@@ -114,21 +144,23 @@ class ApiService {
 
   /// GET que retorna bytes (PDF o imagen autenticada).
   static Future<http.Response> getRaw(String endpoint) async {
-    try {
-      final headers = Map<String, String>.from(await AuthService.getAuthHeaders());
-      headers.remove('Content-Type');
-      final response = await _client.get(
-        ApiConfig.uri(endpoint),
-        headers: headers,
-      );
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        return response;
+    return _conRespaldo(() async {
+      try {
+        final headers = Map<String, String>.from(await AuthService.getAuthHeaders());
+        headers.remove('Content-Type');
+        final response = await _client.get(
+          ApiConfig.uri(endpoint),
+          headers: headers,
+        );
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          return response;
+        }
+        throw ApiException('No se pudo descargar el archivo (${response.statusCode})');
+      } catch (e) {
+        if (e is ApiException) rethrow;
+        throw ApiException('Error GET $endpoint: $e');
       }
-      throw ApiException('No se pudo descargar el archivo (${response.statusCode})');
-    } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Error GET $endpoint: $e');
-    }
+    });
   }
 
   /// DELETE request autenticado

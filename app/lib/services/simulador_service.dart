@@ -15,6 +15,7 @@ class SimuladorService {
     int? temaId,
     int? preguntasPorBanco,
     bool nuevoSet = true,
+    int? intentoOrigenId,
   }) async {
     final data = await ApiService.post(
       ApiConfig.simuladorExamenes,
@@ -23,6 +24,7 @@ class SimuladorService {
         'temaId': temaId,
         'preguntasPorBanco': preguntasPorBanco,
         'nuevoSet': nuevoSet,
+        'intentoOrigenId': intentoOrigenId,
       },
     );
     return SsoExamen.fromJson(data);

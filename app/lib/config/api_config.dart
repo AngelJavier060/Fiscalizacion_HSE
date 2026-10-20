@@ -1,30 +1,19 @@
 import 'package:flutter/foundation.dart';
 
-/// Configuración de la API para la app móvil
+/// Configuración de la API para la app móvil y Flutter web.
 class ApiConfig {
-  // Local primero. Para producción cambie a Enviroment.production.
-  static const Enviroment _env = Enviroment.development;
-
-  // URLs base según entorno
-  static const Map<Enviroment, String> _baseUrls = {
-    Enviroment.development: 'http://10.0.2.2:8080/api/v1', // Android Emulator
-    Enviroment.staging: 'https://hse.improvement-solution.com/api/v1',
-    Enviroment.production: 'https://hse.improvement-solution.com/api/v1',
-  };
+  static const String productionBase = 'https://hse.improvement-solution.com/api/v1';
 
   /// Teléfono físico en la misma Wi‑Fi: IP de esta PC, ej. '192.168.1.20'.
   /// Deje null para emulador (10.0.2.2) o iOS/Windows (localhost).
   static const String? lanHost = null;
 
-  // Timeouts — texto-completo de PDFs grandes puede tardar más
+  static String? _forcedBase;
+
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 60);
   static const Duration textoCompletoTimeout = Duration(seconds: 120);
 
-  // Endpoints
-  // OJO: el context-path del backend es /api/v1 y los controladores REST usan
-  // @RequestMapping("/api/..."), por lo que la ruta real es /api/v1/api/...
-  // (auth es la excepción: vive en /api/v1/auth).
   static const String authLogin = '/auth/login';
   static const String authMe = '/api/me';
 
@@ -54,11 +43,25 @@ class ApiConfig {
   static const String simuladorHistorial = '/api/simulador/historial';
   static const String simuladorPreguntas = '/api/simulador/preguntas';
 
-  /// URL base según el entorno configurado.
-  /// Android emulador: 10.0.2.2 · iOS/Windows/web local: localhost.
+  static bool get isLocal {
+    final u = baseUrl;
+    return u.contains('localhost') || u.contains('127.0.0.1') || u.contains('10.0.2.2');
+  }
+
+  static void useProduction() {
+    _forcedBase = productionBase;
+  }
+
+  /// Release (APK y https://hse.../app/) → VPS.
+  /// Debug → backend local; si no responde, ApiService cambia a producción.
   static String get baseUrl {
-    if (_env != Enviroment.development) {
-      return _baseUrls[_env]!;
+    if (_forcedBase != null) return _forcedBase!;
+    if (kReleaseMode) {
+      if (kIsWeb) {
+        final origin = Uri.base.origin;
+        if (origin.startsWith('http')) return '$origin/api/v1';
+      }
+      return productionBase;
     }
     if (lanHost != null && lanHost!.isNotEmpty) {
       return 'http://$lanHost:8080/api/v1';
@@ -72,15 +75,11 @@ class ApiConfig {
     return 'http://localhost:8080/api/v1';
   }
 
-  /// Construye URL completa para un endpoint
   static Uri uri(String endpoint, {Map<String, String>? params}) {
-    final url = '$baseUrl$endpoint';
-    final uri = Uri.parse(url);
+    final parsed = Uri.parse('$baseUrl$endpoint');
     if (params != null && params.isNotEmpty) {
-      return uri.replace(queryParameters: params);
+      return parsed.replace(queryParameters: params);
     }
-    return uri;
+    return parsed;
   }
 }
-
-enum Enviroment { development, staging, production }

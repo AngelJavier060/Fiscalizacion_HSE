@@ -39,38 +39,7 @@
         <section class="sr-hero" [class.ok]="res.aprobado" [class.bad]="!res.aprobado">
           <div class="sr-hero-strip"></div>
           <div class="sr-hero-body">
-            <div class="sr-hero-head">
-              <div>
-                <div class="sr-badges">
-                  <span class="sr-verdict" [class.ok]="res.aprobado" [class.bad]="!res.aprobado">
-                    <i class="fa-solid" [class.fa-circle-check]="res.aprobado" [class.fa-circle-xmark]="!res.aprobado"></i>
-                    {{ res.aprobado ? 'Aprobado' : 'Reprobado' }}
-                  </span>
-                  <span class="sr-hint">
-                    <i class="fa-solid" [class.fa-shield-halved]="res.aprobado" [class.fa-triangle-exclamation]="!res.aprobado"></i>
-                    {{ res.aprobado ? 'Banco superado: pasa al siguiente' : 'Puede repetir las mismas o continuar con otras' }}
-                  </span>
-                </div>
-                <h2>Simulación de Fiscalización HSE — {{ res.totalPreguntas }} reactivos</h2>
-                <p>
-                  Modalidad: <strong>{{ res.temaNombre }} • {{ modoLabel }}</strong>
-                  | Umbral de habilitación operativa:
-                  <strong>{{ notaMinima }}% ({{ aciertosNecesarios }}/{{ res.totalPreguntas }} aciertos)</strong>
-                </p>
-              </div>
-              <div class="sr-hero-actions">
-                <button type="button" class="sr-btn-primary" (click)="irARevision()">
-                  <i class="fa-solid fa-rotate-left"></i>
-                  Revisar respuestas
-                </button>
-                <button type="button" class="sr-btn-ghost" (click)="volver()">
-                  <i class="fa-solid fa-arrow-turn-up"></i>
-                  Volver al simulador
-                </button>
-              </div>
-            </div>
-
-            <div class="sr-metrics">
+            <div class="sr-metrics" id="sr-stats">
               <div class="sr-metric sr-score">
                 <div class="sr-ring">
                   <svg viewBox="0 0 36 36" aria-hidden="true">
@@ -117,6 +86,37 @@
                   Diagnóstico Fiscaliza-AI
                 </div>
                 <p class="sr-ai-copy">{{ diagnostico }}</p>
+              </div>
+            </div>
+
+            <div class="sr-hero-head">
+              <div>
+                <div class="sr-badges">
+                  <span class="sr-verdict" [class.ok]="res.aprobado" [class.bad]="!res.aprobado">
+                    <i class="fa-solid" [class.fa-circle-check]="res.aprobado" [class.fa-circle-xmark]="!res.aprobado"></i>
+                    {{ res.aprobado ? 'Aprobado' : 'Reprobado' }}
+                  </span>
+                  <span class="sr-hint">
+                    <i class="fa-solid" [class.fa-shield-halved]="res.aprobado" [class.fa-triangle-exclamation]="!res.aprobado"></i>
+                    {{ res.aprobado ? 'Banco superado: pasa al siguiente' : 'Puede repetir las mismas o continuar con otras' }}
+                  </span>
+                </div>
+                <h2>Simulación de Fiscalización HSE — {{ res.totalPreguntas }} reactivos</h2>
+                <p>
+                  Modalidad: <strong>{{ res.temaNombre }} • {{ modoLabel }}</strong>
+                  | Umbral de habilitación operativa:
+                  <strong>{{ notaMinima }}% ({{ aciertosNecesarios }}/{{ res.totalPreguntas }} aciertos)</strong>
+                </p>
+              </div>
+              <div class="sr-hero-actions">
+                <button type="button" class="sr-btn-primary" (click)="irARevision()">
+                  <i class="fa-solid fa-rotate-left"></i>
+                  Revisar respuestas
+                </button>
+                <button type="button" class="sr-btn-ghost" (click)="volver()">
+                  <i class="fa-solid fa-arrow-turn-up"></i>
+                  Volver al simulador
+                </button>
               </div>
             </div>
           </div>

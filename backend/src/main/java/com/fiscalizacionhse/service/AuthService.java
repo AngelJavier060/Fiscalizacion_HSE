@@ -28,7 +28,8 @@ public class AuthService {
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        Usuario usuario = usuarioRepository.findByEmailAndActivoTrue(request.getEmail())
+        String email = request.getEmail() == null ? "" : request.getEmail().trim();
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCaseAndActivoTrue(email)
                 .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
 
         if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {

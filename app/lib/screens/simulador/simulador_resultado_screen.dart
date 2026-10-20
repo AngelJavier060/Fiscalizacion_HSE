@@ -17,6 +17,7 @@ class _Pal {
   static const onSurfaceVar = Color(0xFF434656);
   static const error = Color(0xFFBA1A1A);
   static const ok = Color(0xFF059669);
+  static const warn = Color(0xFFD97706);
 }
 
 class SimuladorResultadoScreen extends StatefulWidget {
@@ -34,11 +35,11 @@ class _SimuladorResultadoScreenState extends State<SimuladorResultadoScreen> {
   final Map<int, SustentoArchivo> _cache = {};
   SsoResultado? _res;
   bool _cargando = true;
-  bool _verRevision = false;
   bool _abriendoSustento = false;
+  bool _iniciando = false;
   int? _abiertaId;
   String? _error;
-  static const _notaMinima = 70;
+  int _notaMinima = 90;
 
   @override
   void initState() {
@@ -49,9 +50,15 @@ class _SimuladorResultadoScreenState extends State<SimuladorResultadoScreen> {
   Future<void> _cargar() async {
     try {
       final res = await _api.resultado(widget.intentoId);
+      int nota = 90;
+      try {
+        final inicio = await _api.inicio();
+        if (inicio.notaMinima > 0) nota = inicio.notaMinima;
+      } catch (_) {}
       if (!mounted) return;
       setState(() {
         _res = res;
+        _notaMinima = nota;
         _cargando = false;
       });
     } on ApiException catch (e) {
@@ -80,6 +87,62 @@ class _SimuladorResultadoScreenState extends State<SimuladorResultadoScreen> {
   void _abrirFallada(SsoRevision p) {
     if (!p.fallada) return;
     setState(() => _abiertaId = p.preguntaId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _claveDe(p.preguntaId).currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 280), alignment: 0.08);
+      }
+    });
+  }
+
+  void _abrirTema(String tema) {
+    for (final r in _res?.revision ?? const <SsoRevision>[]) {
+      if (r.fallada && r.temaNombre == tema) {
+        _abrirFallada(r);
+        return;
+      }
+    }
+  }
+
+  int get _bancoDesdeResultado {
+    final n = _res?.totalPreguntas ?? 0;
+    return n == 20 || n == 40 || n == 60 ? n : 0;
+  }
+
+  Future<void> _empezarDesdeResultado(bool nuevoSet) async {
+    final res = _res;
+    if (res == null || _iniciando) return;
+    setState(() {
+      _iniciando = true;
+      _error = null;
+    });
+    try {
+      final ex = await _api.iniciarExamen(
+        res.modo == 'falladas' ? 'falladas' : 'banco',
+        temaId: res.temaId,
+        preguntasPorBanco: _bancoDesdeResultado,
+        nuevoSet: nuevoSet,
+        intentoOrigenId: res.id,
+      );
+      if (!mounted) return;
+      await Navigator.pushReplacementNamed(
+        context,
+        '/simulador-examen',
+        arguments: {'id': ex.id},
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _iniciando = false;
+        _error = e.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _iniciando = false;
+        _error = 'No se pudo iniciar el examen';
+      });
+    }
   }
 
   void _recoger() {
@@ -140,6 +203,22 @@ class _SimuladorResultadoScreenState extends State<SimuladorResultadoScreen> {
     }
   }
 
+  String get _diagnostico {
+    final res = _res;
+    if (res == null) return '';
+    final debiles = [...res.aciertosPorTema]..sort((a, b) => a.pct.compareTo(b.pct));
+    final nombres = debiles.where((t) => t.pct < _notaMinima).take(2).map((t) => t.tema).toList();
+    if (res.aprobado) {
+      return nombres.isEmpty
+          ? 'Desempeño dentro del umbral operativo. Mantenga la lectura periódica de la normativa vigente.'
+          : 'Desempeño dentro del umbral operativo. Conviene reforzar ${nombres.join(' y ')} en el próximo ciclo.';
+    }
+    if (nombres.isNotEmpty) {
+      return 'Vulnerabilidad en ${nombres.join(' y ')}. Se recomienda un ciclo de nivelación antes de un nuevo intento.';
+    }
+    return 'El resultado no alcanza el umbral de habilitación operativa. Revise las respuestas y reintente el simulacro.';
+  }
+
   String get _modoLabel {
     final modo = _res?.modo ?? '';
     if (modo == 'falladas') return 'Solo falladas';
@@ -188,23 +267,100 @@ class _SimuladorResultadoScreenState extends State<SimuladorResultadoScreen> {
                       Text(_error!, style: const TextStyle(color: _Pal.error)),
                       const SizedBox(height: 12),
                     ],
-                    _Hero(res: res, modoLabel: _modoLabel, fecha: _fechaEval),
+                    _Kpis(res: res, notaMinima: _notaMinima),
+                    const SizedBox(height: 10),
+                    _Diagnostico(texto: _diagnostico, ok: res.aprobado),
                     const SizedBox(height: 16),
-                    _Kpis(res: res),
-                    if (res.aciertosPorTema.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      _Temas(temas: res.aciertosPorTema),
-                    ],
+                    _Hero(res: res, modoLabel: _modoLabel, fecha: _fechaEval, notaMinima: _notaMinima),
                     const SizedBox(height: 16),
-                    FilledButton.icon(
-                      onPressed: () => setState(() => _verRevision = !_verRevision),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: _Pal.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                    const Text(
+                      'Preguntas falladas — pulse para retroalimentar',
+                      style: TextStyle(color: Color(0xFF9F1239), fontWeight: FontWeight.w800, fontSize: 16),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Haga clic en una pregunta incorrecta para ver la respuesta, la nota, la normativa y el sustento. Las acertadas quedan compactas.',
+                      style: TextStyle(color: _Pal.onSurfaceVar, fontSize: 13, height: 1.35),
+                    ),
+                    const SizedBox(height: 12),
+                    ...res.revision.map((r) {
+                      if (!r.fallada) {
+                        return _CorrectaMini(item: r);
+                      }
+                      if (_abiertaId == r.preguntaId) {
+                        return _FalladaAbierta(
+                          key: _claveDe(r.preguntaId),
+                          item: r,
+                          cargandoSustento: _abriendoSustento,
+                          onRecoger: _recoger,
+                          onVerSustento: r.tieneSustento ? () => _abrirSustento(r) : null,
+                        );
+                      }
+                      return _FalladaMini(
+                        key: _claveDe(r.preguntaId),
+                        item: r,
+                        onTap: () => _abrirFallada(r),
+                      );
+                    }),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: _Pal.surface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: const Color(0xFFBFDBFE)),
                       ),
-                      icon: const Icon(Icons.replay),
-                      label: Text(_verRevision ? 'Ocultar revisión' : 'Revisar respuestas'),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Después de revisar el resultado',
+                            style: TextStyle(color: _Pal.onSurface, fontWeight: FontWeight.w800, fontSize: 15),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Puede volver a dar esta misma prueba (otro orden) o continuar con otra evaluación al azar.',
+                            style: TextStyle(color: _Pal.onSurfaceVar, fontSize: 13, height: 1.35),
+                          ),
+                          const SizedBox(height: 12),
+                          if (_iniciando)
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: CircularProgressIndicator(color: _Pal.primary, strokeWidth: 2),
+                              ),
+                            )
+                          else ...[
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () => _empezarDesdeResultado(false),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: _Pal.primary,
+                                  side: const BorderSide(color: _Pal.primary),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                icon: const Icon(Icons.replay),
+                                label: const Text('Volver a dar la misma prueba'),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.icon(
+                                onPressed: () => _empezarDesdeResultado(true),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: _Pal.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                icon: const Icon(Icons.forward),
+                                label: const Text('Continuar con otra evaluación'),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton.icon(
@@ -217,37 +373,13 @@ class _SimuladorResultadoScreenState extends State<SimuladorResultadoScreen> {
                       icon: const Icon(Icons.arrow_back),
                       label: const Text('Volver al simulador'),
                     ),
-                    if (_verRevision) ...[
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Revisión de respuestas',
-                        style: TextStyle(color: _Pal.onSurface, fontWeight: FontWeight.w800, fontSize: 16),
+                    if (res.aciertosPorTema.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _Temas(
+                        temas: res.aciertosPorTema,
+                        notaMinima: _notaMinima,
+                        onTema: _abrirTema,
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Pulse una pregunta fallada para repasarla. Las acertadas no muestran anexo.',
-                        style: TextStyle(color: _Pal.onSurfaceVar, fontSize: 13),
-                      ),
-                      const SizedBox(height: 12),
-                      ...res.revision.map((r) {
-                        if (!r.fallada) {
-                          return _CorrectaMini(item: r);
-                        }
-                        if (_abiertaId == r.preguntaId) {
-                          return _FalladaAbierta(
-                            key: _claveDe(r.preguntaId),
-                            item: r,
-                            cargandoSustento: _abriendoSustento,
-                            onRecoger: _recoger,
-                            onVerSustento: r.tieneSustento ? () => _abrirSustento(r) : null,
-                          );
-                        }
-                        return _FalladaMini(
-                          key: _claveDe(r.preguntaId),
-                          item: r,
-                          onTap: () => _abrirFallada(r),
-                        );
-                      }),
                     ],
                   ],
                 ),
@@ -259,7 +391,13 @@ class _Hero extends StatelessWidget {
   final SsoResultado res;
   final String modoLabel;
   final String fecha;
-  const _Hero({required this.res, required this.modoLabel, required this.fecha});
+  final int notaMinima;
+  const _Hero({
+    required this.res,
+    required this.modoLabel,
+    required this.fecha,
+    required this.notaMinima,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -320,7 +458,7 @@ class _Hero extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Modalidad: ${res.temaNombre} • $modoLabel',
+            'Modalidad: ${res.temaNombre} • $modoLabel | Umbral $notaMinima%',
             style: const TextStyle(color: _Pal.onSurfaceVar, fontSize: 13),
           ),
           if (fecha.isNotEmpty) ...[
@@ -335,39 +473,102 @@ class _Hero extends StatelessWidget {
 
 class _Kpis extends StatelessWidget {
   final SsoResultado res;
-  const _Kpis({required this.res});
+  final int notaMinima;
+  const _Kpis({required this.res, required this.notaMinima});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _Metric(
-            label: 'Puntuación',
-            value: res.nota.toStringAsFixed(0),
-            hint: '${res.correctas}/${res.totalPreguntas} aciertos',
-            color: res.aprobado ? _Pal.ok : _Pal.error,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _Metric(
+                icon: Icons.grade_outlined,
+                label: 'Puntuación',
+                value: '${res.nota.toStringAsFixed(0)}/100',
+                hint: '${res.correctas} de ${res.totalPreguntas} aciertos',
+                color: res.aprobado ? _Pal.ok : _Pal.error,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _Metric(
+                icon: Icons.timer_outlined,
+                label: 'Tiempo empleado',
+                value: res.tiempoEmpleado,
+                hint: 'Promedio ${res.promedioReactivo}',
+                color: _Pal.primary,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _Metric(
-            label: 'Correctas',
-            value: '${res.correctas}',
-            hint: 'Umbral ${_SimuladorResultadoScreenState._notaMinima}',
-            color: _Pal.primary,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _Metric(
-            label: 'Tasa de error',
-            value: '${res.tasaError.toStringAsFixed(0)}%',
-            hint: '${res.incorrectas} incorrectas',
-            color: _Pal.error,
-          ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _Metric(
+                icon: Icons.warning_amber_rounded,
+                label: 'Tasa de error',
+                value: '${res.tasaError.toStringAsFixed(0)}%',
+                hint: '${res.incorrectas} respuestas incorrectas',
+                color: _Pal.error,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _Metric(
+                icon: Icons.flag_outlined,
+                label: 'Para avanzar',
+                value: '$notaMinima%',
+                hint: res.aprobado ? 'Umbral alcanzado' : 'No alcanzó el umbral',
+                color: res.aprobado ? _Pal.ok : _Pal.warn,
+              ),
+            ),
+          ],
         ),
       ],
+    );
+  }
+}
+
+class _Diagnostico extends StatelessWidget {
+  final String texto;
+  final bool ok;
+  const _Diagnostico({required this.texto, required this.ok});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEEF2FF),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFC7D2FE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.auto_awesome, size: 16, color: ok ? _Pal.ok : _Pal.primary),
+              const SizedBox(width: 8),
+              const Text(
+                'Diagnóstico Fiscaliza-AI',
+                style: TextStyle(
+                  color: Color(0xFF3730A3),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(texto, style: const TextStyle(color: _Pal.onSurfaceVar, fontSize: 13, height: 1.4)),
+        ],
+      ),
     );
   }
 }
@@ -377,11 +578,13 @@ class _Metric extends StatelessWidget {
   final String value;
   final String hint;
   final Color color;
+  final IconData icon;
   const _Metric({
     required this.label,
     required this.value,
     required this.hint,
     required this.color,
+    required this.icon,
   });
 
   @override
@@ -395,6 +598,8 @@ class _Metric extends StatelessWidget {
       ),
       child: Column(
         children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(height: 6),
           Text(label, style: const TextStyle(color: _Pal.onSurfaceVar, fontSize: 11)),
           const SizedBox(height: 6),
           Text(
@@ -411,7 +616,9 @@ class _Metric extends StatelessWidget {
 
 class _Temas extends StatelessWidget {
   final List<SsoAciertosTema> temas;
-  const _Temas({required this.temas});
+  final int notaMinima;
+  final ValueChanged<String> onTema;
+  const _Temas({required this.temas, required this.notaMinima, required this.onTema});
 
   @override
   Widget build(BuildContext context) {
@@ -429,40 +636,50 @@ class _Temas extends StatelessWidget {
             'Desempeño por tema',
             style: TextStyle(color: _Pal.onSurface, fontWeight: FontWeight.w700),
           ),
+          const SizedBox(height: 4),
+          const Text(
+            'Pulse un tema reprobado para abrir sus preguntas falladas',
+            style: TextStyle(color: _Pal.onSurfaceVar, fontSize: 12),
+          ),
           const SizedBox(height: 12),
           ...temas.map((t) {
             final pct = t.pct / 100;
+            final ok = t.pct >= notaMinima;
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(t.tema, style: const TextStyle(color: _Pal.onSurface, fontSize: 13)),
-                      ),
-                      Text(
-                        '${t.correctas}/${t.total}',
-                        style: const TextStyle(
-                          color: _Pal.onSurfaceVar,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
+              child: InkWell(
+                onTap: ok ? null : () => onTema(t.tema),
+                borderRadius: BorderRadius.circular(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(t.tema, style: const TextStyle(color: _Pal.onSurface, fontSize: 13)),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(99),
-                    child: LinearProgressIndicator(
-                      value: pct,
-                      minHeight: 7,
-                      backgroundColor: _Pal.high,
-                      color: t.pct >= 70 ? _Pal.ok : _Pal.error,
+                        Text(
+                          '${t.correctas}/${t.total}',
+                          style: const TextStyle(
+                            color: _Pal.onSurfaceVar,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(99),
+                      child: LinearProgressIndicator(
+                        value: pct,
+                        minHeight: 7,
+                        backgroundColor: _Pal.high,
+                        color: ok ? _Pal.ok : _Pal.error,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }),
@@ -544,7 +761,7 @@ class _FalladaMini extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'Incorrecta · Repasar',
+                  'Incorrecta · Pulse para retroalimentar',
                   style: TextStyle(color: _Pal.error, fontWeight: FontWeight.w800, fontSize: 12),
                 ),
               ],

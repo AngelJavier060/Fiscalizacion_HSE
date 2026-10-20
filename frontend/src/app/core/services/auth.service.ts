@@ -14,7 +14,13 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+    const email = (credentials.email || '').trim().toLowerCase();
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
+      ...credentials,
+      email,
+    }).pipe(
       tap((response) => {
         localStorage.setItem('token', response.token);
         localStorage.setItem('usuario', JSON.stringify(response));

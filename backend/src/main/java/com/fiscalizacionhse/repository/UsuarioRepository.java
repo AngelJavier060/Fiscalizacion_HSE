@@ -22,6 +22,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByEmailAndActivoTrue(String email);
 
+    Optional<Usuario> findByEmailIgnoreCaseAndActivoTrue(String email);
+
     Optional<Usuario> findByIdAndActivoTrue(Long id);
 
     @EntityGraph(attributePaths = "empresa")
