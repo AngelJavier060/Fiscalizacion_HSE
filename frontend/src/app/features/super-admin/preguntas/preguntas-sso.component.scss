@@ -294,9 +294,18 @@ table {
 }
 .editor {
   position: fixed; top: 0; right: 0; bottom: 0; width: min(640px, 100%);
-  background: #fff; z-index: 50; padding: 1.5rem; overflow-y: auto;
+  background: #fff; z-index: 50; padding: 1.5rem; overflow: hidden;
   display: flex; flex-direction: column; gap: .75rem;
   box-shadow: -8px 0 24px rgba(15,23,42,.12);
+  .editor-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    padding-right: .15rem;
+  }
   h3 { margin: 0; }
   label { display: flex; flex-direction: column; gap: .3rem; font-size: .75rem; font-weight: 600; color: #475569; }
   input, select, textarea {
@@ -321,16 +330,20 @@ table {
   .arg { font-weight: 600; }
   .icon { border: none; background: #fff; border-radius: .4rem; width: 1.75rem; height: 1.75rem; cursor: pointer; margin-left: auto; }
   .check { flex-direction: row; align-items: center; }
-  .editor-actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: auto; }
+  .editor-actions { display: flex; justify-content: flex-end; gap: .5rem; flex-shrink: 0; }
   .sustento {
-    border: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    max-height: 46vh;
+    overflow-y: auto;
+    border: 1px solid #cbd5e1;
     border-radius: .85rem;
     padding: .85rem;
-    background: #f8fafc;
+    background: #fff;
     display: flex;
     flex-direction: column;
     gap: .65rem;
     h4 { margin: 0; font-size: .85rem; color: #0f172a; }
+    textarea { background: #fff; resize: vertical; }
   }
   .sustento-box {
     display: flex;

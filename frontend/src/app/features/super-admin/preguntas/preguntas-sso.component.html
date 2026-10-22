@@ -536,6 +536,7 @@
 @if (editorAbierto) {
   <div class="modal-backdrop" (click)="editorAbierto = false"></div>
   <aside class="editor">
+    <div class="editor-scroll">
     <h3>{{ editando ? 'Editar pregunta' : 'Nueva pregunta' }}</h3>
     <label>Tema
       <select [(ngModel)]="formTemaId">
@@ -577,6 +578,7 @@
       ¿Por qué está mal?
       <textarea rows="2" [(ngModel)]="formExplicacion" placeholder="Argumento que verá el trabajador al revisar el examen"></textarea>
     </label>
+    </div>
     <section class="sustento">
       <h4>Sustento de la pregunta</h4>
       <p class="ops-hint">
