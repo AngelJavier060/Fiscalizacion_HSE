@@ -393,6 +393,7 @@ public class SimuladorAdminService {
     @Transactional
     public SsoPreguntaAdminResponse crearPregunta(SsoPreguntaRequest request, Long usuarioId) {
         validarOpciones(request.getOpciones());
+        validarExplicacion(request.getExplicacion());
         SsoTema tema = getTema(request.getTemaId());
         Usuario autor = usuarioRepository.findById(usuarioId).orElse(null);
 
@@ -416,6 +417,7 @@ public class SimuladorAdminService {
     @Transactional
     public SsoPreguntaAdminResponse actualizarPregunta(Long id, SsoPreguntaRequest request) {
         validarOpciones(request.getOpciones());
+        validarExplicacion(request.getExplicacion());
         SsoPregunta pregunta = preguntaRepository.findDetalleById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pregunta no encontrada"));
         pregunta.setTema(getTema(request.getTemaId()));
@@ -453,9 +455,7 @@ public class SimuladorAdminService {
                         .orElseThrow(() -> new BadRequestException("Opción no pertenece a la pregunta"));
                 existente.setTexto(op.getTexto().trim());
                 existente.setEsCorrecta(Boolean.TRUE.equals(op.getEsCorrecta()));
-                existente.setArgumento(Boolean.TRUE.equals(op.getEsCorrecta())
-                        ? null
-                        : blankToNull(op.getArgumento()));
+                existente.setArgumento(null);
             }
         }
         return toAdmin(pregunta);
@@ -693,21 +693,20 @@ public class SimuladorAdminService {
         if (correctas != 1) {
             throw new BadRequestException("Debe haber exactamente una opción correcta");
         }
-        boolean faltaArgumento = opciones.stream()
-                .anyMatch(o -> !Boolean.TRUE.equals(o.getEsCorrecta())
-                        && (o.getArgumento() == null || o.getArgumento().isBlank()));
-        if (faltaArgumento) {
-            throw new BadRequestException("Cada opción incorrecta debe indicar por qué está mal");
+    }
+
+    private void validarExplicacion(String explicacion) {
+        if (explicacion == null || explicacion.isBlank()) {
+            throw new BadRequestException("Indica por qué está mal");
         }
     }
 
     private SsoOpcion buildOpcion(SsoPregunta pregunta, SsoPreguntaRequest.SsoOpcionRequest op) {
-        boolean correcta = Boolean.TRUE.equals(op.getEsCorrecta());
         return SsoOpcion.builder()
                 .pregunta(pregunta)
                 .texto(op.getTexto().trim())
-                .esCorrecta(correcta)
-                .argumento(correcta ? null : blankToNull(op.getArgumento()))
+                .esCorrecta(Boolean.TRUE.equals(op.getEsCorrecta()))
+                .argumento(null)
                 .build();
     }
 

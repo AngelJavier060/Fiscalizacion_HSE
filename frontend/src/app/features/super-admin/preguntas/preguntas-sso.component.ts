@@ -349,10 +349,11 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
     this.editando = p;
     this.formTemaId = p.temaId;
     this.formEnunciado = p.enunciado;
-    this.formExplicacion = p.explicacion || '';
+    const argumentoOpcion = p.opciones.find((o) => !o.esCorrecta && o.argumento?.trim())?.argumento?.trim();
+    this.formExplicacion = p.explicacion?.trim() || argumentoOpcion || '';
     this.formFuente = p.fuente || '';
     this.formActivo = p.activo;
-    this.formOpciones = p.opciones.map((o) => ({ ...o }));
+    this.formOpciones = p.opciones.map((o) => ({ ...o, argumento: '' }));
     this.resetSustentoForm();
     this.formTieneSustento = !!p.tieneSustento;
     this.formSustentoNombre = p.sustentoNombre || (p.tieneSustento ? 'evidencia' : null);
@@ -398,8 +399,8 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
       this.error = 'Marca exactamente una opción como correcta';
       return;
     }
-    if (this.formOpciones.some((o) => !o.esCorrecta && !o.argumento?.trim())) {
-      this.error = 'En cada opción incorrecta indica por qué está mal';
+    if (!this.formExplicacion.trim()) {
+      this.error = 'Indica por qué está mal';
       return;
     }
     this.guardando = true;
@@ -407,14 +408,14 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
     const body = {
       temaId: this.formTemaId,
       enunciado: this.formEnunciado.trim(),
-      explicacion: this.formExplicacion.trim() || undefined,
+      explicacion: this.formExplicacion.trim(),
       fuente: this.formFuente.trim() || undefined,
       activo: this.formActivo,
       opciones: this.formOpciones.map((o) => ({
         id: o.id,
         texto: o.texto.trim(),
         esCorrecta: o.esCorrecta,
-        argumento: o.esCorrecta ? undefined : o.argumento?.trim(),
+        argumento: undefined,
       })),
     };
     const req = this.editando

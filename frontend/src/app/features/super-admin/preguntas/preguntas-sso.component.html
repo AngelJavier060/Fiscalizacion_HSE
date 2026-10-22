@@ -547,7 +547,7 @@
     <label>Pregunta
       <textarea rows="3" [(ngModel)]="formEnunciado" placeholder="Escribe el enunciado…"></textarea>
     </label>
-    <p class="ops-hint">Marca la respuesta correcta. En las incorrectas escribe por qué está mal.</p>
+    <p class="ops-hint">Marca la respuesta correcta.</p>
     <div class="ops">
       @for (o of formOpciones; track $index) {
         <div class="op-card" [class.correct]="o.esCorrecta">
@@ -564,12 +564,7 @@
             <button type="button" class="icon" (click)="quitarOpcion($index)" [disabled]="formOpciones.length <= 2" title="Quitar">×</button>
           </div>
           <input type="text" [(ngModel)]="o.texto" [placeholder]="'Texto de la opción ' + letra($index)" />
-          @if (!o.esCorrecta) {
-            <label class="arg">
-              ¿Por qué está mal?
-              <textarea rows="2" [(ngModel)]="o.argumento" placeholder="Argumento que verá el trabajador al revisar el examen"></textarea>
-            </label>
-          } @else {
+          @if (o.esCorrecta) {
             <p class="ok-note">El trabajador verá esta como la respuesta correcta al terminar el examen.</p>
           }
         </div>
@@ -578,17 +573,16 @@
         + Añadir opción
       </button>
     </div>
+    <label class="arg">
+      ¿Por qué está mal?
+      <textarea rows="2" [(ngModel)]="formExplicacion" placeholder="Argumento que verá el trabajador al revisar el examen"></textarea>
+    </label>
     <section class="sustento">
       <h4>Sustento de la pregunta</h4>
       <p class="ops-hint">
-        La <strong>nota general</strong> es un resumen breve de esta pregunta (qué enseña y por qué esa es la respuesta).
         La <strong>normativa</strong> es el nombre del documento (NFPA, decreto, MSDS…).
         El archivo es la evidencia: foto de la tabla, página del PDF o recorte donde lo dice.
       </p>
-      <label>Nota general (resumen breve)
-        <textarea rows="3" [(ngModel)]="formExplicacion"
-          placeholder="Ej.: Esta pregunta cubre la clasificación NFPA 704. El diamante rojo indica inflamabilidad; el 4 es el nivel más peligroso."></textarea>
-      </label>
       <label>Normativa / fuente
         <textarea rows="4" [(ngModel)]="formFuente"
           placeholder="Puede escribir la cita completa. Ej.: Hiroyuki Hirano, 5 Pillars of the Visual Workplace (1995). Las 5S apoyan ISO 45001 e ISO 9001. En Ecuador: Decisión 584 CAN, Código del Trabajo art. 410 y Decreto Ejecutivo 255."></textarea>
