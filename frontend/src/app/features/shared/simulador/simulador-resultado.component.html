@@ -160,6 +160,14 @@
                     }
                   </section>
                   <section>
+                    <h4><i class="dot amber"></i> Sustento de la pregunta</h4>
+                    @if (p.sustentoTexto) {
+                      <p>{{ p.sustentoTexto }}</p>
+                    } @else {
+                      <p class="muted">Sin sustento escrito.</p>
+                    }
+                  </section>
+                  <section>
                     <h4><i class="dot blue"></i> Normativa / fuente</h4>
                     <div class="norma-box">
                       @if (p.fuente) {

@@ -547,43 +547,6 @@
     <label>Pregunta
       <textarea rows="3" [(ngModel)]="formEnunciado" placeholder="Escribe el enunciado…"></textarea>
     </label>
-    <label class="arg">
-      ¿Por qué está mal?
-      <textarea rows="2" [(ngModel)]="formExplicacion" placeholder="Argumento que verá el trabajador al revisar el examen"></textarea>
-    </label>
-    <section class="sustento">
-      <h4>Sustento de la pregunta</h4>
-      <p class="ops-hint">
-        La <strong>normativa</strong> es el nombre del documento (NFPA, decreto, MSDS…).
-        El archivo es la evidencia: foto de la tabla, página del PDF o recorte donde lo dice.
-      </p>
-      <label>Normativa / fuente
-        <textarea rows="4" [(ngModel)]="formFuente"
-          placeholder="Escribe aquí la normativa o la cita del documento"></textarea>
-      </label>
-      <div class="sustento-box">
-        <span>Evidencia (foto o PDF, máx. 15 MB)</span>
-        @if (formTieneSustento && formSustentoNombre) {
-          <div class="sustento-file">
-            @if (esImagenSustento() && formSustentoPreviewUrl) {
-              <img [src]="formSustentoPreviewUrl" alt="Vista previa del sustento" />
-            } @else {
-              <i class="fa-regular fa-file-pdf"></i>
-            }
-            <div>
-              <strong>{{ formSustentoNombre }}</strong>
-              <p>{{ formSustentoFile ? 'Se subirá al guardar' : 'Archivo actual' }}</p>
-            </div>
-            <button type="button" class="sa-btn-ghost" (click)="verSustentoEditor()">Ver</button>
-            <button type="button" class="sa-btn-ghost" (click)="quitarSustentoForm()">Quitar</button>
-          </div>
-        }
-        <label class="file-pick">
-          {{ formTieneSustento ? 'Reemplazar archivo' : 'Subir foto o PDF' }}
-          <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,application/pdf,image/*" (change)="onSustento($event)" />
-        </label>
-      </div>
-    </section>
     <p class="ops-hint">Marca la respuesta correcta.</p>
     <div class="ops">
       @for (o of formOpciones; track $index) {
@@ -609,6 +572,41 @@
       <button type="button" class="sa-btn-ghost" (click)="agregarOpcion()" [disabled]="formOpciones.length >= 5">
         + Añadir opción
       </button>
+    </div>
+    <label class="arg">
+      ¿Por qué está mal?
+      <textarea rows="2" [(ngModel)]="formExplicacion" placeholder="Argumento que verá el trabajador al revisar el examen"></textarea>
+    </label>
+    <label>
+      Sustento de la pregunta
+      <textarea rows="2" [(ngModel)]="formSustentoTexto" placeholder="Escribe aquí el sustento de la pregunta"></textarea>
+    </label>
+    <label>
+      Normativa / fuente
+      <textarea rows="2" [(ngModel)]="formFuente"
+        placeholder="Nombre del documento, norma o cita (NFPA, decreto, procedimiento…)"></textarea>
+    </label>
+    <div class="sustento-box">
+      <span>Evidencia (foto o PDF, máx. 15 MB)</span>
+      @if (formTieneSustento && formSustentoNombre) {
+        <div class="sustento-file">
+          @if (esImagenSustento() && formSustentoPreviewUrl) {
+            <img [src]="formSustentoPreviewUrl" alt="Vista previa del sustento" />
+          } @else {
+            <i class="fa-regular fa-file-pdf"></i>
+          }
+          <div>
+            <strong>{{ formSustentoNombre }}</strong>
+            <p>{{ formSustentoFile ? 'Se subirá al guardar' : 'Archivo actual' }}</p>
+          </div>
+          <button type="button" class="sa-btn-ghost" (click)="verSustentoEditor()">Ver</button>
+          <button type="button" class="sa-btn-ghost" (click)="quitarSustentoForm()">Quitar</button>
+        </div>
+      }
+      <label class="file-pick">
+        {{ formTieneSustento ? 'Reemplazar archivo' : 'Subir foto o PDF' }}
+        <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,application/pdf,image/*" (change)="onSustento($event)" />
+      </label>
     </div>
     <label class="check">
       <input type="checkbox" [(ngModel)]="formActivo" /> Activa (sale en exámenes nuevos)

@@ -15,6 +15,7 @@ public class SsoPreguntaAdminResponse {
     private String enunciado;
     private String explicacion;
     private String fuente;
+    private String sustentoTexto;
     private String imagen;
     private String sustentoNombre;
     private String sustentoTipo;

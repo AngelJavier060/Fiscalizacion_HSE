@@ -289,11 +289,13 @@
     height: .65rem;
     border-radius: 99px;
     &.green { background: #059669; }
+    &.amber { background: #d97706; }
     &.blue { background: #2563eb; }
     &.red { background: #dc2626; }
   }
-  section:nth-of-type(2) header h4 { color: #1e3a8a; }
-  section:nth-of-type(3) header h4 { color: #7f1d1d; }
+  section:nth-of-type(2) header h4 { color: #92400e; }
+  section:nth-of-type(3) header h4 { color: #1e3a8a; }
+  section:nth-of-type(4) header h4 { color: #7f1d1d; }
 
   .norma-box {
     background: #eff6ff;

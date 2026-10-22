@@ -41,6 +41,7 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
   formEnunciado = '';
   formExplicacion = '';
   formFuente = '';
+  formSustentoTexto = '';
   formActivo = true;
   formOpciones: SsoOpcionAdmin[] = [];
   formSustentoFile: File | null = null;
@@ -335,6 +336,7 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
     this.formEnunciado = '';
     this.formExplicacion = '';
     this.formFuente = '';
+    this.formSustentoTexto = '';
     this.formActivo = true;
     this.formOpciones = [
       { texto: '', esCorrecta: true, argumento: '' },
@@ -352,6 +354,7 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
     const argumentoOpcion = p.opciones.find((o) => !o.esCorrecta && o.argumento?.trim())?.argumento?.trim();
     this.formExplicacion = p.explicacion?.trim() || argumentoOpcion || '';
     this.formFuente = p.fuente || '';
+    this.formSustentoTexto = p.sustentoTexto || '';
     this.formActivo = p.activo;
     this.formOpciones = p.opciones.map((o) => ({ ...o, argumento: '' }));
     this.resetSustentoForm();
@@ -410,6 +413,7 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
       enunciado: this.formEnunciado.trim(),
       explicacion: this.formExplicacion.trim(),
       fuente: this.formFuente.trim() || undefined,
+      sustentoTexto: this.formSustentoTexto.trim() || undefined,
       activo: this.formActivo,
       opciones: this.formOpciones.map((o) => ({
         id: o.id,

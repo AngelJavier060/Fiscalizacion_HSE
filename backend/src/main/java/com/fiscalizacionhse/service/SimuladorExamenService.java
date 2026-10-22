@@ -604,6 +604,7 @@ public class SimuladorExamenService {
                     .enunciado(p.getEnunciado())
                     .explicacion(p.getExplicacion())
                     .fuente(p.getFuente())
+                    .sustentoTexto(p.getSustentoTexto())
                     .tieneSustento(p.getSustentoRuta() != null && !p.getSustentoRuta().isBlank())
                     .sustentoNombre(p.getSustentoNombre())
                     .sustentoTipo(p.getSustentoTipo())

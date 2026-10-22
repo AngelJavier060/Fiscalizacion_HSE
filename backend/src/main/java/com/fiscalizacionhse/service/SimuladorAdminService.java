@@ -402,6 +402,7 @@ public class SimuladorAdminService {
                 .enunciado(request.getEnunciado().trim())
                 .explicacion(blankToNull(request.getExplicacion()))
                 .fuente(blankToNull(request.getFuente()))
+                .sustentoTexto(blankToNull(request.getSustentoTexto()))
                 .activo(request.getActivo() == null || request.getActivo())
                 .creadoPor(autor)
                 .fechaCreacion(LocalDateTime.now())
@@ -424,6 +425,7 @@ public class SimuladorAdminService {
         pregunta.setEnunciado(request.getEnunciado().trim());
         pregunta.setExplicacion(blankToNull(request.getExplicacion()));
         pregunta.setFuente(blankToNull(request.getFuente()));
+        pregunta.setSustentoTexto(blankToNull(request.getSustentoTexto()));
         if (request.getActivo() != null) {
             pregunta.setActivo(request.getActivo());
         }
@@ -736,6 +738,7 @@ public class SimuladorAdminService {
                 .enunciado(p.getEnunciado())
                 .explicacion(p.getExplicacion())
                 .fuente(p.getFuente())
+                .sustentoTexto(p.getSustentoTexto())
                 .imagen(p.getImagen())
                 .sustentoNombre(p.getSustentoNombre())
                 .sustentoTipo(p.getSustentoTipo())

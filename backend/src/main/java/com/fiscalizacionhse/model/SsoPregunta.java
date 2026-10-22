@@ -36,6 +36,10 @@ public class SsoPregunta {
     @Column(length = 500)
     private String imagen;
 
+    /** Texto del sustento de la pregunta. Distinto de la normativa y del archivo. */
+    @Column(name = "sustento_texto", columnDefinition = "TEXT")
+    private String sustentoTexto;
+
     /** Nombre original del archivo de sustento (PDF o imagen). */
     @Column(name = "sustento_nombre", length = 255)
     private String sustentoNombre;

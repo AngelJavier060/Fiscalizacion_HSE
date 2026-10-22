@@ -12,6 +12,7 @@ public class SsoEstudioPreguntaResponse {
     private String enunciado;
     private String explicacion;
     private String fuente;
+    private String sustentoTexto;
     private boolean tieneSustento;
     private String sustentoNombre;
     private String sustentoTipo;

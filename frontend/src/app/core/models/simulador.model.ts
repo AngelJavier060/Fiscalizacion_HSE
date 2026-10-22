@@ -21,6 +21,7 @@ export interface SsoPreguntaAdmin {
   enunciado: string;
   explicacion?: string;
   fuente?: string;
+  sustentoTexto?: string;
   imagen?: string;
   sustentoNombre?: string;
   sustentoTipo?: string;
@@ -39,6 +40,7 @@ export interface SsoEstudioPregunta {
   enunciado: string;
   explicacion?: string;
   fuente?: string;
+  sustentoTexto?: string;
   tieneSustento?: boolean;
   sustentoNombre?: string;
   sustentoTipo?: string;
@@ -49,6 +51,7 @@ export interface SsoPreguntaRequest {
   enunciado: string;
   explicacion?: string;
   fuente?: string;
+  sustentoTexto?: string;
   activo?: boolean;
   opciones: SsoOpcionAdmin[];
 }
@@ -211,6 +214,7 @@ export interface SsoRevision {
   enunciado: string;
   explicacion?: string;
   fuente?: string;
+  sustentoTexto?: string;
   tieneSustento?: boolean;
   sustentoNombre?: string;
   sustentoTipo?: string;

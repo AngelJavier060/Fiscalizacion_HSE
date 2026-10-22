@@ -93,6 +93,18 @@
 
                   <section>
                     <header>
+                      <i class="dot amber"></i>
+                      <h4>Sustento de la pregunta</h4>
+                    </header>
+                    @if (p.sustentoTexto) {
+                      <p>{{ p.sustentoTexto }}</p>
+                    } @else {
+                      <p class="muted">Sin sustento escrito.</p>
+                    }
+                  </section>
+
+                  <section>
+                    <header>
                       <i class="dot blue"></i>
                       <h4>Normativa / fuente</h4>
                     </header>

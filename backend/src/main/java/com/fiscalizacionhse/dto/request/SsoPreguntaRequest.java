@@ -19,6 +19,7 @@ public class SsoPreguntaRequest {
 
     private String explicacion;
     private String fuente;
+    private String sustentoTexto;
     private Boolean activo;
 
     @Valid
