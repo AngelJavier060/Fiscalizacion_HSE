@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { of, switchMap } from 'rxjs';
@@ -58,6 +59,16 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
   archivo: File | null = null;
   preview: SsoImportPreview | null = null;
   importando = false;
+  exportando = false;
+  desactivarAusentes = false;
+  resultadoImport: string | null = null;
+  progreso: number | null = null;
+  progresoTexto = '';
+  aviso: { tipo: 'ok' | 'error'; texto: string } | null = null;
+  @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+  private textoProceso = '';
+  private progresoTimer?: ReturnType<typeof setInterval>;
+  private avisoTimer?: ReturnType<typeof setTimeout>;
 
   readonly notas = [80, 90];
   readonly bancos = [
@@ -368,6 +379,8 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.revokePreview();
+    clearInterval(this.progresoTimer);
+    clearTimeout(this.avisoTimer);
   }
 
   agregarOpcion(): void {
@@ -577,41 +590,144 @@ export class PreguntasSsoComponent implements OnInit, OnDestroy {
     });
   }
 
+  descargarPlantilla(): void {
+    this.api.descargarPlantilla().subscribe({
+      next: (blob) => this.guardarArchivo(blob, 'plantilla-preguntas-sso.xlsx'),
+      error: () => (this.error = 'No se pudo descargar la plantilla'),
+    });
+  }
+
+  exportarBanco(): void {
+    this.exportando = true;
+    this.api.exportarPreguntas().subscribe({
+      next: (blob) => {
+        this.exportando = false;
+        const fecha = new Date().toISOString().slice(0, 10);
+        this.guardarArchivo(blob, `banco-preguntas-sso-${fecha}.xlsx`);
+      },
+      error: () => {
+        this.exportando = false;
+        this.error = 'No se pudo exportar el banco de preguntas';
+      },
+    });
+  }
+
+  private guardarArchivo(blob: Blob, nombre: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombre;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   onFile(ev: Event): void {
     const input = ev.target as HTMLInputElement;
     this.archivo = input.files?.[0] ?? null;
     this.preview = null;
+    this.resultadoImport = null;
+    this.desactivarAusentes = false;
   }
 
   previsualizar(): void {
     if (!this.archivo) return;
-    this.importando = true;
+    this.resultadoImport = null;
+    this.iniciarProgreso('Subiendo archivo…', 'Revisando preguntas…');
     this.api.previewImport(this.archivo).subscribe({
-      next: (p) => {
+      next: (ev) => {
+        const p = this.avanzarProgreso(ev);
+        if (!p) return;
         this.preview = p;
-        this.importando = false;
+        this.terminarProgreso();
+        if (p.conError > 0) {
+          this.mostrarAviso('error', `Archivo leído: ${p.totalFilas} filas, ${p.conError} con error. Revisa la tabla.`);
+        } else {
+          this.mostrarAviso('ok', `Archivo cargado correctamente: ${p.totalFilas} filas listas para revisar.`);
+        }
       },
       error: (e) => {
-        this.importando = false;
-        this.error = e?.error?.mensaje || 'No se pudo leer el archivo';
+        this.terminarProgreso();
+        this.mostrarAviso('error', e?.error?.mensaje || 'No se pudo leer el archivo');
       },
     });
   }
 
   confirmarCarga(): void {
     if (!this.preview) return;
-    this.importando = true;
-    this.api.confirmarImport(this.preview).subscribe({
-      next: (p) => {
-        this.importando = false;
-        this.preview = p;
+    if (
+      this.desactivarAusentes &&
+      this.preview.ausentes > 0 &&
+      !confirm(`Se desactivarán ${this.preview.ausentes} preguntas que no están en el archivo. ¿Continuar?`)
+    ) {
+      return;
+    }
+    const desactivar = this.desactivarAusentes;
+    this.iniciarProgreso('Enviando preguntas…', 'Guardando en el banco de preguntas…');
+    this.api.confirmarImport(this.preview, desactivar).subscribe({
+      next: (ev) => {
+        const p = this.avanzarProgreso(ev);
+        if (!p) return;
+        this.terminarProgreso();
+        this.resultadoImport =
+          `Banco actualizado correctamente: ${p.nuevas} nuevas, ${p.actualizadas} actualizadas` +
+          (desactivar ? `, ${p.ausentes} desactivadas` : '') + '.';
+        this.mostrarAviso('ok', this.resultadoImport);
+        this.preview = null;
+        this.archivo = null;
+        this.desactivarAusentes = false;
+        if (this.fileInput) this.fileInput.nativeElement.value = '';
         this.recargar();
-        this.tab = 'preguntas';
       },
       error: (e) => {
-        this.importando = false;
-        this.error = e?.error?.mensaje || 'No se pudo importar';
+        this.terminarProgreso();
+        this.mostrarAviso('error', e?.error?.mensaje || 'No se pudo guardar la importación');
       },
     });
+  }
+
+  cerrarAviso(): void {
+    this.aviso = null;
+    clearTimeout(this.avisoTimer);
+  }
+
+  private mostrarAviso(tipo: 'ok' | 'error', texto: string): void {
+    this.aviso = { tipo, texto };
+    clearTimeout(this.avisoTimer);
+    this.avisoTimer = setTimeout(() => (this.aviso = null), tipo === 'ok' ? 6000 : 10000);
+  }
+
+  // La subida real empuja la barra hasta el 70 %; además avanza sola hasta el 95 % mientras el servidor responde.
+  private iniciarProgreso(textoSubida: string, textoProceso: string): void {
+    this.importando = true;
+    this.progreso = 0;
+    this.progresoTexto = textoSubida;
+    this.textoProceso = textoProceso;
+    clearInterval(this.progresoTimer);
+  }
+
+  private avanzarProgreso(ev: HttpEvent<SsoImportPreview>): SsoImportPreview | null {
+    if (ev.type === HttpEventType.Sent) {
+      this.progreso = 2;
+      clearInterval(this.progresoTimer);
+      this.progresoTimer = setInterval(() => {
+        if (this.progreso != null && this.progreso < 95) this.progreso += 1;
+      }, 250);
+    } else if (ev.type === HttpEventType.UploadProgress) {
+      const total = ev.total || 1;
+      this.progreso = Math.max(this.progreso ?? 0, Math.round((ev.loaded / total) * 70));
+      if (ev.loaded >= total) this.progresoTexto = this.textoProceso;
+    } else if (ev.type === HttpEventType.Response) {
+      return ev.body;
+    }
+    return null;
+  }
+
+  private terminarProgreso(): void {
+    clearInterval(this.progresoTimer);
+    this.progreso = 100;
+    setTimeout(() => {
+      this.progreso = null;
+      this.importando = false;
+    }, 400);
   }
 }

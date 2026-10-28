@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -96,14 +96,30 @@ export class SimuladorService {
     return this.http.get(`${this.api}/preguntas/${id}/sustento`, { responseType: 'blob' });
   }
 
-  previewImport(file: File): Observable<SsoImportPreview> {
+  /** Emite eventos de progreso de la subida y, al final, la respuesta. */
+  previewImport(file: File): Observable<HttpEvent<SsoImportPreview>> {
     const fd = new FormData();
     fd.append('file', file);
-    return this.http.post<SsoImportPreview>(`${this.admin}/preguntas/importar/preview`, fd);
+    return this.http.post<SsoImportPreview>(`${this.admin}/preguntas/importar/preview`, fd, {
+      reportProgress: true,
+      observe: 'events',
+    });
   }
 
-  confirmarImport(preview: SsoImportPreview): Observable<SsoImportPreview> {
-    return this.http.post<SsoImportPreview>(`${this.admin}/preguntas/importar`, preview);
+  confirmarImport(preview: SsoImportPreview, desactivarAusentes = false): Observable<HttpEvent<SsoImportPreview>> {
+    return this.http.post<SsoImportPreview>(`${this.admin}/preguntas/importar`, preview, {
+      params: { desactivarAusentes: String(desactivarAusentes) },
+      reportProgress: true,
+      observe: 'events',
+    });
+  }
+
+  descargarPlantilla(): Observable<Blob> {
+    return this.http.get(`${this.admin}/preguntas/plantilla`, { responseType: 'blob' });
+  }
+
+  exportarPreguntas(): Observable<Blob> {
+    return this.http.get(`${this.admin}/preguntas/exportar`, { responseType: 'blob' });
   }
 
   inicio(): Observable<SsoInicio> {

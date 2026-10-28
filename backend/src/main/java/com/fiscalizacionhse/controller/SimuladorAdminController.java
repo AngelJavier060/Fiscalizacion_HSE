@@ -134,6 +134,25 @@ public class SimuladorAdminController {
                 .body(arch.resource());
     }
 
+    @GetMapping("/preguntas/plantilla")
+    public ResponseEntity<byte[]> plantilla() {
+        return excel(adminService.plantillaExcel(), "plantilla-preguntas-sso.xlsx");
+    }
+
+    @GetMapping("/preguntas/exportar")
+    public ResponseEntity<byte[]> exportar() {
+        return excel(adminService.exportarExcel(), "banco-preguntas-sso.xlsx");
+    }
+
+    private static ResponseEntity<byte[]> excel(byte[] contenido, String nombre) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(nombre, StandardCharsets.UTF_8).build().toString())
+                .contentType(MediaType.parseMediaType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(contenido);
+    }
+
     @PostMapping("/preguntas/importar/preview")
     public ResponseEntity<SsoImportPreviewResponse> preview(@RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(adminService.previsualizarImportacion(file));
@@ -141,8 +160,10 @@ public class SimuladorAdminController {
 
     @PostMapping("/preguntas/importar")
     public ResponseEntity<SsoImportPreviewResponse> importar(
-            @RequestBody SsoImportPreviewResponse preview, Authentication auth) {
+            @RequestBody SsoImportPreviewResponse preview,
+            @RequestParam(defaultValue = "false") boolean desactivarAusentes,
+            Authentication auth) {
         Long usuarioId = Long.parseLong(auth.getName());
-        return ResponseEntity.ok(adminService.confirmarImportacion(preview, usuarioId));
+        return ResponseEntity.ok(adminService.confirmarImportacion(preview, desactivarAusentes, usuarioId));
     }
 }

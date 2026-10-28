@@ -483,18 +483,61 @@
         }
       }
 
+      @if (aviso) {
+        <div class="aviso-toast" [class.ok]="aviso.tipo === 'ok'" [class.err]="aviso.tipo === 'error'" role="status">
+          <span class="aviso-icono">{{ aviso.tipo === 'ok' ? '✓' : '!' }}</span>
+          <span>{{ aviso.texto }}</span>
+          <button type="button" aria-label="Cerrar" (click)="cerrarAviso()">×</button>
+        </div>
+      }
       @if (tab === 'importar') {
         <div class="import-box">
-          <p>Plantilla: <code>tema,enunciado,opcion_a,opcion_b,opcion_c,opcion_d,opcion_e,correcta,explicacion,fuente</code></p>
-          <input type="file" accept=".xlsx,.xls,.csv" (change)="onFile($event)" />
+          <ol class="import-pasos">
+            <li>
+              Descarga la <strong>plantilla</strong> para empezar de cero, o <strong>exporta el banco</strong> para editar
+              las preguntas que ya existen.
+            </li>
+            <li>Edita el Excel. Deja la columna <code>id</code> vacía en las preguntas nuevas y no la cambies en las existentes.</li>
+            <li>Súbelo, revisa la vista previa y confirma. Las preguntas con <code>id</code> se actualizan; las demás se crean.</li>
+          </ol>
+          <div class="import-acciones">
+            <button type="button" class="sa-btn-ghost" (click)="descargarPlantilla()">Descargar plantilla</button>
+            <button type="button" class="sa-btn-ghost" [disabled]="exportando" (click)="exportarBanco()">
+              {{ exportando ? 'Exportando…' : 'Exportar todas las preguntas' }}
+            </button>
+          </div>
+          <p class="muted">
+            Columnas: <code>id,tema,enunciado,opcion_a,opcion_b,opcion_c,opcion_d,opcion_e,correcta,explicacion,fuente,activo</code>
+          </p>
+          @if (resultadoImport) {
+            <p class="import-ok">{{ resultadoImport }}</p>
+          }
+          <input #fileInput type="file" accept=".xlsx,.xls,.csv" [disabled]="importando" (change)="onFile($event)" />
           <button type="button" class="sa-btn-ghost" [disabled]="!archivo || importando" (click)="previsualizar()">
             Vista previa
           </button>
+          @if (progreso !== null) {
+            <div class="progreso" role="progressbar" [attr.aria-valuenow]="progreso" aria-valuemin="0" aria-valuemax="100">
+              <div class="progreso-info">
+                <span>{{ progresoTexto }}</span>
+                <strong>{{ progreso }}%</strong>
+              </div>
+              <div class="progreso-pista">
+                <div class="progreso-barra" [style.width.%]="progreso"></div>
+              </div>
+            </div>
+          }
           @if (preview) {
             <p>
-              {{ preview.validas }} válidas · {{ preview.conError }} con error ·
-              {{ preview.temasNuevos }} temas nuevos · {{ preview.posiblesDuplicados }} posibles duplicados
+              {{ preview.nuevas }} nuevas · {{ preview.actualizadas }} a actualizar · {{ preview.sinCambios }} sin cambios ·
+              {{ preview.conError }} con error · {{ preview.temasNuevos }} temas nuevos
             </p>
+            @if (preview.ausentes > 0) {
+              <label class="import-check">
+                <input type="checkbox" [(ngModel)]="desactivarAusentes" />
+                Desactivar las {{ preview.ausentes }} preguntas activas que no están en este archivo
+              </label>
+            }
             <div class="sa-table-wrap">
               <table>
                 <thead>
@@ -511,7 +554,10 @@
                     <tr>
                       <td>{{ f.fila }}</td>
                       <td>
-                        <span class="chip" [class.on]="f.ok" [class.off]="!f.ok">{{ f.ok ? 'OK' : 'Error' }}</span>
+                        <span class="chip" [class.on]="f.ok" [class.off]="!f.ok">
+                          {{ f.accion === 'crear' ? 'Nueva' : f.accion === 'actualizar' ? 'Actualizar' : f.accion === 'sin_cambios' ? 'Sin cambios' : 'Error' }}
+                        </span>
+                        @if (f.id) { <span class="mini">id {{ f.id }}</span> }
                         @if (f.temaNuevo) { <span class="mini">tema nuevo</span> }
                         @if (f.posibleDuplicado) { <span class="mini warn">duplicado</span> }
                       </td>
@@ -523,8 +569,13 @@
                 </tbody>
               </table>
             </div>
-            <button type="button" class="sa-btn-primary" [disabled]="preview.validas === 0 || importando" (click)="confirmarCarga()">
-              Confirmar carga ({{ preview.validas }})
+            <button
+              type="button"
+              class="sa-btn-primary"
+              [disabled]="importando || (preview.nuevas + preview.actualizadas === 0 && !(desactivarAusentes && preview.ausentes > 0))"
+              (click)="confirmarCarga()"
+            >
+              Confirmar ({{ preview.nuevas }} nuevas, {{ preview.actualizadas }} actualizadas)
             </button>
           }
         </div>

@@ -58,6 +58,8 @@ export interface SsoPreguntaRequest {
 
 export interface SsoImportFila {
   fila: number;
+  id: number | null;
+  accion: 'crear' | 'actualizar' | 'sin_cambios' | 'error';
   ok: boolean;
   errores: string[];
   temaNuevo: boolean;
@@ -72,6 +74,7 @@ export interface SsoImportFila {
   correcta: string;
   explicacion: string;
   fuente: string;
+  activo: boolean | null;
 }
 
 export interface SsoImportPreview {
@@ -80,6 +83,10 @@ export interface SsoImportPreview {
   conError: number;
   temasNuevos: number;
   posiblesDuplicados: number;
+  nuevas: number;
+  actualizadas: number;
+  sinCambios: number;
+  ausentes: number;
   filas: SsoImportFila[];
 }
 

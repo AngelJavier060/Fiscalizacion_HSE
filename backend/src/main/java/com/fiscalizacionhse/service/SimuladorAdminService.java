@@ -29,6 +29,13 @@ import com.fiscalizacionhse.repository.SsoTemaRepository;
 import com.fiscalizacionhse.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -41,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -53,6 +61,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -541,12 +550,122 @@ public class SimuladorAdminService {
         return toAdmin(pregunta);
     }
 
+    private static final String[] COLUMNAS_EXCEL = {
+            "id", "tema", "enunciado", "opcion_a", "opcion_b", "opcion_c", "opcion_d", "opcion_e",
+            "correcta", "explicacion", "fuente", "activo"
+    };
+
+    /** Plantilla vacía con la cabecera, una fila de ejemplo y una hoja de instrucciones. */
+    public byte[] plantillaExcel() {
+        List<String[]> filas = new ArrayList<>();
+        filas.add(new String[]{
+                "", "Trabajos en altura", "¿A partir de qué altura se considera trabajo en altura?",
+                "1,0 m", "1,8 m", "2,5 m", "3,0 m", "", "B",
+                "Se considera trabajo en altura desde 1,8 m sobre el nivel inferior.",
+                "DS 024-2016-EM", "SI"
+        });
+        return construirExcel(filas);
+    }
+
+    /** Todo el banco de preguntas en el mismo formato que acepta la importación. */
+    public byte[] exportarExcel() {
+        List<SsoPregunta> preguntas = new ArrayList<>(preguntaRepository.buscar("", null, null));
+        preguntas.sort(Comparator.comparing(SsoPregunta::getId));
+        List<String[]> filas = new ArrayList<>();
+        for (SsoPregunta p : preguntas) {
+            List<SsoOpcion> ops = opcionesOrdenadas(p);
+            String[] f = new String[COLUMNAS_EXCEL.length];
+            f[0] = String.valueOf(p.getId());
+            f[1] = p.getTema().getNombre();
+            f[2] = p.getEnunciado();
+            String correcta = "";
+            for (int i = 0; i < 5; i++) {
+                f[3 + i] = i < ops.size() ? ops.get(i).getTexto() : "";
+                if (i < ops.size() && Boolean.TRUE.equals(ops.get(i).getEsCorrecta())) {
+                    correcta = String.valueOf((char) ('A' + i));
+                }
+            }
+            f[8] = correcta;
+            f[9] = p.getExplicacion() == null ? "" : p.getExplicacion();
+            f[10] = p.getFuente() == null ? "" : p.getFuente();
+            f[11] = Boolean.TRUE.equals(p.getActivo()) ? "SI" : "NO";
+            filas.add(f);
+        }
+        return construirExcel(filas);
+    }
+
+    private byte[] construirExcel(List<String[]> filas) {
+        try (XSSFWorkbook wb = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Font negrita = wb.createFont();
+            negrita.setBold(true);
+            negrita.setColor(IndexedColors.WHITE.getIndex());
+            CellStyle cab = wb.createCellStyle();
+            cab.setFont(negrita);
+            cab.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+            cab.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            CellStyle texto = wb.createCellStyle();
+            texto.setWrapText(true);
+            texto.setVerticalAlignment(VerticalAlignment.TOP);
+
+            Sheet hoja = wb.createSheet("Preguntas");
+            Row h = hoja.createRow(0);
+            for (int c = 0; c < COLUMNAS_EXCEL.length; c++) {
+                Cell cell = h.createCell(c);
+                cell.setCellValue(COLUMNAS_EXCEL[c]);
+                cell.setCellStyle(cab);
+            }
+            for (int r = 0; r < filas.size(); r++) {
+                Row row = hoja.createRow(r + 1);
+                String[] f = filas.get(r);
+                for (int c = 0; c < f.length; c++) {
+                    Cell cell = row.createCell(c);
+                    cell.setCellValue(f[c] == null ? "" : f[c]);
+                    cell.setCellStyle(texto);
+                }
+            }
+            int[] anchos = {8, 24, 60, 30, 30, 30, 30, 30, 10, 50, 30, 8};
+            for (int c = 0; c < anchos.length; c++) {
+                hoja.setColumnWidth(c, anchos[c] * 256);
+            }
+            hoja.createFreezePane(0, 1);
+            hoja.setAutoFilter(new CellRangeAddress(0, Math.max(filas.size(), 1), 0, COLUMNAS_EXCEL.length - 1));
+
+            Sheet ayuda = wb.createSheet("Instrucciones");
+            String[] lineas = {
+                    "Cómo usar este archivo",
+                    "",
+                    "id: déjalo vacío para crear una pregunta nueva. Si tiene número, se actualiza esa pregunta. No lo cambies.",
+                    "tema: nombre del tema. Si no existe, se crea.",
+                    "enunciado: el texto de la pregunta (obligatorio).",
+                    "opcion_a a opcion_e: alternativas. A y B son obligatorias; C, D y E opcionales.",
+                    "correcta: letra de la alternativa correcta (A, B, C, D o E).",
+                    "explicacion: por qué la respuesta es la correcta.",
+                    "fuente: norma o documento de referencia.",
+                    "activo: SI o NO. Vacío deja la pregunta como está (o activa si es nueva).",
+                    "",
+                    "Para eliminar una pregunta del examen, pon activo = NO (no borres la fila).",
+                    "No cambies los nombres de la primera fila de la hoja Preguntas.",
+            };
+            for (int i = 0; i < lineas.length; i++) {
+                ayuda.createRow(i).createCell(0).setCellValue(lineas[i]);
+            }
+            ayuda.setColumnWidth(0, 110 * 256);
+
+            wb.write(out);
+            return out.toByteArray();
+        } catch (IOException e) {
+            throw new IllegalStateException("No se pudo generar el Excel", e);
+        }
+    }
+
     public SsoImportPreviewResponse previsualizarImportacion(MultipartFile file) {
         List<List<String>> rows = leerFilas(file);
         if (rows.isEmpty()) {
             throw new BadRequestException("El archivo está vacío");
         }
-        List<String> header = rows.get(0).stream().map(this::normHeader).toList();
+        int filaCab = filaCabecera(rows);
+        List<String> header = rows.get(Math.max(filaCab, 0)).stream().map(this::normHeader).toList();
+        int iId = idx(header, "id");
         int iTema = idx(header, "tema");
         int iEnun = idx(header, "enunciado");
         int iA = idx(header, "opcion_a");
@@ -557,22 +676,39 @@ public class SimuladorAdminService {
         int iCorr = idx(header, "correcta");
         int iExp = idx(header, "explicacion");
         int iFue = idx(header, "fuente");
+        int iAct = idx(header, "activo");
         if (iTema < 0 || iEnun < 0 || iA < 0 || iB < 0 || iCorr < 0) {
             throw new BadRequestException(
-                    "Cabecera inválida. Se espera: tema,enunciado,opcion_a,opcion_b,opcion_c,opcion_d,opcion_e,correcta,explicacion,fuente");
+                    "Cabecera inválida. Se espera: id,tema,enunciado,opcion_a,opcion_b,opcion_c,opcion_d,opcion_e,correcta,explicacion,fuente,activo. "
+                            + "Se encontró: " + String.join(", ", rows.get(Math.max(filaCab, 0)).stream()
+                                    .filter(s -> s != null && !s.isBlank()).toList())
+                            + ". Descarga la plantilla para ver el formato.");
+        }
+
+        List<SsoPregunta> banco = preguntaRepository.buscar("", null, null);
+        Map<Long, SsoPregunta> porId = new HashMap<>();
+        Map<String, List<SsoPregunta>> porEnunciado = new HashMap<>();
+        for (SsoPregunta p : banco) {
+            porId.put(p.getId(), p);
+            porEnunciado.computeIfAbsent(p.getEnunciado().trim().toLowerCase(Locale.ROOT), k -> new ArrayList<>()).add(p);
         }
 
         List<SsoImportPreviewResponse.Fila> filas = new ArrayList<>();
+        Set<Long> idsEnArchivo = new HashSet<>();
+        Set<String> temasNuevosVistos = new HashSet<>();
         int validas = 0;
         int errores = 0;
-        int temasNuevos = 0;
         int duplicados = 0;
+        int nuevas = 0;
+        int actualizadas = 0;
+        int sinCambios = 0;
 
-        for (int i = 1; i < rows.size(); i++) {
+        for (int i = filaCab + 1; i < rows.size(); i++) {
             List<String> row = rows.get(i);
             if (row.stream().allMatch(s -> s == null || s.isBlank())) {
                 continue;
             }
+            String idTxt = cell(row, iId);
             String tema = cell(row, iTema);
             String enunciado = cell(row, iEnun);
             String a = cell(row, iA);
@@ -583,6 +719,7 @@ public class SimuladorAdminService {
             String correcta = cell(row, iCorr).toUpperCase(Locale.ROOT);
             String explicacion = cell(row, iExp);
             String fuente = cell(row, iFue);
+            String activoTxt = cell(row, iAct);
 
             List<String> errs = new ArrayList<>();
             if (tema.isBlank()) errs.add("tema obligatorio");
@@ -599,17 +736,71 @@ public class SimuladorAdminService {
                 }
             }
 
+            Boolean activo = parseActivo(activoTxt);
+            if (!activoTxt.isBlank() && activo == null) {
+                errs.add("activo debe ser SI o NO");
+            }
+
+            // Busca la pregunta a actualizar: por id o, si no hay id, por enunciado idéntico.
+            SsoPregunta existente = null;
+            boolean duplicado = false;
+            if (!idTxt.isBlank()) {
+                Long id = parseId(idTxt);
+                existente = id == null ? null : porId.get(id);
+                if (existente == null) {
+                    errs.add("no existe una pregunta con id " + idTxt + " (déjalo vacío para crearla)");
+                }
+            } else if (!enunciado.isBlank()) {
+                List<SsoPregunta> iguales = porEnunciado.getOrDefault(enunciado.toLowerCase(Locale.ROOT), List.of());
+                if (iguales.size() == 1) {
+                    existente = iguales.get(0);
+                } else if (iguales.size() > 1) {
+                    duplicado = true;
+                    errs.add("hay varias preguntas con este enunciado; indica el id");
+                }
+            }
+            if (existente != null && !idsEnArchivo.add(existente.getId())) {
+                errs.add("la pregunta id " + existente.getId() + " aparece más de una vez en el archivo");
+            }
+            if (existente != null) {
+                List<SsoOpcion> actuales = opcionesOrdenadas(existente);
+                for (int k = 0; k < actuales.size() && k < ops.length; k++) {
+                    if (ops[k].isBlank() && intentoRespuestaRepository.existsByOpcionElegidaId(actuales.get(k).getId())) {
+                        errs.add("la opción " + (char) ('A' + k) + " ya se usó en exámenes y no se puede vaciar");
+                    }
+                }
+                if (actuales.size() > ops.length) {
+                    errs.add("la pregunta tiene más de 5 opciones; edítala desde la pantalla");
+                }
+            }
+
             boolean temaNuevo = !tema.isBlank() && temaRepository.findByNombreIgnoreCase(tema).isEmpty();
-            boolean duplicado = !enunciado.isBlank() && preguntaRepository.existsByEnunciadoIgnoreCase(enunciado);
-            if (temaNuevo) temasNuevos++;
+            if (temaNuevo) temasNuevosVistos.add(tema.toLowerCase(Locale.ROOT));
             if (duplicado) duplicados++;
 
+            String accion;
             boolean ok = errs.isEmpty();
-            if (ok) validas++;
-            else errores++;
+            if (!ok) {
+                accion = "error";
+                errores++;
+            } else {
+                validas++;
+                if (existente == null) {
+                    accion = "crear";
+                    nuevas++;
+                } else if (sinCambios(existente, tema, enunciado, ops, correcta, explicacion, fuente, activo)) {
+                    accion = "sin_cambios";
+                    sinCambios++;
+                } else {
+                    accion = "actualizar";
+                    actualizadas++;
+                }
+            }
 
             filas.add(SsoImportPreviewResponse.Fila.builder()
                     .fila(i + 1)
+                    .id(existente == null ? null : existente.getId())
+                    .accion(accion)
                     .ok(ok)
                     .errores(errs)
                     .temaNuevo(temaNuevo)
@@ -624,70 +815,179 @@ public class SimuladorAdminService {
                     .correcta(correcta)
                     .explicacion(explicacion)
                     .fuente(fuente)
+                    .activo(activo)
                     .build());
         }
+
+        int ausentes = (int) banco.stream()
+                .filter(p -> Boolean.TRUE.equals(p.getActivo()) && !idsEnArchivo.contains(p.getId()))
+                .count();
 
         return SsoImportPreviewResponse.builder()
                 .totalFilas(filas.size())
                 .validas(validas)
                 .conError(errores)
-                .temasNuevos(temasNuevos)
+                .temasNuevos(temasNuevosVistos.size())
                 .posiblesDuplicados(duplicados)
+                .nuevas(nuevas)
+                .actualizadas(actualizadas)
+                .sinCambios(sinCambios)
+                .ausentes(ausentes)
                 .filas(filas)
                 .build();
     }
 
     @Transactional
-    public SsoImportPreviewResponse confirmarImportacion(SsoImportPreviewResponse preview, Long usuarioId) {
+    public SsoImportPreviewResponse confirmarImportacion(
+            SsoImportPreviewResponse preview, boolean desactivarAusentes, Long usuarioId) {
         if (preview == null || preview.getFilas() == null) {
             throw new BadRequestException("No hay filas para importar");
         }
         Usuario autor = usuarioRepository.findById(usuarioId).orElse(null);
-        int cargadas = 0;
+        Set<Long> idsEnArchivo = new HashSet<>();
+        int nuevas = 0;
+        int actualizadas = 0;
         for (SsoImportPreviewResponse.Fila fila : preview.getFilas()) {
-            if (!fila.isOk()) {
+            if (fila.getId() != null) {
+                idsEnArchivo.add(fila.getId());
+            }
+            if (!fila.isOk() || "sin_cambios".equals(fila.getAccion())) {
                 continue;
             }
-            if (preguntaRepository.existsByEnunciadoIgnoreCase(fila.getEnunciado().trim())) {
-                continue;
-            }
-            SsoTema tema = temaRepository.findByNombreIgnoreCase(fila.getTema())
+            SsoTema tema = temaRepository.findByNombreIgnoreCase(fila.getTema().trim())
                     .orElseGet(() -> temaRepository.save(SsoTema.builder()
                             .nombre(fila.getTema().trim())
                             .activo(true)
                             .build()));
-
-            SsoPregunta pregunta = SsoPregunta.builder()
-                    .tema(tema)
-                    .enunciado(fila.getEnunciado().trim())
-                    .explicacion(blankToNull(fila.getExplicacion()))
-                    .fuente(blankToNull(fila.getFuente()))
-                    .activo(true)
-                    .creadoPor(autor)
-                    .fechaCreacion(LocalDateTime.now())
-                    .fechaEdicion(LocalDateTime.now())
-                    .build();
-
             String[] textos = {
                     fila.getOpcionA(), fila.getOpcionB(), fila.getOpcionC(),
                     fila.getOpcionD(), fila.getOpcionE()
             };
             int correcta = fila.getCorrecta().toUpperCase(Locale.ROOT).charAt(0) - 'A';
-            for (int i = 0; i < textos.length; i++) {
-                if (textos[i] == null || textos[i].isBlank()) {
+
+            if (fila.getId() == null) {
+                if (preguntaRepository.existsByEnunciadoIgnoreCase(fila.getEnunciado().trim())) {
                     continue;
                 }
-                pregunta.getOpciones().add(SsoOpcion.builder()
-                        .pregunta(pregunta)
-                        .texto(textos[i].trim())
-                        .esCorrecta(i == correcta)
-                        .build());
+                SsoPregunta pregunta = SsoPregunta.builder()
+                        .tema(tema)
+                        .enunciado(fila.getEnunciado().trim())
+                        .explicacion(blankToNull(fila.getExplicacion()))
+                        .fuente(blankToNull(fila.getFuente()))
+                        .activo(fila.getActivo() == null || fila.getActivo())
+                        .creadoPor(autor)
+                        .fechaCreacion(LocalDateTime.now())
+                        .fechaEdicion(LocalDateTime.now())
+                        .build();
+                for (int i = 0; i < textos.length; i++) {
+                    if (textos[i] == null || textos[i].isBlank()) {
+                        continue;
+                    }
+                    pregunta.getOpciones().add(SsoOpcion.builder()
+                            .pregunta(pregunta)
+                            .texto(textos[i].trim())
+                            .esCorrecta(i == correcta)
+                            .build());
+                }
+                preguntaRepository.save(pregunta);
+                nuevas++;
+                continue;
             }
-            preguntaRepository.save(pregunta);
-            cargadas++;
+
+            SsoPregunta pregunta = preguntaRepository.findDetalleById(fila.getId())
+                    .orElseThrow(() -> new BadRequestException(
+                            "Fila " + fila.getFila() + ": la pregunta id " + fila.getId() + " ya no existe"));
+            pregunta.setTema(tema);
+            pregunta.setEnunciado(fila.getEnunciado().trim());
+            pregunta.setExplicacion(blankToNull(fila.getExplicacion()));
+            pregunta.setFuente(blankToNull(fila.getFuente()));
+            if (fila.getActivo() != null) {
+                pregunta.setActivo(fila.getActivo());
+            }
+            pregunta.setFechaEdicion(LocalDateTime.now());
+
+            // Las opciones se emparejan por posición (A = la primera, B = la segunda...).
+            List<SsoOpcion> actuales = opcionesOrdenadas(pregunta);
+            for (int i = 0; i < textos.length; i++) {
+                boolean hayTexto = textos[i] != null && !textos[i].isBlank();
+                SsoOpcion op = i < actuales.size() ? actuales.get(i) : null;
+                if (op != null && hayTexto) {
+                    op.setTexto(textos[i].trim());
+                    op.setEsCorrecta(i == correcta);
+                } else if (op != null) {
+                    if (intentoRespuestaRepository.existsByOpcionElegidaId(op.getId())) {
+                        throw new ConflictException("Fila " + fila.getFila() + ": la opción "
+                                + (char) ('A' + i) + " ya se usó en exámenes y no se puede vaciar");
+                    }
+                    pregunta.getOpciones().remove(op);
+                } else if (hayTexto) {
+                    pregunta.getOpciones().add(SsoOpcion.builder()
+                            .pregunta(pregunta)
+                            .texto(textos[i].trim())
+                            .esCorrecta(i == correcta)
+                            .build());
+                }
+            }
+            actualizadas++;
         }
-        preview.setValidas(cargadas);
+
+        int desactivadas = 0;
+        if (desactivarAusentes) {
+            for (SsoPregunta p : preguntaRepository.findByActivoTrue()) {
+                if (!idsEnArchivo.contains(p.getId())) {
+                    p.setActivo(false);
+                    p.setFechaEdicion(LocalDateTime.now());
+                    desactivadas++;
+                }
+            }
+        }
+
+        preview.setValidas(nuevas + actualizadas);
+        preview.setNuevas(nuevas);
+        preview.setActualizadas(actualizadas);
+        preview.setAusentes(desactivadas);
         return preview;
+    }
+
+    private boolean sinCambios(SsoPregunta p, String tema, String enunciado, String[] ops,
+                               String correcta, String explicacion, String fuente, Boolean activo) {
+        if (!p.getTema().getNombre().trim().equalsIgnoreCase(tema.trim())) return false;
+        if (!p.getEnunciado().trim().equals(enunciado.trim())) return false;
+        if (!Objects.equals(blankToNull(p.getExplicacion()), blankToNull(explicacion))) return false;
+        if (!Objects.equals(blankToNull(p.getFuente()), blankToNull(fuente))) return false;
+        if (activo != null && !activo.equals(p.getActivo())) return false;
+        List<SsoOpcion> actuales = opcionesOrdenadas(p);
+        for (int i = 0; i < ops.length; i++) {
+            SsoOpcion op = i < actuales.size() ? actuales.get(i) : null;
+            String actual = op == null ? "" : op.getTexto().trim();
+            if (!actual.equals(ops[i].trim())) return false;
+            boolean debeSerCorrecta = correcta.equals(String.valueOf((char) ('A' + i)));
+            if (op != null && Boolean.TRUE.equals(op.getEsCorrecta()) != debeSerCorrecta) return false;
+        }
+        return true;
+    }
+
+    private List<SsoOpcion> opcionesOrdenadas(SsoPregunta p) {
+        List<SsoOpcion> ops = new ArrayList<>(p.getOpciones());
+        ops.sort(Comparator.comparing(SsoOpcion::getId, Comparator.nullsLast(Comparator.naturalOrder())));
+        return ops;
+    }
+
+    private Boolean parseActivo(String s) {
+        String v = normHeader(s);
+        return switch (v) {
+            case "si", "s", "1", "true", "activo", "activa", "x" -> true;
+            case "no", "n", "0", "false", "inactivo", "inactiva" -> false;
+            default -> null;
+        };
+    }
+
+    private Long parseId(String s) {
+        try {
+            return (long) Double.parseDouble(s.trim().replace(",", "."));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private void validarOpciones(List<SsoPreguntaRequest.SsoOpcionRequest> opciones) {
@@ -765,22 +1065,31 @@ public class SimuladorAdminService {
                 return leerCsv(file.getInputStream());
             }
             try (InputStream in = file.getInputStream(); Workbook wb = WorkbookFactory.create(in)) {
-                Sheet sheet = wb.getNumberOfSheets() > 0 ? wb.getSheetAt(0) : null;
-                if (sheet == null) {
+                if (wb.getNumberOfSheets() == 0) {
                     throw new BadRequestException("El Excel no tiene hojas");
                 }
                 DataFormatter fmt = new DataFormatter();
-                List<List<String>> rows = new ArrayList<>();
-                for (Row row : sheet) {
-                    List<String> cells = new ArrayList<>();
-                    int last = Math.max(row.getLastCellNum(), 10);
-                    for (int c = 0; c < last; c++) {
-                        Cell cell = row.getCell(c);
-                        cells.add(cell == null ? "" : fmt.formatCellValue(cell).trim());
+                List<List<String>> primera = null;
+                // Usa la primera hoja que tenga la cabecera; si ninguna la tiene, la primera hoja.
+                for (int s = 0; s < wb.getNumberOfSheets(); s++) {
+                    List<List<String>> rows = new ArrayList<>();
+                    for (Row row : wb.getSheetAt(s)) {
+                        List<String> cells = new ArrayList<>();
+                        int last = Math.max(row.getLastCellNum(), 10);
+                        for (int c = 0; c < last; c++) {
+                            Cell cell = row.getCell(c);
+                            cells.add(cell == null ? "" : fmt.formatCellValue(cell).trim());
+                        }
+                        rows.add(cells);
                     }
-                    rows.add(cells);
+                    if (filaCabecera(rows) >= 0) {
+                        return rows;
+                    }
+                    if (primera == null) {
+                        primera = rows;
+                    }
                 }
-                return rows;
+                return primera;
             }
         } catch (BadRequestException e) {
             throw e;
@@ -793,14 +1102,24 @@ public class SimuladorAdminService {
         List<List<String>> rows = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             String line;
+            char sep = ',';
+            boolean primera = true;
             while ((line = reader.readLine()) != null) {
-                rows.add(parseCsvLine(line));
+                if (primera) {
+                    line = line.replace("﻿", "");
+                    // Excel en español guarda los CSV con punto y coma.
+                    if (line.chars().filter(ch -> ch == ';').count() > line.chars().filter(ch -> ch == ',').count()) {
+                        sep = ';';
+                    }
+                    primera = false;
+                }
+                rows.add(parseCsvLine(line, sep));
             }
         }
         return rows;
     }
 
-    private List<String> parseCsvLine(String line) {
+    private List<String> parseCsvLine(String line, char sep) {
         List<String> out = new ArrayList<>();
         StringBuilder cur = new StringBuilder();
         boolean quoted = false;
@@ -817,7 +1136,7 @@ public class SimuladorAdminService {
                 }
             } else if (ch == '"') {
                 quoted = true;
-            } else if (ch == ',') {
+            } else if (ch == sep) {
                 out.add(cur.toString().trim());
                 cur.setLength(0);
             } else {
@@ -829,9 +1148,31 @@ public class SimuladorAdminService {
     }
 
     private String normHeader(String h) {
-        return h == null ? "" : h.trim().toLowerCase(Locale.ROOT)
+        if (h == null) return "";
+        String n = h.replace("﻿", "").trim().toLowerCase(Locale.ROOT)
                 .replace("á", "a").replace("é", "e").replace("í", "i")
-                .replace("ó", "o").replace("ú", "u");
+                .replace("ó", "o").replace("ú", "u")
+                .replaceAll("[^a-z0-9]+", "_")
+                .replaceAll("^_+|_+$", "");
+        return switch (n) {
+            case "pregunta" -> "enunciado";
+            case "respuesta", "respuesta_correcta", "opcion_correcta", "clave" -> "correcta";
+            case "alternativa_a", "a" -> "opcion_a";
+            case "alternativa_b", "b" -> "opcion_b";
+            case "alternativa_c", "c" -> "opcion_c";
+            case "alternativa_d", "d" -> "opcion_d";
+            case "alternativa_e", "e" -> "opcion_e";
+            default -> n;
+        };
+    }
+
+    /** Busca la fila de cabecera entre las primeras filas (puede haber un título encima). */
+    private int filaCabecera(List<List<String>> rows) {
+        for (int i = 0; i < Math.min(rows.size(), 10); i++) {
+            List<String> h = rows.get(i).stream().map(this::normHeader).toList();
+            if (h.contains("tema") && h.contains("enunciado")) return i;
+        }
+        return -1;
     }
 
     private int idx(List<String> header, String name) {
