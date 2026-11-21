@@ -53,16 +53,7 @@ export class AlertasIncidentesComponent implements OnInit {
 
   alertas: AlertaIncidente[] = [];
 
-  readonly eorpvOpciones = [
-    'No aplica / Evento operacional menor',
-    'Trabajo en altura / Caídas',
-    'Izaje y maniobras de carga',
-    'LOTO / Bloqueo de energía',
-    'Ingreso a espacios confinados',
-    'Vehículos y equipos móviles',
-    'Manejo de sustancias químicas peligrosas',
-    'Excavaciones y zanjas',
-  ];
+  readonly eorpvOpciones = ['No aplica', 'Sí aplica'];
 
   ngOnInit(): void {
     this.cargar();

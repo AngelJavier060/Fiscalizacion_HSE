@@ -19,16 +19,7 @@ class _Pal {
   static const blue = Color(0xFF2563EB);
 }
 
-const _eorpvOpciones = [
-  'No aplica / Evento operacional menor',
-  'Trabajo en altura / Caídas',
-  'Izaje y maniobras de carga',
-  'LOTO / Bloqueo de energía',
-  'Ingreso a espacios confinados',
-  'Vehículos y equipos móviles',
-  'Manejo de sustancias químicas peligrosas',
-  'Excavaciones y zanjas',
-];
+const _eorpvOpciones = ['No aplica', 'Sí aplica'];
 
 class AlertasIncidentesScreen extends StatefulWidget {
   const AlertasIncidentesScreen({super.key});
@@ -474,9 +465,9 @@ class _IngresoAlertaSheetState extends State<_IngresoAlertaSheet> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               children: [
                 _campo('Código SGI', _codigo, 'Ej. SGI-2026-HSE-089'),
-                _campo('Título del incidente', _titulo, 'Describa el incidente', lineas: 2),
-                _campo('Unidad de negocio', _unidad, 'Escriba la unidad de negocio', lineas: 2),
-                _campo('Ámbito de consecuencias', _ambito, 'Escriba el ámbito', lineas: 2),
+                _campo('Título del incidente', _titulo, 'Escriba el título. El recuadro muestra todo el texto.', lineas: 1, maximo: 6),
+                _campo('Unidad de negocio', _unidad, 'Escriba la unidad de negocio'),
+                _campo('Ámbito de consecuencias', _ambito, 'Escriba el ámbito'),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Fecha del incidente'),
@@ -497,9 +488,9 @@ class _IngresoAlertaSheetState extends State<_IngresoAlertaSheet> {
                     if (h != null) setState(() => _hora = h);
                   },
                 ),
-                _campo('Área afectada', _area, 'Escriba el área afectada', lineas: 2),
-                _campo('Dueño del área', _dueno, 'Nombre o cargo', lineas: 2),
-                _campo('Empresa involucrada', _empresa, 'Escriba la empresa', lineas: 2),
+                _campo('Área afectada', _area, 'Escriba el área afectada'),
+                _campo('Dueño del área', _dueno, 'Nombre o cargo'),
+                _campo('Empresa involucrada', _empresa, 'Escriba la empresa'),
                 const Text('Impacto a las personas', style: TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 6),
                 Row(
@@ -542,13 +533,13 @@ class _IngresoAlertaSheetState extends State<_IngresoAlertaSheet> {
     );
   }
 
-  Widget _campo(String etiqueta, TextEditingController c, String hint, {int lineas = 1}) {
+  Widget _campo(String etiqueta, TextEditingController c, String hint, {int lineas = 1, int? maximo}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: TextField(
         controller: c,
         minLines: lineas,
-        maxLines: lineas,
+        maxLines: maximo ?? lineas,
         decoration: InputDecoration(
           labelText: etiqueta,
           hintText: hint,

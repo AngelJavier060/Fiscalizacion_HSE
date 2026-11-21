@@ -227,19 +227,19 @@
               <input type="time" [(ngModel)]="form.hora" name="hora" />
             </label>
             <label class="wide">Título del incidente <em>*</em>
-              <textarea [(ngModel)]="form.titulo" name="titulo" rows="2" placeholder="Describa el incidente. El recuadro crece si el texto es largo."></textarea>
+              <textarea class="titulo-campo" [(ngModel)]="form.titulo" name="titulo" rows="1" placeholder="Escriba el título. El recuadro se abre y muestra todo el texto."></textarea>
             </label>
             <label>Unidad de negocio <em>*</em>
-              <textarea [(ngModel)]="form.unidad" name="unidad" rows="2" placeholder="Escriba la unidad de negocio"></textarea>
+              <input [(ngModel)]="form.unidad" name="unidad" placeholder="Escriba la unidad de negocio" />
             </label>
             <label>Ámbito de consecuencias <em>*</em>
-              <textarea [(ngModel)]="form.ambito" name="ambito" rows="2" placeholder="Escriba el ámbito de consecuencias"></textarea>
+              <input [(ngModel)]="form.ambito" name="ambito" placeholder="Escriba el ámbito de consecuencias" />
             </label>
             <label>Área afectada <em>*</em>
-              <textarea [(ngModel)]="form.area" name="area" rows="2" placeholder="Escriba el área afectada"></textarea>
+              <input [(ngModel)]="form.area" name="area" placeholder="Escriba el área afectada" />
             </label>
             <label class="wide">Dueño del área <em>*</em>
-              <textarea [(ngModel)]="form.dueno" name="dueno" rows="2" placeholder="Nombre o cargo del responsable del área"></textarea>
+              <input [(ngModel)]="form.dueno" name="dueno" placeholder="Nombre o cargo del responsable del área" />
             </label>
           </div>
         </section>
@@ -250,7 +250,7 @@
           </div>
           <div class="grid">
             <label class="wide">Empresa involucrada <em>*</em>
-              <textarea [(ngModel)]="form.empresa" name="empresa" rows="2" placeholder="Escriba la empresa involucrada"></textarea>
+              <input [(ngModel)]="form.empresa" name="empresa" placeholder="Escriba la empresa involucrada" />
             </label>
             <div class="impacto">
               <span>Impacto a las personas (si aplica) <em>*</em></span>
