@@ -32,7 +32,10 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
       ) {
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
-        router.navigate(['/auth/login']);
+        const path = router.url.split('?')[0];
+        if (path !== '/' && path !== '') {
+          router.navigateByUrl('/');
+        }
       }
       return throwError(() => error);
     })

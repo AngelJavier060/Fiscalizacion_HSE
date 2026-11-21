@@ -30,6 +30,7 @@ class ApiConfig {
   static const String iaEstado = '/api/ia/estado';
 
   static const String permisosTrabajo = '/api/permisos-trabajo';
+  static const String alertasIncidentes = '/api/alertas-incidentes';
 
   static const String simuladorInicio = '/api/simulador/inicio';
   static const String simuladorExamenes = '/api/simulador/examenes';

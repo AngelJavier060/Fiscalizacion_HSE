@@ -91,7 +91,7 @@ export class PermisosService {
         { id: 'actividades', label: 'Actividades diarias', icon: 'event_note', descripcion: 'Registro diario (próximamente)' },
         { id: 'controles', label: 'Controles críticos', icon: 'security', descripcion: 'Controles críticos (próximamente)' },
         { id: 'permisos_hse', label: 'Permisos de trabajo', icon: 'lock_person', descripcion: 'Permisos HSE (próximamente)' },
-        { id: 'conocimientos', label: 'Conocimientos', icon: 'menu_book', descripcion: 'Base de conocimiento (próximamente)' },
+        { id: 'conocimientos', label: 'Alertas Incidentes', icon: 'notification_important', descripcion: 'Registro de alertas e incidentes' },
         { id: 'simulador', label: 'Simulador SSO', icon: 'quiz', descripcion: 'Examen cronometrado (usuario) y banco de estudio (admin empresa)' },
       ],
     },

@@ -77,12 +77,11 @@ export class SuperAdminSidebarComponent {
           badgeKind: 'nuevo',
         },
         {
-          id: 'conocimientos',
-          label: 'Conocimientos',
-          icon: 'menu_book',
-          faIcon: 'fa-solid fa-book-bookmark',
-          disabled: true,
-          title: 'Próximamente',
+          id: 'alertas',
+          label: 'Alertas Incidentes',
+          icon: 'notification_important',
+          faIcon: 'fa-solid fa-triangle-exclamation',
+          route: '/super-admin/alertas',
         },
         {
           id: 'puntos',

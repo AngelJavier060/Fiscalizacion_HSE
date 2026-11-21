@@ -15,6 +15,8 @@ import { RolesPanelComponent } from './roles/roles-panel.component';
 import { SuperAdminIaEmpresaComponent } from './ia/super-admin-ia-empresa.component';
 import { AnalizarReporteComponent } from '../shared/analizar-reporte/analizar-reporte.component';
 import { PreguntasSsoComponent } from './preguntas/preguntas-sso.component';
+import { AlertasIncidentesComponent } from './alertas/alertas-incidentes.component';
+
 import { SimuladorInicioComponent } from '../shared/simulador/simulador-inicio.component';
 import { SimuladorExamenComponent } from '../shared/simulador/simulador-examen.component';
 import { SimuladorResultadoComponent } from '../shared/simulador/simulador-resultado.component';
@@ -35,6 +37,7 @@ export const superAdminRoutes: Routes = [
   { path: 'empresas', component: EmpresaListComponent },
   { path: 'permisos', component: PermisosListComponent },
   { path: 'preguntas', component: PreguntasSsoComponent },
+  { path: 'alertas', component: AlertasIncidentesComponent },
   { path: 'simulador', component: SimuladorInicioComponent },
   { path: 'simulador/examen/:id', component: SimuladorExamenComponent },
   { path: 'simulador/resultado/:id', component: SimuladorResultadoComponent },

@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     '/empresas',
     '/actividades',
     '/controles',
-    '/conocimientos',
+    '/alertas',
     '/puntos-clave',
   };
 
@@ -215,11 +215,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ruta: '/simulador',
         ),
         _Acceso(
-          icon: Icons.menu_book_outlined,
-          label: 'Conocimientos',
-          iconBg: Color(0xFFECFEFF),
-          iconColor: Color(0xFF0891B2),
-          ruta: '/conocimientos',
+          icon: Icons.warning_amber_outlined,
+          label: 'Alertas Incidentes',
+          iconBg: Color(0xFFFEF2F2),
+          iconColor: Color(0xFFDC2626),
+          ruta: '/alertas',
         ),
         _Acceso(
           icon: Icons.star_outline,
@@ -237,6 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (user?.rol == 'ADMIN_EMPRESA') return false;
         return user == null || user.tieneModulo('simulador');
       }
+      if (a.ruta == '/alertas') return user?.rol == 'SUPER_ADMIN';
       return true;
     }).toList();
   }

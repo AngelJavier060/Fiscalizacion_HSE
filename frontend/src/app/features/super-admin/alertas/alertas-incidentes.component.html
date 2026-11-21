@@ -1,0 +1,353 @@
+<div class="ai-layout">
+  <app-super-admin-sidebar />
+
+  <main class="ai-main">
+    <header class="ai-topbar">
+      <div>
+        <nav class="ai-breadcrumb">
+          <span>Super Admin</span>
+          <i class="fa-solid fa-chevron-right"></i>
+          <span>Gestión HSE</span>
+          <i class="fa-solid fa-chevron-right"></i>
+          <span class="ai-current">Alertas Incidentes</span>
+        </nav>
+        <h1>Alertas de incidentes</h1>
+        <p>Control, clasificación y seguimiento operativo en tiempo real según estándares HSE.</p>
+      </div>
+      <div class="ai-actions">
+        <button type="button" class="ai-ghost">
+          <i class="fa-solid fa-download"></i>
+          Exportar Excel
+        </button>
+        <button type="button" class="ai-btn" (click)="abrirIngreso()">
+          <i class="fa-solid fa-plus"></i>
+          Ingreso de alerta
+        </button>
+      </div>
+    </header>
+
+    <div class="ai-canvas">
+      <div class="ai-banner">
+        <div>
+          <i class="fa-solid fa-circle-info"></i>
+          <p><strong>Base de datos conectada:</strong> al registrar una alerta se guardan todos los campos del formulario y el archivo, si lo adjuntó.</p>
+        </div>
+        <span>Diseño</span>
+      </div>
+
+      <section class="ai-kpis">
+        <article>
+          <header>
+            <span>Total incidentes</span>
+            <i class="fa-solid fa-chart-column tone-blue"></i>
+          </header>
+          <div class="kpi-value">
+            <strong>{{ total }}</strong>
+            <em class="ok">En base</em>
+          </div>
+          <footer><span>Periodo activo: 2026</span><b>Meta cero daño</b></footer>
+        </article>
+        <article class="ai-stat">
+          <header>
+            <span>Distribución por empresa</span>
+            <i class="fa-solid fa-chart-pie tone-amber"></i>
+          </header>
+          <div class="stat-list">
+            @for (e of porEmpresa; track e.nombre) {
+              <div class="stat-row">
+                <span class="stat-name" [title]="e.nombre">{{ e.nombre }}</span>
+                <span class="stat-track"><i [style.width.%]="e.ancho"></i></span>
+                <b>{{ e.total }}</b>
+              </div>
+            } @empty {
+              <p class="stat-empty">Sin incidentes registrados</p>
+            }
+          </div>
+        </article>
+        <article class="ai-stat">
+          <header>
+            <span>Respuesta inicial</span>
+            <i class="fa-regular fa-clock tone-green"></i>
+          </header>
+          <p class="stat-sub">Ámbito de consecuencias</p>
+          <div class="stat-list">
+            @for (e of porAmbito; track e.nombre) {
+              <div class="stat-row">
+                <span class="stat-name" [title]="e.nombre">{{ e.nombre }}</span>
+                <span class="stat-track amb"><i [style.width.%]="e.ancho"></i></span>
+                <b>{{ e.total }}</b>
+              </div>
+            } @empty {
+              <p class="stat-empty">Sin incidentes registrados</p>
+            }
+          </div>
+        </article>
+        <article>
+          <header>
+            <span>Cierre de acciones</span>
+            <i class="fa-regular fa-circle-check tone-violet"></i>
+          </header>
+          <div class="kpi-value">
+            <strong>80%</strong>
+            <em>Aún sin plan de acción</em>
+          </div>
+          <footer><span>El plan se agregará después</span><b class="warn">Pendiente</b></footer>
+        </article>
+      </section>
+
+      @if (errorCarga) { <p class="aviso">{{ errorCarga }}</p> }
+
+      <section class="ai-filters">
+        <div class="ai-filters-row">
+          <label class="search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input [(ngModel)]="busqueda" placeholder="Buscar por código INC-..., título, área o palabra clave..." />
+          </label>
+          <select [(ngModel)]="filtroAmbito">
+            <option value="">Ámbito: Todos</option>
+            @for (op of ambitos; track op) {
+              <option [value]="op">{{ op }}</option>
+            }
+          </select>
+          <select [(ngModel)]="filtroArea">
+            <option value="">Área: Todas</option>
+            @for (op of areas; track op) {
+              <option [value]="op">{{ op }}</option>
+            }
+          </select>
+          <button type="button" class="year">
+            <i class="fa-regular fa-calendar"></i>
+            Año 2026
+          </button>
+        </div>
+        <div class="pills">
+          <div>
+            <span>Filtro rápido:</span>
+            <button type="button" [class.on]="filtroRapido === 'todos'" (click)="filtroRapido = 'todos'">Todos ({{ total }})</button>
+            <button type="button" [class.on]="filtroRapido === 'alta'" (click)="filtroRapido = 'alta'">Alta prioridad</button>
+          </div>
+          <p>Mostrando <strong>{{ visibles.length }} incidentes</strong> registrados</p>
+        </div>
+      </section>
+
+      <section class="ai-table">
+        <div class="ai-table-head">
+          <div>
+            <h2>Listado maestro de incidentes</h2>
+            <span>{{ visibles.length }} incidentes</span>
+          </div>
+        </div>
+        <div class="ai-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Código del incidente</th>
+                <th>Título del incidente</th>
+                <th>Fecha del incidente</th>
+                <th>Ámbito de consecuencias</th>
+                <th>Área afectada</th>
+                <th class="center">Acciones / PDF</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of visibles; track a.id) {
+                <tr>
+                  <td><span class="code">{{ a.codigo }}</span></td>
+                  <td class="titulo">
+                    <strong>{{ a.titulo }}</strong>
+                    <small>{{ a.detalle }}</small>
+                  </td>
+                  <td class="fecha">
+                    <i class="fa-regular fa-calendar"></i>
+                    {{ fechaVisible(a.fecha) }}
+                  </td>
+                  <td><span class="chip" [attr.data-ambito]="a.ambito">{{ a.ambito }}</span></td>
+                  <td class="area"><i></i>{{ a.area }}</td>
+                  <td class="center">
+                    <button type="button" class="icon" title="Ver PDF" (click)="verPdf(a)">
+                      <i class="fa-regular fa-eye"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="empty">No hay incidentes con ese filtro.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <footer class="ai-pager">
+          <span>Mostrando {{ visibles.length }} de {{ total }} incidentes</span>
+          <div>
+            <button type="button" disabled>Anterior</button>
+            <button type="button" class="page">1</button>
+            <button type="button" disabled>Siguiente</button>
+          </div>
+        </footer>
+      </section>
+    </div>
+  </main>
+</div>
+
+@if (ingresoAbierto) {
+  <div class="ai-modal-root" role="presentation">
+    <button type="button" class="ai-modal-veil" aria-label="Cerrar ingreso de alerta" (click)="cerrarIngreso()"></button>
+    <div class="ai-modal" role="dialog" aria-modal="true" aria-labelledby="modal-alerta">
+      <header class="ai-modal-head">
+        <div class="ai-modal-title">
+          <span class="badge"><i class="fa-solid fa-triangle-exclamation"></i></span>
+          <div>
+            <div class="row">
+              <h2 id="modal-alerta">Ingreso de alerta de incidente</h2>
+              <span class="chip">Protocolo HSE</span>
+            </div>
+            <p>Complete la información preliminar para activar el protocolo de seguimiento y notificación operacional.</p>
+          </div>
+        </div>
+        <button type="button" class="close" (click)="cerrarIngreso()" aria-label="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+
+      <form id="incident-form" class="ai-modal-body" (ngSubmit)="registrar()">
+        <section>
+          <div class="sec-head">
+            <h3><i></i>1. Antecedentes del incidente</h3>
+            <span>* Campos mandatorios</span>
+          </div>
+          <div class="grid">
+            <label>Código SGI <em>*</em>
+              <input [(ngModel)]="form.codigo" name="codigo" placeholder="Ej. SGI-2026-HSE-089" />
+            </label>
+            <label>Fecha del incidente <em>*</em>
+              <input type="date" [(ngModel)]="form.fecha" name="fecha" />
+            </label>
+            <label>Hora del incidente <em>*</em>
+              <input type="time" [(ngModel)]="form.hora" name="hora" />
+            </label>
+            <label class="wide">Título del incidente <em>*</em>
+              <textarea [(ngModel)]="form.titulo" name="titulo" rows="2" placeholder="Describa el incidente. El recuadro crece si el texto es largo."></textarea>
+            </label>
+            <label>Unidad de negocio <em>*</em>
+              <textarea [(ngModel)]="form.unidad" name="unidad" rows="2" placeholder="Escriba la unidad de negocio"></textarea>
+            </label>
+            <label>Ámbito de consecuencias <em>*</em>
+              <textarea [(ngModel)]="form.ambito" name="ambito" rows="2" placeholder="Escriba el ámbito de consecuencias"></textarea>
+            </label>
+            <label>Área afectada <em>*</em>
+              <textarea [(ngModel)]="form.area" name="area" rows="2" placeholder="Escriba el área afectada"></textarea>
+            </label>
+            <label class="wide">Dueño del área <em>*</em>
+              <textarea [(ngModel)]="form.dueno" name="dueno" rows="2" placeholder="Nombre o cargo del responsable del área"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <div class="sec-head">
+            <h3><i></i>2. ¿Qué pasó?</h3>
+          </div>
+          <div class="grid">
+            <label class="wide">Empresa involucrada <em>*</em>
+              <textarea [(ngModel)]="form.empresa" name="empresa" rows="2" placeholder="Escriba la empresa involucrada"></textarea>
+            </label>
+            <div class="impacto">
+              <span>Impacto a las personas (si aplica) <em>*</em></span>
+              <div class="choices">
+                <label>
+                  <input type="radio" name="impacto" value="Sin lesión" [(ngModel)]="form.impacto" />
+                  Sin lesión
+                </label>
+                <label>
+                  <input type="radio" name="impacto" value="Con lesión" [(ngModel)]="form.impacto" />
+                  Con lesión
+                </label>
+              </div>
+            </div>
+            <label>Accidente grave / crítico <em>*</em>
+              <select [(ngModel)]="form.grave" name="grave">
+                <option value="">Seleccione opción</option>
+                <option>Sí</option>
+                <option>No</option>
+              </select>
+            </label>
+            <label>IAP (incidente de alto potencial) <em>*</em>
+              <select [(ngModel)]="form.iap" name="iap">
+                <option value="">Seleccione opción</option>
+                <option>Sí</option>
+                <option>No</option>
+              </select>
+            </label>
+            <label class="wide">EORpV / Regla que salva vidas <em>*</em>
+              <select [(ngModel)]="form.eorpv" name="eorpv">
+                <option value="">Seleccione clasificación EORpV</option>
+                @for (op of eorpvOpciones; track op) { <option [value]="op">{{ op }}</option> }
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <div class="sec-head">
+            <h3><i></i>3. Archivo PDF o evidencia preliminar</h3>
+            <span>PDF, JPG o PNG hasta 25 MB</span>
+          </div>
+          <label class="drop">
+            <input #archivo type="file" accept=".pdf,.png,.jpg,.jpeg" (change)="elegirArchivo($event)" />
+            <span class="drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+            <span class="drop-copy">
+              <strong>Haga clic para adjuntar</strong> o arrastre el archivo de respaldo aquí
+              <small>Formato PDF oficial recomendado para fiscalización</small>
+            </span>
+          </label>
+          @if (archivoNombre) {
+            <div class="file-chip">
+              <span class="pdf">PDF</span>
+              <div>
+                <strong>{{ archivoNombre }}</strong>
+                <small>{{ archivoPeso }} · Listo para cargar</small>
+              </div>
+              <button type="button" title="Quitar archivo" (click)="quitarArchivo(archivo)">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+          }
+          @if (aviso) { <p class="aviso">{{ aviso }}</p> }
+        </section>
+      </form>
+
+      <footer class="ai-modal-foot">
+        <span class="draft"><i class="fa-solid fa-database"></i> Se guarda en la base al registrar</span>
+        <div>
+          <button type="button" class="btn-line" (click)="cerrarIngreso()">Cancelar</button>
+          <button type="button" class="btn-soft" (click)="guardarBorrador()">Guardar borrador</button>
+          <button type="submit" form="incident-form" class="btn-primary" [disabled]="guardando">
+            <i class="fa-solid fa-plus"></i> {{ guardando ? 'Guardando...' : 'Registrar alerta' }}
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+}
+
+@if (pdfAbierto) {
+  <div class="ai-modal-root">
+    <button type="button" class="ai-modal-veil" aria-label="Cerrar PDF" (click)="cerrarPdf()"></button>
+    <div class="ai-a4" role="dialog" aria-modal="true" aria-label="Vista del PDF">
+      <div class="a4-hoja">
+        @if (pdfUrl && pdfEsImagen) {
+          <img [src]="pdfUrl" alt="Evidencia de la alerta" />
+        } @else if (pdfUrl) {
+          <iframe [src]="pdfUrl" title="PDF de la alerta"></iframe>
+        } @else {
+          <p>{{ pdfAbierto.tieneArchivo ? 'Cargando PDF...' : 'Esta alerta no tiene PDF adjunto.' }}</p>
+        }
+      </div>
+      <div class="a4-acciones">
+        <button type="button" class="btn-primary" (click)="verPdfCompleto()" [disabled]="!pdfUrl">Ver</button>
+        <button type="button" class="btn-line" (click)="cerrarPdf()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}

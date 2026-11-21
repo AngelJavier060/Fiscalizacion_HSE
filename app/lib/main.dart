@@ -17,6 +17,7 @@ import 'screens/notificaciones_screen.dart';
 import 'screens/ia_chat_screen.dart';
 import 'screens/perfil_screen.dart';
 import 'screens/permisos_screen.dart';
+import 'screens/alertas_incidentes_screen.dart';
 import 'screens/simulador/simulador_inicio_screen.dart';
 import 'screens/simulador/simulador_examen_screen.dart';
 import 'screens/simulador/simulador_resultado_screen.dart';
@@ -145,6 +146,7 @@ class FiscalizacionHSEApp extends StatelessWidget {
         '/ia-chat': (context) => const IaChatScreen(),
         '/perfil': (context) => const PerfilScreen(),
         '/permisos': (context) => const PermisosScreen(),
+        '/alertas': (context) => const AlertasIncidentesScreen(),
         '/simulador': (context) => const SimuladorInicioScreen(),
       },
       onGenerateRoute: (settings) {

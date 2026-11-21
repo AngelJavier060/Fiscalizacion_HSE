@@ -11,9 +11,8 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
-/// Envuelve la app para detectar inactividad. Por defecto el tiempo es muy alto
-/// (24h) para no cerrar sesión automáticamente. El usuario cierra sesión
-/// manualmente desde el botón de salida en el menú.
+/// Envuelve la app para detectar inactividad. A los 5 minutos sin uso
+/// cierra la sesión y vuelve al menú principal.
 class InactivityWatcher extends StatefulWidget {
   final Widget child;
   final Duration limite;
@@ -21,7 +20,7 @@ class InactivityWatcher extends StatefulWidget {
   const InactivityWatcher({
     super.key,
     required this.child,
-    this.limite = const Duration(hours: 24),
+    this.limite = const Duration(minutes: 5),
   });
 
   @override
@@ -77,7 +76,7 @@ class _InactivityWatcherState extends State<InactivityWatcher>
 
     final nav = navigatorKey.currentState;
     if (nav != null) {
-      nav.pushNamedAndRemoveUntil('/login', (route) => false);
+      nav.pushNamedAndRemoveUntil('/landing', (route) => false);
       scaffoldMessengerKey.currentState?.showSnackBar(
         const SnackBar(content: Text('Sesión cerrada por inactividad')),
       );
