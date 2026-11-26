@@ -173,11 +173,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ruta: '/perfil',
         ),
         _Acceso(
-          icon: Icons.group_outlined,
-          label: 'Usuarios',
-          iconBg: Color(0xFFEFF6FF),
-          iconColor: Color(0xFF2563EB),
-          ruta: '/usuarios',
+          icon: Icons.warning_amber_outlined,
+          label: 'Alertas',
+          iconBg: Color(0xFFFEF2F2),
+          iconColor: Color(0xFFDC2626),
+          ruta: '/alertas',
         ),
         _Acceso(
           icon: Icons.business_outlined,
@@ -215,13 +215,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ruta: '/simulador',
         ),
         _Acceso(
-          icon: Icons.warning_amber_outlined,
-          label: 'Alertas Incidentes',
-          iconBg: Color(0xFFFEF2F2),
-          iconColor: Color(0xFFDC2626),
-          ruta: '/alertas',
-        ),
-        _Acceso(
           icon: Icons.star_outline,
           label: 'Puntos clave',
           iconBg: Color(0xFFFEFCE8),
@@ -237,7 +230,6 @@ class _HomeScreenState extends State<HomeScreen> {
         if (user?.rol == 'ADMIN_EMPRESA') return false;
         return user == null || user.tieneModulo('simulador');
       }
-      if (a.ruta == '/alertas') return user?.rol == 'SUPER_ADMIN';
       return true;
     }).toList();
   }

@@ -2,13 +2,15 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 import '../models/alerta_incidente.dart';
+import '../models/user_model.dart';
 import '../services/alerta_archivo.dart';
 import '../services/alerta_incidente_service.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../services/open_bytes.dart';
+import '../widgets/visor_archivo_alerta.dart';
 
 class _Pal {
   static const bg = Color(0xFFF8FAFC);
@@ -35,11 +37,22 @@ class _AlertasIncidentesScreenState extends State<AlertasIncidentesScreen> {
   String _busqueda = '';
   String _ambito = '';
   String _area = '';
+  bool _puedeRegistrar = false;
 
   @override
   void initState() {
     super.initState();
     _cargar();
+    _leerRol();
+  }
+
+  Future<void> _leerRol() async {
+    try {
+      final datos = await AuthService().getUserData();
+      final rol = UserModel.fromJson(datos).rol;
+      if (!mounted) return;
+      setState(() => _puedeRegistrar = rol == 'SUPER_ADMIN');
+    } catch (_) {}
   }
 
   Future<void> _cargar() async {
@@ -123,25 +136,43 @@ class _AlertasIncidentesScreenState extends State<AlertasIncidentesScreen> {
     return Scaffold(
       backgroundColor: _Pal.bg,
       appBar: AppBar(
-        backgroundColor: _Pal.surface,
+        backgroundColor: Colors.white.withValues(alpha: 0.96),
         foregroundColor: _Pal.ink,
         elevation: 0,
-        title: const Text('Alertas de incidentes', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
+        surfaceTintColor: Colors.white,
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            const Flexible(
+              child: Text('Alertas de incidentes', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, letterSpacing: -0.2)),
+            ),
+            if (_alertas.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(99)),
+                child: Text('${_alertas.length}', style: const TextStyle(color: Color(0xFFB91C1C), fontWeight: FontWeight.w800, fontSize: 12)),
+              ),
+            ],
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: _Pal.blue,
-        foregroundColor: Colors.white,
-        onPressed: _ingresar,
-        icon: const Icon(Icons.add),
-        label: const Text('Ingreso de alerta'),
-      ),
+      floatingActionButton: _puedeRegistrar
+          ? FloatingActionButton.extended(
+              backgroundColor: _Pal.blue,
+              foregroundColor: Colors.white,
+              onPressed: _ingresar,
+              icon: const Icon(Icons.add),
+              label: const Text('Ingreso de alerta'),
+            )
+          : null,
       body: _cargando
           ? const Center(child: CircularProgressIndicator(color: _Pal.blue))
           : RefreshIndicator(
               color: _Pal.blue,
               onRefresh: _cargar,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
                 children: [
                   if (_error != null)
                     Padding(
@@ -149,28 +180,36 @@ class _AlertasIncidentesScreenState extends State<AlertasIncidentesScreen> {
                       child: Text(_error!, style: const TextStyle(color: Color(0xFFB91C1C), fontWeight: FontWeight.w600)),
                     ),
                   _Stats(alertas: _alertas),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   TextField(
                     onChanged: (v) => setState(() => _busqueda = v),
                     decoration: InputDecoration(
-                      hintText: 'Buscar por código, título o área',
-                      prefixIcon: const Icon(Icons.search),
+                      hintText: 'Buscar por código, empresa o detalle...',
+                      hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                      prefixIcon: const Icon(Icons.search, color: Color(0xFF94A3B8), size: 20),
                       filled: true,
-                      fillColor: _Pal.surface,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _Pal.line)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: _Pal.line)),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Row(
                     children: [
                       Expanded(child: _selector('Ámbito: Todos', _ambito, _opciones('ambito'), (v) => setState(() => _ambito = v))),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Expanded(child: _selector('Área: Todas', _area, _opciones('area'), (v) => setState(() => _area = v))),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text('${visibles.length} incidentes', style: const TextStyle(color: _Pal.muted, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Text('RESULTADOS ENCONTRADOS ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: _Pal.muted)),
+                      Text('(${visibles.length})', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: _Pal.blue)),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
                   if (visibles.isEmpty)
                     const Padding(
                       padding: EdgeInsets.only(top: 24),
@@ -226,59 +265,72 @@ class _Stats extends StatelessWidget {
     return filas;
   }
 
+  Widget _barraCard(String titulo, String etiqueta, Color etiquetaColor, Color etiquetaFondo, List<MapEntry<String, int>> filas, Color color) {
+    final maximo = filas.fold<int>(1, (m, e) => e.value > m ? e.value : m);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 3, offset: Offset(0, 1))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(titulo, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.6, color: Color(0xFF94A3B8)))),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(color: etiquetaFondo, borderRadius: BorderRadius.circular(6), border: Border.all(color: etiquetaColor.withValues(alpha: 0.25))),
+                child: Text(etiqueta, style: TextStyle(color: etiquetaColor, fontSize: 11, fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (filas.isEmpty) const Text('Sin incidentes registrados', style: TextStyle(color: _Pal.muted, fontSize: 12)),
+          ...filas.map((e) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text(e.key, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: _Pal.ink))),
+                        Text('${e.value}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                        const SizedBox(width: 4),
+                        Text(e.value == 1 ? 'caso' : 'casos', style: const TextStyle(color: _Pal.muted, fontSize: 12)),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(99),
+                      child: LinearProgressIndicator(
+                        value: e.value / maximo,
+                        minHeight: 8,
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final empresas = _contar((a) => a.empresa);
     final ambitos = _contar((a) => a.ambito);
     return Column(
       children: [
-        _barraCard('Incidentes por empresa', empresas, const Color(0xFFF59E0B)),
-        const SizedBox(height: 8),
-        _barraCard('Ámbito de consecuencias', ambitos, const Color(0xFF10B981)),
+        _barraCard('INCIDENTES POR EMPRESA', 'Seguimiento', const Color(0xFFB45309), const Color(0xFFFFFBEB), empresas, const Color(0xFFF59E0B)),
+        _barraCard('ÁMBITO DE CONSECUENCIAS', 'Prioridad HSE', const Color(0xFF047857), const Color(0xFFECFDF5), ambitos, const Color(0xFF10B981)),
       ],
-    );
-  }
-
-  Widget _barraCard(String titulo, List<MapEntry<String, int>> filas, Color color) {
-    final maximo = filas.fold<int>(1, (m, e) => e.value > m ? e.value : m);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: _Pal.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _Pal.line),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(titulo.toUpperCase(), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: _Pal.muted, letterSpacing: 0.4)),
-          const SizedBox(height: 8),
-          if (filas.isEmpty) const Text('Sin incidentes registrados', style: TextStyle(color: _Pal.muted, fontSize: 12)),
-          ...filas.map((e) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  children: [
-                    Expanded(flex: 4, child: Text(e.key, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12))),
-                    Expanded(
-                      flex: 5,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(99),
-                        child: LinearProgressIndicator(
-                          value: e.value / maximo,
-                          minHeight: 8,
-                          backgroundColor: const Color(0xFFF1F5F9),
-                          color: color,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text('${e.value}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
-                  ],
-                ),
-              )),
-        ],
-      ),
     );
   }
 }
@@ -291,37 +343,85 @@ class _Tarjeta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final alta = alerta.prioridad == 'alta';
+    final franja = alta ? const Color(0xFFF59E0B) : const Color(0xFF3B82F6);
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: _Pal.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _Pal.line),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [BoxShadow(color: Color(0x0A0F172A), blurRadius: 3, offset: Offset(0, 1))],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(alerta.codigo, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w800, fontSize: 12)),
-                const SizedBox(height: 4),
-                Text(alerta.titulo, style: const TextStyle(fontWeight: FontWeight.w700, color: _Pal.ink)),
-                if (alerta.detalle.isNotEmpty)
-                  Text(alerta.detalle, style: const TextStyle(color: _Pal.muted, fontSize: 12)),
-                const SizedBox(height: 6),
-                Text('$fecha · ${alerta.ambito} · ${alerta.area}', style: const TextStyle(color: _Pal.muted, fontSize: 12)),
-              ],
-            ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(width: 6, color: franja),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 8, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                _chip(alerta.codigo, const Color(0xFFF1F5F9), _Pal.muted),
+                                if (alerta.impacto.isNotEmpty) _chip(alerta.impacto, const Color(0xFFECFDF5), const Color(0xFF047857)),
+                                if (alerta.ambito.isNotEmpty) _chip(alerta.ambito, const Color(0xFFFFFBEB), const Color(0xFFB45309)),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            tooltip: 'Ver PDF',
+                            onPressed: onPdf,
+                            icon: const Icon(Icons.remove_red_eye_outlined, color: Color(0xFF94A3B8)),
+                          ),
+                        ],
+                      ),
+                      Text(alerta.titulo, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, height: 1.3, color: _Pal.ink)),
+                      const SizedBox(height: 10),
+                      const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.apartment_outlined, size: 16, color: Color(0xFF94A3B8)),
+                          const SizedBox(width: 6),
+                          Expanded(child: Text(alerta.empresa, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13))),
+                          Text(alerta.area, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today_outlined, size: 14, color: Color(0xFF94A3B8)),
+                          const SizedBox(width: 6),
+                          Text('$fecha • ${alerta.hora}', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          IconButton(
-            tooltip: 'Ver PDF',
-            onPressed: onPdf,
-            icon: const Icon(Icons.remove_red_eye_outlined, color: _Pal.blue),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+
+  Widget _chip(String texto, Color fondo, Color tinta) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(color: fondo, borderRadius: BorderRadius.circular(6)),
+      child: Text(texto, style: TextStyle(color: tinta, fontSize: 11, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -644,35 +744,93 @@ class _PdfAlertaPageState extends State<_PdfAlertaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final a = widget.alerta;
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
-      appBar: AppBar(
+      endDrawer: Drawer(
         backgroundColor: const Color(0xFF0F172A),
-        foregroundColor: Colors.white,
-        title: Text(widget.alerta.codigo),
-        actions: [
-          TextButton(onPressed: _bytes == null ? null : _ver, child: const Text('Ver', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800))),
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800))),
-        ],
-      ),
-      body: Center(
-        child: AspectRatio(
-          aspectRatio: 210 / 297,
-          child: Container(
-            color: Colors.white,
-            margin: const EdgeInsets.all(16),
-            child: _cargando
-                ? const Center(child: CircularProgressIndicator(color: _Pal.blue))
-                : _error != null
-                    ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!, textAlign: TextAlign.center)))
-                    : _esImagen && _bytes != null
-                        ? Image.memory(_bytes!, fit: BoxFit.contain)
-                        : _ruta != null
-                            ? PDFView(filePath: _ruta!)
-                            : const Center(child: Text('Pulse Ver para abrir el PDF.')),
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              const Text('FICHA TÉCNICA', style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: 0.6)),
+              const SizedBox(height: 12),
+              _dato('Código', a.codigo, destaque: true),
+              _dato('Título', a.titulo),
+              _dato('Unidad de negocio', a.unidad),
+              _dato('Área afectada', a.area),
+              _dato('Dueño del área', a.dueno),
+              _dato('Fecha y hora', '${_fecha(a.fecha)} · ${a.hora}'),
+              _dato('Impacto', a.impacto),
+              _dato('Empresa', a.empresa),
+              _dato('EORpV', a.eorpv),
+              const SizedBox(height: 8),
+              const Text('Consulta de solo lectura.', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12)),
+            ],
           ),
         ),
       ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0F172A),
+        foregroundColor: Colors.white,
+        title: Text(a.archivoNombre ?? a.codigo, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14)),
+        actions: [
+          Builder(
+            builder: (ctx) => IconButton(
+              tooltip: 'Ficha',
+              onPressed: () => Scaffold.of(ctx).openEndDrawer(),
+              icon: const Icon(Icons.info_outline),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Descargar',
+            onPressed: _bytes == null ? null : _ver,
+            icon: const Icon(Icons.download_outlined),
+          ),
+        ],
+      ),
+      body: LayoutBuilder(
+        builder: (context, caja) {
+          final altoLibre = caja.maxHeight - 16;
+          final anchoLibre = caja.maxWidth - 16;
+          final ancho = anchoLibre < altoLibre * 210 / 297 ? anchoLibre : altoLibre * 210 / 297;
+          final alto = ancho * 297 / 210;
+          return Center(
+            child: Container(
+              width: ancho,
+              height: alto,
+              color: Colors.white,
+              child: _cargando
+                  ? const Center(child: CircularProgressIndicator(color: _Pal.blue))
+                  : _error != null
+                      ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!, textAlign: TextAlign.center)))
+                      : _bytes != null
+                          ? VisorArchivoAlerta(bytes: _bytes!, imagen: _esImagen, ruta: _ruta)
+                          : const Center(child: Text('Sin archivo')),
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  Widget _dato(String etiqueta, String valor, {bool destaque = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(etiqueta.toUpperCase(), style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.4)),
+          const SizedBox(height: 2),
+          Text(valor.isEmpty ? '—' : valor, style: TextStyle(color: destaque ? const Color(0xFF38BDF8) : Colors.white, fontWeight: FontWeight.w700, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
+  String _fecha(String iso) {
+    final p = iso.split('-');
+    if (p.length != 3) return iso;
+    return '${p[2]}/${p[1]}/${p[0]}';
   }
 }

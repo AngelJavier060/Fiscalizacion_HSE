@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -117,6 +118,24 @@ public class PermisoService {
                         .build());
             }
         }
+    }
+
+    /**
+     * Mensaje si la suscripción del usuario no permite entrar. Null si puede seguir.
+     * El super administrador no caduca.
+     */
+    public String avisoSuscripcion(Usuario usuario) {
+        if (usuario.getRol() != null && "SUPER_ADMIN".equals(usuario.getRol().name())) {
+            return null;
+        }
+        LocalDate hoy = LocalDate.now();
+        if (usuario.getAccesoDesde() != null && hoy.isBefore(usuario.getAccesoDesde())) {
+            return "Su acceso aún no inicia. El periodo contratado comienza el " + usuario.getAccesoDesde() + ".";
+        }
+        if (usuario.getAccesoHasta() != null && hoy.isAfter(usuario.getAccesoHasta())) {
+            return "Su suscripción caducó. Notifique o pague la suscripción al administrador para volver a entrar.";
+        }
+        return null;
     }
 
     /** Comprobación puntual (1 consulta) de si el usuario tiene un módulo habilitado. */

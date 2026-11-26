@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
 import { UsuarioSidebarComponent } from '../shared/usuario-sidebar/usuario-sidebar.component';
+import { AlertasIncidentesService } from '../../../core/services/alertas-incidentes.service';
 
 @Component({
   selector: 'app-usuario-dashboard',
@@ -17,10 +18,12 @@ import { UsuarioSidebarComponent } from '../shared/usuario-sidebar/usuario-sideb
 export class DashboardComponent implements OnInit {
   private auth = inject(AuthService);
   private http = inject(HttpClient);
+  private alertasApi = inject(AlertasIncidentesService);
 
   user: any;
   totalDocumentos = 0;
   totalNotificaciones = 0;
+  totalAlertas = 0;
   documentos: any[] = [];
   filtroDocumento = '';
   loading = true;
@@ -53,7 +56,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get herramientasActivas(): number {
-    let n = 0;
+    let n = 1;
     if (this.tieneModulo('documentos')) n += 1;
     if (this.tieneModulo('ia')) n += 2;
     if (this.tieneModulo('recordatorios') || this.tieneModulo('notificaciones')) n += 1;
@@ -77,6 +80,10 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.user = this.auth.getUserData();
     this.cargar();
+    this.alertasApi.listar().subscribe({
+      next: (rows) => { this.totalAlertas = rows.length; },
+      error: () => { this.totalAlertas = 0; },
+    });
   }
 
   tieneModulo(codigo: string): boolean {

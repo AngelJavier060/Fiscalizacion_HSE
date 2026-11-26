@@ -232,15 +232,21 @@
 .doc-actions {
   margin-top: auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   padding-top: 8px;
   border-top: 1px solid rgba($outline-variant, 0.7);
+
+  .icon-action:first-of-type { margin-left: auto; }
 }
 
 .btn-outline-sm {
   display: inline-flex;
   align-items: center;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
   padding: 6px 12px;
   border-radius: 8px;
   border: 1px solid $outline-variant;
@@ -248,7 +254,6 @@
   text-decoration: none;
   font-size: 13px;
   font-weight: 650;
-  margin-right: auto;
 
   &:hover { background: $surface-container; }
 }
@@ -331,8 +336,62 @@
   padding: 24px;
 }
 
+.chip.vigente {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.version-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: $on-surface-variant;
+}
+
+.version-file {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.version-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid $outline-variant;
+    border-radius: 10px;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    span {
+      font-size: 12px;
+      color: $on-surface-variant;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
 .modal-card {
   width: min(480px, 100%);
+
+  &.modal-wide { width: min(640px, 100%); }
   background: $surface-container-lowest;
   border-radius: $radius-lg;
   box-shadow: $shadow-lg;

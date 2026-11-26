@@ -140,6 +140,66 @@
         </section>
       }
 
+      <section class="sa-panel sa-modulos">
+        <div class="sa-panel-head">
+          <div class="sa-panel-title">
+            <div class="sa-panel-icon indigo"><i class="fa-solid fa-toggle-on"></i></div>
+            <div>
+              <h3>Módulos por usuario</h3>
+              <p>Habilite solo lo contratado. Al vencer la fecha, la sesión se cierra y se pide pagar la suscripción.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="sa-modulos-form">
+          <label>
+            Usuario
+            <select [ngModel]="usuarioModuloId" (ngModelChange)="elegirUsuarioModulos($event)">
+              <option [ngValue]="null">Seleccione un usuario</option>
+              @for (u of usuariosContratables; track u.id) {
+                <option [ngValue]="u.id">{{ u.nombre }} · {{ u.email }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Inicio
+            <input type="date" [(ngModel)]="accesoDesde" [disabled]="!usuarioModuloId" />
+          </label>
+          <label>
+            Caducidad
+            <input type="date" [(ngModel)]="accesoHasta" [disabled]="!usuarioModuloId" />
+          </label>
+        </div>
+
+        @if (cargandoModulos) {
+          <p class="sa-modulos-note">Cargando módulos…</p>
+        } @else if (usuarioModuloId) {
+          @for (grupo of gruposModulo; track grupo.grupo) {
+            <div class="sa-modulos-grupo">
+              <h4>{{ grupo.grupo }}</h4>
+              <div class="sa-modulos-grid">
+                @for (mod of grupo.modulos; track mod.id) {
+                  <label class="sa-modulo">
+                    <input type="checkbox" [(ngModel)]="modulosMarcados[mod.id]" />
+                    <span>
+                      <strong>{{ mod.label }}</strong>
+                      <small>{{ mod.descripcion }}</small>
+                    </span>
+                  </label>
+                }
+              </div>
+            </div>
+          }
+          <div class="sa-modulos-actions">
+            <button type="button" class="sa-btn-primary" (click)="guardarModulos()" [disabled]="guardandoModulos">
+              {{ guardandoModulos ? 'Guardando…' : 'Guardar módulos y vigencia' }}
+            </button>
+            @if (mensajeModulos) { <span class="ok">{{ mensajeModulos }}</span> }
+            @if (errorModulos) { <span class="err">{{ errorModulos }}</span> }
+          </div>
+        }
+      </section>
+
       <section class="sa-mid">
         <article class="sa-panel">
           <div class="sa-panel-head">

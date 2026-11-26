@@ -2,6 +2,7 @@ package com.fiscalizacionhse.controller;
 
 import com.fiscalizacionhse.dto.request.DocumentoRequest;
 import com.fiscalizacionhse.dto.response.DocumentoResponse;
+import com.fiscalizacionhse.dto.response.DocumentoVersionResponse;
 import com.fiscalizacionhse.dto.response.PuntoClaveResponse;
 import com.fiscalizacionhse.dto.response.TextoCompletoResponse;
 import com.fiscalizacionhse.security.AuthPrincipalIds;
@@ -121,6 +122,35 @@ public class DocumentoController {
             Authentication authentication) {
         long usuarioId = AuthPrincipalIds.usuarioId(authentication);
         return ResponseEntity.ok(documentoService.actualizar(id, request, usuarioId));
+    }
+
+    /**
+     * Publica un PDF nuevo sobre el mismo documento. La versión anterior queda en el historial.
+     */
+    @PostMapping(value = "/{id}/versiones", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DocumentoResponse> publicarVersion(
+            @PathVariable Long id,
+            @RequestParam("archivo") MultipartFile archivo,
+            Authentication authentication) {
+        long usuarioId = AuthPrincipalIds.usuarioId(authentication);
+        return ResponseEntity.ok(documentoService.publicarNuevaVersion(id, archivo, usuarioId));
+    }
+
+    @GetMapping("/{id}/versiones")
+    public ResponseEntity<List<DocumentoVersionResponse>> listarVersiones(@PathVariable Long id) {
+        return ResponseEntity.ok(documentoService.listarVersiones(id));
+    }
+
+    @GetMapping("/{id}/versiones/{versionId}/archivo")
+    public ResponseEntity<Resource> verArchivoVersion(@PathVariable Long id, @PathVariable Long versionId) {
+        DocumentoService.PdfArchivo arch = documentoService.obtenerArchivoVersion(id, versionId);
+        ContentDisposition cd = ContentDisposition.inline()
+                .filename(arch.nombreArchivo(), StandardCharsets.UTF_8)
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, cd.toString())
+                .contentType(MediaType.parseMediaType(arch.tipoMime()))
+                .body(arch.resource());
     }
 
     /**

@@ -32,6 +32,8 @@ export interface LoginResponse {
   empresaNombre: string | null;
   /** Códigos de módulos habilitados para este usuario */
   modulos?: string[];
+  accesoDesde?: string | null;
+  accesoHasta?: string | null;
 }
 
 export interface UsuarioRequest {

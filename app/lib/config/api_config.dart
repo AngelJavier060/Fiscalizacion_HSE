@@ -1,7 +1,10 @@
-/// Configuración de la API para la app móvil y Flutter web.
-/// La app habla siempre con producción, no con el backend local.
+import 'package:flutter/foundation.dart';
+
+/// En Chrome local lee el mismo servidor que la web (donde están las alertas cargadas).
+/// En el teléfono y en el sitio publicado sigue usando producción.
 class ApiConfig {
   static const String productionBase = 'https://hse.improvement-solution.com/api/v1';
+  static const String localBase = 'http://localhost:8080/api/v1';
 
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 60);
@@ -37,11 +40,11 @@ class ApiConfig {
   static const String simuladorHistorial = '/api/simulador/historial';
   static const String simuladorPreguntas = '/api/simulador/preguntas';
 
-  static bool get isLocal => false;
+  static bool get isLocal => kIsWeb && Uri.base.host == 'localhost';
 
   static void useProduction() {}
 
-  static String get baseUrl => productionBase;
+  static String get baseUrl => isLocal ? localBase : productionBase;
 
   static Uri uri(String endpoint, {Map<String, String>? params}) {
     final parsed = Uri.parse('$baseUrl$endpoint');

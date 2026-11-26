@@ -24,6 +24,7 @@ export class UsuarioSidebarComponent {
 
   readonly items: NavItem[] = [
     { id: 'dashboard', label: 'Dashboard', faIcon: 'fa-solid fa-table-cells-large', route: '/usuario/dashboard' },
+    { id: 'alertas', label: 'Alertas', faIcon: 'fa-solid fa-triangle-exclamation', route: '/usuario/alertas' },
     { id: 'documentos', label: 'Documentos', faIcon: 'fa-regular fa-file-lines', route: '/usuario/documentos' },
     { id: 'notificaciones', label: 'Recordatorios', faIcon: 'fa-regular fa-bell', route: '/usuario/notificaciones' },
     {

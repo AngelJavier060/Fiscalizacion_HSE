@@ -30,6 +30,8 @@ public class DocumentoResponse {
     private Long cantidadPuntos;
     private Long cantidadPuntosRevisados;
     private Boolean activo;
+    private Integer versionActual;
+    private Long versionesAnteriores;
     private Long empresaId;
     private String empresaNombre;
     private Long subidoPorId;

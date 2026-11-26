@@ -37,13 +37,6 @@ public class ModuloAccessFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String modulo = moduloRequerido(request.getServletPath());
-
-        if (modulo == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             // sin autenticación válida: que lo resuelva la cadena de seguridad (401)
@@ -65,6 +58,21 @@ public class ModuloAccessFilter extends OncePerRequestFilter {
             return;
         }
 
+        String aviso = permisoService.avisoSuscripcion(usuario);
+        if (aviso != null) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(
+                    "{\"codigo\":\"SUSCRIPCION_VENCIDA\",\"mensaje\":\"" + aviso.replace("\"", "'") + "\"}");
+            return;
+        }
+
+        String modulo = moduloRequerido(request.getServletPath(), request.getMethod());
+        if (modulo == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if (!permisoService.tieneModulo(usuario, modulo)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json;charset=UTF-8");
@@ -80,7 +88,7 @@ public class ModuloAccessFilter extends OncePerRequestFilter {
      * Mapea el path (relativo al context-path) al código de módulo requerido.
      * Devuelve null cuando el endpoint no está restringido por módulo.
      */
-    private String moduloRequerido(String path) {
+    private String moduloRequerido(String path, String method) {
         if (path == null) {
             return null;
         }
@@ -93,7 +101,9 @@ public class ModuloAccessFilter extends OncePerRequestFilter {
         if (path.startsWith("/api/notificaciones")) return "notificaciones";
         if (path.startsWith("/api/ia/salud")) return null; // health check público
         if (path.startsWith("/api/ia")) return "ia";
-        if (path.startsWith("/api/alertas-incidentes")) return "conocimientos";
+        if (path.startsWith("/api/alertas-incidentes")) {
+            return "GET".equalsIgnoreCase(method) ? null : "conocimientos";
+        }
         if (path.startsWith("/api/simulador/admin")) return null;
         if (path.startsWith("/api/simulador")) return "simulador";
         // /api/me, /api/permisos y otros: sin restricción de módulo

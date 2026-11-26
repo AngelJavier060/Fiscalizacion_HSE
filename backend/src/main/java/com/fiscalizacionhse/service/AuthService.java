@@ -69,6 +69,8 @@ public class AuthService {
                 .empresaId(usuario.getEmpresa() != null ? usuario.getEmpresa().getId() : null)
                 .empresaNombre(usuario.getEmpresa() != null ? usuario.getEmpresa().getNombre() : null)
                 .modulos(permisoService.modulosEfectivos(usuario))
+                .accesoDesde(usuario.getAccesoDesde())
+                .accesoHasta(usuario.getAccesoHasta())
                 .build();
     }
 
@@ -91,7 +93,8 @@ public class AuthService {
             throw new BadRequestException("Su acceso aún no está habilitado.");
         }
         if (usuario.getAccesoHasta() != null && hoy.isAfter(usuario.getAccesoHasta())) {
-            throw new BadRequestException("Su acceso ha caducado. Contacte al administrador.");
+            throw new BadRequestException(
+                    "Su suscripción caducó. Notifique o pague la suscripción al administrador para volver a entrar.");
         }
     }
 }

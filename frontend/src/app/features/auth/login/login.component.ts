@@ -34,6 +34,12 @@ export class LoginComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
 
+    const aviso = sessionStorage.getItem('hse.avisoSuscripcion');
+    if (aviso) {
+      this.errorMessage = aviso;
+      sessionStorage.removeItem('hse.avisoSuscripcion');
+    }
+
     const desdeLanding = this.route.snapshot.queryParamMap.get('from') === 'landing';
     if (this.authService.isAuthenticated() && !desdeLanding) {
       this.redirigirSegunRol();

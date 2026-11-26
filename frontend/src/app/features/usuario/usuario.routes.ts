@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { AlertasUsuarioComponent } from './alertas/alertas-usuario.component';
 import { DocumentoViewComponent } from './documentos/documento-view/documento-view.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 import { IaUsuarioComponent } from './ia/ia-usuario.component';
@@ -10,6 +11,7 @@ import { SimuladorResultadoComponent } from '../shared/simulador/simulador-resul
 
 export const usuarioRoutes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
+  { path: 'alertas', component: AlertasUsuarioComponent },
   { path: 'documentos', component: DocumentoViewComponent },
   { path: 'notificaciones', component: NotificacionesComponent },
   { path: 'ia', component: IaUsuarioComponent },

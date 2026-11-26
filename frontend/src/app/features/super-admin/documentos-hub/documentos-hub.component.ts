@@ -36,6 +36,15 @@ export class DocumentosHubComponent implements OnInit, OnDestroy {
   guardandoEdicion = false;
   errorEdicion: string | null = null;
 
+  docActualizando: any = null;
+  archivoVersion: File | null = null;
+  guardandoVersion = false;
+  errorVersion: string | null = null;
+
+  docHistorial: any = null;
+  versiones: any[] = [];
+  cargandoHistorial = false;
+
   private pollTimer?: ReturnType<typeof setInterval>;
 
   get nombreUsuario(): string {
@@ -147,6 +156,85 @@ export class DocumentosHubComponent implements OnInit, OnDestroy {
     this.descripcionEditada = '';
     this.guardandoEdicion = false;
     this.errorEdicion = null;
+  }
+
+  abrirActualizar(doc: any): void {
+    this.docActualizando = doc;
+    this.archivoVersion = null;
+    this.errorVersion = null;
+    this.guardandoVersion = false;
+  }
+
+  cerrarActualizar(): void {
+    if (this.guardandoVersion) return;
+    this.docActualizando = null;
+    this.archivoVersion = null;
+    this.errorVersion = null;
+  }
+
+  elegirPdfVersion(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.archivoVersion = file && file.name.toLowerCase().endsWith('.pdf') ? file : null;
+    this.errorVersion = file && !this.archivoVersion ? 'Solo se acepta un archivo PDF.' : null;
+  }
+
+  publicarVersion(): void {
+    if (!this.docActualizando || !this.archivoVersion) {
+      this.errorVersion = 'Elija el PDF de la nueva versión.';
+      return;
+    }
+    const doc = this.docActualizando;
+    const datos = new FormData();
+    datos.append('archivo', this.archivoVersion);
+    this.guardandoVersion = true;
+    this.errorVersion = null;
+    this.http.post(`${environment.apiUrl}/documentos/${doc.id}/versiones`, datos).subscribe({
+      next: (actualizado: any) => {
+        const idx = this.documentos.findIndex((d) => d.id === doc.id);
+        if (idx !== -1) this.documentos[idx] = { ...this.documentos[idx], ...actualizado };
+        this.guardandoVersion = false;
+        this.cerrarActualizar();
+        this.actualizarPoll();
+      },
+      error: (err) => {
+        this.guardandoVersion = false;
+        this.errorVersion = err?.error?.mensaje || err?.error?.message || 'No se pudo publicar la versión.';
+      },
+    });
+  }
+
+  abrirHistorial(doc: any): void {
+    this.docHistorial = doc;
+    this.versiones = [];
+    this.cargandoHistorial = true;
+    this.http.get<any[]>(`${environment.apiUrl}/documentos/${doc.id}/versiones`).subscribe({
+      next: (lista) => {
+        this.versiones = lista || [];
+        this.cargandoHistorial = false;
+      },
+      error: () => {
+        this.cargandoHistorial = false;
+      },
+    });
+  }
+
+  cerrarHistorial(): void {
+    this.docHistorial = null;
+    this.versiones = [];
+  }
+
+  verVersion(version: any): void {
+    if (!this.docHistorial) return;
+    this.http
+      .get(`${environment.apiUrl}/documentos/${this.docHistorial.id}/versiones/${version.id}/archivo`, { responseType: 'blob' })
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank', 'noopener');
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+        },
+      });
   }
 
   guardarEdicion(): void {

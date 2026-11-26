@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/empresas/**").hasRole("SUPER_ADMIN")
                 .requestMatchers("/api/auditoria/**").hasRole("SUPER_ADMIN")
                 .requestMatchers("/api/permisos/**").hasRole("SUPER_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/alertas-incidentes/**")
+                    .hasAnyRole("SUPER_ADMIN", "ADMIN_EMPRESA", "USUARIO")
                 .requestMatchers("/api/alertas-incidentes/**").hasRole("SUPER_ADMIN")
 
                 // Admin Empresa (y Super Admin)

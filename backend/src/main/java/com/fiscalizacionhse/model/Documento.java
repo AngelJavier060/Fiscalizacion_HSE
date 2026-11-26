@@ -73,6 +73,11 @@ public class Documento {
     @Builder.Default
     private Boolean activo = true;
 
+    /** Versión que se muestra en la biblioteca. Las anteriores viven en documento_versiones. */
+    @Column(name = "version_actual", nullable = false)
+    @Builder.Default
+    private Integer versionActual = 1;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "empresa_id", nullable = false)
     private Empresa empresa;

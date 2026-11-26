@@ -145,6 +145,17 @@
         </div>
 
         <div class="ud-shortcut-grid">
+          <a routerLink="/usuario/alertas" class="ud-shortcut amber">
+            <div class="ud-shortcut-body">
+              <div class="ud-shortcut-icon amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div>
+                <h4>Alertas de incidentes</h4>
+                <p>{{ totalAlertas }} alertas para consultar. Indicadores, búsqueda y PDF. Solo lectura.</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right ud-shortcut-arrow"></i>
+          </a>
+
           @if (tieneModulo('documentos')) {
             <a routerLink="/usuario/documentos" class="ud-shortcut">
               <div class="ud-shortcut-body">

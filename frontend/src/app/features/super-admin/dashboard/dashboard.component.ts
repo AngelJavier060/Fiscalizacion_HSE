@@ -1,5 +1,6 @@
 ﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -9,6 +10,8 @@ import { UsuarioService } from '../../../core/services/usuario.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { PermisosTrabajoService } from '../../../core/services/permisos-trabajo.service';
+import { ModuloGrupo, PermisosService } from '../../../core/services/permisos.service';
+import { Usuario } from '../../../core/models/usuario.model';
 import { environment } from '../../../../environments/environment';
 
 interface SystemMetric {
@@ -30,7 +33,7 @@ interface ActividadItem {
 @Component({
   selector: 'app-super-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, SuperAdminSidebarComponent],
+  imports: [CommonModule, FormsModule, RouterModule, SuperAdminSidebarComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss', './sa-dashboard.scss'],
 })
@@ -40,6 +43,7 @@ export class DashboardComponent implements OnInit {
   private authService   = inject(AuthService);
   private http          = inject(HttpClient);
   private permisosService = inject(PermisosTrabajoService);
+  private modulosPermisos = inject(PermisosService);
 
   // â”€â”€ Estado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   cargandoStats    = true;
@@ -51,6 +55,17 @@ export class DashboardComponent implements OnInit {
   registrosAuditoria = 0;
   totalPermisos = 0;
   permisosVigentes = 0;
+
+  usuariosContratables: Usuario[] = [];
+  usuarioModuloId: number | null = null;
+  accesoDesde = '';
+  accesoHasta = '';
+  modulosMarcados: Record<string, boolean> = {};
+  cargandoModulos = false;
+  guardandoModulos = false;
+  mensajeModulos = '';
+  errorModulos = '';
+  readonly gruposModulo: ModuloGrupo[] = this.modulosGrupos();
 
   // â”€â”€ MÃ©tricas calculadas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   get pctEmpresasActivas(): number {
@@ -120,6 +135,7 @@ export class DashboardComponent implements OnInit {
 
         this.totalUsuarios   = listaUsuarios.length;
         this.usuariosActivos = listaUsuarios.filter((u: { activo?: boolean }) => u.activo).length;
+        this.usuariosContratables = listaUsuarios.filter((u: Usuario) => u.rol !== 'SUPER_ADMIN');
 
         this.registrosAuditoria = auditoria?.total ?? 0;
 
@@ -144,6 +160,72 @@ export class DashboardComponent implements OnInit {
         this._buildActividadFallback();
       },
     });
+  }
+
+  elegirUsuarioModulos(id: number | null): void {
+    this.usuarioModuloId = id;
+    this.mensajeModulos = '';
+    this.errorModulos = '';
+    this.modulosMarcados = {};
+    const usuario = this.usuariosContratables.find((u) => u.id === id);
+    this.accesoDesde = (usuario?.accesoDesde || '').slice(0, 10);
+    this.accesoHasta = (usuario?.accesoHasta || '').slice(0, 10);
+    if (!id) return;
+    this.cargandoModulos = true;
+    this.modulosPermisos.getAcceso(id).subscribe({
+      next: (acceso) => {
+        this.modulosMarcados = { ...acceso.modulos };
+        this.cargandoModulos = false;
+      },
+      error: () => {
+        this.cargandoModulos = false;
+        this.errorModulos = 'No se pudieron cargar los módulos de este usuario.';
+      },
+    });
+  }
+
+  guardarModulos(): void {
+    const usuario = this.usuariosContratables.find((u) => u.id === this.usuarioModuloId);
+    if (!usuario) {
+      this.errorModulos = 'Elija un usuario.';
+      return;
+    }
+    if (this.accesoDesde && this.accesoHasta && this.accesoHasta < this.accesoDesde) {
+      this.errorModulos = 'La caducidad no puede ser anterior al inicio.';
+      return;
+    }
+    this.guardandoModulos = true;
+    this.errorModulos = '';
+    this.mensajeModulos = '';
+    forkJoin({
+      usuario: this.usuarioService.actualizar(usuario.id, {
+        nombre: usuario.nombre,
+        email: usuario.email,
+        rol: usuario.rol,
+        empresaId: usuario.empresaId,
+        accesoDesde: this.accesoDesde || null,
+        accesoHasta: this.accesoHasta || null,
+      }),
+      acceso: this.modulosPermisos.guardarAcceso(usuario.id, {
+        modo: 'custom',
+        modulos: this.modulosMarcados,
+      }),
+    }).subscribe({
+      next: ({ usuario: actualizado }) => {
+        const idx = this.usuariosContratables.findIndex((u) => u.id === actualizado.id);
+        if (idx !== -1) this.usuariosContratables[idx] = { ...this.usuariosContratables[idx], ...actualizado };
+        this.guardandoModulos = false;
+        this.mensajeModulos = 'Módulos y vigencia guardados. El usuario solo verá lo marcado.';
+      },
+      error: (err) => {
+        this.guardandoModulos = false;
+        this.errorModulos = err?.error?.mensaje || 'No se pudo guardar.';
+      },
+    });
+  }
+
+  private modulosGrupos(): ModuloGrupo[] {
+    return this.modulosPermisos.grupos.filter((g) => g.grupo !== 'Administración');
   }
 
   // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

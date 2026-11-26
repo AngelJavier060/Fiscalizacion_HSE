@@ -10,7 +10,11 @@ import com.fiscalizacionhse.model.Documento;
 import com.fiscalizacionhse.model.Empresa;
 import com.fiscalizacionhse.model.PuntoClave;
 import com.fiscalizacionhse.model.Usuario;
+import com.fiscalizacionhse.dto.response.DocumentoVersionResponse;
+import com.fiscalizacionhse.model.DocumentoVersion;
 import com.fiscalizacionhse.repository.DocumentoRepository;
+import com.fiscalizacionhse.repository.DocumentoVersionRepository;
+import com.fiscalizacionhse.repository.EmbeddingDocumentoRepository;
 import com.fiscalizacionhse.repository.EmpresaRepository;
 import com.fiscalizacionhse.repository.PuntoClaveRepository;
 import com.fiscalizacionhse.repository.UsuarioRepository;
@@ -47,6 +51,8 @@ public class DocumentoService {
     public record PdfArchivo(Resource resource, String nombreArchivo, String tipoMime) {}
 
     private final DocumentoRepository documentoRepository;
+    private final DocumentoVersionRepository documentoVersionRepository;
+    private final EmbeddingDocumentoRepository embeddingDocumentoRepository;
     private final PuntoClaveRepository puntoClaveRepository;
     private final EmpresaRepository empresaRepository;
     private final UsuarioRepository usuarioRepository;
@@ -369,6 +375,114 @@ public class DocumentoService {
     }
 
     /**
+     * Sustituye el PDF vigente. El archivo anterior queda en el historial y la ficha
+     * sigue siendo la misma, ahora con la versión nueva.
+     */
+    @org.springframework.cache.annotation.CacheEvict(value = "textoCompleto", key = "#id")
+    @Transactional
+    public DocumentoResponse publicarNuevaVersion(Long id, MultipartFile archivo, Long actorUsuarioId) {
+        if (archivo == null || archivo.isEmpty()) {
+            throw new BadRequestException("Debe adjuntar el PDF de la nueva versión");
+        }
+        if (!esPdfValido(archivo)) {
+            throw new BadRequestException("Solo se permiten archivos PDF");
+        }
+        Documento documento = buscar(id);
+        if (!Boolean.TRUE.equals(documento.getActivo())) {
+            throw new BadRequestException("El documento no está disponible");
+        }
+        if (extraccionEnCurso(documento)) {
+            throw new BadRequestException("El documento se está extrayendo ahora. Espere a que termine para publicar otra versión.");
+        }
+
+        int vigente = documento.getVersionActual() != null ? documento.getVersionActual() : 1;
+        Usuario actor = usuarioActor(actorUsuarioId);
+        documentoVersionRepository.save(DocumentoVersion.builder()
+                .documento(documento)
+                .numeroVersion(vigente)
+                .titulo(documento.getTitulo())
+                .descripcion(documento.getDescripcion())
+                .archivoNombre(documento.getArchivoNombre())
+                .archivoTipo(documento.getArchivoTipo() != null ? documento.getArchivoTipo() : "application/pdf")
+                .archivoTamano(documento.getArchivoTamano() != null ? documento.getArchivoTamano() : 0L)
+                .rutaArchivo(documento.getRutaArchivo())
+                .reemplazadoPor(actor)
+                .build());
+
+        String rutaNueva = pdfService.guardarArchivo(archivo);
+        puntoClaveRepository.deleteByDocumentoId(documento.getId());
+        embeddingDocumentoRepository.deleteByDocumentoId(documento.getId());
+
+        documento.setArchivoNombre(archivo.getOriginalFilename() != null ? archivo.getOriginalFilename() : documento.getArchivoNombre());
+        documento.setArchivoTipo(archivo.getContentType() != null ? archivo.getContentType() : "application/pdf");
+        documento.setArchivoTamano(archivo.getSize());
+        documento.setRutaArchivo(rutaNueva);
+        documento.setVersionActual(vigente + 1);
+        documento.setTextoExtraido(null);
+        documento.setTextoTraducido(null);
+        documento.setIdiomaDetectado(null);
+        documento.setRequiereTraduccion(false);
+        documento.setTraducido(false);
+        documento.setPuntosGeneradosIa(false);
+        documento.setEstadoProcesamiento("PROCESANDO");
+        documento.setErrorProcesamiento(null);
+        documento = documentoRepository.save(documento);
+
+        extraccionProgreso.enCola(documento.getId());
+        auditoriaService.registrar(
+                actor, documento.getEmpresa(), "NUEVA_VERSION_DOCUMENTO", "Documento",
+                documento.getId(),
+                "Versión " + documento.getVersionActual() + " publicada. La v" + vigente + " quedó en el historial.",
+                null);
+        eventPublisher.publishEvent(new DocumentoSubidoEvent(documento.getId(), actorUsuarioId));
+        return toResponse(documento);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DocumentoVersionResponse> listarVersiones(Long documentoId) {
+        buscar(documentoId);
+        return documentoVersionRepository.findByDocumentoIdOrderByNumeroVersionDesc(documentoId)
+                .stream()
+                .map(v -> DocumentoVersionResponse.builder()
+                        .id(v.getId())
+                        .documentoId(documentoId)
+                        .numeroVersion(v.getNumeroVersion())
+                        .titulo(v.getTitulo())
+                        .descripcion(v.getDescripcion())
+                        .archivoNombre(v.getArchivoNombre())
+                        .archivoTamano(v.getArchivoTamano())
+                        .reemplazadoPorNombre(v.getReemplazadoPor() != null ? v.getReemplazadoPor().getNombre() : null)
+                        .createdAt(v.getCreatedAt())
+                        .build())
+                .toList();
+    }
+
+    public PdfArchivo obtenerArchivoVersion(Long documentoId, Long versionId) {
+        DocumentoVersion version = documentoVersionRepository.findByIdAndDocumentoId(versionId, documentoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Versión de documento", versionId));
+        Path path = Path.of(version.getRutaArchivo());
+        if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            throw new ResourceNotFoundException("Archivo PDF de la versión no encontrado en el servidor");
+        }
+        String tipo = version.getArchivoTipo() != null && !version.getArchivoTipo().isBlank()
+                ? version.getArchivoTipo()
+                : "application/pdf";
+        return new PdfArchivo(new FileSystemResource(path.toFile()), version.getArchivoNombre(), tipo);
+    }
+
+    private boolean extraccionEnCurso(Documento documento) {
+        if (!"PROCESANDO".equals(documento.getEstadoProcesamiento())) {
+            return false;
+        }
+        if (documento.getUpdatedAt() == null
+                || !documento.getUpdatedAt().isAfter(LocalDateTime.now().minusMinutes(MINUTOS_PROCESAMIENTO_ACTIVO))) {
+            return false;
+        }
+        var prog = extraccionProgreso.consultar(documento.getId());
+        return prog != null && "EXTRAYENDO".equals(prog.getFase()) && prog.getPaginaActual() > 0;
+    }
+
+    /**
      * Eliminar documento (borrado lógico)
      */
     @Transactional
@@ -382,7 +496,9 @@ public class DocumentoService {
                 actor, documento.getEmpresa(), "ELIMINAR_DOCUMENTO", "Documento",
                 documento.getId(), "Documento eliminado: " + documento.getTitulo(), null);
 
-        // Eliminar archivo físico después de confirmar la auditoría en la misma transacción
+        for (DocumentoVersion version : documentoVersionRepository.findByDocumentoIdOrderByNumeroVersionDesc(documento.getId())) {
+            pdfService.eliminarArchivo(version.getRutaArchivo());
+        }
         pdfService.eliminarArchivo(documento.getRutaArchivo());
     }
 
@@ -1153,6 +1269,8 @@ public class DocumentoService {
                 .textoListo(d.getTextoExtraido() != null && !d.getTextoExtraido().isBlank())
                 .cantidadPuntos(cantPuntos)
                 .cantidadPuntosRevisados(cantPuntosRevisados)
+                .versionActual(d.getVersionActual() != null ? d.getVersionActual() : 1)
+                .versionesAnteriores(documentoVersionRepository.countByDocumentoId(d.getId()))
                 .empresaId(d.getEmpresa().getId())
                 .empresaNombre(d.getEmpresa().getNombre())
                 .subidoPorId(d.getSubidoPor().getId())

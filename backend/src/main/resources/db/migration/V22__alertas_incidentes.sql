@@ -1,6 +1,6 @@
 -- Alertas de incidentes registradas desde Super Admin.
 
-CREATE TABLE alertas_incidentes (
+CREATE TABLE IF NOT EXISTS alertas_incidentes (
     id                    BIGSERIAL PRIMARY KEY,
     codigo                VARCHAR(80)  NOT NULL,
     titulo                VARCHAR(500) NOT NULL,
@@ -26,5 +26,5 @@ CREATE TABLE alertas_incidentes (
     CONSTRAINT ck_alertas_prioridad CHECK (prioridad IN ('alta', 'media'))
 );
 
-CREATE INDEX idx_alertas_incidentes_fecha ON alertas_incidentes (fecha DESC);
-CREATE INDEX idx_alertas_incidentes_ambito ON alertas_incidentes (ambito);
+CREATE INDEX IF NOT EXISTS idx_alertas_incidentes_fecha ON alertas_incidentes (fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_alertas_incidentes_ambito ON alertas_incidentes (ambito);
